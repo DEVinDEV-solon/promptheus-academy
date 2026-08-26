@@ -15,21 +15,30 @@ set "OPEN=1"
 if /i "%~1"=="--no-open" set "OPEN=0"
 if /i "%~1"=="--setup-sprache" goto setup_sprache
 
-rem --- PHP vorhanden? --------------------------------------------
-rem  Reihenfolge: 1. PATH   2. C:\php8.5   3. werkzeuge\php (auto)
+rem --- PHP suchen ------------------------------------------------
+rem  Reihenfolge: 1. werkzeuge\php8.5 (verlaesslich, mitgeliefert)
+rem               2. C:\php8.5
+rem               3. PHP im PATH
+rem  Die mitgelieferte PHP hat VORRANG und ist die einzige, die
+rem  garantiert pdo_sqlite + sqlite3 enthaelt (die PATH-PHP oft
+rem  nicht - genau das war der Fehler).
 set "PHP_BIN="
-where php >nul 2>&1
-if not errorlevel 1 set "PHP_BIN=php"
-if not defined PHP_BIN if exist "C:\php8.5\php.exe" set "PHP_BIN=C:\php8.5\php.exe"
-
-rem --- Automatisches PHP (werkzeuge\php8.5) ----------------------
-rem  Ein Vorhandenes nutzen, sonst zuerst herunterladen.
-if not defined PHP_BIN (
-  call :auto_php
+set "PHP_EXT="
+if not defined PHP_BIN if exist "%~dp0werkzeuge\php8.5\php.exe" (
+  set "PHP_BIN=%~dp0werkzeuge\php8.5\php.exe"
+  set "PHP_EXT=%~dp0werkzeuge\php8.5\ext"
 )
+if not defined PHP_BIN call :auto_php
+if not defined PHP_BIN if exist "C:\php8.5\php.exe" (
+  set "PHP_BIN=C:\php8.5\php.exe"
+  set "PHP_EXT=C:\php8.5\ext"
+)
+if not defined PHP_BIN where php >nul 2>&1
+if not defined PHP_BIN if not errorlevel 1 set "PHP_BIN=php"
 if not defined PHP_BIN goto kein_php
-rem  Sicherstellen, dass die Erweiterungen wirklich vorhanden sind.
-call :php_beheben
+rem  Ohne eigenes ext-Verzeichnis (PATH-PHP) kein extension_dir setzen.
+if defined PHP_EXT set "PHP_EXT_FLAG=-d extension_dir=\"%PHP_EXT%\""
+if not defined PHP_EXT set "PHP_EXT_FLAG="
 
 rem --- .env anlegen, falls sie fehlt -----------------------------
 if not exist ".env" copy /y ".env.example" ".env" >nul 2>&1
@@ -70,7 +79,7 @@ if defined SPRACHE_HINWEIS (
 )
 if "%OPEN%"=="1" start "" "http://127.0.0.1:%PORT%/"
 
-%PHP_BIN% -d extension_dir="%~dp0werkzeuge\php8.5\ext" -d extension=pdo_sqlite -d extension=sqlite3 -d max_execution_time=0 -d memory_limit=512M -d log_errors=1 -d error_log="%~dp0data\logs\php_error.log" -S 127.0.0.1:%PORT% -t "%~dp0." "%~dp0router.php"
+%PHP_BIN% %PHP_EXT_FLAG% -d extension=pdo_sqlite -d extension=sqlite3 -d max_execution_time=0 -d memory_limit=512M -d log_errors=1 -d error_log="%~dp0data\logs\php_error.log" -S 127.0.0.1:%PORT% -t "%~dp0." "%~dp0router.php"
 
 echo.
 echo   Der Server wurde beendet.
@@ -80,11 +89,13 @@ exit /b 0
 rem ---------------------------------------------------------------
 :schon_da
 echo.
-echo   Auf Port %PORT% laeuft bereits ein Server - es wird nur das
-echo   Fenster geoeffnet, kein zweiter Server gestartet.
+echo   Auf Port %PORT% laeuft bereits ein Server.
+echo   Falls die Seite den Fehler "pdo_sqlite" zeigt, laeuft dort
+echo   noch ein alter Server mit einer kaputten PHP - dann bitte
+echo   das alte Fenster schliessen und die Batch erneut starten.
 echo.
 if "%OPEN%"=="1" start "" "http://127.0.0.1:%PORT%/"
-timeout /t 4 /nobreak >nul 2>&1
+timeout /t 6 /nobreak >nul 2>&1
 exit /b 0
 
 rem ---------------------------------------------------------------
@@ -146,11 +157,6 @@ if exist "%PHP_ORDNER%\php.exe" (
 )
 echo   FEHLER: entpacktiges Archiv ohne php.exe
 exit /b 1
-
-:php_beheben
-rem   Stellt sicher, dass pdo_sqlite und sqlite3 verfuegbar sind.
-rem   Bei der automatisierten PHP in werkzeuge\php8.5 ist das der Fall.
-exit /b 0
 
 rem ---------------------------------------------------------------
 :setup_sprache
