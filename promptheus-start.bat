@@ -36,9 +36,28 @@ if not defined PHP_BIN if exist "C:\php8.5\php.exe" (
 if not defined PHP_BIN where php >nul 2>&1
 if not defined PHP_BIN if not errorlevel 1 set "PHP_BIN=php"
 if not defined PHP_BIN goto kein_php
-rem  Ohne eigenes ext-Verzeichnis (PATH-PHP) kein extension_dir setzen.
-if defined PHP_EXT set "PHP_EXT_FLAG=-d extension_dir=\"%PHP_EXT%\""
-if not defined PHP_EXT set "PHP_EXT_FLAG="
+
+rem --- Selbsttest: pdo_sqlite wirklich verfuegbar? ---------------
+rem  Mit denselben Flags wie beim Server starten. Schlaegt es fehl,
+rem  wird die mitgelieferte PHP in werkzeuge\php8.5 erzwungen.
+call :ext_flags
+"%PHP_BIN%" %PHP_EXT_FLAG% -d extension=pdo_sqlite -d extension=sqlite3 -r "exit(in_array('sqlite',PDO::getAvailableDrivers())?0:1);" >nul 2>&1
+if errorlevel 1 (
+  echo.
+  echo   Gewaehlte PHP hat kein pdo_sqlite - lade die mitgelieferte PHP nach.
+  set "PHP_BIN="
+  set "PHP_EXT="
+  call :auto_php
+  if not defined PHP_BIN (
+    echo   Auch die mitgelieferte PHP fehlt. Bitte loesen:
+    echo   a) PHP nach C:\php8.5 legen ^(php.exe direkt im Ordner^)
+    echo   b) internetfaehige PHP nach werkzeuge\php8.5\ entpacken
+    pause
+    exit /b 1
+  )
+  call :ext_flags
+)
+echo   PHP mit pdo_sqlite ist bereit: %PHP_BIN%
 
 rem --- .env anlegen, falls sie fehlt -----------------------------
 if not exist ".env" copy /y ".env.example" ".env" >nul 2>&1
@@ -119,12 +138,23 @@ pause
 exit /b 1
 
 rem ===============================================================
+:ext_flags
+rem   Baut aus PHP_EXT das -d extension_dir-Flag; leeres -> kein Flag.
+if defined PHP_EXT (
+  set "PHP_EXT_FLAG=-d extension_dir=\"%PHP_EXT%\""
+) else (
+  set "PHP_EXT_FLAG="
+)
+exit /b 0
+
+rem ===============================================================
 :auto_php
 rem   Laedt die aktuellste PHP-Version automatisch nach
 rem   werkzeuge\php8.5  - sonst wird es nicht gefunden.
 set "PHP_ORDNER=%~dp0werkzeuge\php8.5"
 if exist "%PHP_ORDNER%\php.exe" (
   set "PHP_BIN=%PHP_ORDNER%\php.exe"
+  set "PHP_EXT=%PHP_ORDNER%\ext"
   exit /b 0
 )
 echo.
@@ -143,6 +173,7 @@ powershell -NoProfile -Command "Expand-Archive -Force '%PHP_ZIP%' '%PHP_ORDNER%'
 del /q "%PHP_ZIP%" >nul 2>&1
 if not exist "%PHP_ORDNER%\php.exe" goto auto_php_suche
 set "PHP_BIN=%PHP_ORDNER%\php.exe"
+set "PHP_EXT=%PHP_ORDNER%\ext"
 echo   PHP ist bereit: %PHP_BIN%
 exit /b 0
 
@@ -153,6 +184,7 @@ for /d %%D in ("%PHP_ORDNER%\php-*") do (
 )
 if exist "%PHP_ORDNER%\php.exe" (
   set "PHP_BIN=%PHP_ORDNER%\php.exe"
+  set "PHP_EXT=%PHP_ORDNER%\ext"
   exit /b 0
 )
 echo   FEHLER: entpacktiges Archiv ohne php.exe
