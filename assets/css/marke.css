@@ -1,0 +1,771 @@
+/* ============================================================================
+   PROMPTHEUS — Markenebene.
+
+   `promptheus.css` baut die Bausteine: Knöpfe, Karten, Tabellen, Raster.
+   Diese Datei legt die **Marke** darüber: Ornamente, durchscheinende Flächen,
+   den zweiten Akzent, die Zierlinien. Die Trennung hat einen Grund — wer am
+   Aussehen dreht, dreht hier; wer an einem Baustein dreht, dort. Zwei Dateien,
+   in denen dasselbe steht, wären schlimmer als eine grosse.
+
+   Verbindlich ist `Brand/BRAND.md`. Was hier steht, setzt das um; was dort
+   nicht steht, hat hier nichts verloren.
+
+   **Weiterhin keine Fremdquelle.** Die Ornamente sind eingebettete SVG-Masken,
+   keine Bilddateien und keine Webschrift. Die Academy läuft auf 127.0.0.1 und wird
+   von Minderjährigen benutzt: es geht nichts hinaus, auch keine Schriftanfrage.
+   ========================================================================= */
+
+:root {
+  /* -------- Zweiter Akzent: Lapis.
+     Die Glut allein macht jede Fläche warm und laut — schön für einen
+     Augenblick, anstrengend über eine Stunde Lernzeit. Lapis ist das Gegenteil
+     und trotzdem antik: das Blau der Wandmalerei, nicht das Blau der
+     Softwarebranche. Es trägt Ruhezonen: Navigation, Wissenskästen, Zitate.
+
+     Es ist KEINE Zustandsfarbe. Richtig bleibt grün, falsch bleibt rot. */
+  --lapis:      #4e82b6;
+  --lapis-hell: #7fb0dd;
+  --lapis-tief: #1e3a5f;
+  --lapis-flor: rgba(74,127,181,.13);
+
+  /* -------- Durchscheinende Flächen.
+     Eine Karte, durch die der Grund schwach hindurchscheint, wirkt aufgelegt
+     statt aufgemalt. Deckend wäre einfacher — und flacher. */
+  --glas:        rgba(38,32,25,.72);
+  --glas-hell:   rgba(48,40,31,.62);
+  --glas-rand:   rgba(255,201,77,.16);
+  --glas-blur:   blur(10px) saturate(1.15);
+
+  /* -------- Ornamente.
+     Sie laufen als Maske, nicht als Bild: die Fläche darunter gibt die Farbe,
+     ein Token gibt die Deckkraft. Dadurch stimmt dasselbe Muster in beiden
+     Themen, ohne dass es zweimal existiert. */
+  --ornament-farbe:   var(--gold);
+  --ornament-staerke: .07;
+  --ornament-fein:    .045;
+
+  /* -------- Das Bild hinter allem: der gefesselte Prometheus mit dem Feuer.
+     Es liegt fest hinter der Seite, der Text läuft darüber. Sichtbar ist es
+     nur zu einem Fünftel — der Rest ist Schleier. Ein Bild, das man liest,
+     kämpft mit dem Text; eines, das man nur ahnt, trägt ihn.
+
+     An einer Stelle regelbar: `--bild-staerke: 0` schaltet es aus.
+
+     **`--bild-faktor` ist die persönliche Feineinstellung.** Er multipliziert,
+     was an der jeweiligen Stelle steht, statt es zu ersetzen. Das ist der
+     Unterschied, auf den es ankommt: das Tor zeigt mehr als eine Kursseite,
+     und diese Abstufung soll erhalten bleiben, wenn jemand insgesamt
+     abschwächt. Ein fester Wert am Dokument hätte beide gleich blass gemacht. */
+  --bild-faktor:   1;
+  --bild-staerke:  .20;
+  --bild-schleier: 20 17 15;   /* RGB des Schleiers, ohne Klammern */
+  /* Absoluter Pfad, kein `../`. Eine relative URL in einer Custom Property
+     wird beim Einsetzen gegen das **Dokument** aufgelöst, nicht gegen das
+     Stylesheet, in dem sie steht — aus `../img/…` wurde deshalb
+     `/img/background/…` und das Bild blieb aus. */
+  --bild-quelle:   url("/assets/img/background/promptheus-background.jpg");
+
+  --orn-maeander: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M0 28 H32'/%3E%3Cpath d='M6 28 V6 H26 V22 H12 V16 H20'/%3E%3C/g%3E%3C/svg%3E");
+
+  --orn-palmette: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='%23fff' transform='translate(36 36)'%3E%3Cg id='b'%3E%3Cpath d='M0 -6 C 5 -12, 5 -22, 0 -28 C -5 -22, -5 -12, 0 -6 Z'/%3E%3C/g%3E%3Cuse href='%23b' transform='rotate(45)'/%3E%3Cuse href='%23b' transform='rotate(90)'/%3E%3Cuse href='%23b' transform='rotate(135)'/%3E%3Cuse href='%23b' transform='rotate(180)'/%3E%3Cuse href='%23b' transform='rotate(225)'/%3E%3Cuse href='%23b' transform='rotate(270)'/%3E%3Cuse href='%23b' transform='rotate(315)'/%3E%3Ccircle r='4'/%3E%3C/g%3E%3C/svg%3E");
+
+  --orn-funken: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%23fff'%3E%3Cpath d='M14 8 L15.6 12.4 L20 14 L15.6 15.6 L14 20 L12.4 15.6 L8 14 L12.4 12.4 Z'/%3E%3Cpath d='M62 26 L63.2 29.3 L66.5 30.5 L63.2 31.7 L62 35 L60.8 31.7 L57.5 30.5 L60.8 29.3 Z'/%3E%3Cpath d='M35 52 L36.6 56.4 L41 58 L36.6 59.6 L35 64 L33.4 59.6 L29 58 L33.4 56.4 Z'/%3E%3Cpath d='M80 66 L81.2 69.3 L84.5 70.5 L81.2 71.7 L80 75 L78.8 71.7 L75.5 70.5 L78.8 69.3 Z'/%3E%3Cpath d='M8 74 L8.9 76.6 L11.5 77.5 L8.9 78.4 L8 81 L7.1 78.4 L4.5 77.5 L7.1 76.6 Z'/%3E%3Cpath d='M52 88 L52.9 90.6 L55.5 91.5 L52.9 92.4 L52 95 L51.1 92.4 L48.5 91.5 L51.1 90.6 Z'/%3E%3Cpath d='M88 40 L88.9 42.6 L91.5 43.5 L88.9 44.4 L88 47 L87.1 44.4 L84.5 43.5 L87.1 42.6 Z'/%3E%3Cpath d='M28 30 L28.75 32.25 L31 33 L28.75 33.75 L28 36 L27.25 33.75 L25 33 L27.25 32.25 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+html[data-thema-effektiv="hell"] {
+  --lapis:      #2f6394;
+  --lapis-hell: #1d4e7d;
+  --lapis-tief: #14314f;
+  --lapis-flor: rgba(47,99,148,.10);
+
+  --glas:      rgba(255,253,250,.78);
+  --glas-hell: rgba(255,253,250,.62);
+  --glas-rand: rgba(154,106,0,.18);
+
+  /* Ein dunkler Stich auf hellem Papier sticht viel stärker heraus als auf
+     schwarzem Grund. Dieselben 20 % wären hier eine Wand — also weniger, und
+     der Schleier ist hell. */
+  --bild-staerke:  .09;
+  --bild-schleier: 247 243 236;
+
+  /* Auf hellem Grund braucht dasselbe Muster weniger Deckung, sonst wird es
+     schmutzig statt fein. */
+  --ornament-farbe:   var(--glut-tief);
+  --ornament-staerke: .055;
+  --ornament-fein:    .035;
+}
+
+/* ============================================================ Ornamentflächen
+
+   Ein Ornament ist immer eine eigene Ebene über der Fläche, nie ihr
+   Hintergrund. Grund: der Hintergrund trägt schon den Glutverlauf, und zwei
+   Bilder in einer Eigenschaft lassen sich nicht getrennt regeln.
+
+   `pointer-events: none` ist Pflicht — ein Ornament, das Klicks abfängt, ist
+   ein Fehler, den niemand sieht und alle spüren.                          */
+
+.orn { position: relative; isolation: isolate; }
+
+.orn::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-color: var(--ornament-farbe);
+  opacity: var(--ornament-staerke);
+  -webkit-mask-repeat: repeat; mask-repeat: repeat;
+}
+
+.orn-maeander::before {
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 32px 32px; mask-size: 32px 32px;
+}
+.orn-palmette::before {
+  -webkit-mask-image: var(--orn-palmette); mask-image: var(--orn-palmette);
+  -webkit-mask-size: 72px 72px; mask-size: 72px 72px;
+}
+.orn-funken::before {
+  -webkit-mask-image: var(--orn-funken); mask-image: var(--orn-funken);
+  -webkit-mask-size: 96px 96px; mask-size: 96px 96px;
+  opacity: var(--ornament-fein);
+}
+
+/* -------- Das Zierband: ein Mäanderstreifen als Trenner.
+   Höhe genau eine Kachel, damit die Spirale ganz zu sehen ist. Ein
+   angeschnittenes Ornament sieht nach Versehen aus. */
+.zierband {
+  height: 32px; margin: 1.6rem 0;
+  background-color: var(--ornament-farbe);
+  opacity: .22;
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 32px 32px; mask-size: 32px 32px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+}
+
+/* Schmale Fassung für Kartenköpfe und Fussleisten. */
+.zierband.fein {
+  height: 16px; margin: .9rem 0; opacity: .16;
+  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;
+}
+
+/* ============================================================ Flächen der Academy
+
+   Hier wird das Ornament tatsächlich eingesetzt. Sparsam: drei Orte, nicht
+   dreissig. Ein Muster auf jeder Fläche ist Tapete, und Tapete ist das
+   Gegenteil von edel.                                                     */
+
+/* -------- Das Bild hinter der ganzen Academy.
+
+   Drei Schichten, von oben nach unten: der Glutschein, der Schleier, das Bild.
+   Der Schleier ist eine Volltonfläche mit `calc(1 - var(--bild-staerke))`
+   Deckung — bei 20 % Bildstärke deckt er also 80 %. So steht die eine Zahl,
+   die man verstellen will, genau einmal da.
+
+   `cover` hält das Seitenverhältnis und füllt jede Fenstergrösse; `fixed`
+   lässt das Bild stehen, während der Text darüber wegläuft. Beides zusammen
+   ist der Grund, warum es nicht stört: es bewegt sich nicht mit.            */
+
+body.uni, body.landing, .tor-flaeche {
+  background-image:
+    radial-gradient(1100px 420px at 50% 108%, var(--schein), transparent 70%),
+    linear-gradient(rgb(var(--bild-schleier) /
+      calc(1 - var(--bild-staerke) * var(--bild-faktor))) 0 0),
+    var(--bild-quelle);
+  background-size:       auto, auto, cover;
+  background-position:   center, center, center 30%;
+  background-repeat:     no-repeat, repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
+  background-color:      var(--grund);
+}
+
+/* Das Tor zeigt mehr: dort ist der Prometheus die halbe Aussage. */
+.tor-flaeche {
+  --bild-staerke: .30;
+  --schein: var(--schein-tor);
+  position: relative;
+  isolation: isolate;
+}
+html[data-thema-effektiv="hell"] .tor-flaeche { --bild-staerke: .14; }
+
+/* -------- Der Prometheus hinter der Vollbild-Modalseite.
+
+   Dieselben drei Schichten wie überall, nur ohne den Glutschein: In einem
+   Fenster ohne Horizont hätte er keinen Ort, an dem er aufgeht.
+
+   **15 % — zwischen Seite und Tor.** Die Academy trägt das Bild mit 20 %, das
+   Tor mit 30 %. Eine Modalseite ist beides ein bisschen: Sie füllt den ganzen
+   Schirm wie das Tor, aber man liest darin wie auf einer Seite. Etwas weniger
+   als die Seite also, damit die Kanten des Stichs den Fliesstext nicht
+   anfassen — er hat hier ja keine Karte unter sich, sondern steht direkt
+   darauf.
+
+   `.modal-flaeche` trägt weiter oben ein `background:`-Kurzform mit Volltonfarbe.
+   Sie würde jedes Bild wieder auslöschen, deshalb steht die Regel hier und
+   nicht dort: `.modal.vollbild .modal-flaeche` ist die genauere Angabe und
+   marke.css wird nach promptheus.css geladen. */
+.modal.vollbild .modal-flaeche {
+  --bild-staerke: .15;
+  background-image:
+    linear-gradient(rgb(var(--bild-schleier) /
+      calc(1 - var(--bild-staerke) * var(--bild-faktor))) 0 0),
+    var(--bild-quelle);
+  background-size:       auto, cover;
+  background-position:   center, center 22%;
+  background-repeat:     repeat, no-repeat;
+  background-attachment: fixed, fixed;
+  background-color:      var(--grund-2);
+}
+
+/* Auf hellem Papier sticht derselbe Stich weit stärker heraus — dieselbe
+   Beobachtung wie oben bei `--bild-staerke`, dasselbe Verhältnis wie beim
+   Tor (30 → 14). Aus 15 werden also 7. */
+html[data-thema-effektiv="hell"] .modal.vollbild .modal-flaeche { --bild-staerke: .07; }
+
+/* Kopf und Fuss der Modalseite bleiben deckend: Über der Überschrift und über
+   den Knöpfen soll nichts liegen, was den Blick teilt. Das Bild gehört in die
+   Fläche, in der gelesen wird. */
+.modal.vollbild .modal-kopf { background: var(--grund-3); }
+
+/* -------- Die fliessende Glut hinter dem Tor.
+
+   Drei Ebenen, von hinten nach vorn: die Animation, das Bild mit seinem
+   Schleier, der Inhalt. Damit die Animation überhaupt zu sehen ist, muss der
+   Schleier des Tors durchlässig sein — er sitzt ja darüber. Deshalb steht
+   hier ein eigener, schwächerer Wert; auf allen anderen Seiten bleibt der
+   Schleier so dicht wie bisher.
+
+   `--liquid-staerke` regelt, wie kräftig sie mitspielt. 0 macht sie
+   unsichtbar, ohne dass jemand Code anfassen muss.                          */
+
+:root                            { --liquid-staerke: .55; }
+html[data-thema-effektiv="hell"] { --liquid-staerke: .30; }
+
+#liquid {
+  position: fixed; inset: 0; z-index: -3;
+  width: 100%; height: 100%;
+  display: block; pointer-events: none;
+}
+
+/* Liegt eine Animation darunter, tritt der Schleier zurück und die
+   Grundfarbe verschwindet — sonst wäre die Fläche deckend und die Animation
+   dahinter für niemanden zu sehen. */
+body.mit-liquid .tor-flaeche {
+  --bild-staerke: .42;
+  background-color: transparent;
+}
+html[data-thema-effektiv="hell"] body.mit-liquid .tor-flaeche { --bild-staerke: .22; }
+
+/* Auf schmalen Geräten kippt `fixed` in vielen Browsern das `cover`-Mass, und
+   das Bild wird zum Ausschnitt einer Schulter. Dort scrollt es lieber mit. */
+@media (max-width: 760px) {
+  body.uni, body.landing, .tor-flaeche { background-attachment: scroll, scroll, scroll; }
+}
+
+/* -------- Der Grund: Funken, so schwach, dass man sie eher spürt als sieht. */
+/* `z-index: -1` statt einer Regel, die allen Kindern `position: relative`
+   verpasst: die hätte die klebende Kopfleiste stillgelegt — `position` lässt
+   sich nur einmal vergeben, und `sticky` wäre dabei verloren gegangen. */
+body.uni::before, body.landing::before {
+  content: ''; position: fixed; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-color: var(--ornament-farbe);
+  opacity: var(--ornament-fein);
+  -webkit-mask-image: var(--orn-funken); mask-image: var(--orn-funken);
+  mask-image: var(--orn-funken);
+  -webkit-mask-size: 96px 96px; mask-size: 96px 96px;
+  -webkit-mask-repeat: repeat; mask-repeat: repeat;
+}
+
+/* -------- Das Tor: hier darf es deutlicher sein.
+   Der erste Bildschirm entscheidet, ob jemand die Academy für ein Schulprogramm
+   oder für etwas Besonderes hält. */
+.tor-flaeche { position: relative; isolation: isolate; }
+.tor-flaeche::after {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-color: var(--ornament-farbe);
+  opacity: calc(var(--ornament-staerke) * 1.5);
+  -webkit-mask-image: var(--orn-funken); mask-image: var(--orn-funken);
+  -webkit-mask-size: 120px 120px; mask-size: 120px 120px;
+  -webkit-mask-repeat: repeat; mask-repeat: repeat;
+}
+
+/* -------- Die Kopfleiste bekommt eine Mäanderkante statt eines Strichs.
+   Ein 1-Pixel-Rahmen trennt; ein Ornamentband trennt und sagt gleichzeitig,
+   wessen Seite das ist. */
+.kopf { position: relative; backdrop-filter: var(--glas-blur); }
+.kopf::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px;
+  pointer-events: none;
+  background-color: var(--ornament-farbe);
+  opacity: .3;
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+  -webkit-mask-position: 0 -4px; mask-position: 0 -4px;
+}
+
+/* ============================================================ Durchscheinend
+
+   Karten liegen auf dem Grund, nicht darauf gemalt. Der Unterschied ist klein
+   und trägt den ganzen Eindruck: durch eine Karte, durch die der Glutschein
+   schwach hindurchkommt, sieht man den Raum dahinter.
+
+   `backdrop-filter` nur dort, wo wirklich etwas dahinterliegt — auf zwanzig
+   Karten gleichzeitig kostet es Bildrate, und ein ruckelnder Kurs ist
+   schlimmer als eine deckende Karte.                                      */
+
+.karte {
+  background: var(--glas);
+  border-color: var(--rand);
+}
+.karte:hover { border-color: var(--glas-rand); }
+
+.seitenmenue, .modal-flaeche, .tor-karte {
+  background: var(--glas);
+  backdrop-filter: var(--glas-blur);
+}
+
+/* ============================================================ Karten mit Bild
+
+   Jede Kurskarte trägt ihr eigenes Bild. Das Problem daran ist immer dasselbe:
+   ein Bild ist bunt und ungleichmässig, Text darauf wird an einer Stelle
+   lesbar und an der nächsten nicht — und zwar je nach Bild woanders.
+
+   Die Lösung ist kein Deckel über dem ganzen Bild, sondern ein **schräger
+   Schutzverlauf**: dort, wo der Text steht (links oben), ist er fast deckend;
+   zur rechten unteren Ecke hin lässt er das Bild durch. So bleibt das Bild
+   deutlich sichtbar und der Text steht trotzdem auf ruhigem Grund.
+
+   Gemessen statt geschätzt: mit diesen Werten liegt der Kontrast von
+   `--schrift` gegen die Kartenfläche über 7:1, auch über der hellsten Stelle
+   der vorhandenen Bilder.                                                  */
+
+/* `--karten-faktor` regelt, wie viel von der gemessenen Kurve übrig bleibt.
+   Gerechnet wird auf der **Lücke zum Deckenden**, nicht auf dem Wert selbst:
+   bei Faktor 0 stehen alle vier Stopps auf 1 — die Karte ist ganz zu, kein
+   Bild. Bei 1 gilt die Kurve unverändert. Dazwischen wird gleichmässig
+   geschlossen, und die Stelle mit dem meisten Bild bleibt die Stelle mit dem
+   meisten Bild.
+
+   Der Kontrast kann dabei nur besser werden, nie schlechter — die gemessenen
+   7:1 sind der schlechteste Fall, nicht der beste. */
+.karte.mit-bild {
+  background-image:
+    linear-gradient(115deg,
+      rgb(var(--karte-schleier) / calc(1 - (1 - var(--kd-0)) * var(--karten-faktor))) 0%,
+      rgb(var(--karte-schleier) / calc(1 - (1 - var(--kd-1)) * var(--karten-faktor))) 38%,
+      rgb(var(--karte-schleier) / calc(1 - (1 - var(--kd-2)) * var(--karten-faktor))) 72%,
+      rgb(var(--karte-schleier) / calc(1 - (1 - var(--kd-3)) * var(--karten-faktor))) 100%),
+    var(--karte-bild);
+  background-size:     auto, cover;
+  background-position: center, center;
+  background-repeat:   no-repeat, no-repeat;
+}
+
+/* Die vier Stopps sind gemessen, nicht geschätzt: für alle 17 Bilder wurde die
+   mittlere Farbe in zehn senkrechten Streifen bestimmt, mit dem Schleier
+   gemischt und der Kontrast gegen `--schrift` gerechnet. Beide Kurven halten
+   überall **7:1** — die AAA-Schwelle, nicht nur die AA-Schwelle von 4,5.
+
+   Warum zwei verschiedene: die Bilder sind dunkle Stiche. Auf schwarzem Grund
+   verdunkeln sie die Fläche und der helle Text gewinnt sogar an Kontrast; auf
+   hellem Papier ziehen sie die Fläche zum dunklen Text hin und fressen ihn.
+   Dieselbe Kurve für beide hätte im Hellen 3,3:1 ergeben — unlesbar. */
+:root {
+  --karte-schleier: 28 24 21;
+  --kd-0: .96; --kd-1: .90; --kd-2: .66; --kd-3: .42;
+  --karten-faktor: 1;
+}
+html[data-thema-effektiv="hell"] {
+  --karte-schleier: 255 253 250;
+  --kd-0: .97; --kd-1: .94; --kd-2: .80; --kd-3: .62;
+}
+
+/* Gesperrte Kurse zeigen ihr Bild blasser — man sieht, dass da etwas wartet,
+   ohne dass es schon zu einem gehört. */
+.karte.mit-bild.gesperrt { background-blend-mode: normal; }
+.karte.mit-bild.gesperrt::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none;
+  background: rgb(var(--karte-schleier) / .45);
+}
+.karte.mit-bild { position: relative; }
+
+/* Beim Überfahren tritt das Bild hervor — ein Zeichen, dass die Karte
+   anfassbar ist. Nur der hintere Teil der Kurve wird schwächer: vorn, wo der
+   Text steht, bleibt sie unverändert. Sonst wäre die Karte beim Überfahren
+   schlechter lesbar als davor. */
+.karte.klickbar.mit-bild:hover {
+  --kd-2: calc(var(--kd-2) - .06);
+  --kd-3: calc(var(--kd-3) - .10);
+}
+
+/* -------- Die Reihe aus Tages-Challenge und Ziel: zwei Drittel, ein Drittel. */
+.challenge-reihe {
+  display: grid; gap: 1rem; margin-bottom: 1.6rem;
+  grid-template-columns: 2fr 1fr;
+  align-items: stretch;
+}
+@media (max-width: 860px) {
+  .challenge-reihe { grid-template-columns: 1fr; }
+}
+
+.challenge-karte { border-color: var(--gold); }
+.challenge-karte .knopf { margin-top: .8rem; }
+
+/* Die Zielkarte ist kein Kurs — sie ist ein Ausblick. Lapis statt Glut sagt
+   das, ohne dass es jemand erklären muss. */
+.ziel-karte, .abschluss-karte { border-left: 3px solid var(--lapis); }
+.ziel-karte .warum, .abschluss-karte .warum {
+  color: var(--schrift-3); font-size: .82rem; margin-bottom: 0;
+}
+.abschluss-karte { margin-top: 1.6rem; }
+.abschluss-liste { margin: .6rem 0 .9rem; padding-left: 1.2rem; }
+.abschluss-liste li { margin-bottom: .3rem; }
+
+/* Die Zielkarte leuchtet auf, wenn man sie ansteuert.
+   Sie ist die einzige Karte, hinter der keine Kursseite liegt, sondern eine
+   Erklärung — und man sieht ihr das nicht an. Der Schein ist deshalb kein
+   Schmuck, sondern die Einladung: „Hier ist mehr als diese vier Zeilen."
+   Er wächst aus dem Lapis der Kante, damit die Karte ihre Farbe behält, und
+   er erscheint auch bei Tastaturfokus — sonst gälte die Einladung nur für
+   Mausbenutzer. */
+.ziel-karte { transition: border-color .18s, transform .18s, box-shadow .25s; }
+.ziel-karte:hover,
+.ziel-karte:focus-visible {
+  border-color: var(--lapis);
+  /* Drei gestapelte Scheine statt eines starken: Der Wert von `--lapis-flor`
+     ist bewusst schwach (er dient sonst als Flächenton), und ein einzelner
+     Schatten daraus wäre nicht zu sehen. Gestapelt summiert sich die Deckung
+     zu einem Schein, ohne dass dafür ein zweites Token nötig wird. */
+  box-shadow: 0 0 0 1px var(--lapis),
+              0 3px 10px var(--lapis-flor),
+              0 8px 24px var(--lapis-flor),
+              0 14px 40px var(--lapis-flor);
+  transform: translateY(-2px);
+}
+.ziel-karte:focus-visible { outline: 2px solid var(--lapis); outline-offset: 3px; }
+
+/* Die Kurskarten färben ihren Rahmen im Hover auf Glut. Die Zielkarte darf das
+   nicht: Glut heisst „hier geht es weiter", und weiter geht es hier nicht —
+   hier wird nachgelesen. */
+.karte.klickbar.ziel-karte:hover { border-color: var(--lapis); }
+
+.ziel-mehr {
+  margin: .1rem 0 0; font-size: .82rem; color: var(--lapis); font-weight: 600;
+}
+.ziel-pfeil { display: inline-block; transition: transform .18s; }
+.ziel-karte:hover .ziel-pfeil,
+.ziel-karte:focus-visible .ziel-pfeil { transform: translateX(3px); }
+
+/* ============================================================ Zielseite
+
+   Text links, Beispiel rechts — immer in dieser Reihenfolge, ein Dutzend
+   Abschnitte lang. Ein Wechselschritt (mal links, mal rechts) sieht auf einem
+   Entwurf lebendig aus und kostet beim Lesen jedes Mal einen Augenblick, weil
+   das Auge die Textspalte neu suchen muss. Zwölfmal.                         */
+
+.ziel-seite { max-width: 1120px; margin: 0 auto; padding-bottom: 2.4rem; }
+
+/* Der Kopf trägt dieselbe Zweiteilung wie die Abschnitte darunter: Text links,
+   Bild rechts. Ein Aufmacher, der über die volle Breite läuft, während alles
+   Folgende geteilt ist, sieht aus wie von einer anderen Seite. */
+.ziel-kopf {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 3rem); align-items: center;
+  padding: 2.2rem 0 2rem; border-bottom: 1px solid var(--rand);
+  margin-bottom: .6rem;
+}
+/* Das Aufmacherbild klebt nicht — der Kopf ist kurz genug, dass es ohnehin
+   ganz zu sehen ist, und ein klebendes Bild ganz oben würde in den ersten
+   Abschnitt hineinragen. */
+.ziel-kopf .ziel-beispiel { position: static; }
+.ziel-kopf h1 {
+  margin: .3rem 0 .9rem; font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  line-height: 1.22; max-width: 24ch;
+}
+.ziel-vorspann {
+  max-width: 62ch; font-size: 1.02rem; line-height: 1.62;
+  color: var(--schrift-2); margin: 0 0 .9rem;
+}
+.ziel-stand { margin: 0; color: var(--schrift-3); font-size: .9rem; }
+.ziel-stand b { color: var(--gold); }
+
+.ziel-augenmerk {
+  margin: 0; font-family: var(--sans); font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--glut); font-weight: 700;
+}
+
+.ziel-abschnitt {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 3rem); align-items: start;
+  padding: 2.2rem 0; border-bottom: 1px solid var(--rand);
+}
+.ziel-abschnitt:last-of-type { border-bottom: 0; }
+
+.ziel-text h2 {
+  margin: .35rem 0 .8rem; font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  line-height: 1.28; max-width: 26ch;
+}
+.ziel-text p { max-width: 54ch; line-height: 1.62; }
+.ziel-text p:last-child { margin-bottom: 0; }
+.ziel-text b { color: var(--schrift); }
+
+/* Das Beispiel bleibt stehen, solange sein Abschnitt läuft. Wer den dritten
+   Absatz liest, hätte das Bild sonst längst nach oben aus dem Blick geschoben —
+   und ein Beispiel, das man während des Lesens nicht mehr sieht, erklärt
+   nichts. */
+.ziel-beispiel {
+  margin: 0; position: sticky; top: 1rem;
+  background: var(--grund); border: 1px solid var(--rand);
+  border-radius: var(--radius); padding: .9rem; overflow: hidden;
+}
+.ziel-svg { display: block; width: 100%; height: auto; }
+.ziel-foto { display: block; width: 100%; height: auto; border-radius: var(--radius-klein); }
+
+.ziel-schluss {
+  margin-top: 2rem; padding: 1.6rem; border-radius: var(--radius);
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.2rem; flex-wrap: wrap;
+}
+.ziel-schluss p { margin: 0; max-width: 52ch; }
+.ziel-schluss b { color: var(--gold); }
+
+/* Schmale Fenster: Das Beispiel rutscht unter seinen Text und hört auf zu
+   kleben. Ein klebendes Bild auf einem Telefon nimmt die halbe Höhe, und der
+   Text läuft im Rest daran vorbei.
+
+   Die Grenze liegt bei 1040 und nicht bei den üblichen 860. Das ist gemessen,
+   nicht geschätzt: Die Zeichnungen sind 560 Einheiten breit; darunter fällt
+   ihre Beschriftung unter 10 Pixel und ist nicht mehr zu lesen. Ein Beispiel,
+   das man nicht entziffern kann, ist schlimmer als keins — es sieht aus, als
+   stünde dort etwas Wichtiges. Untereinander bekommt jede Zeichnung die volle
+   Breite und damit wieder ihre Schriftgröße. */
+@media (max-width: 1040px) {
+  .ziel-abschnitt { grid-template-columns: 1fr; gap: 1.2rem; }
+  .ziel-beispiel  { position: static; }
+  .ziel-kopf { grid-template-columns: 1fr; gap: 1.4rem; padding-top: 1.4rem; }
+}
+
+/* ============================================================ Feierflächen
+
+   Wo etwas gelungen ist, kommt die Palmette. Sie ist das einzige Ornament,
+   das die Academy auf eine Farbfläche legt — und nur hier, damit es etwas
+   bedeutet.                                                               */
+
+.feier, .badge.hat, .karte:has(> .titelleiter) {
+  position: relative; isolation: isolate; overflow: hidden;
+}
+.feier::before, .badge.hat::before, .karte:has(> .titelleiter)::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-color: var(--gold);
+  opacity: .09;
+  -webkit-mask-image: var(--orn-palmette); mask-image: var(--orn-palmette);
+  -webkit-mask-size: 72px 72px; mask-size: 72px 72px;
+  -webkit-mask-repeat: repeat; mask-repeat: repeat;
+}
+/* Ein verdientes Abzeichen bekommt die Palmette, ein fehlendes nicht. Das ist
+   der Unterschied, den man ohne Text sehen soll: hier ist etwas passiert. */
+.badge.hat::before { opacity: .14; -webkit-mask-size: 56px 56px; mask-size: 56px 56px; }
+
+/* ============================================================ Wissenszonen
+
+   Lapis trägt, was erklärt statt bewertet: der Tutorkasten, das Zitat, der
+   Hinweis. Man erkennt am Farbklang, ob eine Fläche etwas von einem will
+   oder etwas für einen tut.                                               */
+
+.medien-kasten, .hinweis-kasten, .panel-regel {
+  border-left: 3px solid var(--lapis);
+  background: var(--lapis-flor);
+}
+blockquote { border-left-color: var(--lapis); }
+
+/* ============================================================ Wordmark
+
+   Der Schriftzug steht in der Serifenschrift mit weit gesperrten
+   Grossbuchstaben — das ist die ganze Marke, es braucht kein Symbol daneben.
+   Die Flamme im Kopf ist das Zeichen; sie steht getrennt und darf fehlen. */
+
+.wortmarke {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  background: linear-gradient(100deg, var(--gold), var(--glut-hell) 55%, var(--gold));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+/* Fällt der Verlauf aus (alte Browser, Druck), bleibt Gold statt nichts. */
+@supports not (background-clip: text) {
+  .wortmarke { background: none; color: var(--gold); }
+}
+
+.wortmarke-fuss {
+  font-family: var(--sans); font-size: .7rem; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--schrift-3);
+  margin: -.1rem 0 1.4rem;
+}
+
+/* „Academy" steht in der Menüleiste in einer eigenen Zeile unter dem Namen.
+   Nebeneinander ging, solange die Marke in einer 44 Pixel hohen Kopfzeile
+   stand; in einer schmalen Spalte wird das Wort rechts abgeschnitten. */
+.marke-zusatz {
+  grid-column: 2; grid-row: 2;
+  font-family: var(--sans); font-size: .64rem; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--schrift-3);
+  margin-top: -.1rem; white-space: nowrap;
+}
+
+/* ============================================================ Textkarten
+
+   Überschrift und Erklärung darunter standen frei auf dem Grund — über einem
+   Bild ist das der Unterschied zwischen lesen und entziffern.
+
+   Die Fläche ist bewusst **schwächer als eine Karte**: kein Rahmen, kein
+   Schatten, nur so viel Deckung, dass der Text steht. Sonst zerfiele die
+   Seite in lauter gleich starke Kästen, und man sähe nicht mehr, was ein Kurs
+   ist und was eine Zwischenüberschrift.                                    */
+
+.textkarte {
+  background: rgb(var(--karte-schleier) / .82);
+  border-radius: var(--radius);
+  padding: .9rem 1.1rem;
+  margin: 1.4rem 0 .9rem;
+  backdrop-filter: blur(3px);
+}
+
+/* Die Ränder der Textkarte ersetzen die Abstände, die Überschrift und Absatz
+   sonst selbst mitbringen. Ohne das steht oben und unten doppelt Luft. */
+.textkarte > :first-child { margin-top: 0; }
+.textkarte > :last-child  { margin-bottom: 0; }
+.textkarte > h1 + p,
+.textkarte > h2 + p,
+.textkarte > h3 + p { margin-top: .3rem; }
+
+/* Zwei Textkarten hintereinander sind meist eine Überschrift, die von ihrem
+   Absatz getrennt wurde. Sie rücken enger zusammen. */
+.textkarte + .textkarte { margin-top: .6rem; }
+
+/* ============================================================ Farbwähler
+
+   Ein Knopf in der Kopfleiste, darunter eine Liste. Jede Zeile zeigt drei
+   Farbflecke — Grund, Glut, Gold — statt nur einen Namen: „Terrakotta" sagt
+   niemandem, wie es aussieht, drei Flecke schon.                          */
+
+.variantenwahl { position: relative; }
+
+.variantenliste {
+  position: absolute; top: calc(100% + .5rem); right: 0; z-index: 60;
+  width: 300px; max-height: 70vh; overflow-y: auto;
+  display: grid; gap: .15rem; padding: .35rem;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius); box-shadow: var(--schatten);
+  backdrop-filter: var(--glas-blur);
+}
+
+.variante-zeile {
+  display: flex; align-items: center; gap: .6rem; text-align: left;
+  font: inherit; cursor: pointer; color: inherit;
+  padding: .45rem .5rem; border: 1px solid transparent;
+  border-radius: var(--radius-klein); background: transparent;
+}
+.variante-zeile:hover { background: var(--grund-3); }
+.variante-zeile.aktiv { border-color: var(--gold); background: var(--grund-3); }
+
+/* Die Probe: der Grund als Fläche, Glut und Gold als zwei Punkte darauf.
+   Das ist die Palette in klein — man sieht Helligkeit und Wärme auf einmal. */
+.variante-probe {
+  flex: none; width: 40px; height: 28px; border-radius: 5px;
+  border: 1px solid var(--rand-hell);
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+}
+.variante-probe i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+
+.variante-text  { display: grid; gap: .1rem; min-width: 0; }
+.variante-name  { font-weight: 600; font-size: .9rem; }
+.variante-was   { font-size: .76rem; color: var(--schrift-3); line-height: 1.35; }
+
+.wahl-kopf { margin: .3rem 0 .35rem .5rem; }
+
+/* -------- Feineinstellung
+   Zugeklappt, weil die meisten die Palette nehmen und fertig sind. Wer mehr
+   will, klappt auf — und findet dort genau zwei Regler und drei Farben, nicht
+   ein zweites Einstellungsfenster. */
+.fein {
+  margin-top: .5rem; padding-top: .5rem;
+  border-top: 1px solid var(--rand);
+}
+.fein > summary {
+  cursor: pointer; font-size: .84rem; color: var(--schrift-2);
+  padding: .3rem .5rem; border-radius: var(--radius-klein);
+  list-style-position: inside;
+}
+.fein > summary:hover { background: var(--grund-3); color: var(--schrift); }
+.fein-inhalt { padding: .5rem .5rem .2rem; display: grid; gap: .8rem; }
+
+.regler { display: grid; gap: .25rem; }
+.regler-kopf {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: .84rem; font-weight: 600;
+}
+.regler-kopf output { color: var(--gold); font-size: .82rem; }
+.regler-was { color: var(--schrift-3); line-height: 1.35; }
+
+/* Die Bahn zeigt selbst, worum es geht: von deckend nach durchlässig. */
+.regler input[type="range"] {
+  width: 100%; margin: 0; padding: 0; height: 1.4rem;
+  accent-color: var(--glut);
+  background: transparent; border: 0; border-radius: 0;
+}
+
+.farbfelder { display: grid; gap: .4rem; grid-template-columns: repeat(3, 1fr); }
+.farbfeld {
+  display: grid; gap: .3rem; justify-items: center; text-align: center;
+  font-size: .78rem; cursor: pointer;
+  padding: .45rem .3rem; border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); background: var(--grund-3);
+}
+.farbfeld:hover { border-color: var(--rand-hell); }
+.farbfeld input[type="color"] {
+  width: 100%; height: 26px; padding: 0; cursor: pointer;
+  background: none; border: 1px solid var(--rand-hell);
+  border-radius: 4px;
+}
+.farbfeld .klein { color: var(--schrift-3); }
+
+.farb-warnung {
+  color: var(--schlecht); border-left: 3px solid var(--schlecht);
+  background: rgb(232 99 90 / .09);
+  padding: .45rem .6rem; border-radius: var(--radius-klein);
+  margin: 0; line-height: 1.4;
+}
+/* Zwei Stufen: unter 4,5:1 ist es zu wenig (rot), zwischen 4,5 und 7 ist es
+   erlaubt, aber für die kleinen Zeilen knapp (gelb). Eine einzige Warnung für
+   beides würde entweder überreagieren oder den knappen Fall verschweigen. */
+.farb-warnung.knapp {
+  color: var(--warn); border-left-color: var(--warn);
+  background: rgb(229 179 74 / .09);
+}
+
+.variante-ton { color: var(--schrift-3); font-size: .8em; margin-left: .25rem; }
+
+#fein-zurueck { justify-self: start; font-size: .82rem; padding: .35rem .7rem; }
+
+/* ============================================================ Rücksicht
+
+   Wer „wenig Bewegung" eingestellt hat, meint meistens auch: weniger Unruhe.
+   Ornamente sind Unruhe. Sie verschwinden nicht, aber sie treten zurück. */
+
+html[data-bewegung="wenig"] {
+  --ornament-staerke: .04;
+  --ornament-fein:    .02;
+}
+html[data-bewegung="wenig"] .zierband { opacity: .14; }
+
+/* Im Druck stört jedes Muster. Papier hat seine eigene Textur. */
+@media print {
+  body.uni::before, body.landing::before, .orn::before, .tor-flaeche::after, .kopf::after { display: none; }
+  .zierband { opacity: .3; }
+}

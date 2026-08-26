@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROMPTHEUS — Die sieben Stufen</title>
+<meta name="description" content="Von der ersten Frage bis zur weitergegebenen Flamme: die sieben Stufen der PROMPTHEUS Academy.">
+<!-- Hier standen drei Anfragen an fonts.googleapis.com. Sie sind heraus, und
+     zwar nicht aus Vorsicht, sondern weil sie diese Seite ins Unrecht setzten:
+     PROMPTHEUS läuft auf diesem Rechner und verspricht unter „Über PROMPTHEUS",
+     dass nur eine Tutorfrage ihn verlässt. Eine Schriftart nachzuladen wäre ein
+     Aufruf ins Netz bei jedem Öffnen — ausgerechnet auf der Seite, die das
+     Versprechen erklärt. Und ohne Netz stünde die Seite ohnehin auf den
+     Ersatzschriften. Also stehen unten gleich die der Academy. -->
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+/* ============================================================================
+   PROMPTHEUS — Die sieben Stufen
+   ----------------------------------------------------------------------------
+   Themen-Ebene über der Engine. Die Engine baut kein DOM; sie liest die
+   data-sc-*-Auszeichnungen unten und treibt sie aus EINEM Scrollwert auf EINER
+   rAF-Schleife. Alles hier ist Farbe, Schrift, Raum — und der eine eigene
+   Effekt, der dieser Seite gehört.
+
+   Bewegt wird ausschliesslich über `transform` und `opacity`. Kein `width`,
+   kein `top`, kein `transition: all`. Das ist der Unterschied zwischen einer
+   Seite, die gleitet, und einer, die zittert — und „immer smooth" war die
+   Bedingung, unter der diese Seite gebaut wurde.
+   ========================================================================= */
+
+:root {
+  /* Der Grund ist fast schwarz, weil der Stich fast schwarz ist. Ein grauer
+     Grund unter einem Kupferstich macht das Papier schmutzig. */
+  --sc-canvas:     #07080a;
+  --sc-surface:    #0e1014;
+  --sc-ink:        #EDE6DA;
+  --sc-ink-soft:   #9A9284;
+  --sc-accent:     #E0A64B;   /* die Glut — die Farbe der Tafelfolge */
+  --sc-accent-ink: #14100a;
+  --sc-linie:      #23252b;
+
+  /* Zwei Farben nur für die Hauptzeile im Hero. Sie sind wortgleich die
+     Marken der Academy aus assets/css/promptheus.css: --gold und --glut.
+     Als eigene Namen und nicht als Änderung an `--sc-accent`, weil an dem
+     Token die Ziffern, die Initialen und die wandernde Flamme hängen — wer
+     ihn umfärbt, färbt die ganze Seite um. */
+  --sc-gelb:       #FFC94D;   /* Academy-Gold */
+  --sc-orange:     #FF7A1C;   /* Academy-Glut */
+
+  /* Wortgleich die Schriftstapel aus assets/css/promptheus.css (--serif und
+     --sans). Nicht abgeschrieben, weil es hübsch aussieht, sondern damit diese
+     Seite und das Programm dieselbe Schrift tragen — beides ohne Nachladen. */
+  --sc-font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sc-font-text:    "Segoe UI", -apple-system, system-ui, Roboto, Helvetica, Arial, sans-serif;
+
+  --rand: clamp(1.25rem, 5vw, 5rem);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: auto; }   /* nichts entführt das Scrollrad */
+
+body {
+  margin: 0;
+  background: var(--sc-canvas);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-text);
+  font-size: clamp(1rem, .55rem + .55vw, 1.13rem);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, video { max-width: 100%; display: block; }
+
+/* --------------------------------------------------------------- Die Flamme
+   Der eigene Effekt dieser Seite. Ein goldenes Zeichen läuft an der Kante mit
+   dem Scrollfortschritt mit; jede Tafel bleibt kalt, bis es sie erreicht.
+
+   `position: fixed` und nur `transform` — die Schiene rechnet nichts pro Bild
+   ausser einer Verschiebung. */
+.flammen-schiene {
+  position: fixed; right: max(.6rem, 2vw); top: 12vh; bottom: 12vh;
+  width: 2px; z-index: 40; pointer-events: none;
+  background: linear-gradient(to bottom,
+              transparent, var(--sc-linie) 12%, var(--sc-linie) 88%, transparent);
+}
+.flammen-schiene::after {          /* der bereits entzündete Teil */
+  content: ''; position: absolute; inset: 0 auto 0 0; width: 2px;
+  height: calc(var(--flamme, 0) * 100%);
+  background: linear-gradient(to bottom, transparent, var(--sc-accent));
+  opacity: .55;
+}
+.flamme {
+  position: fixed; right: max(.6rem, 2vw); z-index: 41;
+  width: 2px; height: 0;
+  transform: translate3d(1px, calc(12vh + var(--flamme, 0) * 76vh), 0);
+  pointer-events: none;
+}
+.flamme::before {
+  content: ''; position: absolute; left: -7px; top: -8px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 55%,
+              #FFF3D6 0%, var(--sc-accent) 42%, rgba(224,166,75,0) 72%);
+  filter: blur(.4px);
+  animation: glut 3.2s ease-in-out infinite;
+}
+@keyframes glut {
+  0%, 100% { opacity: .85; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.16); }
+}
+
+/* -------------------------------------------------------------------- Hero */
+.hero { position: relative; }
+/* **Kein `position` hier.** Diese eine Eigenschaft war die grosse schwarze
+   Lücke unter dem Video.
+
+   Der Hero ist mit `data-sc-act="pin" data-sc-span="1.6"` ausgezeichnet: Die
+   Engine macht den Abschnitt 160vh hoch und klebt die Bühne mit
+   `position: sticky` fest, damit das Video stehen bleibt, während man die
+   Spanne durchscrollt. Meine eigene Regel `.hero__stage { position: relative }`
+   hat dieses `sticky` überschrieben — gleiche Spezifität, aber später im
+   Dokument. Das Video scrollte also weg und liess 60vh Schwarz zurück,
+   bevor Kapitel I anfing.
+
+   Die Engine setzt hier ohnehin schon `height: 100vh` (mit `svh`-Rückfall
+   fürs Handy) und `overflow: clip`. Es blieb nichts zu setzen ausser dem
+   Fehler. */
+.hero__stage { }
+.hero__stage video, .hero__stage img.hero__poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+/* Ein Schleier NUR dort, wo Schrift steht — kein Vorhang über das ganze Bild.
+   Ein flächiger Überzug tötet den Stich, und der Stich ist der Grund, warum
+   jemand stehen bleibt. */
+.hero__scrim {
+  position: absolute; inset: auto 0 0 0; height: 62%;
+  background: linear-gradient(to top,
+              var(--sc-canvas) 4%, rgba(7,8,10,.92) 32%, rgba(7,8,10,0) 100%);
+}
+.hero__text {
+  position: absolute; inset: auto 0 0 0;
+  padding: 0 var(--rand) clamp(2.5rem, 8vh, 6rem);
+  max-width: 46rem;
+}
+/* Ein Schleier NUR unter der Schrift, nicht über dem Bild.
+   Die Zeile steht über dem Stich, und der Stich ist stellenweise fast weiss —
+   an Prometheus' Hand und am Flügel des Adlers. Gelb auf Weiss ist unlesbar,
+   egal wie gross es gesetzt ist. Ein Grauschleier über das ganze Bild würde
+   das lösen und dabei das Bild ruinieren, für das die Seite gebaut ist.
+   Deshalb dieser: Er beginnt links unter dem Text und ist rechts von ihm
+   vollständig verschwunden, so dass Prometheus, der Adler und die Flamme in
+   voller Helligkeit stehen bleiben. Nach oben läuft er ebenso aus. */
+.hero__text::before {
+  content: ''; position: absolute; inset: -8rem 0 0 0; z-index: -1;
+  background:
+    linear-gradient(to top,   rgba(7,8,10,.92) 0%,  rgba(7,8,10,.72) 55%, rgba(7,8,10,0) 100%),
+    linear-gradient(to right, rgba(7,8,10,.88) 0%,  rgba(7,8,10,.55) 46%, rgba(7,8,10,0) 78%);
+  pointer-events: none;
+}
+.hero__text > * { position: relative; }
+.hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 600;
+  font-size: clamp(2.6rem, 1.2rem + 5.4vw, 6.2rem);
+  line-height: .96; letter-spacing: -.015em;
+  margin: 0 0 .5rem;
+  /* „Sieben Stufen / bis die … / dir gehört" in Gold, „Flamme" in Glut. */
+  color: var(--sc-gelb);
+}
+.hero h1 .glut { color: var(--sc-orange); }
+.hero__unter {
+  font-size: clamp(1rem, .7rem + .8vw, 1.35rem);
+  /* Nicht `--sc-ink-soft`. Gemessen über dem laufenden Video plus Schleier
+     kam die Zeile auf 5,78:1 — sie ist mit rund 21px kein Grosstext mehr und
+     verfehlte damit die 7:1, auf die PROMPTHEUS Fliesstext hält. Auf dunklem
+     Grund allein wäre das nie aufgefallen; über bewegtem Bild schon. */
+  color: var(--sc-ink); margin: 0; max-width: 34rem;
+}
+
+/* ------------------------------------------------------------------ Kapitel */
+.kapitel { padding: clamp(2.5rem, 9vh, 7rem) var(--rand); }
+
+/* Direkt unter dem Video hatte das erste Kapitel dieselben elf Rem Vorlauf wie
+   jedes andere — nur steht darüber kein Kapitel, sondern eine Fläche, die
+   ohnehin schon eine ganze Bildschirmhöhe misst. Zusammen ergab das ein
+   schwarzes Loch zwischen Hero und Tafel I. Der Abstand zwischen zwei
+   Kapiteln ist Rhythmus; der Abstand nach dem Hero war nur Leere. */
+.kapitel:first-of-type { padding-top: clamp(1.5rem, 4vh, 3rem); }
+
+.spread {
+  max-width: 78rem; margin: 0 auto;
+  display: grid; gap: clamp(1.6rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+}
+/* Der Zickzack. Die Tafel wechselt die Seite, der Text bleibt lesbar links
+   ausgerichtet — Text, der mitwandert, liest sich schlechter, nicht besser. */
+.spread--rechts .spread__tafel { order: 2; }
+
+/* ------- Die Tafel: gerahmt wie ein Kupferstich in einer Mappe -------------
+   Drei Lagen, und jede hat einen Grund: die Passepartout-Fläche, die
+   Haarlinie, die den Druck begrenzt, und der Druck selbst. Ein Rahmen, der
+   nur ein Rand wäre, sähe aus wie ein Fehler im Stylesheet. */
+.spread__tafel { position: relative; }
+
+/* **Nur EIN Rahmen, und der gehört dem Druck.**
+   Der Stich bringt seine eigene Zierbordüre und einen hellen Papierrand mit —
+   gemessen an der ersten erzeugten Tafel. Ein zweiter Rahmen aus dem
+   Stylesheet ergäbe Rahmen im Rahmen, und der helle Papierrand säße dann in
+   einem dunklen Kasten wie ein Fehler. Geblieben ist deshalb die Schattenfuge:
+   Sie stellt das Blatt von der schwarzen Wand ab, ohne es einzufassen. */
+.tafel {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  background: transparent;
+  box-shadow: 0 30px 70px -30px rgba(0,0,0,.95);
+}
+.tafel__druck {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  background: #0d0e12;
+}
+.tafel__druck img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Kalt, bis die Flamme ankommt. `filter` ist teuer, wenn es pro Bild neu
+   gerechnet wird — deshalb hängt es an einer Klasse, die genau einmal
+   umschaltet, nicht an einer Zahl, die bei jedem Scrollschritt wandert. */
+.tafel__druck img {
+  filter: grayscale(1) brightness(.52) contrast(1.05);
+  transform: scale(1.015);
+  transition: filter 1.1s cubic-bezier(.22,.61,.36,1),
+              transform 1.4s cubic-bezier(.22,.61,.36,1);
+}
+.tafel.entzuendet .tafel__druck img {
+  filter: grayscale(0) brightness(1) contrast(1.02) saturate(1.05);
+  transform: scale(1);
+}
+.tafel__glut {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 70% at 50% 92%,
+              rgba(224,166,75,.28), rgba(224,166,75,0) 62%);
+  opacity: 0; transition: opacity 1.2s ease-out;
+}
+.tafel.entzuendet .tafel__glut { opacity: 1; }
+
+/* Die Ziffer sitzt NEBEN dem Blatt, nicht darauf: Der Druck hat eine eigene
+   Bordüre, und eine Zahl mitten hinein wäre eine Beschriftung auf einem
+   fremden Bild. Am Rand gelesen ist sie eine Tafelnummer, wie in einer Mappe.
+
+   `right: 100%` statt eines negativen `left`. Der Unterschied ist der Grund,
+   warum die Ziffer vorher die Bildecke berührte: Ein negatives `left` schiebt
+   die LINKE Kante der Zahl nach aussen und weiss nichts davon, wie breit die
+   Zahl ist. „I" passte, „VII" ist dreimal so breit und ragte mit dem Rest
+   wieder ins Bild hinein. `right: 100%` heftet dagegen die RECHTE Kante an die
+   linke Bildkante — von da an kann die Zahl beliebig breit werden und wächst
+   immer vom Bild weg. Der Abstand steht dann sauber als eigener Wert daneben. */
+.tafel__ziffer {
+  position: absolute; top: -.1em;
+  right: 100%; margin-right: clamp(.9rem, 1.6vw, 1.9rem);
+  white-space: nowrap;
+  font-family: var(--sc-font-display); font-weight: 600;
+  font-size: clamp(1.5rem, .9rem + 2vw, 2.8rem); line-height: 1;
+  color: #4d505a; letter-spacing: .04em;
+  transition: color .9s ease-out;
+}
+@media (max-width: 1100px) {
+  /* Kein Platz mehr aussen — dann über das Blatt, nicht darauf. `bottom: 100%`
+     ist dieselbe Idee eine Achse weiter: Unterkante der Zahl an Oberkante des
+     Bildes, plus Abstand. */
+  .tafel__ziffer {
+    right: auto; left: 0; top: auto;
+    bottom: 100%; margin: 0 0 .9rem;
+  }
+}
+.tafel.entzuendet .tafel__ziffer { color: var(--sc-accent); }
+
+/* Solange kein Bild da ist: eine leere Platte, die aussieht wie eine leere
+   Platte — kein grauer Kasten mit „Bild fehlt". */
+.tafel__leer {
+  position: absolute; inset: 0; display: grid; place-content: center; gap: .4rem;
+  text-align: center; color: #4a4d57; font-size: .78rem; letter-spacing: .16em;
+  text-transform: uppercase;
+  background:
+    repeating-linear-gradient(45deg, #0d0e12 0 6px, #101218 6px 12px);
+}
+.tafel__leer b { display: block; font-size: 2rem; letter-spacing: .06em; color: #5d616d;
+                 font-family: var(--sc-font-display); text-transform: none; }
+.tafel__druck img[src] + .tafel__leer { display: none; }
+
+/* ------------------------------------------------------------------- Text */
+.spread__text { max-width: 34rem; }
+
+.kapitel h2 {
+  font-family: var(--sc-font-display); font-weight: 600;
+  font-size: clamp(1.9rem, 1rem + 2.6vw, 3.4rem);
+  line-height: 1.06; letter-spacing: -.01em;
+  margin: 0 0 1.1rem;
+}
+/* Die römische Ziffer steht nur noch NEBEN der Tafel, nicht mehr auch in der
+   Überschrift. Zweimal dieselbe Zahl im selben Blickfeld ist keine Gliederung,
+   sondern eine Wiederholung — und die Zahl am Bild ist die, die zum Stich
+   gehört. Die Regel für `.zahl` ist damit gegenstandslos und steht nicht mehr
+   hier: eine CSS-Regel ohne Element im Dokument ist eine Falle für den
+   Nächsten, der sie sucht. */
+
+.kapitel p { margin: 0 0 1.1rem; color: #D7D0C4; }
+/* Der Auftakt trägt nicht mehr seinen eigenen, grösseren Grad. Er steht in
+   derselben Grösse wie der übrige Kapiteltext und unterscheidet sich nur noch
+   durch Schrift und Helligkeit. Damit schrumpft auch die Initiale mit, denn
+   sie ist in `em` gesetzt und rechnet gegen diesen Absatz. */
+.kapitel p.auftakt {
+  font-family: var(--sc-font-display);
+  line-height: 1.6; color: var(--sc-ink); margin-bottom: 1.3rem;
+}
+
+/* ------------------------------------------------------------- Die Initiale
+   Der erste Buchstabe jedes Kapiteltextes, gross in der Altschrift gesetzt und
+   in den Satz eingelassen — die Initiale aus dem gedruckten Buch, und damit
+   genau das Zeichen, das zur Grammatik dieser Seite gehört.
+
+   `::first-letter` und keine eigene Auszeichnung im Text: Der Buchstabe bleibt
+   Teil des Wortes. Wer den Absatz kopiert, bekommt „Am Anfang" und nicht
+   „A" + „m Anfang", und eine Vorlesestimme liest ihn als Wort.
+
+   `float: left` statt `initial-letter`: Letzteres kennt Firefox bis heute
+   nicht und liesse den Buchstaben dort einfach gross und zeilenhoch stehen —
+   ein Umbruch mitten im ersten Satz. Der Float tut in jedem Browser dasselbe.
+
+   Die Zahlen hängen zusammen und sind gegen die Zeilenhöhe 1.6 des Auftakts
+   gerechnet: 2em Schriftgrad, 0.82 Zeilenhöhe, .05em Absenkung — dann sitzt
+   der Fuss der Initiale auf der Grundlinie der zweiten Zeile. Sie war
+   vorher 2.9em auf einem eigens vergrösserten Absatz, also gemessene 77px
+   neben 26px Text; jetzt sind es rund 36px neben 18px. */
+.kapitel p.auftakt::first-letter {
+  float: left;
+  font-family: var(--sc-font-display);
+  font-weight: 600;
+  font-size: 2em;
+  line-height: .82;
+  padding: .05em .1em 0 0;
+  margin: 0 .05em 0 0;
+  color: var(--sc-accent);
+}
+
+/* Auf sehr schmalen Spalten frisst eine Initiale die halbe Zeile. Dann
+   kleiner — verschwinden soll sie nicht, sie ist der Anfang. */
+@media (max-width: 700px) {
+  .kapitel p.auftakt::first-letter { font-size: 1.75em; line-height: .85; }
+}
+.kapitel .stufe {
+  margin: 1.6rem 0 0; font-size: .78rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--sc-ink-soft);
+  border-top: 1px solid var(--sc-linie); padding-top: .9rem;
+}
+
+/* ------------------------------------------------------- Der Peak: das Erbe
+   Der Zickzack läuft bis hierher durch — Text neben Bild, wie überall. Was
+   dieses Kapitel zum Peak macht, steht jetzt ganz in dem, was ihm allein
+   gehört: die grösste Spannweite auf der Seite, die Stille davor, das
+   Absinken des Grundes, die grösste Überschrift und der einzige Satz, der für
+   sich allein auf einer Zeile steht. */
+/* Derselbe Vorlauf wie bei jedem anderen Kapitel. Das Erbe hatte den
+   dreifachen, und zusammen mit der langen Stille davor ergab das genau die
+   Lücke, die schon unter dem Video störte. Der Peak lebt von seiner
+   Überschrift, seinem Ruf und dem absinkenden Grund — nicht davon, dass man
+   ihn suchen muss. Unten bleibt mehr Raum: Dort endet die Seite. */
+.erbe { padding: clamp(2.5rem, 9vh, 7rem) var(--rand) clamp(4rem, 13vh, 10rem); }
+.erbe h2 { font-size: clamp(2.1rem, 1.1rem + 3vw, 3.9rem); }
+/* `.erbe p.erbe__ruf` und nicht `.erbe__ruf`: Die allgemeine Regel `.kapitel p`
+   ist zweiteilig und schlug die einteilige — der Ruf des Peaks stand deshalb
+   in gewöhnlichem Textgrau statt in der Glut. Am Bild gesehen, nicht
+   gerechnet. */
+.erbe p.erbe__ruf {
+  font-family: var(--sc-font-display);
+  font-size: clamp(1.6rem, 1rem + 2.4vw, 3.1rem);
+  line-height: 1.25; color: var(--sc-accent);
+  margin: 2.4rem 0 1rem; max-width: 26rem;
+}
+.erbe__spruch { color: var(--sc-ink-soft); font-style: italic; }
+
+/* Die eingeplante Stille vor dem Peak: Schwarz, sonst nichts.
+   Sie stand auf 46vh und war damit fast eine halbe Bildschirmhöhe Leere — im
+   Scrollen nicht von der Lücke zu unterscheiden, die unter dem Video stand.
+   Eine Pause, die man für einen Fehler hält, ist keine Pause. 10vh reichen:
+   ein Atemzug, kein Loch. */
+.atem { height: 10vh; }
+
+/* ------------------------------------------------------------- Das Nachwort
+   Nuechtern und schmal. Es steht nach dem Peak und darf ihn nicht ueberbieten:
+   kein Gold in Flaechen, keine Ziffer, kein Bild, Schrift eine Stufe kleiner
+   als im Kapiteltext. Der obere Strich ist die Naht — hier endet die Erzaehlung
+   und beginnt die Auskunft. */
+.kolophon {
+  border-top: 1px solid var(--sc-linie);
+  padding: clamp(3rem, 10vh, 6rem) var(--rand) clamp(2rem, 6vh, 4rem);
+  background: var(--sc-surface);
+}
+.kolophon__innen { max-width: 62ch; margin: 0 auto; }
+.kolophon h2 {
+  font-family: var(--sc-font-display); font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.1rem); color: var(--sc-accent);
+  margin: 0 0 1rem; letter-spacing: .01em;
+}
+.kolophon h3 {
+  font-family: var(--sc-font-display); font-weight: 600;
+  font-size: 1.15rem; color: var(--sc-ink);
+  margin: 2.2rem 0 .6rem;
+}
+/* Nicht `--sc-ink-soft`. Gemessen auf dem Grund des Nachworts ergibt der
+   6,22:1 — genug fuer AA, aber PROMPTHEUS haelt Fliesstext auf 7:1, und das
+   hier IST Fliesstext und keine Bildunterschrift. Dieser Ton misst 7,13:1 und
+   bleibt trotzdem sichtbar leiser als die Kapitelschrift. */
+.kolophon p, .kolophon li {
+  font-size: .95rem; line-height: 1.72; color: #A59D8E;
+}
+.kolophon__auftakt { color: var(--sc-ink); }
+.kolophon b { color: var(--sc-ink); font-weight: 600; }
+.kolophon ul { margin: 0; padding-left: 1.1rem; }
+.kolophon li { margin-bottom: .6rem; }
+.kolophon code {
+  font-family: "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  font-size: .88em; color: var(--sc-accent);
+  background: rgba(224, 166, 75, .1); padding: .1em .38em; border-radius: 3px;
+}
+.kolophon__tabelle { border-collapse: collapse; }
+.kolophon__tabelle th, .kolophon__tabelle td {
+  text-align: left; padding: .35rem 1.2rem .35rem 0;
+  font-size: .92rem; color: var(--sc-ink-soft); font-weight: 400;
+}
+.kolophon__tabelle th {
+  color: var(--sc-ink); font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: .85rem;
+}
+
+/* --------------------------------------------------------------- Der Fuss */
+.fuss {
+  border-top: 1px solid var(--sc-linie);
+  padding: clamp(2.5rem, 8vh, 5rem) var(--rand);
+  color: var(--sc-ink-soft); font-size: .86rem;
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between;
+}
+.fuss a { color: var(--sc-ink); text-decoration: none; border-bottom: 1px solid var(--sc-linie); }
+.fuss a:hover { border-color: var(--sc-accent); color: var(--sc-accent); }
+
+/* --------------------------------------------------------------- Schmal
+   Der Zickzack hält, so weit er lesbar bleibt. Vorher brach er schon bei
+   860px um — auf einem Tablett stand der Text dann unter dem Bild, obwohl
+   Platz für beides nebeneinander war. Jetzt trägt er bis 620px, und das Bild
+   gibt dabei Spalte ab, statt dass der Text sie verliert. */
+@media (max-width: 1100px) and (min-width: 621px) {
+  .spread {
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1fr);
+    gap: clamp(1.2rem, 3vw, 2.4rem);
+  }
+  /* Die schmalere Spalte gehört dem BILD, nicht der ersten Spalte. Bei
+     `--rechts` wandert die Tafel per `order` nach hinten — ohne diese Zeile
+     bekäme dort der Text die schmale Spalte und das Bild die breite, und die
+     Kapitel wechselten im Wechsel ihre Proportion. Gemessen: 233px Bild bei
+     I, III, V, VII gegen 311px bei II, IV, VI. */
+  .spread--rechts { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); }
+  .spread__text { max-width: none; }
+  .kapitel h2 { font-size: clamp(1.5rem, .8rem + 2vw, 2.4rem); }
+  .kapitel p.auftakt { font-size: clamp(1.05rem, .85rem + .6vw, 1.35rem); }
+  .kapitel p { font-size: .93rem; }
+}
+
+/* Unter 620px hört der Zickzack auf, und das ist gemessen und nicht geraten:
+   Bei 375px Gerätebreite blieben für die Textspalte rund 190px — etwa 24
+   Zeichen je Zeile. Deutsche Wörter wie „Sprachmodell" brechen darin
+   dreimal, und die Tafel daneben wäre 150px schmal, also kein Bild mehr,
+   sondern eine Briefmarke. Nebeneinander wäre hier zwar erfüllt, aber
+   unlesbar — und lesbar war die erste Bedingung dieser Seite. */
+@media (max-width: 620px) {
+  .spread { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .spread--rechts .spread__tafel { order: 0; }   /* auf dem Handy immer Bild zuerst */
+  .tafel { max-width: min(24rem, 82vw); }
+  .flammen-schiene, .flamme { display: none; }   /* zu wenig Rand für eine Schiene */
+}
+
+/* Wer weniger Bewegung will, bekommt weniger Bewegung — und nicht eine Seite,
+   auf der dann die Hälfte unsichtbar bleibt. */
+@media (prefers-reduced-motion: reduce) {
+  .tafel__druck img { transition: none; filter: none; transform: none; }
+  .flamme::before { animation: none; }
+  .hero__stage video { display: none; }
+  .hero__stage img.hero__poster { display: block; }
+}
+</style>
+</head>
+<body>
+
+<!-- Die wandernde Flamme. Zwei Elemente, kein Bild, keine Bibliothek. -->
+<div class="flammen-schiene" aria-hidden="true"></div>
+<div class="flamme" aria-hidden="true"></div>
+
+<!-- ======================================================================
+     HERO
+     `pin` statt `scrub`: Ein am Scrollrad hängendes Video ruckelt genau dann,
+     wenn jemand langsam scrollt. Die Schleife läuft in eigener Zeit, das
+     Scrollen bleibt Scrollen.
+     ================================================================== -->
+<!-- Spanne 1.6 -> 1.2: Das Video hält jetzt eine knappe halbe Bildschirmhöhe
+     lang, nicht mehr eine ganze. Es blieb dieselbe Zeit stehen, in der vorher
+     das Schwarz stand — und wer schon gelesen hat, was da steht, wartet in
+     dieser Zeit. -->
+<header class="hero" data-sc-act="pin" data-sc-span="1.2">
+  <div class="hero__stage" data-sc-stage>
+    <img class="hero__poster" src="assets/hero-poster.jpg" alt="">
+    <video autoplay muted loop playsinline preload="metadata"
+           poster="assets/hero-poster.jpg"
+           data-sc-src="assets/hero.mp4" data-sc-src-mobile="assets/hero-m.mp4">
+      <source src="assets/hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero__scrim"></div>
+    <!-- `data-sc-in` statt `data-sc-cue`, und das ist kein Detail: Ein Cue
+         hängt am Scrollfortschritt und steht bei p=0 auf null — die
+         Überschrift wäre beim Ankommen unsichtbar und käme erst, wenn man
+         scrollt. Wer nie scrollt, sähe nie, worum es geht. `data-sc-in`
+         feuert einmal beim Eintreten über einen IntersectionObserver, und
+         das ist beim Laden sofort. -->
+    <div class="hero__text" data-sc-in data-sc-stagger="90">
+      <h1>Sieben Stufen<br>bis die <span class="glut">Flamme</span><br>dir gehört</h1>
+      <p class="hero__unter">
+        Prometheus brachte den Menschen das Feuer. PROMPTHEUS bringt ihnen die
+        Sprache der Maschinen. Was darunter steht, ist der ganze Weg.
+      </p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- I ------------------------------------------------------------------- -->
+<section class="kapitel" data-sc-act="flow">
+  <div class="spread spread--links">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="1">
+        <span class="tafel__ziffer">I</span>
+        <div class="tafel__druck">
+          <img src="assets/01-entdecker.webp" alt="Ein junger Gelehrter greift nach einer glühenden Steintafel; Funken springen von seinen Fingern.">
+          <div class="tafel__leer"><b>I</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Der Entdecker</h2>
+      <p class="auftakt">Am Anfang steht die Frage: Wie spricht man mit einer Maschine?</p>
+      <p>Prometheus brachte den Menschen das Feuer — PROMPTHEUS bringt ihnen die
+         Sprache der Maschinen. Jeder grosse Wurf beginnt mit einem einzigen,
+         mutigen Wort.</p>
+      <p>Hier lernst du, wie ein Sprachmodell denkt, wie es antwortet und wie du
+         es führst.</p>
+      <p>Du beginnst dort, wo alle beginnen: bei einem Satz, der noch nicht
+         funktioniert. Dass die Maschine dich missversteht, ist selten Zufall —
+         es liegt fast immer an dem, was du weggelassen hast.</p>
+      <p>Geübt wird nicht im Trockenen: Zu jeder Lektion gehören Aufgaben, die dein
+         Ergebnis prüfen, und ein Tutor, den du fragen kannst, wenn du nicht
+         weiterkommst.</p>
+      <p>Am Ende dieser Stufe fragst du nicht mehr auf gut Glück. Du weisst, was
+         ein Modell braucht, um dich zu verstehen: einen klaren Auftrag, den
+         nötigen Zusammenhang und eine Vorstellung davon, wie die Antwort
+         aussehen soll.</p>
+      <p class="stufe">Stufe 1 von 6 · Der Entdecker</p>
+    </div>
+  </div>
+</section>
+
+<!-- II ------------------------------------------------------------------ -->
+<section class="kapitel" data-sc-act="flow">
+  <div class="spread spread--rechts">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="2">
+        <span class="tafel__ziffer">II</span>
+        <div class="tafel__druck">
+          <img src="assets/02-bibliothek.webp" alt="Eine endlose Rundbibliothek; aus einem aufgeschlagenen Band bricht ein Wirbel aus Licht und Buchstaben hervor.">
+          <div class="tafel__leer"><b>II</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Die Bibliothek</h2>
+      <p class="auftakt">Jedes Wort, das du liest, ist ein Echo von Milliarden anderen.</p>
+      <p>So ist auch ein Sprachmodell nichts anderes als eine unvorstellbar
+         grosse Bibliothek — das Training lief über eine riesige Menge an Texten.</p>
+      <p>Du lernst hier, wie Daten zu Wissen werden, wie die Bibliothek aufgebaut
+         ist und wie du den richtigen Ausgangspunkt findest, um die Antworten zu
+         finden, die du suchst.</p>
+      <p>Eine Bibliothek ohne Ordnung ist ein Haufen Papier. Du siehst hier, wie
+         aus Text zuerst Zahlen werden, aus Zahlen Muster und aus Mustern etwas,
+         das wie Wissen antwortet — und an welchen Stellen dieser Weg Löcher
+         hat.</p>
+      <p>Denn was in keiner Zeile stand, kann auch nicht herauskommen. Wer weiss,
+         woraus ein Modell gebaut ist, erkennt seine blinden Flecken, bevor sie
+         zu Fehlern werden.</p>
+      <p>Und du lernst, dem Gedächtnis nachzuhelfen: eigene Notizen, eigene Quellen,
+         eigene Ablage — damit ein Modell nicht nur weiss, was alle wissen,
+         sondern auch, was du weisst.</p>
+      <p class="stufe">Stufe 2 von 6 · Die Bibliothek</p>
+    </div>
+  </div>
+</section>
+
+<!-- III ----------------------------------------------------------------- -->
+<section class="kapitel" data-sc-act="flow">
+  <div class="spread spread--links">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="3">
+        <span class="tafel__ziffer">III</span>
+        <div class="tafel__druck">
+          <img src="assets/03-modell.webp" alt="Ein Bildhauer arbeitet an einem Marmorkopf, dessen Gesicht sich wandelt; ringsum Büsten auf Sockeln.">
+          <div class="tafel__leer"><b>III</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Das Modell</h2>
+      <p class="auftakt">Viele Wege führen nach Rom — und viele Modelle zur Antwort.</p>
+      <p>Ob gross oder klein, offen oder geschlossen: Jedes Modell hat eigene
+         Stärken und eine eigene Persönlichkeit.</p>
+      <p>Lerne hier, die richtigen Werkzeuge zu erkennen, ihre Parameter zu
+         verstehen und deine Anfragen so zu formen, dass aus dir und dem Modell
+         ein unschlagbares Team wird.</p>
+      <p>Ein grosses Modell ist nicht das bessere, sondern das teurere. Du lernst,
+         bei welcher Aufgabe ein kleines schneller ans Ziel kommt, wann ein
+         offenes genügt und warum eine schwache Antwort oft gar nicht am Modell
+         liegt.</p>
+      <p>Denn davor stehen ein paar Stellschrauben, die mehr verändern als jeder
+         Wechsel: der Systemtext, die Länge des Gedächtnisses, das Mass an
+         Zufall.</p>
+      <p>Dazu gehört das Rechnen. Was eine Anfrage kostet, ist keine Nebensache,
+         sondern Teil der Wahl — du lernst, den Preis einer Antwort zu schätzen,
+         bevor du sie stellst.</p>
+      <p>Am Ende wählst du nicht nach Namen, sondern nach Aufgabe.</p>
+      <p class="stufe">Stufe 3 von 6 · Das Modell</p>
+    </div>
+  </div>
+</section>
+
+<!-- IV ------------------------------------------------------------------ -->
+<section class="kapitel" data-sc-act="flow">
+  <div class="spread spread--rechts">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="4">
+        <span class="tafel__ziffer">IV</span>
+        <div class="tafel__druck">
+          <img src="assets/04-geselle.webp" alt="Ein Geselle schreibt mit der Feder auf eine glühende Rolle und leitet zugleich Energie in ein Uhrwerk.">
+          <div class="tafel__leer"><b>IV</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Der Geselle</h2>
+      <p class="auftakt">Vom blossen Zuschauen zum Gestalten: Jetzt beginnt die Handarbeit.</p>
+      <p>Ein Geselle kennt seine Werkzeuge nicht nur, er passt sie an. Hier lernst
+         du, Kontext zu setzen, scharfe Anweisungen zu geben und dein Sprachmodell
+         mit Systemprompts, Regeln und Beispielen zu erziehen — bis es nicht mehr
+         nur antwortet, sondern dir folgt.</p>
+      <p>Aus einer guten Frage wird eine Vorlage, aus der Vorlage ein Werkzeug,
+         das auch nächste Woche noch trägt. Du zerlegst grosse Aufträge in
+         Schritte und lernst, eine Antwort zu prüfen, statt ihr zu glauben.</p>
+      <p>Handarbeit heisst hier auch: wiederholbar. Was einmal zufällig gut war,
+         ist noch kein Können — was dreimal hintereinander gut ist, schon.</p>
+      <p>Und du lernst, Fehler zu lesen. Eine falsche Antwort sagt dir, an welcher
+         Stelle deine Anweisung unklar war. Sie ist die genaueste Rückmeldung,
+         die du bekommen kannst.</p>
+      <p class="stufe">Stufe 4 von 6 · Der Geselle</p>
+    </div>
+  </div>
+</section>
+
+<!-- V ------------------------------------------------------------------- -->
+<section class="kapitel" data-sc-act="flow">
+  <div class="spread spread--links">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="5">
+        <span class="tafel__ziffer">V</span>
+        <div class="tafel__druck">
+          <img src="assets/05-automat.webp" alt="Eine Werkhalle in einem griechischen Tempel; messingene Automaten schreiben, malen und musizieren.">
+          <div class="tafel__leer"><b>V</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Der Automat</h2>
+      <p class="auftakt">Was, wenn deine Arbeit auch ohne dich liefe? Genau das ist das Ziel.</p>
+      <p>Hier lernst du, aus einzelnen Befehlen, Schleifen und Abfragen eine echte
+         Automation zu stricken. Du verbindest verschiedene Modelle zu einem
+         stummen, fleissigen Fliessband und bringst deinen eigenen digitalen
+         Automaten bei, Aufgaben zu erledigen — von der Antwort auf Mails bis zum
+         Erstellen ganzer Berichte.</p>
+      <p>Eine Kette, die sich selbst weiterreicht: Das ist der Sprung von der
+         einzelnen Frage zur Maschine. Sie holt Daten, prüft sie, entscheidet —
+         und antwortet erst danach.</p>
+      <p>Und du baust die Bremse gleich mit ein. Ein Automat ohne
+         Abbruchbedingung ist kein Werkzeug, sondern ein Risiko. Zu jeder
+         Schleife gehört deshalb die Frage, wann sie aufhört.</p>
+      <p>Am Ende steht kein Zauber, sondern ein Ablauf: aufschreibbar, weitergebbar,
+         morgen wieder startbar.</p>
+      <p class="stufe">Stufe 5 von 6 · Der Automat</p>
+    </div>
+  </div>
+</section>
+
+<!-- VI ------------------------------------------------------------------ -->
+<section class="kapitel" data-sc-act="flow" data-sc-drift="#050608">
+  <div class="spread spread--rechts">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="6">
+        <span class="tafel__ziffer">VI</span>
+        <div class="tafel__druck">
+          <img src="assets/06-akademie.webp" alt="Ein Rat verhüllter Gestalten hält Lichtfäden, die in einem leuchtenden Astrolabium zusammenlaufen.">
+          <div class="tafel__leer"><b>VI</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+    <div class="spread__text" data-sc-in data-sc-stagger="70">
+      <h2>Die Akademie</h2>
+      <p class="auftakt">Ein einzelner Gelehrter kann viel wissen. Eine ganze Akademie kann die Welt verändern.</p>
+      <p>Hier beginnen deine Modelle, sich zu verstehen. Du bringst Spezialisten
+         zusammen — einen für Recherche, einen fürs Schreiben, einen fürs Rechnen —
+         und lässt sie als Team an einer einzigen, grossen Aufgabe arbeiten.</p>
+      <p>Mehrere Modelle an einer Sache sind kein Selbstzweck. Du lernst, wann
+         Aufteilen wirklich hilft, wie einer dem nächsten übergibt und was
+         geschieht, wenn zwei sich widersprechen.</p>
+      <p>Ein Orchester braucht keine lauteren Instrumente, sondern einen Takt.
+         Genau den setzt du: wer wann spricht, wer prüft, wer das letzte Wort
+         hat.</p>
+      <p>Und du lernst die Grenze. Nicht jede Aufgabe wird durch mehr Köpfe besser —
+         manche wird nur teurer.</p>
+      <p>Willkommen im Orchester des Denkens.</p>
+      <p class="stufe">Stufe 6 von 6 · Die Akademie</p>
+    </div>
+  </div>
+</section>
+
+<!-- Gewollte Stille. Kein toter Scroll: Luft holen vor dem Peak. -->
+<div class="atem" aria-hidden="true"></div>
+
+<!-- VII — der Peak ------------------------------------------------------ -->
+<section class="kapitel erbe" data-sc-act="flow" data-sc-drift="#020304">
+  <!-- VII stand als einziges Kapitel gestapelt: Bild mittig, Text darunter.
+       Das war die Peak-Behandlung — der Bruch im Bau als Botschaft. Jetzt
+       laeuft auch das Erbe im Zickzack mit, Bild links wie in I, III und V;
+       die Reihe endet damit auf derselben Seite, auf der sie angefangen hat.
+       Der Peak traegt sich weiter ueber das, was ihm allein gehoert: die
+       groesste Spannweite, die Stille davor, das Absinken des Grundes und der
+       einzige Satz, der fuer sich steht. -->
+  <div class="spread spread--links erbe__innen">
+    <div class="spread__tafel" data-sc-parallax="-0.06">
+      <figure class="tafel" data-tafel="7">
+        <span class="tafel__ziffer">VII</span>
+        <div class="tafel__druck">
+          <img src="assets/07-erbe.webp" alt="Eine Gestalt hält eine brennende Fackel über einer weiten, leuchtenden Stadt und blickt über die Schulter zurück.">
+          <div class="tafel__leer"><b>VII</b>Tafel folgt</div>
+          <div class="tafel__glut"></div>
+        </div>
+      </figure>
+    </div>
+
+    <div class="spread__text" data-sc-in data-sc-stagger="90">
+      <h2>Das Erbe</h2>
+      <p class="auftakt">Du hast die Stufen erklommen. Die Werkzeuge liegen in deiner
+         Hand, die Modelle folgen deinen Worten, und die Automaten tanzen nach
+         deiner Melodie.</p>
+      <p>Doch Wissen ist kein Schatz, den man hütet, sondern eine Flamme, die man
+         teilt. Nimm das, was du gelernt hast, und bring es in deine Welt hinaus.
+         Erschaffe, lehre und erleuchte.</p>
+      <p>Was bleibt, ist nicht die Sammlung deiner Prompts. Es ist der Blick, mit
+         dem du eine Aufgabe ansiehst und schon weisst, wo die Maschine hilft und
+         wo sie im Weg steht.</p>
+      <p>Deine Reise beginnt nicht an der Spitze des Berges. Sie beginnt erst.</p>
+      <p class="erbe__ruf">Die Flamme brennt in dir.<br>Teile sie.</p>
+      <p class="erbe__spruch">„Die Flamme, die man teilt, brennt ewig."</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==========================================================================
+     Kolophon — das Nachwort.
+
+     Diese Angaben standen frueher als Text im Einstellungs-Reiter „Über
+     PROMPTHEUS", waehrend die Seite hier daneben lag. Zwei Orte fuer eine
+     Auskunft heisst: einer von beiden veraltet, und niemand weiss, welcher.
+     Sie stehen jetzt nur noch hier.
+
+     Dass sie NACH dem Erbe kommen und nicht davor, ist Absicht. Der Peak der
+     Seite ist der Satz „Die Flamme, die man teilt, brennt ewig"; was danach
+     folgt, darf nicht mit ihm konkurrieren. Ein Nachwort tut das nicht — es
+     ist in einer gedruckten Kapitelfolge der vorgesehene Platz fuer das
+     Nuechterne, kleiner gesetzt und ohne Bild.
+     ====================================================================== -->
+<section class="kolophon" id="kolophon">
+  <div class="kolophon__innen">
+    <h2>Über PROMPTHEUS</h2>
+    <p class="kolophon__auftakt">Eine Academy für künstliche Intelligenz, die auf
+       diesem Rechner läuft. Sechs Stufen vom Entdecker bis zum Meister, Fachkurse
+       daneben, Prüfungen mit Urkunde.</p>
+
+    <h3>Was hier nicht passiert</h3>
+    <ul>
+      <li><b>Punkte rechnet kein Sprachmodell.</b> Dieselbe Antwort bekommt immer
+          dieselbe Punktzahl — sonst hinge eine Urkunde an einem Modelllauf.</li>
+      <li><b>Die Tutoren erklären, sie bewerten nicht.</b> Athena schreibt eine
+          Anmerkung, wenn die Punkte längst feststehen.</li>
+      <li><b>Deine Antworten bleiben hier.</b> Sie stehen in einer Datei auf diesem
+          Rechner. Nur eine Frage an einen Tutor verlässt ihn — und nur, wenn du
+          eine stellst.</li>
+      <li><b>Auch diese Seite ruft nichts ab.</b> Kein Schriftdienst, kein Zähler,
+          kein fremder Server. Bilder, Video und Schrift liegen neben dem
+          Programm.</li>
+    </ul>
+
+    <h3>Tastatur</h3>
+    <table class="kolophon__tabelle">
+      <tbody>
+        <tr><th>Esc</th><td>Fenster schliessen</td></tr>
+        <tr><th>Enter</th><td>im Anmeldefenster: absenden</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Wo der Lehrstoff liegt</h3>
+    <p>Der Lehrstoff liegt als Markdown in <code>secondbrain/</code> — gewöhnliche
+       Textdateien, keine Datenbank und kein Programmcode. Wer eine Lektion ändern
+       will, öffnet eine Notiz in einem beliebigen Editor und speichert: kein
+       Neustart, keine Programmierung. Nur der Kopf der Datei (Titel,
+       Aufgaben-Kennungen, Lösungen) hat eine feste Form — ob sie noch stimmt, sagt
+       in der Verwaltung <b>Wartung › Lehrstoff prüfen</b>.</p>
+  </div>
+</section>
+
+<footer class="fuss">
+  <span>PROMPTHEUS ACADEMY — KI-Feuer für junge Köpfe</span>
+  <!-- Die Seite wird aus den Einstellungen in einem neuen Tab geöffnet. Wer
+       stattdessen über ein Lesezeichen kommt, sässe sonst in einer Sackgasse:
+       eine Seite ohne Menü und ohne Weg zurück. Darum dieser Link. -->
+  <span><a href="../" target="_top" id="zur-academy">Zur Academy</a><span id="zur-academy-punkt"> · </span><a href="#top">Zurück nach oben</a></span>
+</footer>
+
+<script>
+/* Eingebettet im Einstellungs-Reiter „Über PROMPTHEUS": Esc gehoert dem
+   Fenster draussen.
+
+   Sobald jemand in diese Seite hineinklickt, liegt die Tastatur bei ihr, und
+   das Esc der Einstellungen laeuft ins Leere — man sitzt in einem Fenster, das
+   sich mit der Taste nicht mehr schliessen laesst, mit der sich in diesem
+   Programm alles schliesst. Also reichen wir den Tastendruck hinaus.
+
+   `location.origin` als Ziel und nicht `'*'`: Die Botschaft geht nur an ein
+   Fenster desselben Ursprungs. Steht die Seite allein (kein Rahmen), passiert
+   hier gar nichts. */
+if (window.parent !== window) {
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    try { window.parent.postMessage({ pu: 'schliessen' }, location.origin); } catch (_) {}
+  });
+
+  /* „Zur Academy" ist der Ausgang fuer den, der ueber ein Lesezeichen kommt
+     und sonst in einer Sackgasse saesse. Im Reiter ist er nicht nur ueberfluessig,
+     sondern falsch: Man IST in der Academy, und der Klick wuerde das ganze
+     Fenster neu laden — Einstellungen zu, Lektion weg. Also weg damit. */
+  ['zur-academy', 'zur-academy-punkt'].forEach(function (id) {
+    var e = document.getElementById(id);
+    if (e) e.hidden = true;
+  });
+}
+</script>
+<script src="scrollcraft.js"></script>
+<script>
+/* ============================================================================
+   Die Engine starten.
+   ----------------------------------------------------------------------------
+   Diese eine Zeile fehlte, und sie hat die halbe Seite unsichtbar gemacht:
+   `scrollcraft.js` definiert nur `ScrollCraft.mount` und tut von sich aus
+   nichts. Ohne den Aufruf wird kein IntersectionObserver angelegt, also
+   bekommt kein `[data-sc-in]` je die Klasse `sc-in` — und in scrollcraft.css
+   steht als Ausgangszustand `opacity: 0`. Sämtliche Kapiteltexte standen
+   damit auf Null, während Bilder, Masse und Kontraste einwandfrei waren.
+
+   Genau daran ist die vorige Prüfung vorbeigelaufen: Geometrie und Kontrast
+   rechnet der Browser aus dem Stylesheet, ob ein Element sichtbar ist oder
+   nicht. Gemessen wurde alles ausser dem, was fehlte.
+   ========================================================================= */
+ScrollCraft.mount(document.body);
+</script>
+<script>
+/* ============================================================================
+   Der eigene Effekt: die wandernde Flamme.
+   ----------------------------------------------------------------------------
+   Sie läuft mit dem Scrollfortschritt der ganzen Seite und entzündet jede
+   Tafel, sobald sie deren Mitte erreicht hat. Einmal entzündet, bleibt es so —
+   ein Bild, das beim Zurückscrollen wieder erlischt, ist ein Fehler und kein
+   Effekt.
+
+   Warum das nicht in der Engine steht: Es ist die These dieser Seite als
+   Mechanik, nicht ein Regler an einem fertigen Gerät. Die Engine bleibt
+   unangetastet; hier läuft eigener Code.
+
+   Und warum es nicht ruckelt: Gelesen wird die Scrollposition genau einmal je
+   Bild in einer rAF-Schleife, geschrieben wird nur eine CSS-Variable und eine
+   Klasse. Kein Layout wird angefasst, keine Grösse gerechnet, kein `filter`
+   pro Bild neu bestimmt.
+   ========================================================================= */
+(function () {
+  'use strict';
+
+  var flamme  = document.querySelector('.flamme');
+  var schiene = document.querySelector('.flammen-schiene');
+  var tafeln  = Array.prototype.slice.call(document.querySelectorAll('.tafel'));
+  if (!flamme || !tafeln.length) return;
+
+  var sanft = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Bei „weniger Bewegung": alles sofort entzünden. Die Seite soll dann nicht
+  // die Hälfte ihrer Bilder grau lassen — sie soll nur nicht wandern.
+  if (sanft.matches) {
+    tafeln.forEach(function (t) { t.classList.add('entzuendet'); });
+    return;
+  }
+
+  var offen = false;
+
+  function anstossen() {
+    if (offen) return;
+    offen = true;
+    requestAnimationFrame(zeichnen);
+  }
+
+  function zeichnen() {
+    offen = false;
+
+    var hoehe = document.documentElement.scrollHeight - window.innerHeight;
+    var p = hoehe > 0 ? Math.min(1, Math.max(0, window.scrollY / hoehe)) : 0;
+
+    flamme.style.setProperty('--flamme', p.toFixed(4));
+    if (schiene) schiene.style.setProperty('--flamme', p.toFixed(4));
+
+    // Die Höhe, auf der die Flamme gerade steht — in Bildschirmkoordinaten.
+    var linie = window.innerHeight * (0.12 + p * 0.76);
+
+    for (var i = 0; i < tafeln.length; i++) {
+      var t = tafeln[i];
+      if (t.classList.contains('entzuendet')) continue;
+
+      var k = t.getBoundingClientRect();
+      // Entzündet, sobald die Flamme das obere Drittel der Tafel erreicht hat.
+      if (linie >= k.top + k.height * 0.33) t.classList.add('entzuendet');
+    }
+  }
+
+  addEventListener('scroll', anstossen, { passive: true });
+  addEventListener('resize', anstossen, { passive: true });
+
+  /* Wer die Seite in einem Hintergrund-Tab öffnet und später hinschaut, hat
+     bis dahin kein einziges Bild bekommen: `requestAnimationFrame` wird in
+     unsichtbaren Tabs nicht ausgeführt. Ohne diese Zeile stünde die Flamme
+     dann oben, während man in der Mitte der Seite steht. */
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) anstossen();
+  });
+
+  /* Der erste Durchlauf direkt, nicht über rAF: Wird die Seite mit einer
+     Sprungmarke oder nach einem Neuladen mitten im Dokument geöffnet, wäre
+     sonst für die Dauer eines Bildes alles unentzündet — ein sichtbares
+     Aufblitzen. */
+  zeichnen();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!-- PROMPTHEUS ACADEMY — Bildmarke für kleine Flächen.
+
+     Quadratisch, ab 16 px lesbar: Reiterkennung, Kachel, Anwendungssymbol.
+     Sie zeigt die Flamme im Mäanderring — die beiden Zeichen der Marke in
+     einem, ohne Schrift.
+
+     Wann diese statt `wordmark.svg`: immer, wenn weniger als 160 px Breite
+     zur Verfügung stehen oder die Fläche quadratisch ist. Die Wortmarke in
+     ein Quadrat zu quetschen ist der häufigste Fehler und sofort sichtbar. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"
+     role="img" aria-label="PROMPTHEUS">
+  <defs>
+    <linearGradient id="flamme" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0"   stop-color="#ff4d1c"/>
+      <stop offset=".55" stop-color="#ff9d2e"/>
+      <stop offset="1"   stop-color="#ffe08a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="12" fill="#14110f"/>
+
+  <!-- Der Ring: vier Mäanderecken statt eines Kreises. -->
+  <g fill="none" stroke="#ffc94d" stroke-width="2" opacity=".42">
+    <path d="M8 8 H20 V14 H14 V20 H8 Z"/>
+    <path d="M56 8 H44 V14 H50 V20 H56 Z"/>
+    <path d="M8 56 H20 V50 H14 V44 H8 Z"/>
+    <path d="M56 56 H44 V50 H50 V44 H56 Z"/>
+  </g>
+
+  <path d="M32 14C32 14 21 26 21 37a11 11 0 0 0 22 0C43 30 36.5 27.5 36.5 21c0 0-4 4-4 9.5 0 0-4-4-4-10.5 0 0 3.5-6 3.5-6z"
+        fill="url(#flamme)"/>
+</svg>

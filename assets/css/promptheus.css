@@ -1,0 +1,2210 @@
+/* ============================================================================
+   PROMPTHEUS — Erscheinungsbild.
+   Eine Datei, keine Fremdquelle, keine Webschrift. Die Academy läuft auf
+   127.0.0.1 und wird von Minderjährigen benutzt: nichts geht nach draussen,
+   auch keine Schriftanfrage.
+
+   Bild: die Schmiede. Dunkler Grund, Glut als Akzent, Gold für Erfolg.
+   Farben tragen nie allein eine Aussage — richtig/falsch steht immer auch
+   als Wort und als Zeichen da, sonst wäre die Academy für Farbenblinde
+   unbenutzbar.
+   ========================================================================= */
+
+:root {
+  --grund:        #14110f;
+  --grund-2:      #1c1815;
+  --grund-3:      #262019;
+  --rand:         #3a3129;
+  --rand-hell:    #504338;
+
+  --schrift:      #ede5db;
+  --schrift-2:    #b3a596;
+  --schrift-3:    #aaa39c;
+
+  --glut:         #ff7a1c;
+  --glut-hell:    #ffa347;
+  --glut-tief:    #c14e00;
+  --gold:         #ffc94d;
+  --asche:        #6f6257;
+
+  /* Fachbegriffe im Lehrstoff. Eigener Token und nicht einfach `--gold`, weil
+     hier Fliesstext eingefärbt wird und nicht eine Zahl: auf hellem Grund
+     verfehlt das Gold der hellen Paletten sogar AA. Auf dunklem Grund ist es
+     dasselbe Gold — dort leuchtet es. */
+  --begriff:      var(--gold);
+
+  --gut:          #5fbf7a;
+  --gut-grund:    #14301d;
+  --schlecht:     #e8635a;
+  --schlecht-grund:#331614;
+  --warn:         #e5b34a;
+
+  /* Codeflächen. Sie liegen TIEFER als die Grundfläche, damit ein Listing wie
+     ein Fenster in die Maschine wirkt und nicht wie ein weiterer Kasten.
+     Als Token und nicht als fester Wert: Sie standen lange als Hexwerte im
+     Regelwerk selbst — und blieben deshalb auch dann fast schwarz, wenn die
+     Academy hell lief. Der Text darin ist `--schrift`, im Hellen also
+     ebenfalls fast schwarz: unlesbar, und zwar überall dort, wo Code steht.
+     `tests/varianten_test.php` zählt nach, dass jeder dieser drei Werte nur
+     noch genau einmal vorkommt — hier. */
+  --code-grund: #0f0d0b;
+  --code-rand:  #1d1916;
+  --code-auf:   #171310;
+
+  --breit:        1180px;
+  --radius:       10px;
+  --radius-klein: 6px;
+  --schatten:     0 2px 10px rgba(0,0,0,.45);
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans:  "Segoe UI", -apple-system, system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --mono:  "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--grund);
+  color: var(--schrift);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Der Grund trägt eine schwache Glut von unten — wie ein Feuer außerhalb
+   des Bildes.
+
+   Die Flächen selbst baut `marke.css` zusammen, weil dort auch das Bild und
+   der Schleier hineingehören. Hier stehen nur die zwei Farben — als Token,
+   damit das Hell-Thema sie umdefinieren kann, ohne die ganze Regel noch
+   einmal zu schreiben. Genau das war vorher der Fall, und die zweite Regel
+   hatte die höhere Spezifität: das Bild erschien im Dunkeln und im Hellen
+   nicht. */
+:root {
+  --schein:     rgba(255,122,28,.10);
+  --schein-tor: rgba(255,122,28,.16);
+}
+
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.25; margin: 1.4em 0 .5em; }
+h1 { font-size: 2rem; margin-top: 0; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.15rem; }
+p  { margin: 0 0 1em; }
+a  { color: var(--glut-hell); }
+
+code {
+  font-family: var(--mono); font-size: .9em;
+  background: var(--grund-3); padding: .12em .38em;
+  border-radius: 4px; border: 1px solid var(--rand);
+}
+pre.code {
+  font-family: var(--mono); font-size: .88rem; line-height: 1.55;
+  background: var(--code-grund); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .9rem 1rem;
+  overflow-x: auto; margin: 0 0 1.2em;
+}
+pre.code code { background: none; border: 0; padding: 0; }
+
+blockquote {
+  margin: 0 0 1.2em; padding: .1rem 0 .1rem 1rem;
+  border-left: 3px solid var(--glut-tief); color: var(--schrift-2);
+}
+hr { border: 0; border-top: 1px solid var(--rand); margin: 2rem 0; }
+
+/* Breite Inhalte scrollen in sich selbst — die Seite selbst nie waagerecht. */
+.tabellenrahmen { overflow-x: auto; margin: 0 0 1.2em; }
+table { border-collapse: collapse; width: 100%; font-size: .94rem; }
+th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--rand); }
+th { color: var(--schrift-2); font-weight: 600; font-size: .85rem;
+     text-transform: uppercase; letter-spacing: .04em; }
+
+.hidden { display: none !important; }
+
+/* ============================================================ Tor */
+.tor-flaeche {
+  min-height: 100vh; display: grid; place-items: center; padding: 2rem 1rem;
+}
+.tor-karte {
+  width: 100%; max-width: 420px; text-align: center;
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: 16px; padding: 2.4rem 2rem; box-shadow: var(--schatten);
+}
+.tor-karte h1 {
+  font-size: 1.9rem; letter-spacing: .16em; margin: .6rem 0 .2rem;
+  background: linear-gradient(180deg, var(--gold), var(--glut));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.motto { color: var(--schrift-3); font-style: italic; margin-bottom: 1.8rem; }
+.flamme { display: flex; justify-content: center; }
+
+.tor-form { display: grid; gap: .9rem; text-align: left; }
+.tor-form label { display: grid; gap: .3rem; font-size: .86rem; color: var(--schrift-2); }
+input, textarea, select {
+  font: inherit; color: var(--schrift);
+  background: var(--grund-3); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius-klein); padding: .55rem .7rem; width: 100%;
+}
+/* Ankreuz- und Auswahlfelder sind keine Eingabefelder mit Textbreite.
+   Die Regel darueber gibt jedem `input` volle Breite und ein Polster — fuer
+   ein Kaestchen ist beides falsch. In einem Flex-Label schiebt die volle
+   Breite den Text aus der Karte heraus und die Seite bekommt einen
+   Querbalken. Genau so ist es beim ersten Ankreuzfeld der Academy passiert
+   (Widerrufs-Haken im Cockpit), und es wird beim naechsten wieder passieren,
+   wenn die Ausnahme nicht hier steht statt in einem einzelnen Bauteil. */
+input[type="checkbox"], input[type="radio"] {
+  width: auto; min-width: 0; flex: 0 0 auto;
+  padding: 0; margin: 0;
+  accent-color: var(--glut);
+}
+
+input:focus, textarea:focus, select:focus, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--glut); outline-offset: 2px;
+}
+textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
+
+.knopf {
+  font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--grund); background: linear-gradient(180deg, var(--glut-hell), var(--glut));
+  border: 0; border-radius: var(--radius-klein); padding: .55rem 1.1rem;
+}
+.knopf:hover  { filter: brightness(1.08); }
+.knopf:active { transform: translateY(1px); }
+.knopf.groß  { padding: .7rem 1.2rem; font-size: 1rem; }
+.knopf.still {
+  background: var(--grund-3); color: var(--schrift);
+  border: 1px solid var(--rand-hell);
+}
+.knopf.still:hover { border-color: var(--glut); }
+.knopf[disabled] { opacity: .45; cursor: not-allowed; filter: none; }
+
+.fehler   { color: var(--schlecht); font-size: .88rem; min-height: 1.2em; margin: 0; }
+.hinweis  { color: var(--schrift-3); font-size: .86rem; }
+
+.urkunde-pruefen { margin-top: 1.8rem; text-align: left; border-top: 1px solid var(--rand); padding-top: 1rem; }
+.urkunde-pruefen summary { cursor: pointer; color: var(--schrift-2); font-size: .9rem; }
+.urkunde-pruefen form { display: grid; gap: .6rem; margin-top: .8rem; }
+
+/* ============================================================ Schale
+   Drei Spalten statt einer Zeile: Menü, Stoff, Tutor.
+
+   Die Breiten stehen in Variablen und nicht am Element. Zwei der drei Spalten
+   sind Grids (`.mit-spalte`) oder feste Fenster (`.seitenmenue`) — ein Grid
+   lässt sich nicht über `style.width` verschieben, wohl aber über seine
+   Spaltenmasse. Eine Variable kann beides.                                */
+
+:root {
+  --leiste-breite: 232px;
+  --leiste-min:    132px;
+  --leiste-max:    440px;
+  --panel-breite:  400px;
+  --spalte-breite: 330px;
+}
+
+.schale { display: flex; align-items: flex-start; }
+
+/* Der Stoff steht in einer eigenen Spalte, nicht direkt im Körper: sonst
+   klebte die Kopfzeile am Fenster statt an ihrer Spalte und läge beim
+   Zuklappen des Menüs plötzlich woanders. */
+.saeule { flex: 1; min-width: 0; }
+
+/* ============================================================ Menüleiste */
+.leiste {
+  position: sticky; top: 0; z-index: 45;
+  width: var(--leiste-breite); flex-shrink: 0;
+  height: 100vh; display: flex; flex-direction: column;
+  /* `--karte-schleier` ist die Fläche der Palette als „R G B" — dieselbe,
+     auf der auch Karten liegen. Ein zweiter Wert für dieselbe Farbe wäre der
+     Ort, an dem die Leiste irgendwann anders aussieht als der Rest. */
+  background: rgb(var(--karte-schleier) / .92);
+  border-right: 1px solid var(--rand);
+  backdrop-filter: blur(8px);
+  transition: width .16s ease;
+}
+
+/* Zugeklappt heisst wirklich weg: nicht schmal, sondern null. Ein Streifen
+   Restmenü wäre eine Spalte, die nichts zeigt und trotzdem Platz nimmt. */
+.leiste.zu { width: 0; min-width: 0; border-right: 0; overflow: hidden; }
+.leiste.zu > * { display: none; }
+
+.leiste-kopf { flex-shrink: 0; padding: .85rem .85rem .55rem; overflow: hidden; }
+
+.leiste-liste {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; gap: .12rem;
+  padding: .3rem .5rem;
+}
+
+.leiste-fuss {
+  flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .25rem;
+  padding: .5rem .5rem .6rem; border-top: 1px solid var(--rand);
+}
+.leiste-fuss .menue-knopf { width: auto; }
+
+/* Die Farbliste klappt im Fuss nach OBEN auf. Nach unten läge sie unter dem
+   Fensterrand — und sie ist breiter als die Leiste, deshalb steht sie über
+   deren Kante hinaus statt sich hineinzuquetschen. */
+.leiste-fuss .variantenliste { top: auto; bottom: calc(100% + .5rem); right: auto; left: 0; }
+
+/* ============================================================ Ziehgriff
+   Der Griff sitzt AUF der Kante, nicht daneben. Eine eigene Spalte zwischen
+   Menü und Stoff wäre ein Streifen, den man erst trifft, wenn man ihn sucht;
+   so ist die Trefferfläche neun Pixel breit, die Linie aber eine. */
+.griff {
+  position: absolute; top: 0; bottom: 0; width: 9px; z-index: 50;
+  cursor: col-resize; background: transparent; border: 0; padding: 0;
+  touch-action: none;
+}
+.griff::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 1px; transform: translateX(-50%);
+  background: transparent; transition: background .12s, width .12s;
+}
+.griff:hover::before,
+.griff:focus-visible::before,
+.griff.zieht::before { background: var(--glut); width: 3px; }
+.griff:focus-visible { outline: none; }
+
+.griff-leiste { right: -5px; }
+.griff-panel  { left: -5px; }
+/* An der Innenkante der Spalte, nicht davor: Seit die Spalte einen eigenen
+   Scrollbereich hat, schneidet ihr `overflow` alles ab, was ausserhalb liegt —
+   und ein Griff, den man nicht sieht, ist keiner. */
+.griff-spalte { left: 0; }
+
+/* ============================================================ Kopfzeile
+   Seit das Menü links steht, trägt sie Kennzahlen — je nach Ebene andere.
+   Welche, entscheidet `pu_kennzahlen()` in srv/kennzahlen.php.            */
+.kopf {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: .9rem;
+  padding: .4rem 1.2rem; min-height: 2.9rem;
+  background: rgb(var(--karte-schleier) / .92);
+  border-bottom: 1px solid var(--rand);
+  backdrop-filter: blur(8px);
+}
+
+/* Zwei Zeilen, nicht eine: Flamme und PROMPTHEUS oben, ACADEMY darunter —
+   linksbündig unter dem Namen, nicht unter der Flamme. In einer Leiste von
+   132 Pixeln stünde „Academy" sonst rechts über die Kante hinaus, und
+   abgeschnitten ist ein Markenname schlimmer als klein. */
+.marke {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  column-gap: .5rem; align-items: center;
+  cursor: pointer; user-select: none; text-decoration: none;
+}
+.marke-flamme { grid-column: 1; grid-row: 1 / span 2; font-size: 1.35rem; }
+.marke-text {
+  grid-column: 2; grid-row: 1;
+  font-family: var(--serif); font-weight: 700; letter-spacing: .13em; font-size: .95rem;
+  background: linear-gradient(180deg, var(--gold), var(--glut));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  white-space: nowrap;
+}
+
+/* Ein Punkt trägt Zeichen und Wort. Das Zeichen bleibt stehen, wenn die
+   Leiste schmal gezogen wird — so bleibt das Menü auch bei 132 Pixeln
+   benutzbar, statt zu Buchstabensalat zu werden. */
+/* Menüpunkte sind `<a href="#/…">`, damit sie echte Links sind — siehe
+   index.php. `text-decoration: none` und `box-sizing` stehen deshalb hier:
+   ein Anker bringt beides anders mit als ein Knopf. */
+.menue-knopf {
+  font: inherit; font-size: .9rem; cursor: pointer;
+  background: transparent; color: var(--schrift-2);
+  border: 1px solid transparent; border-radius: var(--radius-klein);
+  padding: .4rem .6rem;
+  display: flex; align-items: center; gap: .55rem;
+  width: 100%; text-align: left;
+  box-sizing: border-box; text-decoration: none;
+}
+.menue-zeichen { flex-shrink: 0; width: 1.25rem; text-align: center; line-height: 1; }
+.menue-wort { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menue-knopf:hover { color: var(--schrift); background: var(--grund-3); }
+.menue-knopf.aktiv {
+  color: var(--gold); background: var(--grund-3); border-color: var(--rand-hell);
+}
+.menue-knopf.schmal { padding: .3rem .6rem; font-size: .82rem; display: inline-flex; }
+
+/* Der siebte Kurs steht am Ende der Liste und ist keine Ansicht, sondern ein
+   Ausblick. Ein feiner Strich darüber setzt ihn ab, ohne ihn herauszuheben —
+   Gold bekäme er erst, wenn er verdient ist, und das entscheidet nicht das
+   Menü. */
+.menue-geschenk { margin-top: .5rem; padding-top: .7rem; position: relative; }
+.menue-geschenk::before {
+  content: ''; position: absolute; top: 0; left: .6rem; right: .6rem;
+  height: 1px; background: var(--rand);
+}
+.menue-geschenk:hover { color: var(--gold); }
+
+.kennzahlen {
+  display: flex; align-items: center; gap: 1.05rem;
+  flex-wrap: wrap; font-size: .86rem; min-width: 0;
+}
+.kennzahl { display: flex; align-items: baseline; gap: .35rem; white-space: nowrap; }
+.kz-wert { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--schrift); }
+.kz-kurz {
+  font-size: .72rem; color: var(--schrift-3);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.kennzahl.ton-normal .kz-wert { color: var(--schrift-2); font-weight: 600; }
+.kennzahl.ton-gold   .kz-wert { color: var(--gold); }
+.kennzahl.ton-glut   .kz-wert { color: var(--glut-hell); }
+.kennzahl.ton-lapis  .kz-wert { color: var(--lapis-hell); }
+.kennzahl.ton-gut    .kz-wert { color: var(--gut); }
+.kennzahl.ton-warn   .kz-wert { color: var(--warn); }
+
+/* Rechts oben, wo der Daumen und der Blick zuerst hinwandern. Die Kennzahlen
+   davor dehnen sich, damit die Gruppe an der Kante klebt und nicht mitwandert,
+   wenn eine Ebene mehr oder weniger Zahlen hat. */
+.kennzahlen { flex: 1; }
+.kopf-rechts { display: flex; align-items: center; gap: .25rem; flex-shrink: 0; }
+.kopf-symbol.gross { font-size: 1.25rem; padding: .25rem .55rem; }
+
+#haupt { max-width: var(--breit); margin: 0 auto; padding: 1.8rem 1.2rem 5rem; }
+
+/* ============================================================ Karten */
+.karten { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+.karte {
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius); padding: 1.1rem 1.2rem;
+  display: flex; flex-direction: column; gap: .5rem;
+  transition: border-color .15s, transform .15s;
+}
+.karte.klickbar { cursor: pointer; }
+.karte.klickbar:hover { border-color: var(--glut); transform: translateY(-2px); }
+.karte.gesperrt { opacity: .5; }
+.karte.gesperrt.klickbar { cursor: not-allowed; }
+.karte h3 { margin: 0; font-size: 1.08rem; }
+.karte-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+
+.marke-stufe {
+  font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--glut); border: 1px solid var(--glut-tief);
+  border-radius: 99px; padding: .1rem .55rem; white-space: nowrap;
+}
+.marke-stufe.fertig { color: var(--gut); border-color: var(--gut); }
+.marke-stufe.geruest { color: var(--asche); border-color: var(--asche); }
+
+.balken { height: 6px; background: var(--grund-3); border-radius: 99px; overflow: hidden; }
+.balken > i { display: block; height: 100%; background: linear-gradient(90deg, var(--glut-tief), var(--gold)); }
+.klein { font-size: .82rem; color: var(--schrift-3); }
+
+/* ============================================================ Lektion */
+.lektion { max-width: 760px; }
+/* ============================================================ Übernahme-Band
+   Sichtbar, solange Ebene 1 unter fremdem Namen handelt. Warnfarbe, ganz oben,
+   nicht wegklickbar — wer das vergisst, schreibt in fremde Lernstände. */
+.uebernahme-band {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  padding: .55rem clamp(.8rem, 3vw, 1.4rem);
+  background: var(--schlecht-grund); border-bottom: 2px solid var(--warn);
+  color: var(--schrift); font-family: var(--sans); font-size: .85rem;
+}
+.uebernahme-band b { color: var(--warn); }
+.ub-zeichen { font-size: 1.1rem; }
+.uebernahme-band .knopf { margin-left: auto; white-space: nowrap; }
+
+/* ============================================================ Pfadleiste
+   Zurück-Knopf und Brotkrume, einmal oben, in jeder Ansicht. Sie ersetzt die
+   frühere `.brotkrume`, die es nur in drei Ansichten gab und die aus
+   Klickhorchern statt Adressen bestand.
+
+   Sie klebt oben mit: wer in einer langen Lektion unten steht, soll nicht
+   erst hochscrollen müssen, um herauszufinden, wo er ist. */
+.pfadleiste {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  margin: -.2rem 0 1.1rem; padding: .5rem 0 .55rem;
+  background: var(--grund);
+  border-bottom: 1px solid var(--rand);
+  font-size: .85rem;
+}
+.pfadleiste:empty { display: none; }
+
+.pfad-zurueck {
+  font: inherit; font-size: .82rem; cursor: pointer; white-space: nowrap;
+  padding: .25rem .7rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
+}
+.pfad-zurueck:hover:not(:disabled) { border-color: var(--glut); color: var(--gold); }
+/* Abgeschaltet statt versteckt: ein Knopf, der beim Laden erscheint und
+   wieder verschwindet, lässt die ganze Zeile springen. */
+.pfad-zurueck:disabled { opacity: .38; cursor: default; }
+
+.pfad-krume {
+  display: flex; align-items: center; gap: .45rem; flex-wrap: wrap;
+  min-width: 0; color: var(--schrift-3);
+}
+.pfad-trenner { color: var(--schrift-3); opacity: .7; }
+.pfad-glied {
+  max-width: 22rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+a.pfad-glied { color: var(--schrift-2); text-decoration: none; }
+a.pfad-glied:hover,
+a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
+/* Der Ort, an dem man steht, ist kein Link und sieht auch nicht so aus. */
+.pfad-glied.jetzt { color: var(--schrift); font-weight: 600; }
+
+/* ============================================================ Aufgabe */
+.aufgabe {
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-left: 3px solid var(--glut); border-radius: var(--radius);
+  padding: 1.2rem 1.3rem; margin: 1.8rem 0;
+}
+.aufgabe.gelöst { border-left-color: var(--gut); }
+.aufgabe-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; margin-bottom: .3rem; }
+.aufgabe-kopf h4 { margin: 0; font-size: 1.05rem; font-family: var(--serif); }
+.aufgabe-marke {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--schrift-3); white-space: nowrap;
+}
+.aufgabe-punkte { color: var(--gold); font-weight: 600; font-size: .85rem; white-space: nowrap; }
+
+.optionen { display: grid; gap: .5rem; margin: 1rem 0; }
+.option {
+  display: flex; align-items: flex-start; gap: .65rem; cursor: pointer;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .6rem .8rem;
+}
+.option:hover  { border-color: var(--rand-hell); }
+.option.gewaehlt { border-color: var(--glut); background: rgba(255,122,28,.10); }
+.option input { width: auto; margin: .25rem 0 0; flex: none; }
+
+/* Schiebe- und Plug&Play-Aufgaben */
+.bausteine { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.baustein {
+  cursor: grab; user-select: none;
+  background: var(--grund-3); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius-klein); padding: .45rem .8rem; font-size: .92rem;
+}
+.baustein:active { cursor: grabbing; }
+.baustein.zieht  { opacity: .35; }
+.ablage {
+  min-height: 3.4rem; display: flex; flex-wrap: wrap; gap: .5rem; align-content: flex-start;
+  background: var(--grund-3); border: 1px dashed var(--rand-hell);
+  border-radius: var(--radius-klein); padding: .6rem; margin: 1rem 0;
+}
+.ablage.ueber { border-color: var(--glut); background: rgba(255,122,28,.07); }
+.ablage:empty::after { content: "Bausteine hierher ziehen oder anklicken"; color: var(--schrift-3); font-size: .85rem; }
+.ablage .baustein { counter-increment: pos; }
+.ablage.geordnet { counter-reset: pos; }
+.ablage.geordnet .baustein::before {
+  content: counter(pos) ". "; color: var(--glut); font-weight: 700;
+}
+
+/* Zuordnung */
+.paare { display: grid; gap: .55rem; margin: 1rem 0; }
+.paar { display: grid; grid-template-columns: minmax(6rem, 1fr) auto minmax(9rem, 1.4fr); gap: .6rem; align-items: center; }
+.paar-links { font-weight: 600; }
+.paar-pfeil { color: var(--schrift-3); }
+
+/* Code mit Zeilennummern (Sicherheits-Aufgaben) */
+.codezeilen { border: 1px solid var(--rand); border-radius: var(--radius-klein); overflow: hidden; margin: 1rem 0; }
+.codezeile {
+  display: grid; grid-template-columns: 3rem 1fr; gap: .6rem; cursor: pointer;
+  font-family: var(--mono); font-size: .86rem; background: var(--code-grund);
+  border-bottom: 1px solid var(--code-rand);
+}
+.codezeile:last-child { border-bottom: 0; }
+.codezeile:hover { background: var(--code-auf); }
+.codezeile.gewaehlt { background: rgba(232,99,90,.14); }
+.codezeile .nr { color: var(--schrift-3); text-align: right; padding: .18rem .2rem; user-select: none; }
+.codezeile .txt { padding: .18rem .6rem .18rem 0; white-space: pre; overflow-x: auto; }
+
+.dump {
+  font-family: var(--mono); font-size: .82rem; line-height: 1.5;
+  background: var(--code-grund); border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  padding: .8rem; max-height: 20rem; overflow: auto; margin: 1rem 0; white-space: pre;
+}
+
+.aufgabe-fuss { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: 1.1rem; }
+.aufgabe-fuss .rechts { margin-left: auto; display: flex; gap: .5rem; }
+
+.hinweis-kasten {
+  background: rgba(229,179,74,.09); border: 1px solid rgba(229,179,74,.35);
+  border-radius: var(--radius-klein); padding: .7rem .9rem; margin: .9rem 0;
+  font-size: .92rem;
+}
+.hinweis-kasten b { color: var(--warn); }
+
+.ergebnis { border-radius: var(--radius-klein); padding: .9rem 1rem; margin: 1rem 0 0; }
+.ergebnis.richtig { background: var(--gut-grund); border: 1px solid var(--gut); }
+.ergebnis.falsch  { background: var(--schlecht-grund); border: 1px solid var(--schlecht); }
+.ergebnis-kopf { display: flex; align-items: center; gap: .5rem; font-weight: 600; margin-bottom: .4rem; }
+.ergebnis-kopf .zeichen { font-size: 1.15rem; }
+.ergebnis p:last-child { margin-bottom: 0; }
+
+.teilliste { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; gap: .35rem; font-size: .89rem; }
+.teilliste li { display: flex; gap: .5rem; align-items: baseline; }
+.teilliste .zeichen { flex: none; width: 1.1rem; }
+.teilliste .erfuellt  { color: var(--gut); }
+.teilliste .offen     { color: var(--schlecht); }
+
+.anmerkung {
+  margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--rand);
+  font-size: .92rem; color: var(--schrift-2);
+}
+.anmerkung b { color: var(--gold); }
+
+/* ============================================================ Fortschritt */
+.gitter-2 { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+.badge-liste { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.badge {
+  display: flex; gap: .7rem; align-items: flex-start;
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .7rem .8rem;
+}
+.badge.hat { border-color: var(--gold); background: rgba(255,201,77,.07); }
+.badge.fehlt { opacity: .48; }
+.badge .sym { font-size: 1.5rem; line-height: 1; filter: grayscale(1); }
+.badge.hat .sym { filter: none; }
+.badge .name { font-weight: 600; font-size: .92rem; }
+
+.titelleiter { display: grid; gap: .3rem; margin-top: .8rem; }
+.titelstufe { display: flex; justify-content: space-between; font-size: .86rem; color: var(--schrift-3); }
+.titelstufe.erreicht { color: var(--gold); }
+
+/* ============================================================ Bibliothek */
+.bib { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 1.4rem; align-items: start; }
+.bib-baum { position: sticky; top: 4.5rem; max-height: calc(100vh - 6rem); overflow: auto; font-size: .9rem; }
+.bib-baum ul { list-style: none; margin: 0; padding-left: .85rem; }
+.bib-baum > ul { padding-left: 0; }
+.bib-baum li { margin: .1rem 0; }
+.bib-ordner { color: var(--schrift-2); cursor: pointer; user-select: none; }
+.bib-ordner:hover { color: var(--glut-hell); }
+.bib-notiz-link { color: var(--schrift-3); cursor: pointer; display: block; padding: .1rem 0; }
+.bib-notiz-link:hover { color: var(--glut-hell); }
+.bib-notiz-link.aktiv { color: var(--gold); }
+.bib-inhalt { min-width: 0; max-width: 760px; }
+.verweise { margin-top: 2.5rem; border-top: 1px solid var(--rand); padding-top: 1rem; }
+.wikilink { cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--glut-hell); }
+
+.meta-kopf {
+  display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.2rem;
+  font-size: .78rem;
+}
+.meta-marke {
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: 99px; padding: .1rem .6rem; color: var(--schrift-3);
+}
+
+/* ============================================================ Tutor
+   Ein Gespräch, vier Tutoren. Die Anrede steht im Satz (`@athena …`), nicht
+   in einer Auswahl darüber — deshalb gibt es die vier Karten oben nicht mehr,
+   sondern eine Knopfreihe unter dem Gespräch und eine Karte daneben.
+
+   Die Abstände sind eng: ein Chat mit 1,2 rem zwischen jeder Nachricht liest
+   sich wie ein Formular, nicht wie ein Gespräch.                          */
+
+/* Das Gespräch nimmt sich den Platz, der da ist: alles zwischen Titel und
+   Eingabezeile. Vorher war es an 62vh gedeckelt und stand mitten auf einer
+   halbleeren Seite — ein Chatfenster, das kürzer ist als der Bildschirm,
+   zwingt zum Scrollen in einem Kasten, während daneben Weiss bleibt.
+
+   Die letzten Zeilen sollen unten stehen, solange wenig darin steht: Das
+   Gespräch beginnt direkt über dem Eingabefeld statt oben, mit einer Lücke
+   darunter.
+
+   **Das darf aber nicht über `align-content: end` gehen.** Genau das stand
+   hier und hat den Verlauf oben abgeschnitten: Packt ein Grid (oder ein Flex)
+   seinen Inhalt ans Ende und läuft dieser Inhalt dann über, wächst der
+   Überschuss über die OBERE Kante des Kastens hinaus — in einen Bereich, den
+   `scrollTop` nicht erreicht, weil `scrollTop` bei 0 aufhört. Die ältesten
+   Nachrichten waren damit nicht nur unsichtbar, sie waren unerreichbar, und
+   mit ihnen ihre Kopier- und Vorlese-Knöpfe.
+
+   Der Ersatz macht dasselbe ohne die Falle: eine Spalte, deren ERSTES Kind
+   den freien Platz über sich aufsaugt. Ist wenig da, drückt der Auto-Rand
+   alles nach unten. Ist zu viel da, gibt es keinen freien Platz, der Rand
+   wird zu null, und der Verlauf beginnt oben — dort, wo man ihn erreicht. */
+.gespraech {
+  display: flex; flex-direction: column; gap: .45rem; margin: 1rem 0;
+  min-height: 42vh;
+  max-height: calc(100vh - 19rem);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  /* Ein eigener Rahmen. Ohne ihn standen die Sprechblasen frei auf dem Grund,
+     und über einem Hintergrundbild sah das aus wie verstreute Zettel statt
+     wie ein Gespräch. Der Rahmen sagt: hier drin wird geredet. */
+  padding: .75rem .85rem;
+  background: rgb(var(--karte-schleier) / .55);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+}
+/* Der Auto-Rand, der das Gespräch nach unten drückt — siehe oben. Er sitzt am
+   ersten Kind und nicht am Kasten, weil nur ein Flex-Kind freien Platz
+   aufsaugen kann; am Kasten wäre es wieder eine Ausrichtung, und die hat den
+   Verlauf gerade oben abgeschnitten. */
+.gespraech > *:first-child { margin-top: auto; }
+/* Eine Nachricht darf nicht schrumpfen, nur weil zehn weitere darunter
+   stehen. Ohne diese Zeile presst die Spalte lange Antworten zusammen,
+   sobald der Kasten voll ist, statt sie scrollen zu lassen. */
+.gespraech > * { flex: none; }
+
+/* -------- Die linke Spalte im Tutor-Fenster
+   Sie ist so hoch wie das Fenster: das Gespräch dehnt sich, das Eingabefeld
+   klebt unten. Vorher wuchs die Seite nach unten und das Feld wanderte mit —
+   nach drei Antworten musste man scrollen, um weiterzuschreiben. */
+.tutor-spalte {
+  display: flex; flex-direction: column;
+  height: calc(100vh - 5.8rem); min-height: 26rem;
+}
+
+/* Das Tutorfenster füllt die Fensterhöhe. Der Auslauf von fünf Zeilen, den
+   jede andere Ansicht unten hat, wäre hier leerer Raum unter dem Eingabefeld
+   — und dazu ein Rollbalken für nichts. */
+body[data-ansicht="tutor"] #haupt { padding-bottom: 1rem; }
+.tutor-spalte > .textkarte h1 { margin: 0; }
+.tutor-spalte .gespraech {
+  flex: 1; min-height: 0; max-height: none; margin: .2rem 0 0;
+}
+.tutor-spalte .tutor-form {
+  flex: none; position: sticky; bottom: 0; z-index: 2;
+  padding-top: .6rem;
+  background: rgb(var(--karte-schleier) / .92);
+  backdrop-filter: blur(6px);
+}
+.nachricht { padding: .55rem .8rem; border-radius: var(--radius-klein); }
+.nachricht.ich   { background: var(--grund-3); border: 1px solid var(--rand); }
+.nachricht.agent { background: var(--grund-2); border: 1px solid var(--rand-hell); border-left: 3px solid var(--glut); }
+/* Die Namenszeile trägt rechts den Kopierknopf. `flex` statt `block`, damit er
+   dorthin rückt, ohne dass er absolut positioniert werden muss — absolut
+   säße er über dem Text, sobald eine Antwort mit einer langen ersten Zeile
+   beginnt. */
+.nachricht .von  {
+  font-size: .74rem; color: var(--schrift-3); margin-bottom: .15rem;
+  display: flex; align-items: center; gap: .4rem;
+}
+
+/* Er hält sich zurück, bis man die Nachricht anfasst: Ein Symbol an jeder
+   einzelnen Antwort macht aus einem Gespräch eine Werkzeugleiste. Über
+   Tastatur ist er trotzdem immer erreichbar (`:focus-visible`), sonst wäre er
+   für alle unsichtbar, die nicht mit der Maus arbeiten. */
+.nachricht-kopie {
+  margin-left: auto; flex: none;
+  font: inherit; font-size: .8rem; line-height: 1; cursor: pointer;
+  background: transparent; border: 0; padding: .1rem .25rem;
+  border-radius: var(--radius-klein);
+  opacity: 0; transition: opacity .12s ease-out, background-color .12s ease-out;
+}
+.nachricht:hover .nachricht-kopie,
+.nachricht-kopie:focus-visible { opacity: .75; }
+.nachricht-kopie:hover         { opacity: 1; background: var(--grund-3); }
+.nachricht-kopie.kopiert       { opacity: 1; }
+/* Die Rückmeldung ohne Textwechsel: Der Knopf trägt nur ein Zeichen, und ein
+   Wort an seiner Stelle würde die Zeile umbrechen lassen. */
+.nachricht-kopie.kopiert::after {
+  content: '✓'; margin-left: .2rem; color: var(--gut);
+}
+/* Auf Geräten ohne Zeigegerät gibt es kein „darüberfahren" — dort steht er
+   dauerhaft da, sonst käme man nie an ihn heran. */
+@media (hover: none) {
+  .nachricht-kopie, .nachricht-ton { opacity: .6; }
+}
+
+/* Der Vorlese-Knopf teilt sich das Verhalten mit dem Kopierknopf, hat aber
+   einen Zustand mehr: Er lädt, er läuft, oder er ruht. Deshalb ein eigener
+   Name statt einer zweiten Klasse am selben Element. */
+.nachricht-ton {
+  flex: none;
+  font: inherit; font-size: .8rem; line-height: 1; cursor: pointer;
+  background: transparent; border: 0; padding: .1rem .25rem;
+  border-radius: var(--radius-klein);
+  opacity: 0; transition: opacity .12s ease-out, background-color .12s ease-out;
+}
+/* Der Kopierknopf schiebt sich mit `margin-left:auto` nach rechts; der
+   Vorleseknopf steht daneben und braucht deshalb keinen eigenen Abstand. */
+.nachricht:hover .nachricht-ton,
+.nachricht-ton:focus-visible { opacity: .75; }
+.nachricht-ton:hover { opacity: 1; background: var(--grund-3); }
+
+/* Solange der Ton erzeugt wird, pulst der Knopf. Vorlesen dauert Sekunden —
+   ohne Rückmeldung drückt man ein zweites Mal und zahlt zweimal. */
+.nachricht-ton.laedt {
+  opacity: 1; cursor: progress;
+  animation: ton-laedt 1.1s ease-in-out infinite;
+}
+@keyframes ton-laedt { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+
+/* Während er spielt, bleibt er sichtbar und trägt die Glut — ein Klick
+   darauf hält an. */
+.nachricht-ton.laeuft { opacity: 1; color: var(--glut); background: var(--grund-3); }
+
+/* Wer weniger Bewegung will, bekommt den Ladezustand als ruhiges Zeichen. */
+@media (prefers-reduced-motion: reduce) {
+  .nachricht-ton.laedt { animation: none; opacity: .6; }
+}
+
+/* ==================================================== Persona-Vorschau
+   Der „P"-Knopf im Kopf, sein Menü und das Band darunter.
+
+   **Das Band ist der wichtigere Teil.** Ein Knopf, der anders aussieht, wenn
+   eine Persona läuft, wird übersehen — und wer vergisst, dass er als Schüler
+   unterwegs ist, hält eine kindgerechte Antwort für DIE Antwort des Tutors
+   und bessert am falschen Ende nach. Deshalb eine Zeile über die ganze
+   Breite, in Glut, die man nicht übersehen kann. */
+#knopf-persona {
+  font-family: var(--serif); font-weight: 700; letter-spacing: 0;
+}
+body.mit-persona #knopf-persona {
+  color: var(--glut); border-color: var(--glut);
+}
+
+.persona-band {
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  padding: .5rem 1rem;
+  background: linear-gradient(90deg,
+              rgb(var(--bild-schleier) / .0), var(--glut-flor, rgba(255,122,28,.10)));
+  border-bottom: 1px solid var(--glut);
+  font-size: .88rem; color: var(--schrift);
+}
+.persona-band-marke {
+  flex: none; font-family: var(--sans); font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--glut-tief, #7a3200); background: var(--glut);
+  border-radius: 999px; padding: .12rem .55rem;
+}
+.persona-band .knopf { margin-left: auto; flex: none; }
+
+.persona-menue {
+  position: fixed; z-index: 130;
+  min-width: 19rem; max-width: min(24rem, calc(100vw - 1.5rem));
+  max-height: calc(100vh - 5rem); overflow-y: auto; overscroll-behavior: contain;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius); box-shadow: var(--schatten);
+  padding: .5rem;
+}
+.persona-kopf {
+  font-family: var(--serif); color: var(--gold); font-size: .95rem;
+  padding: .25rem .5rem 0;
+}
+.persona-warum {
+  margin: .15rem .5rem .5rem; font-size: .78rem; color: var(--schrift-3);
+}
+.persona-trenner {
+  margin: .5rem .5rem .2rem; padding-top: .5rem;
+  border-top: 1px solid var(--rand);
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--schrift-3);
+}
+.persona-zeile {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  font: inherit; font-size: .88rem;
+  background: transparent; color: var(--schrift);
+  border: 1px solid transparent; border-radius: var(--radius-klein);
+  padding: .4rem .5rem;
+}
+.persona-zeile:hover        { background: var(--grund-3); }
+.persona-zeile.aktiv        { border-color: var(--glut); background: var(--grund-3); }
+.persona-name  { display: flex; align-items: baseline; gap: .5rem; color: var(--gold); }
+.persona-alter { margin-left: auto; font-size: .74rem; color: var(--schrift-3); }
+.persona-was   { display: block; font-size: .78rem; color: var(--schrift-2); margin-top: .1rem; }
+.persona-zurueck {
+  margin-top: .4rem; border-top: 1px solid var(--rand); border-radius: 0;
+  color: var(--schrift-2);
+}
+.nachricht .text { font-size: .92rem; line-height: 1.5; }
+
+/* -------- Die Anrede-Knöpfe unter dem Gespräch */
+.tutor-anreden { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
+.anrede-knopf {
+  font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
+  padding: .22rem .6rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
+}
+.anrede-knopf:hover { border-color: var(--gold); color: var(--gold); }
+
+/* -------- Eingabe: eine Zeile, wächst mit dem Text
+   Reihenfolge: Feld — Mikrofon — Abschicken. Das Mikrofon steht dazwischen und
+   bleibt ein eigener Knopf: aufnehmen und abschicken sind zwei Entscheidungen. */
+.tutor-eingabe { display: flex; gap: .4rem; align-items: flex-end; }
+.tutor-eingabe textarea {
+  flex: 1; resize: none; overflow-y: auto;
+  min-height: 2.4rem; line-height: 1.45; padding: .5rem .7rem;
+}
+.tutor-eingabe .eingabe-werkzeuge { flex: none; display: flex; gap: .3rem; }
+.tutor-eingabe .knopf { flex: none; }
+
+/* Der Absendeknopf ist ein Pfeil, kein Satz. „Fragen" stand in derselben Höhe
+   wie das Eingabefeld und war breiter als das Mikrofon daneben — ein
+   quadratischer Pfeil sagt dasselbe und lässt dem Text den Platz. */
+.knopf.schick {
+  width: 2.55rem; height: 2.55rem; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1rem; line-height: 1; border-radius: var(--radius-klein);
+}
+
+/* -------- Die Karte daneben */
+.tutor-zeile {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  margin-top: .5rem; padding: .5rem .6rem;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); color: inherit;
+}
+.tutor-zeile:hover { border-color: var(--gold); }
+.tutor-zeile .name { font-family: var(--serif); font-weight: 600; color: var(--gold); }
+.tutor-zeile .klein { margin-top: .1rem; }
+
+/* Der Satz, der vorher fehlte: woran der Rang eigentlich hängt. */
+.rang-einheit { margin: -.4rem 0 .5rem; }
+.rang-woran {
+  margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--rand);
+  color: var(--schrift-3); font-size: .82rem; line-height: 1.45;
+}
+
+/* ============================================================ Melder */
+.melder { position: fixed; right: 1rem; bottom: 1rem; z-index: 90; display: grid; gap: .5rem; max-width: 22rem; }
+.meldung {
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-left: 3px solid var(--glut); border-radius: var(--radius-klein);
+  padding: .7rem .9rem; box-shadow: var(--schatten); font-size: .9rem;
+  animation: rein .2s ease-out;
+}
+.meldung.gut     { border-left-color: var(--gut); }
+.meldung.schlecht{ border-left-color: var(--schlecht); }
+.meldung.gold    { border-left-color: var(--gold); }
+/* Die Vorwarnung ans Guthaben. Glut, nicht Rot: Es ist nichts kaputt, es wird
+   nur knapp — und Rot ist in dieser Academy die Farbe für „falsch". */
+.meldung.warnung { border-left-color: var(--glut); border-left-width: 4px; }
+@keyframes rein { from { opacity: 0; transform: translateY(6px); } }
+
+/* ------------------------------------------------------ Das Schild beim Stopp
+   Es steht in einem gewöhnlichen Modalfenster (PU.tokenSchild in app.js) und
+   hat deshalb hier nur die Innenordnung: Bilanz, Grund, die Wege, der Nachsatz.
+
+   Die Wege stehen als Karten nebeneinander und nicht als Liste untereinander.
+   Der Grund ist inhaltlich: Kaufen und Verdienen sind zwei gleichwertige Wege.
+   Untereinander gelesen wäre der zweite die Fussnote zum ersten — und das ist
+   genau die falsche Aussage gegenüber jemandem, der kein Geld hat. */
+.nachlade-bilanz {
+  font-family: var(--serif); font-size: 1.05rem; color: var(--gold);
+  margin: 0 0 .4rem;
+}
+.nachlade-grund { color: var(--schrift-2); margin: 0 0 1.2rem; }
+.nachlade-wege {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: .9rem; margin-bottom: 1.2rem;
+}
+.nachlade-weg {
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+  padding: .9rem 1rem; background: var(--grund-3);
+  display: flex; flex-direction: column; gap: .45rem;
+}
+.nachlade-weg h4 { margin: 0; color: var(--gold); font-size: .98rem; }
+/* Volle Schriftfarbe, nicht die abgeschwächte: In diesen zwei Absätzen steht,
+   wie es weitergeht. Mit `--schrift-2` lagen sie bei 6,71:1 und damit knapp
+   unter den 7:1, die hier für Fliesstext gelten — gemessen auf `--grund-3`. */
+.nachlade-weg p  { margin: 0; font-size: .9rem; color: var(--schrift); flex: 1; }
+.nachlade-weg .knopf { align-self: start; }
+
+/* Ein Weg, den es noch nicht gibt, sieht auch so aus — aber er verschwindet
+   nicht. Wer heute liest, dass es ihn geben wird, sucht ihn später. */
+.nachlade-weg.bald { border-style: dashed; }
+.bald-marke {
+  font-family: var(--sans); font-size: .68rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--schrift-3); border: 1px solid var(--rand-hell);
+  border-radius: 999px; padding: .05rem .45rem; vertical-align: middle;
+}
+.nachlade-weiter {
+  margin: 0; padding-top: .9rem; border-top: 1px solid var(--rand);
+  font-size: .88rem; color: var(--schrift-3);
+}
+
+.leer-hinweis { color: var(--schrift-3); text-align: center; padding: 3rem 1rem; }
+
+/* ============================================================ Schmal */
+@media (max-width: 720px) {
+  .kopf { flex-wrap: wrap; gap: .6rem; }
+  .menue { order: 3; width: 100%; }
+  .paar { grid-template-columns: 1fr; gap: .25rem; }
+  .paar-pfeil { display: none; }
+}
+
+/* Wer weniger Bewegung will, bekommt weniger Bewegung. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ============================================================ Helles Thema
+   Die Schmiede bei Tageslicht: Papier statt Russ, dieselbe Glut.
+
+   Zwei Merkmale am <html>, nicht eines: `data-thema` ist die WAHL des
+   Lernenden (auto | hell | dunkel), `data-thema-effektiv` das Ergebnis
+   daraus. Nur so kann "auto" dem Betriebssystem folgen, ohne dass die Wahl
+   selbst verlorengeht.
+
+   Die Glut wird im Hellen dunkler. Ein Orange, das auf Schwarz leuchtet, ist
+   auf Weiss ein blasser Streifen — gleiche Farbe, halbe Lesbarkeit.
+   ========================================================================= */
+html[data-thema-effektiv="hell"] {
+  --grund:        #f7f3ec;
+  --grund-2:      #fffdfa;
+  --grund-3:      #efe8dc;
+  --rand:         #ddd2c0;
+  --rand-hell:    #c4b49a;
+
+  --schrift:      #241d16;
+  --schrift-2:    #55483c;
+  --schrift-3:    #5a5046;
+
+  --glut:         #b74e0c;
+  --glut-hell:    #e2711d;
+  --glut-tief:    #8f3800;
+  --gold:         #9a6a00;
+  --asche:        #8b7d6e;
+
+  /* Abgedunkeltes Gold: #9a6a00 auf #f7f3ec sind 4,3:1 — für eine Zahl genug,
+     für einen Begriff mitten im Satz nicht. Dieser Wert kommt auf 7,3:1, also
+     AAA. Die Farbpaletten leiten sich dieselbe Zahl in srv/varianten.php ab
+     (Faktor .70 auf ihr eigenes Gold); hier steht sie fest, weil ohne
+     eingeschaltete Varianten niemand sie ableitet. */
+  --begriff:      #6c4a00;
+
+  --gut:          #1c7a41;
+  --gut-grund:    #e2f3e7;
+  --schlecht:     #b3261e;
+  --schlecht-grund:#fbe7e5;
+  --warn:         #8a6100;
+
+  --schatten:     0 2px 10px rgba(70,50,25,.13);
+
+  /* Im Hellen kann eine Codefläche nicht „tiefer" sein, ohne den Text darauf
+     zu verschlucken. Sie folgt deshalb der Palette: `--grund-3` ist die Fläche,
+     die auch Eingabefelder tragen — abgesetzt, aber hell genug für dunkle
+     Schrift. Als Verweis und nicht als Wert, damit die sechs Varianten ihn
+     mitbringen, statt dass hier eine siebte Farbe entsteht. */
+  --code-grund: var(--grund-3);
+  --code-rand:  var(--rand);
+  --code-auf:   var(--grund);
+
+  /* Nur die zwei Farben, nicht die ganze Fläche — siehe oben. */
+  --schein:     rgba(201,86,13,.09);
+  --schein-tor: rgba(201,86,13,.13);
+}
+
+/* Kopf und Leiste holen ihre Fläche aus `--karte-schleier` und folgen damit
+   der Palette. Hier stand bis eben eine feste helle Farbe — sie hatte höhere
+   Spezifität und gewann, sodass der Kopf in Marmor warm war und die Leiste
+   daneben kühl. Eine Regel weniger ist hier die ganze Lösung. */
+/* `pre.code` stand hier mit einem festen `#f3ece0`. Der Wert war für Pergament
+   gedacht und blieb auch in Marmor stehen, das kühl-grau ist — ein warmer
+   Fleck in einer kalten Palette. Jetzt macht das `--code-grund` (siehe oben),
+   und zwar für alle drei Codeflächen statt nur für eine. */
+
+/* Im Hellen steht der Hauptknopf weiss auf der Glut-Fläche. Der STILLE
+   Knopf nicht: der hat einen hellen Grund, und weiss auf hell ist nichts.
+   Genau das war er eine Zeit lang — „Vormerken" und „Beenden" im Cockpit
+   waren unlesbar, und mit ihnen jeder stille Knopf im Programm. */
+html[data-thema-effektiv="hell"] .knopf:not(.still) { color: #fff; }
+
+/* Und der Verlauf läuft im Hellen ABWÄRTS von der Glut in die Tiefe, statt
+   von der hellen Glut in die Glut.
+   Gemessen: Weiss auf `--glut-hell` ergibt in Pergament 3,18:1 und in Marmor
+   4,15:1 — beides unter den 4,5:1, die Knopfschrift braucht. Die oberen zwei
+   Drittel eines Knopfes waren damit zu blass, und zwar überall im Programm.
+   Mit `glut → glut-tief` liegt die schwächste Stelle bei 5,1:1.
+   Im Dunkeln bleibt es beim alten Verlauf: dort steht dunkle Schrift auf der
+   Fläche, und die braucht die helle Seite. */
+html[data-thema-effektiv="hell"] .knopf:not(.still) {
+  background: linear-gradient(180deg, var(--glut), var(--glut-tief));
+}
+html[data-thema-effektiv="hell"] .knopf.still {
+  color: var(--schrift);
+  background: var(--grund-2);
+  border-color: var(--rand-hell);
+}
+html[data-thema-effektiv="hell"] .knopf.still:hover {
+  border-color: var(--glut);
+  color: var(--glut);
+}
+
+/* ============================================================ Stellschrauben
+   Schriftgrösse, Textschrift, Kontrast, Bewegung, Breite — alles über
+   Merkmale am <html>. Kein zweites Stylesheet, kein Umhängen von Klassen im
+   Baum: eine Einstellung, ein Merkmal, eine Regel.
+   ========================================================================= */
+html[data-schrift="klein"]  { font-size: 15px; }
+html[data-schrift="normal"] { font-size: 16px; }
+html[data-schrift="gross"]  { font-size: 18px; }
+html[data-schrift="riesig"] { font-size: 20px; }
+html[data-schrift] body     { font-size: 1rem; }
+
+/* Fliesstext in der Lektion wahlweise mit Serifen. Überschriften bleiben
+   immer serif — sie tragen das Bild der Academy. */
+html[data-textschrift="serif"] .lektion p,
+html[data-textschrift="serif"] .lektion li,
+html[data-textschrift="serif"] .lektion blockquote { font-family: var(--serif); font-size: 1.03rem; }
+
+html[data-kontrast="hoch"] {
+  --schrift-2: var(--schrift);
+  --schrift-3: var(--schrift-2);
+  --rand:      var(--rand-hell);
+}
+html[data-kontrast="hoch"] .karte,
+html[data-kontrast="hoch"] .aufgabe,
+html[data-kontrast="hoch"] .modal-flaeche { border-width: 2px; }
+
+html[data-bewegung="wenig"] *,
+html[data-bewegung="wenig"] *::before,
+html[data-bewegung="wenig"] *::after {
+  animation-duration: .01ms !important; transition-duration: .01ms !important;
+}
+
+html[data-breite="schmal"] { --breit: 900px; }
+html[data-breite="breit"]  { --breit: 1480px; }
+
+/* ============================================================ Kopfsymbole */
+.kopf-symbol {
+  font: inherit; font-size: 1.05rem; line-height: 1; cursor: pointer;
+  background: transparent; color: var(--schrift-2);
+  border: 1px solid transparent; border-radius: var(--radius-klein);
+  padding: .3rem .5rem;
+}
+.kopf-symbol:hover { color: var(--gold); background: var(--grund-3); border-color: var(--rand); }
+
+/* Sonne im Dunkeln, Mond im Hellen: das Symbol zeigt, wohin es GEHT, nicht
+   wo man gerade ist. */
+.symbol-sonne, .symbol-mond { display: none; }
+html[data-thema-effektiv="dunkel"] .symbol-sonne { display: inline; }
+html[data-thema-effektiv="hell"]   .symbol-mond  { display: inline; }
+
+/* ============================================================ Modalseite */
+.modal {
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 3vh 1rem; overflow-y: auto;
+  background: rgba(8,6,5,.6); backdrop-filter: blur(3px);
+}
+.modal-flaeche {
+  width: 100%; max-width: 940px;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: 14px; box-shadow: var(--schatten);
+  display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+}
+.modal-kopf {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: .9rem 1.2rem; border-bottom: 1px solid var(--rand);
+  background: var(--grund-3);
+}
+.modal-kopf h2 { margin: 0; font-size: 1.15rem; }
+.modal-zu {
+  font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer;
+  background: transparent; border: 0; color: var(--schrift-2); padding: .2rem .5rem;
+  border-radius: var(--radius-klein);
+}
+.modal-zu:hover { color: var(--schlecht); background: var(--grund-2); }
+
+.modal-koerper { display: grid; grid-template-columns: 210px 1fr; min-height: 60vh; }
+.modal-reiter {
+  border-right: 1px solid var(--rand); padding: .8rem .5rem;
+  display: flex; flex-direction: column; gap: .15rem; background: var(--grund);
+}
+.reiter-knopf {
+  font: inherit; font-size: .92rem; text-align: left; cursor: pointer;
+  background: transparent; color: var(--schrift-2); border: 1px solid transparent;
+  border-radius: var(--radius-klein); padding: .45rem .7rem;
+}
+.reiter-knopf:hover { background: var(--grund-3); color: var(--schrift); }
+.reiter-knopf.aktiv { background: var(--grund-3); color: var(--gold); border-color: var(--rand-hell); }
+.reiter-trenner {
+  margin: .7rem .7rem .3rem; padding-top: .7rem; border-top: 1px solid var(--rand);
+  font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--schrift-3);
+}
+.modal-inhalt { padding: 1.2rem 1.4rem 2rem; overflow-y: auto; max-height: 76vh; }
+.modal-inhalt h3 { margin-top: 0; }
+
+/* Ein Fenster ohne Reiterleiste — der Tokenicer über einer Aufgabe. Er
+   bekommt dieselbe Fläche, nur ohne die 210 Pixel links daneben. */
+.modal-inhalt.breit { min-height: 60vh; }
+.modal-inhalt.breit h1 { font-size: 1.5rem; margin-top: 0; }
+
+/* Eine Einstellung: Beschriftung links, Bedienung rechts, Begründung darunter. */
+.einst-zeile {
+  display: grid; grid-template-columns: 1fr auto; gap: .5rem 1rem;
+  align-items: center; padding: .7rem 0; border-bottom: 1px solid var(--rand);
+}
+.einst-zeile:last-child { border-bottom: 0; }
+.einst-zeile .titel { font-weight: 600; font-size: .95rem; }
+.einst-zeile .warum { grid-column: 1 / -1; margin: -.2rem 0 0; color: var(--schrift-3); font-size: .84rem; }
+.einst-zeile select, .einst-zeile input[type=number], .einst-zeile input[type=text],
+.einst-zeile input[type=password] { width: auto; min-width: 11rem; }
+.einst-gruppe { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+
+/* Der Bericht eines Probelaufs. Er bleibt stehen, statt nach acht Sekunden zu
+   verschwinden wie eine Meldung: Modell, Dauer und Transkript will man lesen
+   und vergleichen, notfalls zweimal. */
+.probe-bericht { grid-column: 1 / -1; }
+
+/* Vier Regler nebeneinander unter einem Tutor — flach, damit die Liste der
+   vier Tutoren nicht zur Seite wird. Über jedem steht ein Wort; mehr passt
+   über einen kleinen Regler nicht, und mehr braucht es auch nicht. */
+.klang-reihe {
+  grid-column: 1 / -1;
+  display: flex; gap: .7rem; align-items: flex-end;
+  margin: .1rem 0 .2rem;
+}
+.klang-regler { flex: 1 1 0; min-width: 0; display: grid; gap: .1rem; }
+.klang-wort {
+  display: grid; gap: .05rem;
+  font-size: .7rem; color: var(--schrift-3); letter-spacing: .02em;
+}
+.klang-wort input[type=range] { width: 100%; height: 1.1rem; margin: 0; accent-color: var(--gold); }
+.klang-wert { font-size: .68rem; color: var(--schrift-3); text-align: right; }
+.klang-werk {
+  flex: none; align-self: center;
+  border: 0; background: transparent; cursor: pointer;
+  color: var(--schrift-3); font-size: .85rem; line-height: 1;
+  padding: .3rem .35rem; border-radius: var(--radius-klein);
+  opacity: .5; transition: opacity .12s ease-out;
+}
+.klang-werk:hover, .klang-werk:focus-visible { opacity: 1; background: var(--grund-3); }
+
+/* ---------------------------------------------------------------- Modellwahl
+   Die Schublade unter einem Modellfeld: Hersteller eintippen, Modelle
+   aufklappen, eines anklicken. Sie sitzt über beide Spalten, weil eine Liste
+   von vierhundert Kennungen keine „Bedienung rechts" mehr ist. */
+.modellwahl {
+  grid-column: 1 / -1;
+  margin-top: .5rem; padding: .8rem;
+  border: 1px solid var(--rand); border-radius: var(--rund, 8px);
+  background: var(--flaeche-2, var(--flaeche));
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.modellwahl-filter { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+.modellwahl-filter input { min-width: 11rem; }
+
+/* Feste Höhe, damit die Seite beim Suchen nicht springt — und eigener
+   Bildlauf, weil die Trefferliste länger wird als das Fenster. */
+.modellwahl-liste {
+  width: 100%; min-height: 12rem; max-height: 16rem;
+  font-family: var(--schrift-code, monospace); font-size: .84rem;
+}
+.modellwahl-info {
+  font-size: .86rem; line-height: 1.5;
+  padding: .5rem .6rem; border-radius: var(--rund, 8px);
+  background: var(--flaeche); min-height: 2.4rem;
+}
+.modellwahl-info code { font-size: .9rem; }
+.modellwahl-info .warum { margin: .3rem 0 0; color: var(--schrift-3); font-size: .82rem; }
+
+/* Nachschlagewege neben einem Eingabefeld. Sie sehen aus wie Links und nicht
+   wie Knöpfe — sie führen aus dem Programm hinaus, und das soll man sehen,
+   bevor man klickt. */
+.einst-link {
+  font-size: .84rem; color: var(--lapis); text-decoration: none;
+  padding: .35rem .5rem; border-bottom: 1px solid transparent;
+  white-space: nowrap;
+}
+.einst-link:hover,
+.einst-link:focus-visible { color: var(--glut); border-bottom-color: var(--glut); }
+.einst-wahl {
+  font: inherit; font-size: .88rem; cursor: pointer; padding: .35rem .75rem;
+  background: var(--grund-3); color: var(--schrift-2);
+  border: 1px solid var(--rand); border-radius: 999px;
+}
+.einst-wahl.aktiv { background: var(--glut); color: var(--grund-2); border-color: var(--glut); font-weight: 600; }
+
+/* Ein Tor, kein Schalter: dieselbe Pille, aber als Link. `text-decoration` und
+   `display` muessen ausdruecklich stehen, weil ein <a> beides anders
+   vorbelegt als ein <button> — sonst traegt die Pille einen Unterstrich und
+   hat keine Hoehe. */
+a.einst-wahl {
+  display: inline-block; text-decoration: none; color: var(--gold);
+  border-color: var(--rand-hell);
+}
+a.einst-wahl:hover,
+a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gold); }
+
+/* Eine eingebaute Seite statt einer Liste: „Über PROMPTHEUS" zeigt die
+   Stufen-Seite in einem Rahmen, der die Flaeche fuellt.
+
+   `overflow: hidden` am Kasten ist der Kern. Ohne ihn haetten wir zwei
+   Rollbalken uebereinander — den des Kastens und den der Seite darin — und man
+   erwischte immer den falschen. Genau der Fehler, den das Vollbild oben schon
+   einmal beseitigt hat. Gerollt wird nur noch drinnen.
+
+   `minmax(0, 1fr)` und nicht `1fr`: Ein Grid-Feld ist von Haus aus mindestens
+   so hoch wie sein Inhalt. Ein iframe meldet 150px Standardhoehe, aber der
+   Kasten wuerde ohne die Null-Untergrenze trotzdem ueber die Fensterhoehe
+   hinauswachsen, sobald der Inhalt es verlangt. */
+.modal-inhalt.inhalt-rahmen {
+  padding: 0; overflow: hidden;
+  display: grid; grid-template-rows: auto minmax(0, 1fr);
+  min-height: 60vh;
+}
+.rahmen-leiste {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  padding: .7rem 1.1rem;
+  border-bottom: 1px solid var(--rand);
+  background: var(--grund-2);
+}
+.rahmen-leiste .titel {
+  font-family: var(--serif); font-size: .95rem; color: var(--gold);
+}
+/* Der Rahmen traegt seinen eigenen Grund, damit beim Laden kein weisses Blatt
+   aufblitzt: Die Seite darin ist fast schwarz, die Vorgabe eines iframe ist es
+   nicht. */
+.inhalt-scheibe {
+  width: 100%; height: 100%; border: 0; display: block;
+  background: #07080a;
+}
+
+.merkzettel {
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-left: 3px solid var(--warn); border-radius: var(--radius-klein);
+  padding: .7rem .9rem; font-size: .88rem; color: var(--schrift-2); margin: 0 0 1.2rem;
+}
+.merkzettel.gut  { border-left-color: var(--gut); }
+.merkzettel.warn { border-left-color: var(--schlecht); }
+
+.stand-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
+.stand-kachel {
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .6rem .8rem;
+}
+.stand-kachel .zahl { font-size: 1.3rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.stand-kachel .was  { font-size: .8rem; color: var(--schrift-3); }
+
+/* ============================================================ Lob-Fenster */
+.lob {
+  position: fixed; z-index: 130; left: 50%; top: 12vh; transform: translateX(-50%);
+  width: min(460px, calc(100vw - 2rem));
+  background: var(--grund-2); border: 1px solid var(--gold);
+  border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.4);
+  padding: 1.3rem 1.5rem 1.1rem; text-align: center;
+  animation: lob-rein .22s ease-out;
+}
+.lob .lob-zu {
+  position: absolute; top: .4rem; right: .5rem;
+  font: inherit; font-size: 1.15rem; line-height: 1; cursor: pointer;
+  background: transparent; border: 0; color: var(--schrift-3); padding: .2rem .45rem;
+  border-radius: var(--radius-klein);
+}
+.lob .lob-zu:hover { color: var(--schrift); background: var(--grund-3); }
+.lob .lob-zeichen { font-size: 2rem; line-height: 1; }
+.lob .lob-spruch { font-family: var(--serif); font-size: 1.12rem; margin: .5rem 0 .3rem; }
+.lob .lob-punkte { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+.lob .lob-balken { height: 3px; background: var(--rand); border-radius: 2px; margin-top: .9rem; overflow: hidden; }
+.lob .lob-balken i { display: block; height: 100%; background: var(--gold); width: 100%; }
+@keyframes lob-rein { from { opacity: 0; transform: translate(-50%, -8px); } }
+
+/* ============================================================ Medienspalte */
+.mit-spalte { display: grid; grid-template-columns: minmax(0, 1fr) var(--spalte-breite); gap: 1.8rem; align-items: start; }
+
+/* Die Spalte scrollt für sich.
+   Vorher klebte sie nur (`sticky`) und war nach unten offen: Wer wissen wollte,
+   was unter „Zum Kurs" steht, musste erst die ganze Lektionsliste der linken
+   Spalte durchscrollen — der Inhalt der rechten Spalte lag unterhalb des
+   Fensterrandes und rührte sich nicht. Mit eigener Höhe und eigenem Balken
+   kommt man sofort ans Ende der Spalte, ohne die linke anzufassen.
+
+   `overscroll-behavior: contain` hält das Rad in der Spalte: Sonst läuft die
+   Seite weiter, sobald die Spalte unten angekommen ist, und man landet
+   woanders, als man wollte.
+
+   Der Ziehgriff (`.griff-spalte`, aus schale.js) liegt IN der Spalte und wäre
+   an ihrem alten Platz — 1,15 rem links ausserhalb — vom `overflow` abge-
+   schnitten worden. Er rückt deshalb an die Innenkante, und die Spalte macht
+   ihm mit `padding-left` Platz. Weil `.seitenspalte` `sticky` und damit
+   positioniert ist, spannt er weiterhin über die ganze Inhaltshöhe: Auch weit
+   unten in einer langen Spalte ist er noch zu fassen. */
+.seitenspalte {
+  position: sticky; top: 4.4rem;
+  display: grid; gap: 1.1rem; align-content: start;
+  /* **Die Kästen behalten ihre volle Höhe — auch wenn die Spalte kürzer ist.**
+
+     Ohne diese Zeile wurden sie gestaucht. Der Grund liegt zwei Regeln
+     auseinander und ist deshalb schwer zu sehen: Ein Gitterkind mit
+     `overflow: hidden` — und das ist `.medien-kasten` — gilt als Scrollkasten
+     und bekommt damit die Mindestgrösse 0 statt seiner Inhaltshöhe. Steht die
+     Spalte dann auf einer FESTEN Höhe (Tutoransicht, weiter unten), verteilt
+     das Gitter genau diese Höhe auf seine Zeilen und darf sie dabei
+     zusammendrücken. `overflow: hidden` schneidet den Überstand ab, und die
+     Spalte meldet `scrollHeight == clientHeight` — es gibt also nicht einmal
+     einen Rollbalken, mit dem man an den Rest käme. Genau das war gemeldet:
+     „in der 3. Spalte werden die anderen Tutoren abgeschnitten".
+
+     Gemessen im Tutorfenster bei 1440×560: Karte 253 px hoch, Inhalt 430 px.
+     Von vier Tutoren waren zwei zu sehen, die anderen zwei unerreichbar.
+     Mit `max-content` steht die Karte wieder auf 443 px, die Spalte hat
+     658 px Inhalt bei 467 px Höhe — und rollt. */
+  grid-auto-rows: max-content;
+  max-height: calc(100vh - 5.6rem);
+  overflow-y: auto; overscroll-behavior: contain;
+  padding-left: .7rem; scrollbar-width: thin;
+}
+
+/* Die Spalte steht immer im Baum und ist ausgeblendet, solange sie leer ist.
+   Eine leere Säule neben dem Text wäre weisser Raum, den niemand bestellt
+   hat — und ein Text, der beim ersten Zusatz die Spalte erst bekäme, spränge
+   um. So springt nur die Spalte, nicht der Text. */
+.mit-spalte.ohne-spalte { grid-template-columns: minmax(0, 1fr); }
+.seitenspalte.leer { display: none; }
+
+/* Der Innenabstand sitzt am Kasten, nicht an den Kindern.
+
+   Zwei Anläufe vorher: Erst wurden die Kinder einzeln eingerückt (p, ul, ol,
+   Tutorzeile) — dann klebten Balken, Fragenknöpfe und Antwort der Standkarte
+   am Rahmen, weil sie in der Liste fehlten. Dann rückte alles ein und nur die
+   Ausnahmen wurden benannt — das traf zwar jedes Kind, aber ein `<button>`
+   mit `width: auto` schrumpft auf seinen Inhalt, egal ob er `display: block`
+   trägt. Die Tutorzeile sah nur deshalb richtig aus, weil ihr Text zufällig
+   lang genug war.
+
+   Jetzt trägt der Kasten den Abstand und die Kinder brauchen gar nichts. Was
+   die volle Breite braucht, zieht sich mit negativem Rand wieder heraus:
+   die Überschrift (sie ist ein Balken mit eigener Fläche), Video, Tonspur und
+   die beiden Kästen, die ihren Innenabstand selbst mitbringen. */
+.medien-kasten {
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius); overflow: hidden;
+  padding: 0 .9rem .9rem;
+}
+.medien-kasten > h4 {
+  margin: 0 -.9rem; padding: .6rem .9rem; font-size: .82rem; font-family: var(--sans);
+  text-transform: uppercase; letter-spacing: .06em; color: var(--schrift-3);
+  border-bottom: 1px solid var(--rand); background: var(--grund-3);
+}
+.medien-kasten > video,
+.medien-kasten > audio,
+.medien-kasten > .medien-leer,
+.medien-kasten > .podcast { margin-left: -.9rem; margin-right: -.9rem; }
+
+.medien-kasten > p:first-of-type { margin-top: .8rem; }
+.medien-kasten > :last-child { margin-bottom: 0; }
+/* Ein Kasten, in dem nur die Überschrift steht, braucht unten keinen Auslauf. */
+.medien-kasten:has(> h4:last-child) { padding-bottom: 0; }
+
+.medien-kasten video { width: 100%; display: block; background: #000; }
+.medien-leer { padding: .9rem; color: var(--schrift-3); font-size: .85rem; }
+.medien-leer code { font-size: .8em; word-break: break-all; }
+
+.podcast { padding: .5rem .6rem .8rem; }
+.podcast audio { width: 100%; margin: .2rem 0 .6rem; }
+.pod-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; }
+
+/* Jede Zeile trägt rechts ein Zeichen: eine Auskunft bei den Erklärstücken,
+   einen Schalter bei allem anderen. Deshalb ist die Zeile ein Flex-Kasten und
+   der Titel darf den Rest nehmen. */
+.pod-liste li { display: flex; align-items: stretch; gap: .2rem; }
+.pod-liste li .pod-stueck { flex: 1 1 auto; min-width: 0; }
+
+/* Der Strich zwischen den Gruppen. Über ihm läuft alles von selbst durch,
+   darunter nichts — und das soll man sehen, bevor man sich wundert. */
+.pod-trenner {
+  height: 1px; background: var(--rand); margin: .35rem .1rem;
+  display: block !important;
+}
+
+.pod-kette, .pod-auto {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  width: 1.7rem; font-size: .8rem; line-height: 1;
+  border: 0; background: transparent; border-radius: var(--radius-klein);
+  color: var(--schrift-3);
+}
+.pod-kette { color: var(--gold); opacity: .8; }
+.pod-auto  { cursor: pointer; opacity: .45; transition: opacity .12s ease-out; }
+.pod-auto:hover, .pod-auto:focus-visible { opacity: .9; background: var(--grund-3); }
+.pod-auto.an { opacity: 1; color: var(--gold); background: var(--grund-3); }
+.pod-stueck {
+  display: flex; align-items: center; gap: .5rem; width: 100%;
+  font: inherit; font-size: .87rem; text-align: left; cursor: pointer;
+  background: transparent; color: var(--schrift-2);
+  border: 1px solid transparent; border-radius: var(--radius-klein); padding: .35rem .5rem;
+}
+.pod-stueck:hover { background: var(--grund-3); color: var(--schrift); }
+.pod-stueck.aktiv { background: var(--grund-3); color: var(--gold); border-color: var(--rand-hell); }
+.pod-stueck .nr { color: var(--schrift-3); font-variant-numeric: tabular-nums; min-width: 1.6rem; }
+.pod-stueck.gehoert .nr::after { content: "✓"; color: var(--gut); }
+
+.vertiefung {
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-left: 3px solid var(--glut); border-radius: var(--radius);
+  padding: .9rem 1rem; font-size: .93rem;
+}
+.vertiefung h4 { margin: 0 0 .4rem; font-size: .95rem; }
+.vertiefung .quelle { color: var(--schrift-3); font-size: .78rem; margin-top: .6rem; }
+
+/* ============================================================ Tokenicer */
+.tok-gitter { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 1.5rem; align-items: start; }
+
+/* Der Titel steht in der linken Spalte und beginnt oben bündig — die
+   Token-IDs rechts fangen dadurch auf derselben Höhe an statt unterhalb des
+   Vorworts. */
+.tok-titel { margin-top: 0; }
+.tok-gitter > div > h3:first-child { margin-top: 0; }
+.tok-gitter > div > .textkarte:first-child,
+.tutor-spalte > .textkarte:first-child,
+.mit-spalte > .textkarte:first-child { margin-top: 0; }
+.mit-spalte > .textkarte > h1 { margin-top: 0; }
+
+/* Alle Seitenköpfe gleich hoch. Sonst sitzt der erste Inhalt auf jeder
+   Ansicht ein Stück woanders, und beim Wechseln hüpft die Seite — bei
+   „Klasse", die als einzige kein Vorwort hatte, um mehr als drei Zeilen.
+   Der Inhalt steht mittig, damit ein kurzer Kopf nicht oben klebt. */
+.textkarte.titelkarte {
+  min-height: 8.4rem;
+  display: flex; flex-direction: column; justify-content: center;
+}
+/* Steht der Kopf ganz oben, klebt er am oberen Rand des Stoffs — der Abstand
+   von textkarte gilt für Flächen MITTEN im Text, nicht für die erste. */
+.view > .textkarte.titelkarte:first-child { margin-top: 0; }
+.textkarte.titelkarte > h1 { margin-top: 0; }
+.textkarte.titelkarte > :last-child { margin-bottom: 0; }
+.tok-modelle { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .9rem; }
+.tok-modell {
+  font: inherit; font-size: .87rem; cursor: pointer; padding: .35rem .8rem;
+  background: var(--grund-3); color: var(--schrift-2);
+  border: 1px solid var(--rand); border-radius: 999px;
+}
+.tok-modell.aktiv { background: var(--glut); color: var(--grund-2); border-color: var(--glut); font-weight: 600; }
+.tok-modell .ca { opacity: .75; }
+
+#tok-eingabe { min-height: 11rem; font-family: var(--mono); font-size: .93rem; }
+
+.tok-zahlen { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .6rem; margin: .9rem 0; }
+.tok-zahl {
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .55rem .7rem;
+}
+.tok-zahl .zahl { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tok-zahl .was  { font-size: .78rem; color: var(--schrift-3); }
+.tok-zahl.betont .zahl { color: var(--gold); }
+
+.tok-bloecke {
+  font-family: var(--mono); font-size: .93rem; line-height: 2.1;
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .8rem;
+  white-space: pre-wrap; word-break: break-word;
+}
+.tok-block { border-radius: 3px; padding: .12em 0; }
+.tok-block.f0 { background: rgba(255,122,28,.26); }
+.tok-block.f1 { background: rgba(95,191,122,.24); }
+.tok-block.f2 { background: rgba(255,201,77,.26); }
+.tok-block.f3 { background: rgba(120,160,255,.26); }
+.tok-block.f4 { background: rgba(232,99,90,.24); }
+.tok-block.teil { background: repeating-linear-gradient(45deg, var(--rand), var(--rand) 3px, transparent 3px, transparent 6px); }
+.tok-ids {
+  font-family: var(--mono); font-size: .82rem; color: var(--schrift-2);
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .7rem; max-height: 14rem; overflow-y: auto;
+  word-break: break-all;
+}
+
+/* ============================================================ Tutorennamen
+   Die Namen tragen die Glut, nicht die Fliesstextfarbe: in der Wahl der
+   Karten sind sie das, wonach man sucht. */
+.tutor-zeile .name { color: var(--gold); font-weight: 700; }
+.nachricht.agent .von { color: var(--gold); font-weight: 600; }
+
+
+/* Der Tokenicer-Ruf im Fragetext. Klein und in der Textzeile mitlaufend —
+   er ist ein Angebot, keine Aufgabe, und darf die Frage nicht überstimmen. */
+.tok-ruf {
+  font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
+  vertical-align: .05em; padding: .1rem .5rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  color: var(--schrift-3);
+}
+.tok-ruf:hover { color: var(--gold); border-color: var(--rand-hell); }
+
+/* ============================================================ Rechte-Matrix
+   Fünf Ebenen nebeneinander, eine Zeile je Recht. Der Name steht oben und
+   die fünf Schalter darunter, nicht daneben: in der Modalseite ist die
+   Breite knapp, und ein Rechtename wie `auswertung.lehrersehen` bricht
+   sonst mitten im Wort um.
+
+   Drei Zustände sind zu sehen, und jeder hat sein eigenes Zeichen:
+     · festgenagelt  — blass und ohne Zeiger (Admin-Spalte, Ebene-1-Rechte)
+     · abweichend    — goldener Rahmen: hier hat jemand die Vorgabe verlassen
+     · hervorgehoben — die Spalte der gewählten Ebene, für die Vorschau       */
+
+.rechte-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 .6rem; }
+.rechte-chip {
+  font: inherit; font-size: .84rem; cursor: pointer;
+  padding: .3rem .8rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  color: var(--schrift-2);
+}
+.rechte-chip:hover  { border-color: var(--rand-hell); color: var(--schrift); }
+.rechte-chip.aktiv  { background: var(--grund-2); border-color: var(--gold); color: var(--gold); }
+
+.rechte-gruppe { margin: 1.4rem 0 0; }
+.rechte-gruppe h4 {
+  margin: 0 0 .5rem; padding-bottom: .3rem;
+  border-bottom: 1px solid var(--rand); color: var(--schrift-2);
+}
+
+.rechte-zeile {
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--rand);
+}
+.rechte-zeile:last-child { border-bottom: 0; }
+
+.recht-name code { font-size: .82rem; color: var(--gold); background: none; padding: 0; }
+.recht-name .desc { font-size: .84rem; color: var(--schrift-3); margin-top: .1rem; }
+
+.recht-marke {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .04em;
+  padding: .05rem .4rem; border-radius: 3px; margin-left: .4rem;
+  border: 1px solid var(--rand-hell); color: var(--schrift-3);
+}
+.recht-marke.still { border-style: dashed; }
+
+.recht-zellen {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: .3rem; margin-top: .45rem;
+}
+.recht-zelle {
+  display: flex; flex-direction: column; align-items: center; gap: .15rem;
+  padding: .35rem .2rem; border-radius: var(--radius-klein);
+  border: 1px solid transparent; cursor: pointer;
+}
+.recht-zelle small { font-size: .7rem; color: var(--schrift-3); }
+.recht-zelle:hover      { background: var(--grund-3); }
+.recht-zelle.hell       { background: var(--grund-3); border-color: var(--rand); }
+.recht-zelle.abweichend { border-color: var(--gold); }
+.recht-zelle.fest       { opacity: .45; cursor: default; }
+.recht-zelle.fest:hover { background: none; }
+
+.rechte-fuss {
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  margin: 1.6rem 0 .4rem; padding-top: .9rem; border-top: 1px solid var(--rand);
+}
+
+.audit-liste { list-style: none; padding: 0; margin: .4rem 0 0; }
+.audit-liste li {
+  padding: .35rem 0; border-bottom: 1px solid var(--rand);
+  font-size: .84rem; color: var(--schrift-2);
+}
+.audit-liste li:last-child { border-bottom: 0; }
+.audit-liste code { font-size: .8rem; }
+.audit-liste .an  { color: var(--gut); }
+.audit-liste .aus { color: var(--schlecht); }
+
+
+/* Kleine Felder direkt in der Konten-Tabelle: Klasse und Alter trägt man
+   dort ein, wo man sie liest — nicht in einem Formular eine Seite weiter. */
+.feld-schmal { width: 6rem; }
+.feld-winzig { width: 4.2rem; }
+.feld-schmal, .feld-winzig { padding: .2rem .4rem; font-size: .85rem; }
+
+/* ============================================================ Seitenmenü
+   Der Tutor fährt von rechts herein und legt sich NEBEN den Stoff, nicht
+   darüber: die Lektion bleibt lesbar, die halb getippte Antwort bleibt
+   stehen. Auf schmalen Fenstern geht das nicht — dort nimmt er die ganze
+   Breite, weil zwei 300-Pixel-Spalten nebeneinander keine sind.         */
+
+.seitenmenue {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: var(--panel-breite); max-width: 92vw;
+  z-index: 60; display: flex; flex-direction: column;
+  background: var(--grund-2); border-left: 1px solid var(--rand-hell);
+  box-shadow: -18px 0 40px rgba(0,0,0,.35);
+  transform: translateX(0); transition: transform .22s ease;
+}
+.seitenmenue.zu { transform: translateX(102%); }
+
+/* Der Inhalt rückt zur Seite, statt verdeckt zu werden. */
+@media (min-width: 1100px) {
+  body.panel-offen #haupt,
+  body.panel-offen .kopf { padding-right: calc(var(--panel-breite) + 10px); }
+}
+
+.panel-kopf {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem;
+  padding: .9rem 1rem; border-bottom: 1px solid var(--rand);
+}
+.panel-kopf h3 { margin: 0; font-size: 1.05rem; color: var(--gold); }
+
+/* „Neu" und „×" stehen zusammen rechts oben — beide räumen etwas weg, und was
+   dieselbe Art von Handlung ist, gehört an dieselbe Stelle. Das × bleibt aussen:
+   Es beendet mehr als „Neu", und der äussere Platz ist der endgültigere. */
+.panel-kopf-knoepfe { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+.panel-neu, .tutor-neu { white-space: nowrap; }
+
+/* In der Tutor-Ansicht sitzt der Knopf in der Kopfkarte, rechts neben dem
+   Titel statt darunter. `absolute` und nicht ein zweites Flexgitter: Die
+   Kopfkarte trägt sonst überall im Programm nur Text, und ein Umbau ihrer
+   Innenordnung für einen einzigen Knopf zieht Folgen an Stellen nach sich,
+   die damit nichts zu tun haben. */
+.tutor-spalte .titelkarte { position: relative; }
+.tutor-neu { position: absolute; top: 1rem; right: 1rem; }
+@media (max-width: 560px) {
+  .tutor-neu { position: static; margin-top: .6rem; }
+}
+
+.panel-agenten { display: flex; flex-wrap: wrap; gap: .3rem; padding: .6rem 1rem 0; }
+.panel-agent {
+  font: inherit; font-size: .78rem; cursor: pointer;
+  padding: .25rem .6rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
+}
+.panel-agent:hover { border-color: var(--rand-hell); color: var(--schrift); }
+.panel-agent.aktiv { border-color: var(--gold); color: var(--gold); }
+
+.panel-regel {
+  margin: .8rem 1rem 0; padding: .6rem .7rem; font-size: .82rem;
+  color: var(--schrift-2); background: var(--grund-3);
+  border-left: 3px solid var(--gold); border-radius: var(--radius-klein);
+}
+
+.panel-verlauf { flex: 1; overflow-y: auto; padding: .8rem 1rem; }
+.panel-verlauf .nachricht { margin-bottom: .9rem; }
+
+.panel-vorschlaege { display: flex; flex-direction: column; gap: .4rem; }
+.panel-vorschlag {
+  font: inherit; font-size: .85rem; text-align: left; cursor: pointer;
+  padding: .5rem .7rem; border-radius: var(--radius-klein);
+  background: var(--grund-3); border: 1px dashed var(--rand-hell); color: var(--schrift-2);
+}
+.panel-vorschlag:hover { border-style: solid; color: var(--gold); }
+
+.panel-form { padding: .8rem 1rem 1rem; border-top: 1px solid var(--rand); }
+.panel-form textarea { width: 100%; resize: vertical; }
+.panel-fuss { margin-top: .5rem; display: flex; justify-content: flex-end; }
+
+/* ============================================================ Stand-Karte
+   Die Fragen neben dem Stoff. Die Antwort erscheint IN der Karte, direkt
+   unter dem Knopf — kein Sprung, kein Scrollen, kein Ortswechsel.       */
+
+/* Nur oben und unten: Links und rechts kommt der Einzug aus der Kastenregel,
+   und eine Kurzschreibweise mit `0` würde ihn wieder wegnehmen. */
+.standkarte .balken { margin-top: .5rem; margin-bottom: .4rem; }
+
+.stand-fragen { display: flex; flex-direction: column; gap: .3rem; margin-top: .7rem; }
+.stand-frage {
+  font: inherit; font-size: .84rem; text-align: left; cursor: pointer;
+  padding: .42rem .65rem; border-radius: var(--radius-klein);
+  background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
+}
+.stand-frage:hover { border-color: var(--rand-hell); color: var(--schrift); }
+.stand-frage.aktiv { border-color: var(--gold); color: var(--gold); background: var(--grund-2); }
+
+.stand-antwort:not(:empty) {
+  margin-top: .7rem; padding-top: .7rem; border-top: 1px solid var(--rand);
+  font-size: .86rem;
+}
+.stand-antwort p { margin: .4rem 0; }
+
+.stand-liste { list-style: none; padding: 0; margin: .5rem 0; }
+.stand-liste li { display: flex; gap: .5rem; padding: .25rem 0; align-items: flex-start; }
+.stand-liste .zeichen { flex: none; width: 1.2em; text-align: center; }
+.stand-liste .zeichen.erfuellt { color: var(--gut); }
+.stand-liste .zeichen.teil     { color: var(--gold); }
+.stand-liste .zeichen.offen    { color: var(--schrift-3); }
+
+.stand-link { cursor: pointer; color: var(--gold); font-size: .84rem; }
+.stand-link:hover { text-decoration: underline; }
+
+.tutorkarte .knopf { margin-top: .6rem; }
+
+/* ============================================================ Lektionskarten
+   „Hier warst du gerade" — die Karte, aus der man zurückkommt. Sie ist der
+   Ankerpunkt: ohne sie landet man auf einer Seite voller gleich aussehender
+   Karten und muss suchen, wo man war.                                    */
+
+.lektion-karte.fertig { border-left: 3px solid var(--gut); }
+.lektion-karte.hier {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold) inset;
+}
+.hier-marke { color: var(--gold); margin-top: .4rem; }
+
+.lektion-fuss {
+  margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--rand);
+}
+.fuss-reihe { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+
+.tutor-ruf:hover { color: var(--glut-hell); }
+
+
+/* ============================================================ Preistafel
+   Steht am Tor (ohne Anmeldung lesbar) und im Cockpit. Vier Karten
+   nebeneinander, auf schmalen Fenstern untereinander.
+
+   Hervorgehoben ist die Schule — nicht weil sie am meisten kostet, sondern
+   weil sie je Kopf am wenigsten kostet. Das steht auch dran.            */
+
+.tor-preise {
+  max-width: 1100px; margin: 3rem auto 4rem; padding: 0 1.2rem;
+}
+.tor-preise h2 { margin-bottom: .3rem; }
+.tor-preise h3 { margin-top: 2.4rem; }
+
+.preistafel {
+  display: grid; gap: 1rem; margin-top: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+}
+
+.preis-karte {
+  position: relative; display: flex; flex-direction: column;
+  padding: 1.1rem 1.1rem 1.3rem;
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius);
+}
+.preis-karte.beste  { border-color: var(--gold); }
+.preis-karte.laeuft { border-color: var(--gut); }
+.preis-karte h3 { margin: .2rem 0 .1rem; font-size: 1.15rem; }
+
+.preis-marke {
+  position: absolute; top: -.7rem; left: 1rem;
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+  padding: .15rem .55rem; border-radius: 999px;
+  background: var(--gut); color: var(--grund);
+}
+.preis-marke.still { background: var(--gold); }
+
+.preis-betrag {
+  font-size: 1.9rem; font-weight: 700; line-height: 1.1;
+  color: var(--gold); font-variant-numeric: tabular-nums;
+}
+.preis-takt { display: block; font-size: .78rem; font-weight: 400; color: var(--schrift-3); }
+.preis-kopf { font-size: .82rem; color: var(--gut); margin-top: .2rem; }
+.preis-kurz { font-size: .88rem; margin: .6rem 0 .4rem; }
+
+.preis-liste { list-style: none; padding: 0; margin: .4rem 0 .6rem; flex: 1; }
+.preis-liste li {
+  font-size: .84rem; color: var(--schrift-2); padding: .18rem 0 .18rem 1.1rem;
+  position: relative;
+}
+.preis-liste li::before { content: '·'; position: absolute; left: .3rem; color: var(--gold); }
+
+.preis-fuer { font-size: .8rem; color: var(--schrift-3); font-style: italic; margin: .2rem 0 .6rem; }
+
+/* -------- Token-Pakete */
+.paket-reihe {
+  display: grid; gap: .8rem; margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+/* Talente weitergeben: Empfaenger, Betrag, Zweck, Knopf — in einer Zeile,
+   solange Platz ist, und sonst untereinander. `flex-wrap` statt fester
+   Spalten, weil die vier Felder sehr verschieden breit sind und ein Raster
+   dem Verwendungszweck entweder zu viel oder zu wenig gaebe. */
+.talent-bereich { margin-top: 1rem; }
+.talent-zeile {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+}
+/* **`width: auto` ist hier Pflicht, nicht Geschmack.** Weiter oben steht
+   `input, textarea, select { width: 100% }` — volle Breite ist die Vorgabe
+   dieses Programms. In einer Flex-Zeile heisst das: jedes Feld nimmt die
+   ganze Zeile, und die vier Felder stehen untereinander statt nebeneinander.
+   Gemessen am Bild, nicht vermutet. Dieselbe Zeile gibt es aus demselben
+   Grund schon bei `.einst-zeile`. */
+.talent-zeile select,
+.talent-zeile input[type=number],
+.talent-zeile input[type=text] { width: auto; }
+
+.talent-zeile select            { flex: 2 1 14rem; }
+.talent-zeile input[type=number]{ flex: 0 1 9rem; }
+.talent-zeile input[type=text]  { flex: 3 1 12rem; }
+.talent-zeile .knopf            { flex: 0 0 auto; }
+
+@media (max-width: 640px) {
+  /* Auf dem Handy volle Breite: 14rem Auswahlfeld neben 9rem Zahlenfeld
+     ergibt zwei halbe Spalten, in denen beides abgeschnitten ist. */
+  .talent-zeile > * { flex: 1 1 100%; min-width: 0; }
+}
+
+/* Die beiden Widerrufs-Haeken unter den Paketen (§ 356 Abs. 5 BGB).
+   Nicht vorausgewaehlt und nicht mit den AGB zusammengelegt — beides wuerde
+   die Zustimmung unwirksam machen. Sie stehen UNTER den Knoepfen und nicht
+   davor, weil sie den Kauf nicht sperren, sondern seine Rechtsfolge bestimmen. */
+.widerruf-haken {
+  margin-top: 1.2rem; padding: .9rem 1rem;
+  border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  background: var(--grund-2);
+}
+.widerruf-haken h4 { margin: 0 0 .6rem; font-size: .95rem; color: var(--schrift); }
+.widerruf-haken label {
+  display: flex; gap: .55rem; align-items: flex-start;
+  margin-bottom: .5rem; font-size: .86rem; color: var(--schrift-2);
+  line-height: 1.45; cursor: pointer;
+}
+/* Ein Haar tiefer, damit das Kaestchen auf der ersten Textzeile sitzt und
+   nicht darueber. Breite und Polster regelt die Ausnahme ganz oben. */
+.widerruf-haken input { margin-top: .15rem; }
+.widerruf-stand {
+  margin: .7rem 0 0; padding-top: .6rem; border-top: 1px solid var(--rand);
+  font-size: .82rem; color: var(--schrift-3);
+}
+.widerruf-stand.erloschen { color: var(--warn); }
+.paket {
+  text-align: center; padding: 1rem .8rem;
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+}
+.paket-name   { font-size: .82rem; color: var(--schrift-3); text-transform: uppercase; letter-spacing: .05em; }
+.paket-preis  { font-size: 1.5rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.paket-tokens { font-size: .88rem; color: var(--schrift-2); }
+.paket-mehr   { font-size: .78rem; color: var(--gut); margin-top: .2rem; }
+.paket .knopf { margin-top: .7rem; }
+
+/* -------- Werkzeug-Tafel */
+.werkzeug-tafel { width: 100%; margin-top: 1rem; font-size: .88rem; }
+.werkzeug-tafel .zahl { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.werkzeug-tafel tr.spaeter td { opacity: .55; }
+.werkzeug-tafel .tafel-trenner td {
+  padding-top: 1.2rem; border-bottom: 0; font-size: .85rem; color: var(--schrift-2);
+}
+
+/* ============================================================ Cockpit */
+
+.cockpit-gitter {
+  display: grid; gap: 1rem; margin: 1.4rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.cockpit-kasten { display: flex; flex-direction: column; }
+.cockpit-block  { margin-top: 2.2rem; }
+
+.cockpit-tabelle { width: 100%; font-size: .88rem; margin-top: .5rem; }
+.cockpit-tabelle th {
+  width: 42%; font-weight: 400; color: var(--schrift-3);
+  vertical-align: top; padding: .3rem .5rem .3rem 0;
+}
+.cockpit-tabelle td { padding: .3rem 0; }
+
+.token-rest { text-align: center; padding: .8rem 0 .4rem; }
+.token-rest .zahl {
+  font-size: 2.1rem; font-weight: 700; color: var(--gold);
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.token-rest .was { font-size: .8rem; color: var(--schrift-3); }
+
+.balken.voll i { background: var(--schlecht); }
+
+/* -------- Verbrauch: Name, Balken, Zahl */
+.verbrauch-liste { margin-top: .8rem; }
+.verbrauch-zeile {
+  display: grid; grid-template-columns: 1fr 3fr auto auto;
+  gap: .7rem; align-items: center; padding: .35rem 0;
+  border-bottom: 1px solid var(--rand); font-size: .88rem;
+}
+.verbrauch-zeile:last-child { border-bottom: 0; }
+.v-balken { background: var(--grund-3); border-radius: 999px; height: .55rem; overflow: hidden; }
+.v-balken i { display: block; height: 100%; background: var(--gold); }
+.v-zahl { font-variant-numeric: tabular-nums; text-align: right; min-width: 5rem; }
+.v-anzahl { min-width: 2.5rem; text-align: right; }
+
+.v-schaetzung {
+  font-size: .7rem; padding: .05rem .4rem; border-radius: 3px;
+  border: 1px dashed var(--rand-hell); color: var(--schrift-3);
+}
+
+/* -------- Buchungen */
+.cockpit-block td.zahl { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cockpit-block th.zahl { text-align: right; }
+td.zahl.minus { color: var(--schlecht); }
+td.zahl.plus  { color: var(--gut); }
+tr.spaeter td { opacity: .5; }
+
+.abo-form { max-width: 460px; margin-bottom: 1.6rem; }
+.abo-form .warum { color: var(--schrift-3); font-size: .82rem; margin: .3rem 0 .8rem; }
+
+/* ============================================================ Mikro
+   Sitzt links im Fuss des Tutor-Fensters, neben „Fragen". Während der
+   Aufnahme pulsiert es rot — man soll auf einen Blick sehen, dass das
+   Mikrofon offen ist.                                                   */
+
+.panel-fuss { justify-content: space-between; }
+
+.mikro-knopf {
+  font: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer;
+  width: 2.55rem; height: 2.55rem; border-radius: 50%;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  color: var(--schrift-2);
+}
+.mikro-knopf:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.mikro-knopf:disabled { opacity: .6; cursor: default; }
+
+/* Warum das Mikro nicht geht — im Fenster, nicht als Kurzmeldung. Der Text
+   nennt einen Weg, und dafür ist eine Meldung, die nach vier Sekunden
+   verschwindet, die falsche Form. */
+.mikro-grund { font-size: .8rem; margin-top: .6rem; line-height: 1.45; }
+.mikro-knopf.aktiv {
+  background: var(--schlecht-grund); border-color: var(--schlecht); color: var(--schlecht);
+  animation: mikro-puls 1.4s ease-in-out infinite;
+}
+
+@keyframes mikro-puls {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,99,90,.55); }
+  50%      { box-shadow: 0 0 0 .45rem rgba(232,99,90,0); }
+}
+
+/* Wer wenig Bewegung eingestellt hat, bekommt hier auch keine. Der Wert
+   heisst „wenig", nicht „aus" — siehe PU_EINST_PERSON in srv/einstellungen.php.
+   Statt zu pulsieren bleibt der Ring dann einfach stehen. */
+html[data-bewegung="wenig"] .mikro-knopf.aktiv {
+  animation: none;
+  box-shadow: 0 0 0 .3rem rgba(232,99,90,.35);
+}
+
+/* ============================================================ Schmal, Teil 2 */
+@media (max-width: 1000px) {
+  /* Zwei Spalten nebeneinander sind auf einem Handy keine: die Leiste legt
+     sich dann ÜBER den Stoff statt neben ihn, und sie startet zugeklappt.
+     Der Ziehgriff verschwindet mit — auf einem Fenster, das schmaler ist als
+     die beiden Spalten zusammen, gibt es nichts zu verteilen. */
+  .schale { display: block; }
+  .leiste { position: fixed; top: 0; left: 0; box-shadow: var(--schatten); z-index: 70; }
+  .leiste.zu { box-shadow: none; }
+  .griff-leiste, .griff-spalte { display: none; }
+  .mit-spalte, .tok-gitter { grid-template-columns: 1fr; }
+  .seitenspalte { position: static; }
+  .modal-koerper { grid-template-columns: 1fr; }
+  .modal-reiter { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--rand); }
+  .recht-zellen { grid-template-columns: repeat(3, 1fr); }
+  .seitenmenue { width: 100%; max-width: 100%; }
+  .verbrauch-zeile { grid-template-columns: 1fr auto auto; }
+  .verbrauch-zeile .v-balken { display: none; }
+  .reiter-trenner { display: none; }
+}
+
+/* ============================================================ Fachbegriffe
+   Ein Begriff im Lehrstoff ist ein Knopf, kein Link: Er führt nicht woandershin,
+   er schlägt etwas auf. Die gepunktete Linie sagt „hier steckt mehr" und drängt
+   sich weniger auf als eine durchgezogene — in einer Lektion mit vier Begriffen
+   soll der Text lesbar bleiben und nicht wie ein Formular aussehen.
+
+   **Der Begriff traegt jetzt auch Farbe, nicht nur die Linie.** Vorher war er
+   `color: inherit` — eine gepunktete Unterstreichung allein sieht man beim
+   Ueberfliegen nicht, und wer sie nicht sieht, klickt nicht. Wer die Linie
+   ueberhaupt nicht wahrnimmt (Unterstreichungen verschwinden auf kleinen
+   Schriftgraden und bei einigen Zoomstufen), hatte gar keinen Hinweis.
+
+   Die Farbe kommt aus `--begriff` und ist damit hell/dunkel- UND palettenfest:
+   auf dunklem Grund das leuchtende Gold, auf hellem ein abgedunkeltes, weil
+   dasselbe Gold dort AA verfehlen wuerde. Siehe den Token oben. */
+.begriff {
+  font: inherit; cursor: help;
+  color: var(--begriff);
+  background: none; border: 0; padding: 0;
+  /* **Umbrechende Begriffe stehen linksbündig wie ihre Nachbarn.**
+
+     Ein Begriff ist ein `<button>`, und Knöpfe zentrieren ihren Text ab Werk.
+     Bei einem einzelnen Wort fällt das nicht auf — da gibt es nichts
+     auszurichten. Bricht der Begriff aber um, steht jede Zeile für sich
+     zentriert, und in einer Tabellenspalte sieht das aus, als wäre diese eine
+     Zelle anders gesetzt als die darüber und darunter. Genau so gemeldet:
+     „Maschinelles Lernen" rückte in der Tabelle ein, „Regelsystem" nicht.
+
+     `inherit` statt `left`: Der Begriff soll dem folgen, worin er steht. In
+     einer rechtsbündigen Zelle wäre `left` derselbe Fehler noch einmal, nur
+     andersherum. Gemessen: vorher lagen die zwei Zeilen bei 435 und 455 px,
+     jetzt beide bei 421 — bündig mit den einzeiligen Begriffen daneben. */
+  text-align: inherit;
+  text-decoration: underline dotted currentColor;
+  text-underline-offset: .18em; text-decoration-thickness: 1px;
+}
+/* Beim Zeigen wird die Linie durchgezogen und dicker — die Farbe bleibt, sonst
+   waere der Wechsel ein Farbsprung mitten im Satz. */
+.begriff:hover,
+.begriff:focus-visible {
+  text-decoration-style: solid;
+  text-decoration-thickness: 2px;
+}
+/* Bei hohem Kontrast reicht Farbe nicht als alleiniges Merkmal: durchgezogen
+   und fett, damit der Begriff auch ohne Farbwahrnehmung heraussticht. */
+html[data-kontrast="hoch"] .begriff {
+  font-weight: 600;
+  text-decoration: underline solid currentColor;
+  text-decoration-thickness: 2px;
+}
+
+/* ============================================================ Glossarfenster
+   Vollbild, weil hier gelesen und gefragt wird — beides gleichzeitig. Ein
+   Fenster von 940 Pixeln müsste den Chat unter die Erklärung schieben, und dann
+   scrollt man zwischen Frage und Antwort hin und her. */
+.modal.vollbild { padding: 0; align-items: stretch; }
+/* Solange das Vollbild steht, bewegt sich dahinter nichts. Sonst steht die
+   Lektion nach dem Schliessen an einer anderen Stelle als vorher. */
+body.modal-voll { overflow: hidden; }
+.modal.vollbild .modal-flaeche {
+  max-width: none; width: 100%; height: 100vh;
+  border: 0; border-radius: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+/* Im Vollbild scrollt keine Aussenhaut mehr, sondern nur noch das, worin Text
+   steht: die Reiterspalte für sich, der Inhalt für sich. Vorher hatte das
+   Fenster einen eigenen Balken UND die Seite dahinter einen — zwei Balken für
+   eine Liste, und man erwischte immer den falschen. */
+.modal.vollbild .modal-koerper { min-height: 0; height: 100%; }
+.modal.vollbild .modal-reiter  { overflow-y: auto; overscroll-behavior: contain; }
+.modal.vollbild .modal-inhalt  {
+  max-height: none; min-height: 0; overscroll-behavior: contain;
+}
+.gl-kopftext { min-width: 0; }
+.gl-kopftext h2 { margin: 0; font-size: 1.15rem; color: var(--gold); }
+.gl-kopftext .klein { margin: .1rem 0 0; color: var(--schrift-3); }
+
+.gl-koerper {
+  display: grid; grid-template-columns: minmax(0, 1fr) var(--gl-seite-breite, 380px);
+  min-height: 0;
+}
+
+/* -------- Links: der Chat
+   Der Verlauf dehnt sich, die Eingabe klebt unten. Gescrollt wird der Verlauf,
+   nie das Fenster — sonst wandert das Eingabefeld aus dem Bild, sobald die
+   dritte Antwort da ist. */
+.gl-chat {
+  display: flex; flex-direction: column; min-height: 0;
+  border-right: 1px solid var(--rand);
+}
+.gl-verlauf {
+  flex: 1; min-height: 0; overflow-y: auto;
+  padding: 1rem 1.2rem; display: grid; gap: .7rem; align-content: start;
+  scroll-behavior: smooth;
+  /* Am Ende der Liste soll nicht die Seite dahinter weiterrollen. */
+  overscroll-behavior: contain;
+}
+.gl-form {
+  flex: none; padding: .7rem 1.2rem 1rem;
+  border-top: 1px solid var(--rand);
+  background: rgb(var(--karte-schleier) / .92);
+}
+.gl-form textarea { font-size: .9rem; }
+
+/* -------- Rechts: unsere eigene Erklärung
+   Sie scrollt für sich. Das ist der Unterschied zu vorher: Wer rechts liest,
+   soll den Chat links nicht mitverschieben. */
+.gl-seite {
+  overflow-y: auto; min-height: 0; overscroll-behavior: contain;
+  padding: 1rem 1.1rem 2rem;
+  background: var(--grund);
+  display: grid; gap: .9rem; align-content: start;
+}
+.gl-kasten {
+  background: rgb(var(--karte-schleier) / .55);
+  border: 1px solid var(--rand); border-radius: var(--radius);
+  padding: .2rem 0 0;
+}
+.gl-kasten > h4 {
+  margin: 0; padding: .55rem .9rem; font-size: .78rem; font-family: var(--sans);
+  text-transform: uppercase; letter-spacing: .07em; color: var(--schrift-3);
+  border-bottom: 1px solid var(--rand);
+}
+.gl-text { padding: .8rem .9rem 1rem; font-size: .88rem; line-height: 1.6; }
+.gl-text > :first-child { margin-top: 0; }
+.gl-text > :last-child  { margin-bottom: 0; }
+.gl-text h2, .gl-text h3 { font-size: .95rem; margin: 1rem 0 .3rem; }
+.gl-text blockquote {
+  margin: 0 0 .8rem; padding-left: .7rem;
+  border-left: 3px solid var(--gold); color: var(--schrift);
+}
+
+.gl-nachbarn { display: grid; gap: .3rem; padding: .6rem .9rem .9rem; }
+.gl-suchzeile { padding: .7rem .9rem 0; }
+.gl-suchzeile input { width: 100%; font-size: .88rem; }
+.gl-nachbar[hidden] { display: none; }
+.gl-nachbar {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  font: inherit; color: inherit; padding: .45rem .6rem;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+}
+.gl-nachbar:hover { border-color: var(--lapis-hell); }
+.gl-nachbar .name { display: block; font-weight: 600; color: var(--lapis-hell); font-size: .88rem; }
+.gl-nachbar .klein { display: block; margin-top: .1rem; line-height: 1.4; }
+
+/* -------- Die vier Knöpfe über dem Eingabefeld */
+.gl-knoepfe { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
+.gl-tiefe {
+  font: inherit; font-size: .8rem; cursor: pointer; white-space: nowrap;
+  padding: .25rem .8rem; border-radius: 999px;
+  background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
+}
+.gl-tiefe:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.gl-tiefe:disabled { opacity: .45; cursor: default; }
+
+.gl-emoji {
+  font-size: .95rem; line-height: 1; cursor: pointer;
+  padding: .2rem .55rem; border-radius: 999px; margin-left: auto;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  filter: grayscale(1); opacity: .6;
+}
+.gl-emoji.an { filter: none; opacity: 1; border-color: var(--gold); background: var(--grund-2); }
+
+/* -------- Nachrichten
+   Etwas kleiner als im grossen Chat: hier stehen Erklärungen, keine Aufsätze,
+   und rechts daneben läuft noch eine zweite Spalte Text mit. */
+.gl-nachricht { padding: .55rem .8rem; border-radius: var(--radius-klein); }
+.gl-nachricht.ich    { background: var(--grund-3); border: 1px solid var(--rand); }
+.gl-nachricht.tutor  {
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-left: 3px solid var(--glut);
+}
+.gl-nachricht.fehler { border-left-color: var(--schlecht); }
+/* Flex, damit sich der Kopierknopf mit `margin-left:auto` nach rechts schiebt —
+   dieselben Knöpfe wie in den anderen Chats brauchen dieselbe Zeile. */
+.gl-nachricht .von   {
+  display: flex; align-items: center; gap: .15rem;
+  font-size: .72rem; color: var(--schrift-3); margin-bottom: .2rem;
+}
+.gl-nachricht:hover .nachricht-kopie,
+.gl-nachricht:hover .nachricht-ton { opacity: .75; }
+.gl-nachricht .text  { font-size: .87rem; line-height: 1.55; }
+.gl-nachricht .text > :first-child { margin-top: 0; }
+.gl-nachricht .text > :last-child  { margin-bottom: 0; }
+.gl-nachricht .text h2,
+.gl-nachricht .text h3 { font-size: .95rem; margin: .8rem 0 .3rem; }
+
+.gl-fuss { display: flex; gap: .4rem; margin-top: .6rem; }
+
+/* -------- „denkt nach"
+   Drei Punkte in einer Welle. Ohne dieses Zeichen sieht ein Fenster, das zehn
+   Sekunden rechnet, kaputt aus — und man klickt noch einmal. */
+.denkt-zeile { display: flex; align-items: center; gap: .5rem; color: var(--schrift-3); }
+.denkt-wort  { font-size: .84rem; font-style: italic; }
+.denkt-punkte { display: inline-flex; gap: .22rem; }
+.denkt-punkte i {
+  width: .34rem; height: .34rem; border-radius: 50%;
+  background: var(--glut); display: block;
+  animation: denkt-welle 1.15s ease-in-out infinite;
+}
+.denkt-punkte i:nth-child(2) { animation-delay: .16s; }
+.denkt-punkte i:nth-child(3) { animation-delay: .32s; }
+
+@keyframes denkt-welle {
+  0%, 60%, 100% { transform: translateY(0);      opacity: .35; }
+  30%           { transform: translateY(-.32rem); opacity: 1; }
+}
+
+/* Wer wenig Bewegung eingestellt hat, bekommt keine Welle, sondern ein
+   Pulsieren an Ort und Stelle — sichtbar bleibt es trotzdem. */
+html[data-bewegung="wenig"] .denkt-punkte i {
+  animation: denkt-blinken 1.6s ease-in-out infinite;
+}
+@keyframes denkt-blinken { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+
+/* ================================================== Tutor: Spalten getrennt
+   Im Tutorfenster scrollt jede Spalte für sich. Vorher hing die rechte Karte
+   klebrig an der Seite und schob beim Scrollen die ganze Seite — und mit ihr
+   den Chat. Jetzt hat sie ihre eigene Höhe und ihren eigenen Balken. */
+body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
+  position: static;
+  height: calc(100vh - 5.8rem);
+  overflow-y: auto;
+  padding-right: .35rem;
+  align-content: start;
+}
+
+/* ============================================================ Schmal */
+@media (max-width: 900px) {
+  /* Zwei Spalten nebeneinander gehen hier nicht. Die Erklärung rückt unter den
+     Chat — und der Chat behält seine feste Höhe, damit die Eingabe erreichbar
+     bleibt, statt hinter die Erklärung zu rutschen. */
+  .gl-koerper { grid-template-columns: 1fr; grid-template-rows: 62vh minmax(0, 1fr); }
+  .gl-chat { border-right: 0; border-bottom: 1px solid var(--rand); }
+  .gl-emoji { margin-left: 0; }
+
+  body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
+    height: auto; overflow: visible;
+  }
+}

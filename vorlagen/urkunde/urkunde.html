@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>PROMPTHEUS — Urkunde {{pruefcode}}</title>
+<style>
+  /* Eigenstaendige Datei: die Urkunde soll auch dann noch lesbar sein, wenn
+     sie jemand speichert und ohne PROMPTHEUS oeffnet. Deshalb kein Verweis
+     auf promptheus.css und keine Webschrift. */
+  @page { size: A4 landscape; margin: 12mm; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 3rem 2rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    background: #14110f; color: #ede5db;
+    display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  }
+  .urkunde {
+    width: 100%; max-width: 900px; text-align: center; position: relative;
+    border: 2px solid #7a5a2a; border-radius: 6px;
+    padding: 3.2rem 3rem;
+    background:
+      radial-gradient(700px 300px at 50% 0%, rgba(255,122,28,.13), transparent 70%),
+      #1c1815;
+  }
+  .urkunde::before {
+    content: ""; position: absolute; inset: 8px;
+    border: 1px solid #4a3823; border-radius: 3px; pointer-events: none;
+  }
+  .flamme { font-size: 2.4rem; line-height: 1; }
+  .marke {
+    letter-spacing: .3em; font-size: .82rem; color: #b3a596;
+    text-transform: uppercase; margin: .6rem 0 2rem;
+  }
+  h1 {
+    font-size: 1.5rem; font-weight: 500; letter-spacing: .08em;
+    color: #b3a596; margin: 0 0 1.6rem; text-transform: uppercase;
+  }
+  .name {
+    font-size: 2.6rem; margin: 0 0 1.2rem; line-height: 1.1;
+    background: linear-gradient(180deg, #ffc94d, #ff7a1c);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .text { font-size: 1.05rem; color: #d6cabb; margin: 0 auto 1.8rem; max-width: 40rem; }
+  .stufe { font-size: 1.8rem; color: #ffc94d; margin: .3rem 0 .1rem; }
+  .stufe-titel { color: #b3a596; font-style: italic; margin: 0 0 2rem; }
+  .fuss {
+    display: flex; justify-content: space-between; gap: 2rem;
+    margin-top: 2.6rem; padding-top: 1.2rem; border-top: 1px solid #3a3129;
+    font-size: .82rem; color: #7d7267; text-align: left;
+  }
+  .fuss code { font-family: Consolas, monospace; color: #ede5db; font-size: .95em; }
+  .widerruf {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 4rem; color: rgba(232,99,90,.30); letter-spacing: .3em;
+    transform: rotate(-18deg); pointer-events: none; text-transform: uppercase;
+  }
+  .druckhinweis { margin-top: 1.4rem; font-size: .78rem; color: #7d7267; }
+  @media print {
+    body { background: #fff; color: #111; padding: 0; }
+    .urkunde { background: #fff; border-color: #8a6a3a; }
+    .name { background: none; -webkit-text-fill-color: #a0521c; color: #a0521c; }
+    .text, .stufe-titel { color: #333; }
+    .stufe { color: #a0521c; }
+    .fuss { color: #555; border-color: #ccc; }
+    .fuss code { color: #111; }
+    .druckhinweis { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="urkunde">
+    <div class="widerruf">{{widerrufen}}</div>
+
+    <div class="flamme">🔥</div>
+    <div class="marke">Promptheus</div>
+
+    <h1>Urkunde</h1>
+
+    <p class="text">Hiermit wird bescheinigt, dass</p>
+    <p class="name">{{name}}</p>
+    <p class="text">die Abschlussprüfung der folgenden Stufe bestanden hat:</p>
+
+    <p class="stufe">Stufe {{stufe}} — {{stufe_name}}</p>
+    <p class="stufe-titel">{{stufe_titel}}</p>
+
+    <p class="text">
+      Damit kann sie oder er die Inhalte dieser Stufe selbstständig anwenden
+      und kritisch beurteilen.
+    </p>
+
+    <div class="fuss">
+      <div>
+        <div>Ausgestellt am</div>
+        <div><code>{{datum}}</code></div>
+      </div>
+      <div>
+        <div>Erreichte Punkte</div>
+        <div><code>{{punkte}}</code></div>
+      </div>
+      <div>
+        <div>Prüfcode — auf der Anmeldeseite überprüfbar</div>
+        <div><code>{{pruefcode}}</code></div>
+      </div>
+    </div>
+
+    <p class="druckhinweis">
+      Zum Drucken oder als PDF sichern: Strg&nbsp;+&nbsp;P. Querformat ist voreingestellt.
+    </p>
+  </div>
+</body>
+</html>

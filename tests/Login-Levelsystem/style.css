@@ -1,0 +1,158 @@
+:root{
+  --bg:#0f0b09;
+  --bg-2:#171110;
+  --panel:#1c1512;
+  --panel-2:#241a16;
+  --border:#3a2a1f;
+  --text:#f4e7d8;
+  --muted:#b39a83;
+  --funk:#ff7a18;
+  --funk-2:#ffb054;
+  --glow:rgba(255,122,24,.32);
+  --ok:#7fc86e;
+  --no:#c86e6e;
+  --radius:14px;
+  --shadow:0 6px 24px rgba(0,0,0,.45);
+  font-size:16px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%}
+
+body{
+  background:
+    radial-gradient(1200px 600px at 20% -10%, var(--glow), transparent 60%),
+    linear-gradient(180deg,var(--bg),var(--bg-2));
+  color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  line-height:1.45;
+  overflow-x:hidden;
+}
+
+/* Glimm-Effekt oben */
+.bg-ember{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(600px 200px at 50% -40px, rgba(255,140,40,.14), transparent 70%);
+  animation:ember 7s ease-in-out infinite alternate;
+}
+@keyframes ember{from{opacity:.5}to{opacity:1}}
+
+/* Topbar */
+.topbar{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 22px;background:rgba(15,11,9,.86);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:12px}
+.flame{font-size:1.9rem;line-height:1}
+.brand-text strong{display:block;font-size:1.15rem;letter-spacing:.5px}
+.brand-text small{color:var(--muted)}
+
+.role-switch{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  padding:8px 14px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:all .18s ease;font:inherit;font-size:.9rem;
+}
+.chip:hover{border-color:var(--funk);color:var(--text)}
+.chip.active{
+  background:linear-gradient(180deg,var(--funk-2),var(--funk));
+  color:#20120a;border-color:var(--funk);font-weight:700;
+  box-shadow:0 2px 14px var(--glow);
+}
+
+/* Layout */
+.layout{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);
+  gap:20px;max-width:1200px;margin:22px auto;padding:0 20px;
+}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;
+}
+.card-head{margin-bottom:14px}
+.card-head h1,.card-head h2{font-size:1.25rem;margin-bottom:4px}
+.card-head p{color:var(--muted);font-size:.9rem}
+
+.legend{font-size:.82rem;color:var(--muted);margin-bottom:14px;line-height:1.4}
+
+/* Gruppen — ganze Höhe nutzen, keine interne Höhenbegrenzung */
+.groups{display:flex;flex-direction:column;gap:16px;width:100%}
+.group{border:1px solid var(--border);border-radius:12px;overflow:visible;width:100%}
+.group-head{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--panel-2);font-weight:700;font-size:.92rem;
+  letter-spacing:.3px;position:sticky;top:0;z-index:2}
+.group-head .g-toggle{color:var(--muted);font-weight:600;font-size:.85rem}
+.group-rows{display:flex;flex-direction:column}
+.row{
+  display:flex;flex-direction:column;gap:8px;
+  padding:12px 16px;border-top:1px solid rgba(58,42,31,.5);
+}
+.row:hover{background:rgba(255,122,24,.04)}
+.row .main .name{font-size:.9rem;font-weight:600;color:var(--text);word-break:break-word}
+.row .main .desc{font-size:.77rem;color:var(--muted);margin-top:3px;line-height:1.35}
+.row .cells{
+  display:flex;flex-wrap:wrap;gap:8px;width:100%;
+}
+.cell{
+  display:flex;flex-direction:row;align-items:center;gap:8px;
+  padding:4px 10px;border-radius:6px;background:rgba(0,0,0,.12);
+}
+.cell small{font-size:.68rem;color:var(--muted);letter-spacing:.1px;white-space:nowrap}
+
+/* Umschalter */
+.sw{
+  appearance:none;width:38px;height:22px;border-radius:999px;cursor:pointer;
+  background:#3a2a1f;position:relative;transition:background .18s ease;border:none;
+}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+  border-radius:50%;background:#b39a83;transition:transform .18s ease}
+.sw:checked{background:var(--funk)}
+.sw:checked::after{transform:translateX(16px);background:#fff}
+.sw:disabled{opacity:.35;cursor:not-allowed}
+
+/* Buttons */
+.btn{border:none;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.primary{background:linear-gradient(180deg,var(--funk-2),var(--funk));color:#20120a;
+  box-shadow:0 2px 12px var(--glow)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn.ghost:hover{color:var(--text);border-color:var(--funk)}
+.card-foot{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.note{color:var(--ok);font-size:.85rem}
+
+/* Simulation — jeder Eintrag ist ein eigener Umschalter */
+.sim-card{position:sticky;top:76px;align-self:start}
+#sim{list-style:none;display:flex;flex-direction:column;gap:6px}
+.sim-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:.86rem;padding:7px 10px;width:100%;cursor:pointer;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:8px;
+  font:inherit;color:var(--text);text-align:left;
+}
+.sim-item:hover{border-color:var(--funk);background:rgba(255,122,24,.06)}
+.sim-item .t{flex:1;text-align:left;word-break:break-word}
+.sim-item .sim-on{color:var(--ok);font-weight:700;background:rgba(127,200,110,.12);border-radius:6px;padding:2px 8px}
+.sim-item .sim-off{color:var(--muted);font-weight:600;border-radius:6px;padding:2px 8px;border:1px solid rgba(200,110,110,.35)}
+.sim-item .sim-on::before{content:"✓ "}
+.sim-item .sim-off::before{content:"✗ "}
+
+.audit{margin-top:20px}
+.audit-list{list-style:none;font-size:.78rem;color:var(--muted);
+  display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto}
+.audit-list li{padding:6px 8px;background:var(--panel-2);border-radius:6px;
+  border-left:3px solid var(--funk);font-family:ui-monospace,monospace}
+
+/* Footer */
+.footer{position:relative;z-index:1;max-width:1200px;margin:0 auto 26px;padding:0 20px;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.8rem}
+.muted{color:var(--muted)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#3a2a1f;border-radius:6px}
+::-webkit-scrollbar-track{background:transparent}

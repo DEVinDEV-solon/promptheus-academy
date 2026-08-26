@@ -1,0 +1,375 @@
+<!doctype html>
+<!-- PROMPTHEUS ACADEMY — Referenzflächen.
+
+     Alles, was die Marke ausmacht, auf einer Seite: die Paletten, die
+     Ornamente, die Bausteine, die Verbote. Zum Nachschlagen und zum Prüfen,
+     ob eine Änderung wirklich überall stimmt.
+
+     Die Seite liegt bewusst NICHT im Programm — sie ist die Referenz, nicht
+     Teil der Oberfläche. Öffnen mit Doppelklick; sie braucht keinen Server.
+
+     Nichts wird nachgeladen: die Farben stehen in varianten.css (erzeugt aus
+     srv/varianten.php), die Ornamente sind eingebettete SVG-Masken. -->
+<html lang="de" data-variante="schmiede">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROMPTHEUS ACADEMY — Brand Kit</title>
+<link rel="stylesheet" href="varianten.css">
+<style>
+:root {
+  --breit: 1180px; --radius: 10px; --radius-klein: 6px;
+  --schatten: 0 2px 10px rgba(0,0,0,.45);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans:  "Segoe UI", -apple-system, system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --mono:  "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  --gut: #5fbf7a; --schlecht: #e8635a;
+
+  --orn-maeander: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M0 28 H32'/%3E%3Cpath d='M6 28 V6 H26 V22 H12 V16 H20'/%3E%3C/g%3E%3C/svg%3E");
+  --orn-palmette: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='%23fff' transform='translate(36 36)'%3E%3Cg id='b'%3E%3Cpath d='M0 -6 C 5 -12, 5 -22, 0 -28 C -5 -22, -5 -12, 0 -6 Z'/%3E%3C/g%3E%3Cuse href='%23b' transform='rotate(45)'/%3E%3Cuse href='%23b' transform='rotate(90)'/%3E%3Cuse href='%23b' transform='rotate(135)'/%3E%3Cuse href='%23b' transform='rotate(180)'/%3E%3Cuse href='%23b' transform='rotate(225)'/%3E%3Cuse href='%23b' transform='rotate(270)'/%3E%3Cuse href='%23b' transform='rotate(315)'/%3E%3Ccircle r='4'/%3E%3C/g%3E%3C/svg%3E");
+  --orn-funken: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%23fff'%3E%3Cpath d='M14 8 L15.6 12.4 L20 14 L15.6 15.6 L14 20 L12.4 15.6 L8 14 L12.4 12.4 Z'/%3E%3Cpath d='M62 26 L63.2 29.3 L66.5 30.5 L63.2 31.7 L62 35 L60.8 31.7 L57.5 30.5 L60.8 29.3 Z'/%3E%3Cpath d='M35 52 L36.6 56.4 L41 58 L36.6 59.6 L35 64 L33.4 59.6 L29 58 L33.4 56.4 Z'/%3E%3Cpath d='M80 66 L81.2 69.3 L84.5 70.5 L81.2 71.7 L80 75 L78.8 71.7 L75.5 70.5 L78.8 69.3 Z'/%3E%3Cpath d='M8 74 L8.9 76.6 L11.5 77.5 L8.9 78.4 L8 81 L7.1 78.4 L4.5 77.5 L7.1 76.6 Z'/%3E%3Cpath d='M52 88 L52.9 90.6 L55.5 91.5 L52.9 92.4 L52 95 L51.1 92.4 L48.5 91.5 L51.1 90.6 Z'/%3E%3Cpath d='M88 40 L88.9 42.6 L91.5 43.5 L88.9 44.4 L88 47 L87.1 44.4 L84.5 43.5 L87.1 42.6 Z'/%3E%3Cpath d='M28 30 L28.75 32.25 L31 33 L28.75 33.75 L28 36 L27.25 33.75 L25 33 L27.25 32.25 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 2.4rem 1.2rem 5rem;
+  background: var(--grund); color: var(--schrift);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+}
+main { max-width: var(--breit); margin: 0 auto; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
+h1 { font-size: 2rem; margin: 0 0 .2rem; }
+h2 { font-size: 1.45rem; margin: 3rem 0 .4rem; }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 .4rem; }
+p  { margin: 0 0 1em; }
+a  { color: var(--glut-hell); }
+code { font-family: var(--mono); font-size: .88em; background: var(--grund-3);
+       padding: .12em .38em; border-radius: 4px; border: 1px solid var(--rand); }
+.klein   { font-size: .86rem; }
+.hinweis { color: var(--schrift-3); font-size: .86rem; }
+.lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+       text-transform: uppercase; color: var(--schrift-3); }
+.val { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* -------- Bausteine, wie im Programm */
+.karte { background: var(--glas); border: 1px solid var(--rand);
+         border-radius: var(--radius); padding: 1rem 1.1rem; }
+.karten { display: grid; gap: .9rem;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.knopf { font: inherit; font-weight: 600; cursor: pointer; color: var(--grund);
+         background: linear-gradient(180deg, var(--glut-hell), var(--glut));
+         border: 0; border-radius: var(--radius-klein); padding: .55rem 1.1rem; }
+.knopf.still { background: var(--grund-3); color: var(--schrift);
+               border: 1px solid var(--rand-hell); }
+.balken { height: 6px; background: var(--grund-3); border-radius: 3px; overflow: hidden; }
+.balken i { display: block; height: 100%;
+            background: linear-gradient(90deg, var(--glut), var(--gold)); }
+.marke-stufe { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+               padding: .12rem .5rem; border-radius: 999px;
+               border: 1px solid var(--glut); color: var(--glut); }
+.marke-stufe.fertig { border-color: var(--gut); color: var(--gut); }
+.wissen { border-left: 3px solid var(--lapis); background: var(--lapis-flor);
+          padding: .7rem .9rem; border-radius: var(--radius-klein); }
+
+/* -------- Farbfelder */
+.felder { display: grid; gap: .5rem;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.feld { border: 1px solid var(--rand); border-radius: var(--radius-klein);
+        overflow: hidden; }
+.feld .flaeche { height: 54px; }
+.feld .text { padding: .35rem .5rem; font-size: .74rem; }
+.feld .text b { display: block; font-size: .8rem; }
+
+/* -------- Palettenreihe */
+.paletten { display: grid; gap: .6rem;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.palette { border: 1px solid var(--rand); border-radius: var(--radius);
+           overflow: hidden; cursor: pointer; text-align: left;
+           font: inherit; color: inherit; background: transparent; padding: 0; }
+.palette.aktiv { outline: 2px solid var(--gold); outline-offset: 1px; }
+.palette .probe { height: 62px; display: flex; align-items: center;
+                  justify-content: center; gap: 8px; }
+.palette .probe i { width: 16px; height: 16px; border-radius: 50%; display: block; }
+.palette .unten { padding: .5rem .7rem; background: var(--grund-2); }
+.palette .name { font-weight: 600; font-size: .92rem; }
+
+/* -------- Ornamentproben */
+.orn-proben { display: grid; gap: .9rem;
+              grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.orn-probe { height: 132px; border: 1px solid var(--rand);
+             border-radius: var(--radius); position: relative; overflow: hidden;
+             display: flex; align-items: flex-end; padding: .6rem .8rem;
+             background: var(--grund-2); }
+.orn-probe::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-color: var(--gold);
+  -webkit-mask-repeat: repeat; mask-repeat: repeat;
+}
+.orn-probe.maeander::before { -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 32px 32px; mask-size: 32px 32px; opacity: .16; }
+.orn-probe.palmette::before { -webkit-mask-image: var(--orn-palmette); mask-image: var(--orn-palmette);
+  -webkit-mask-size: 72px 72px; mask-size: 72px 72px; opacity: .12; }
+.orn-probe.funken::before { -webkit-mask-image: var(--orn-funken); mask-image: var(--orn-funken);
+  -webkit-mask-size: 96px 96px; mask-size: 96px 96px; opacity: .10; }
+.orn-probe span { position: relative; font-size: .8rem; color: var(--schrift-2); }
+
+.zierband { height: 32px; margin: 2rem 0;
+  background-color: var(--gold); opacity: .22;
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 32px 32px; mask-size: 32px 32px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
+
+/* -------- Ja/Nein */
+.gegenueber { display: grid; gap: .9rem; grid-template-columns: 1fr 1fr; }
+@media (max-width: 700px) { .gegenueber { grid-template-columns: 1fr; } }
+.ja, .nein { border-radius: var(--radius); padding: .8rem 1rem; border: 1px solid; }
+.ja   { border-color: var(--gut);      background: rgb(95 191 122 / .07); }
+.nein { border-color: var(--schlecht); background: rgb(232 99 90 / .07); }
+.ja b, .nein b { display: block; margin-bottom: .3rem; }
+
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--rand); }
+th { color: var(--schrift-2); font-size: .78rem; text-transform: uppercase;
+     letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<main>
+
+  <p class="lbl">Brand Kit</p>
+  <h1 style="letter-spacing:.14em">PROMPTHEUS</h1>
+  <p class="lbl" style="letter-spacing:.28em; margin-top:-.2rem">Academy</p>
+  <p class="hinweis" style="max-width:62ch; margin-top:1rem">
+    Verbindlich ist <code>BRAND.md</code>. Diese Seite zeigt, wie es aussieht,
+    wenn man sich daran hält — und dient als Prüfstein: sieht hier etwas falsch
+    aus, stimmt etwas im Kit nicht.
+  </p>
+
+  <div class="zierband"></div>
+
+  <!-- ============================================================ Paletten -->
+  <h2>Die sechs Varianten</h2>
+  <p class="hinweis">
+    Klicken schaltet die ganze Seite um. Alle sechs halten überall mindestens
+    4,5:1 Kontrast — nachgerechnet in <code>tests/varianten_test.php</code>,
+    nicht nach Augenmass.
+  </p>
+
+  <div class="paletten" id="paletten"></div>
+
+  <!-- ============================================================ Farben -->
+  <h2>Tokens der aktiven Variante</h2>
+  <div class="felder" id="felder"></div>
+
+  <h3>Wofür welche Farbe</h3>
+  <table>
+    <tr><th>Farbe</th><th>Heisst</th><th>Anteil</th></tr>
+    <tr><td><b style="color:var(--glut)">Glut</b></td>
+        <td>hier geht es weiter — Links, Hauptknopf, Fortschritt</td>
+        <td class="val">&lt; 8 %</td></tr>
+    <tr><td><b style="color:var(--gold)">Gold</b></td>
+        <td>das hast du geschafft — Punkte, Ränge, Abzeichen</td>
+        <td class="val">&lt; 4 %</td></tr>
+    <tr><td><b style="color:var(--lapis)">Lapis</b></td>
+        <td>hier wird erklärt — Wissenskästen, Tutoren, Zitate</td>
+        <td class="val">~ 5 %</td></tr>
+    <tr><td><b style="color:var(--gut)">Grün</b> / <b style="color:var(--schlecht)">Rot</b></td>
+        <td>nur Zustände. Nie Marke, nie Dekoration</td>
+        <td class="val">—</td></tr>
+  </table>
+
+  <div class="zierband"></div>
+
+  <!-- ============================================================ Ornamente -->
+  <h2>Die drei Ornamente</h2>
+  <p class="hinweis">
+    Alle als SVG-Maske, nie als Bild: die Fläche darunter gibt die Farbe. Höchstens
+    <b>eines je Fläche</b>, nie über Text.
+  </p>
+  <div class="orn-proben">
+    <div class="orn-probe maeander"><span><b>Mäander</b> · 32 px · Kopfkante, Zierbänder</span></div>
+    <div class="orn-probe palmette"><span><b>Palmette</b> · 72 px · nur Feierflächen</span></div>
+    <div class="orn-probe funken"><span><b>Funken</b> · 96 px · Grund und Tor</span></div>
+  </div>
+
+  <!-- ============================================================ Bausteine -->
+  <h2>Bausteine</h2>
+  <div class="karten">
+    <div class="karte">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:.6rem">
+        <h3 style="margin:0">Entdecker</h3>
+        <span class="marke-stufe fertig">Prüfung bestanden</span>
+      </div>
+      <p class="klein" style="color:var(--schrift-2)">Was künstliche Intelligenz ist — und was sie nicht ist</p>
+      <div class="balken"><i style="width:24%"></i></div>
+      <p class="klein" style="color:var(--schrift-3); margin:.5rem 0 0">
+        4 von 17 Aufgaben · ca. 4-6 h · 450 Punkte erreichbar</p>
+    </div>
+
+    <div class="karte">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:.6rem">
+        <h3 style="margin:0">Priester</h3>
+        <span class="marke-stufe">Stufe 2</span>
+      </div>
+      <p class="klein" style="color:var(--schrift-2)">Prompting, Logik und die Kunst, einer Maschine etwas aufzutragen</p>
+      <div class="balken"><i style="width:0%"></i></div>
+      <p class="klein" style="color:var(--schrift-3); margin:.5rem 0 0">
+        0 von 13 Aufgaben · ca. 6-8 h · 405 Punkte erreichbar</p>
+    </div>
+
+    <div class="karte">
+      <h3 style="margin-top:0">Knöpfe</h3>
+      <p style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center">
+        <button class="knopf">Zur Aufgabe</button>
+        <button class="knopf still">Vormerken</button>
+        <button class="knopf" style="width:2.55rem;height:2.55rem;padding:0;display:inline-flex;align-items:center;justify-content:center">➤</button>
+      </p>
+      <p class="klein" style="color:var(--schrift-3);margin:0">
+        Haupt, still, abschicken. Mehr Sorten gibt es nicht.</p>
+    </div>
+  </div>
+
+  <h3>Wissenskasten</h3>
+  <div class="wissen">
+    <p class="klein" style="margin:0"><b>Lapis trägt, was erklärt statt bewertet.</b>
+    Man erkennt am Farbklang, ob eine Fläche etwas von einem will oder etwas
+    für einen tut.</p>
+  </div>
+
+  <div class="zierband"></div>
+
+  <!-- ============================================================ Verbote -->
+  <h2>So ja, so nicht</h2>
+  <div class="gegenueber">
+    <div class="ja">
+      <b>✓ Sag, was ist</b>
+      <p class="klein" style="margin:0">„Es ist kein Mikrofon angeschlossen. Der
+      Browser fragt deshalb auch nicht nach Erlaubnis."</p>
+    </div>
+    <div class="nein">
+      <b>✕ Sackgasse</b>
+      <p class="klein" style="margin:0">„Fehler beim Zugriff auf das Mikrofon."</p>
+    </div>
+
+    <div class="ja">
+      <b>✓ Nüchtern</b>
+      <p class="klein" style="margin:0">„Noch 3 von 6 Stufen."</p>
+    </div>
+    <div class="nein">
+      <b>✕ Marketingstimme</b>
+      <p class="klein" style="margin:0">„Wow, du bist schon so weit gekommen! 🎉
+      Weiter so!"</p>
+    </div>
+
+    <div class="ja">
+      <b>✓ Farbe plus Zeichen plus Wort</b>
+      <p class="klein" style="margin:0">
+        <span style="color:var(--gut)">✓ Richtig</span> ·
+        <span style="color:var(--schlecht)">✕ Falsch</span></p>
+    </div>
+    <div class="nein">
+      <b>✕ Farbe allein</b>
+      <p class="klein" style="margin:0">Ein grüner und ein roter Punkt ohne Text.
+      Für rund 8 % der Jungen in jeder Klasse sind das zwei graue Punkte.</p>
+    </div>
+  </div>
+
+  <h3>Nie</h3>
+  <p class="klein" style="color:var(--schrift-2); max-width:70ch">
+    Blau-violette Verläufe · Roboter, Gehirne, Platinen, Verlaufskugeln ·
+    mehr als ein Schatten · Farbe als einzige Aussage · Webschriften,
+    CDN-Skripte, externe Bilder · Ornament über Text · zwei Ornamente auf einer
+    Fläche · Gold für etwas, das nicht verdient wurde · rohe Hexwerte im Layout ·
+    die Wortmarke ins Quadrat gequetscht.
+  </p>
+
+</main>
+
+<script>
+/* Die Paletten stehen in brand-props.json — dieselbe Quelle wie im Programm.
+   Weil die Seite ohne Server läuft und fetch() auf file:// scheitert, sind
+   Name und Probefarben hier klein gehalten; die vollständigen Werte liefert
+   varianten.css beim Umschalten. */
+'use strict';
+
+const PALETTEN = [
+  ['schmiede',   'Schmiede',   'Die Vorgabe: Glut auf dunklem Grund.'],
+  ['pergament',  'Pergament',  'Hell und warm, wie ein Buch bei Tageslicht.'],
+  ['olymp',      'Olymp',      'Nachtblau mit Gold, ruhig für lange Sitzungen.'],
+  ['marmor',     'Marmor',     'Hell und kühl, sehr ruhig.'],
+  ['terrakotta', 'Terrakotta', 'Erdig und warm.'],
+  ['funkenflug', 'Funkenflug', 'Kräftig und bunt, für die jüngeren Stufen.']
+];
+
+/* Die Farben der Probe kommen aus dem Stylesheet selbst: ein Hilfselement
+   bekommt data-variante und wird ausgelesen. So gibt es keine zweite Liste,
+   die irgendwann abweicht. */
+function farbenVon(kennung) {
+  const h = document.createElement('div');
+  h.setAttribute('data-variante', kennung);
+  h.style.display = 'none';
+  document.body.appendChild(h);
+  const s = getComputedStyle(h);
+  const aus = {
+    grund: s.getPropertyValue('--grund').trim(),
+    glut:  s.getPropertyValue('--glut').trim(),
+    gold:  s.getPropertyValue('--gold').trim(),
+    lapis: s.getPropertyValue('--lapis').trim()
+  };
+  h.remove();
+  return aus;
+}
+
+const ziel = document.getElementById('paletten');
+PALETTEN.forEach(([kennung, name, was]) => {
+  const f = farbenVon(kennung);
+  const k = document.createElement('button');
+  k.className = 'palette' + (kennung === 'schmiede' ? ' aktiv' : '');
+  k.type = 'button';
+  k.dataset.variante = kennung;
+  k.innerHTML =
+    '<div class="probe" style="background:' + f.grund + '">' +
+      '<i style="background:' + f.glut + '"></i>' +
+      '<i style="background:' + f.gold + '"></i>' +
+      '<i style="background:' + f.lapis + '"></i>' +
+    '</div>' +
+    '<div class="unten"><div class="name">' + name + '</div>' +
+    '<div class="klein" style="color:var(--schrift-3)">' + was + '</div></div>';
+  k.addEventListener('click', () => {
+    document.documentElement.dataset.variante = kennung;
+    ziel.querySelectorAll('.palette').forEach(p =>
+      p.classList.toggle('aktiv', p.dataset.variante === kennung));
+    felderZeichnen();
+  });
+  ziel.appendChild(k);
+});
+
+/* Die Tokentafel liest die Werte live aus dem Dokument — sie zeigt also immer,
+   was gerade wirklich gilt, nicht was einmal aufgeschrieben wurde. */
+const TOKENS = [
+  ['--grund', 'Grundfläche'], ['--grund-2', 'Karten, Kopf'],
+  ['--grund-3', 'Felder, stille Knöpfe'], ['--rand', 'Rahmen 1 px'],
+  ['--schrift', 'Haupttext'], ['--schrift-2', 'Zweittext'],
+  ['--schrift-3', 'Hinweise'], ['--glut', 'Akzent'],
+  ['--glut-hell', 'Verlauf, Hover'], ['--gold', 'Erfolg'],
+  ['--lapis', 'Erklärung']
+];
+
+function felderZeichnen() {
+  const s = getComputedStyle(document.documentElement);
+  const ziel = document.getElementById('felder');
+  ziel.innerHTML = '';
+  TOKENS.forEach(([name, rolle]) => {
+    const wert = s.getPropertyValue(name).trim();
+    const d = document.createElement('div');
+    d.className = 'feld';
+    d.innerHTML = '<div class="flaeche" style="background:' + wert + '"></div>' +
+      '<div class="text"><b class="val">' + wert + '</b>' +
+      '<span style="color:var(--schrift-3)">' + name + ' — ' + rolle + '</span></div>';
+    ziel.appendChild(d);
+  });
+}
+felderZeichnen();
+</script>
+</body>
+</html>
