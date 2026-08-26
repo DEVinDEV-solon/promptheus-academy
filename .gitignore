@@ -49,14 +49,15 @@ setup/quellen.json
 data/
 
 
-# ─────────────────────────────────────────── 3. Fremder Code im Ordner
+# ─────────────────────────────────────────────── 3. Fremder Code im Ordner
 #
-# `.claude/worktrees/` enthaelt einen vollstaendigen Arbeitsbaum des
-# umschliessenden Agent-Zero-Repos: 1605 Dateien, 25 MB, fremdes Urheberrecht,
-# eigene Historie. Er liegt hier nur, weil das Werkzeug ihn hier anlegt.
-# Ein `git add .` ohne diese Zeile veroeffentlicht ein zweites Projekt mit.
-.claude/
-.agents/
+# `.claude/worktrees/` enthaelt vollstaendige Arbeitsbaeume des
+# umschliessenden Agent-Zero-Repos: 54 MB, fremdes Urheberrecht,
+# eigene Historie. Sie liegen hier nur, weil das Werkzeug sie hier anlegt.
+# Der Rest von .claude und .agents geht seit dem 26.08.2026 mit ins Repo
+# (Solons Entscheidung): Skills und Einstellungen gehoeren zur Werkstatt.
+.claude/worktrees/
+.agents/**/evals/
 
 
 # ────────────────────────────────────────────────────── 4. Der Lehrstoff
