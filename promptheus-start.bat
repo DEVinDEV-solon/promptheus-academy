@@ -139,9 +139,10 @@ exit /b 1
 
 rem ===============================================================
 :ext_flags
-rem   Baut aus PHP_EXT das -d extension_dir-Flag; leeres -> kein Flag.
+rem   Baut aus PHP_EXT das -d extension_dir-Flag (ohne Quotes:
+rem   cmd kennt kein \"-Escaping; der Pfad hat keine Leerzeichen).
 if defined PHP_EXT (
-  set "PHP_EXT_FLAG=-d extension_dir=\"%PHP_EXT%\""
+  set "PHP_EXT_FLAG=-d extension_dir=%PHP_EXT%"
 ) else (
   set "PHP_EXT_FLAG="
 )
