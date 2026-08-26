@@ -16,13 +16,20 @@ if /i "%~1"=="--no-open" set "OPEN=0"
 if /i "%~1"=="--setup-sprache" goto setup_sprache
 
 rem --- PHP vorhanden? --------------------------------------------
-rem  Reihenfolge: 1. PATH   2. C:\php8.5   3. werkzeuge\php8.5
+rem  Reihenfolge: 1. PATH   2. C:\php8.5   3. werkzeuge\php (auto)
 set "PHP_BIN="
 where php >nul 2>&1
 if not errorlevel 1 set "PHP_BIN=php"
-if not defined PHP_BIN if exist "C:\php8.5\php.exe"    set "PHP_BIN=C:\php8.5\php.exe"
-if not defined PHP_BIN if exist "%~dp0werkzeuge\php8.5\php.exe" set "PHP_BIN=%~dp0werkzeuge\php8.5\php.exe"
+if not defined PHP_BIN if exist "C:\php8.5\php.exe" set "PHP_BIN=C:\php8.5\php.exe"
+
+rem --- Automatisches PHP (werkzeuge\php8.5) ----------------------
+rem  Ein Vorhandenes nutzen, sonst zuerst herunterladen.
+if not defined PHP_BIN (
+  call :auto_php
+)
 if not defined PHP_BIN goto kein_php
+rem  Sicherstellen, dass die Erweiterungen wirklich vorhanden sind.
+call :php_beheben
 
 rem --- .env anlegen, falls sie fehlt -----------------------------
 if not exist ".env" copy /y ".env.example" ".env" >nul 2>&1
@@ -63,7 +70,7 @@ if defined SPRACHE_HINWEIS (
 )
 if "%OPEN%"=="1" start "" "http://127.0.0.1:%PORT%/"
 
-%PHP_BIN% -d extension=pdo_sqlite -d extension=sqlite3 -d max_execution_time=0 -d memory_limit=512M -d log_errors=1 -d error_log="%~dp0data\logs\php_error.log" -S 127.0.0.1:%PORT% -t "%~dp0." "%~dp0router.php"
+%PHP_BIN% -d extension_dir="%~dp0werkzeuge\php8.5\ext" -d extension=pdo_sqlite -d extension=sqlite3 -d max_execution_time=0 -d memory_limit=512M -d log_errors=1 -d error_log="%~dp0data\logs\php_error.log" -S 127.0.0.1:%PORT% -t "%~dp0." "%~dp0router.php"
 
 echo.
 echo   Der Server wurde beendet.
@@ -84,28 +91,66 @@ rem ---------------------------------------------------------------
 :kein_php
 echo.
 echo   ============================================================
-echo   FEHLER: PHP wurde nicht gefunden.
+echo   FEHLER: PHP konnte nicht geladen und nicht heruntergeladen
+echo           werden.
 echo   ============================================================
-echo   Gesucht wurde in dieser Reihenfolge:
-echo     1. "php" im PATH der Umgebungsvariablen
-echo     2. C:\php8.5\php.exe
-echo     3. %~dp0werkzeuge\php8.5\php.exe
+echo   Gesucht wurde: PATH, C:\php8.5, werkzeuge\php8.5
+echo   Der automatische Download hat nicht geklappt ^(kein Internet
+echo   oder windows.php.net nicht erreichbar^).
 echo.
-echo   Loesungen - einer reicht:
-echo     a) PHP nach C:\php8.5 entpacken ^(Ordner muss php.exe
-echo        direkt enthalten^), ODER
-echo     b) PHP irgendwo entpacken und den Ordner in die PATH-
-echo        Umgebungsvariable aufnehmen, ODER
-echo     c) per Befehl installieren:
-echo          winget install PHP.PHP.8.2
-echo.
-echo   Hinweis fuer Agenten: Der Server braucht nur php.exe mit den
-echo   Erweiterungen pdo_sqlite und sqlite3. Diese werden beim Start
-echo   automatisch per -d zugeschaltet, eine php.ini ist nicht noetig.
+echo   Dann bitte eine der Loesungen:
+echo     a) PHP nach C:\php8.5 entpacken ^(php.exe direkt im Ordner^)
+echo     b) PHP in den PATH aufnehmen
+echo     c) werkzeuge\php8.5  einmalig selbst anlegen und PHP hinein
 echo   ============================================================
 echo.
 pause
 exit /b 1
+
+rem ===============================================================
+:auto_php
+rem   Laedt die aktuellste PHP-Version automatisch nach
+rem   werkzeuge\php8.5  - sonst wird es nicht gefunden.
+set "PHP_ORDNER=%~dp0werkzeuge\php8.5"
+if exist "%PHP_ORDNER%\php.exe" (
+  set "PHP_BIN=%PHP_ORDNER%\php.exe"
+  exit /b 0
+)
+echo.
+echo   PHP wird automatisch eingerichtet ...
+echo   (Download der aktuellen Fassung, das dauert einen Moment.)
+if not exist "%PHP_ORDNER%" mkdir "%PHP_ORDNER%" >nul 2>&1
+where curl >nul 2>&1
+if errorlevel 1 (
+  echo   FEHLER: curl fehlt. Bitte PHP von Hand nach C:\php8.5 legen.
+  exit /b 1
+)
+set "PHP_ZIP=%TEMP%\pu_php.zip"
+curl -sL -o "%PHP_ZIP%" "https://windows.php.net/downloads/releases/php-8.5.10-nts-Win32-vs17-x64.zip"
+if not exist "%PHP_ZIP%" (echo   Download fehlgeschlagen. && exit /b 1)
+powershell -NoProfile -Command "Expand-Archive -Force '%PHP_ZIP%' '%PHP_ORDNER%'" >nul 2>&1
+del /q "%PHP_ZIP%" >nul 2>&1
+if not exist "%PHP_ORDNER%\php.exe" goto auto_php_suche
+set "PHP_BIN=%PHP_ORDNER%\php.exe"
+echo   PHP ist bereit: %PHP_BIN%
+exit /b 0
+
+:auto_php_suche
+rem   Falls Expand-Archive eine Unterordner-Ebene macht, korrigieren.
+for /d %%D in ("%PHP_ORDNER%\php-*") do (
+  if exist "%%D\php.exe" move /y "%%D\*" "%PHP_ORDNER%\" >nul 2>&1
+)
+if exist "%PHP_ORDNER%\php.exe" (
+  set "PHP_BIN=%PHP_ORDNER%\php.exe"
+  exit /b 0
+)
+echo   FEHLER: entpacktiges Archiv ohne php.exe
+exit /b 1
+
+:php_beheben
+rem   Stellt sicher, dass pdo_sqlite und sqlite3 verfuegbar sind.
+rem   Bei der automatisierten PHP in werkzeuge\php8.5 ist das der Fall.
+exit /b 0
 
 rem ---------------------------------------------------------------
 :setup_sprache
@@ -164,7 +209,7 @@ if exist "werkzeuge\whisper\ggml-base.bin" (
 )
 echo   [3/3] Lade Sprachmodell ggml-base.bin ~^(ca. 148 MB^) ...
 curl -L -o "werkzeuge\whisper\ggml-base.bin" "https://huggingface.co/ggml-org/whisper.cpp/resolve/main/ggml-base.bin"
-if errorlevel 1 goto fehmerker_dl
+if errorlevel 1 goto fehler_dl
 echo         Modell OK.
 
 :fertig
