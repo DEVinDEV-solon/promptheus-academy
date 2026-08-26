@@ -1,0 +1,10 @@
+{
+    "code": "STUFE-6",
+    "titel": "MEISTER",
+    "untertitel": "Eine vollständige Lösung — von der Idee bis zum Betrieb",
+    "stufe": 6,
+    "dauer_h": "15-20",
+    "voraussetzung": 5,
+    "bestehen_prozent": 60,
+    "geruest": true
+}

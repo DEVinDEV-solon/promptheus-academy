@@ -1,0 +1,12 @@
+/* Runde Profilbilder im STAMMBLATT */
+.markdown-source-view.mod-cm6 img[alt="Profilbild Alexander Dais"],
+.markdown-preview-view img[alt="Profilbild Alexander Dais"] {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: block;
+  margin: 0 auto 24px;
+}

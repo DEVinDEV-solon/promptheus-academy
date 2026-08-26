@@ -68,7 +68,12 @@ data/
 # Das ist die vorsichtige Vorgabe, keine endgueltige Entscheidung. Sie laesst
 # sich spaeter oeffnen; der umgekehrte Weg — erst veroeffentlichen, dann
 # zurueckziehen — existiert nicht. Siehe VEROEFFENTLICHUNG.md, Entscheidung 1.
-secondbrain/
+#
+# Entscheidung vom 26.08.2026 (Solon): der Vault GEHT mit ins Repo. Das Repo
+# bleibt deshalb privat. Lektionen, Ordnungen und Glossar sind Programmteil —
+# ohne sie laesst sich die Academy nicht starten. pruefung.md gibt es nicht;
+# die Pruefungsordnung ist der oeffentliche Rahmen, kein Pruefungsbogen.
+!secondbrain/
 
 
 # ──────────────────────────────────────────────────── 5. Die Serverseite
@@ -141,3 +146,6 @@ desktop.ini
 *.bak
 *.bak_*
 *.tmp
+
+# ── 9. Lokale Downloads
+GitHub-Download/

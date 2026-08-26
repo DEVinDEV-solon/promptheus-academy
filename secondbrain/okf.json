@@ -1,0 +1,43 @@
+{
+  "okf_version": "0.1",
+  "title": "PROMPTHEUS Wissensspeicher",
+  "description": "Lehrstoff und Fundament einer modularen, gamifizierten KI-Universität für Jugendliche ab 12 und interessierte Erwachsene. Sechs Stufen von ENTDECKER bis MEISTER, zehn Fachkurse, zwölf Aufgabentypen. Der Stoff ist belegt: die Fakten stammen aus acht bestehenden OKF-Wissensspeichern und tragen jeweils Herkunft und Prüfsumme.",
+  "generated": "2026-08-18",
+  "hub": "PROMPTHEUS WISSEN",
+  "programm": "scripts/PROMPTHEUS",
+  "agents": {
+    "prometheus": "Haupttutor — erklärt, ordnet ein, motiviert",
+    "athena": "Prüferin — Anmerkung zu Freitext, ohne Einfluss auf die Punkte",
+    "hermes": "Bibliothekar — findet Stoff und Quellen",
+    "hephaistos": "Werkzeugmeister — Code, APIs, Kryptografie"
+  },
+  "roles": [
+    "lernender",
+    "tutor"
+  ],
+  "foundations": [
+    "OKF (Open Knowledge Format v0.1)",
+    "Self-Determination Theory (Deci & Ryan) — Autonomie, Kompetenz, Verbundenheit",
+    "Overjustification-Effekt — warum Punkte den Spaß verdrängen können",
+    "Spaced Repetition und Testing-Effekt",
+    "Bloomsche Taxonomie als Stufenlogik",
+    "Constructive Alignment (Biggs) — Lernziel, Aufgabe und Prüfung passen zusammen"
+  ],
+  "geerntet_aus": [
+    "25_Führungskompetenz",
+    "21_Wasserzeichen",
+    "60_Crypto_Analyse",
+    "24_Auditrail_DSGVO",
+    "47_Anons",
+    "07_Dilek/GLANZZ-Vault",
+    "10_Truffano",
+    "777-TMARK Nutz-Token/SecondBrainVault"
+  ],
+  "scope_limits": [
+    "Punkte, Prüfungen und Urkunden rechnet ausschließlich Code — nie ein Sprachmodell",
+    "keine echten Schlüssel oder Geheimnisse im Lehrstoff; Attrappen tragen die Marke PROMPTHEUS{…}",
+    "keine Telemetrie, kein Fremdhost, keine externe Schrift — die Uni wird von Minderjährigen benutzt",
+    "keine Angriffstechniken zum Nachmachen: Sicherheitsaufgaben lehren Erkennen, nicht Ausnutzen",
+    "Ethik gehört in den Kurs, nicht in ein Nachwort — besonders bei Personalverwaltung, Jura und Datenschutz"
+  ]
+}

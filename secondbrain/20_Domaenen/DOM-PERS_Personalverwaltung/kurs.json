@@ -1,0 +1,10 @@
+{
+    "code": "DOM-PERS",
+    "titel": "Personalverwaltung",
+    "untertitel": "Bewerber-Vorsortierung (und ihre Grenzen), Zeugnisanalyse",
+    "stufe": 0,
+    "dauer_h": "4-6",
+    "voraussetzung": 3,
+    "bestehen_prozent": 60,
+    "geruest": true
+}

@@ -1,0 +1,32 @@
+{
+  "id": "conv-1783135032887-mvoh1q1y0",
+  "providerId": "claude",
+  "title": "Hallo",
+  "titleGenerationStatus": "failed",
+  "createdAt": 1783135032887,
+  "lastActivityAt": 1783139184367,
+  "sessionId": null,
+  "providerState": {
+    "previousProviderSessionIds": [
+      "5b4ba170-fbbe-4ffb-901e-9bfb7d9d74bb"
+    ]
+  },
+  "modelRecoverySource": {
+    "sessionId": null,
+    "providerState": {
+      "previousProviderSessionIds": [
+        "5b4ba170-fbbe-4ffb-901e-9bfb7d9d74bb"
+      ]
+    }
+  },
+  "linkedContentPath": "06_Corp_Workflow/Bewertungen_Corp/2026-06-15_bewertung_corp_corp_profil.md",
+  "usage": {
+    "model": "haiku",
+    "inputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "cacheReadInputTokens": 0,
+    "contextWindow": 200000,
+    "contextTokens": 0,
+    "percentage": 0
+  }
+}

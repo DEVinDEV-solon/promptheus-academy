@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "type": "folder",
+      "ctime": 1775818371492,
+      "path": "02 Projekte/18 Business/DEVinDEV_LLC/raw"
+    },
+    {
+      "type": "folder",
+      "ctime": 1775819502532,
+      "path": "18 Business/DEVinDEV_LLC/Paperclip"
+    },
+    {
+      "type": "graph",
+      "ctime": 1779584406259,
+      "title": "START",
+      "options": {
+        "collapse-filter": false,
+        "search": "",
+        "showTags": true,
+        "showAttachments": true,
+        "hideUnresolved": false,
+        "showOrphans": false,
+        "collapse-color-groups": false,
+        "colorGroups": [
+          {
+            "query": "DEVinDEV_LCC",
+            "color": {
+              "a": 1,
+              "rgb": 14701138
+            }
+          },
+          {
+            "query": "10 Wissen",
+            "color": {
+              "a": 1,
+              "rgb": 13241827
+            }
+          },
+          {
+            "query": "18 Business",
+            "color": {
+              "a": 1,
+              "rgb": 728482
+            }
+          },
+          {
+            "query": "02 Projekte",
+            "color": {
+              "a": 1,
+              "rgb": 5431378
+            }
+          },
+          {
+            "query": "03 Bereiche",
+            "color": {
+              "a": 1,
+              "rgb": 15929874
+            }
+          },
+          {
+            "query": "00 Kontext",
+            "color": {
+              "a": 1,
+              "rgb": 2269922
+            }
+          },
+          {
+            "query": "",
+            "color": {
+              "a": 1,
+              "rgb": 5395168
+            }
+          }
+        ],
+        "collapse-display": false,
+        "showArrow": true,
+        "textFadeMultiplier": -0.1,
+        "nodeSizeMultiplier": 1.13359375,
+        "lineSizeMultiplier": 1.51640625,
+        "collapse-forces": false,
+        "centerStrength": 0.638020833333333,
+        "repelStrength": 10.2604166666667,
+        "linkStrength": 0.481770833333333,
+        "linkDistance": 30,
+        "scale": 0.1316872427983516,
+        "close": true
+      }
+    }
+  ]
+}

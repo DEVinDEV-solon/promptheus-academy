@@ -1,0 +1,10 @@
+{
+    "code": "STUFE-5",
+    "titel": "WÄCHTER",
+    "untertitel": "Sicherheit, Kryptografie und Datenschutz",
+    "stufe": 5,
+    "dauer_h": "10-12",
+    "voraussetzung": 4,
+    "bestehen_prozent": 60,
+    "geruest": true
+}

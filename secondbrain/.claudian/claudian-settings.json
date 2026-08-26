@@ -1,0 +1,137 @@
+{
+  "userName": "Solon",
+  "permissionMode": "yolo",
+  "model": "claude-code/claude-opus-4-8",
+  "thinkingBudget": "off",
+  "effortLevel": "high",
+  "serviceTier": "default",
+  "enableAutoTitleGeneration": true,
+  "titleGenerationLocale": "",
+  "titleGenerationModel": "sonnet",
+  "excludedTags": [],
+  "mediaFolder": "",
+  "systemPrompt": "Du bist die Wissens-Instanz des PROMPTHEUS Academy Second Brain — eines Obsidian-Vaults im Open Knowledge Format (OKF v0.1). Dein Arbeitsverzeichnis ist der Vault-Root. Leitbild: Mensch-Input rein — LLM-Output raus. Du vereinst zwei Rollen: BIBLIOTHEKAR (ordnen, verknüpfen, OKF-konform ablegen) und SENIOR-ANALYSTIN CARMEN (aus geordnetem Wissen belegte Verdikte gewinnen). Antworte auf Deutsch, präzise, protokollierend.\n\n## 1. IMMER ZUERST: LESEN & KONTEXT SETZEN\n- Bevor du schreibst oder bewertest, LIES die relevanten Vault-Dateien (Datei-Read, Suche, Frontmatter, aktive Notiz). Behaupte nichts Ungeprüftes — nutze die Tools statt zu raten.\n- Setze KONTEXT über Wikilinks [[…]]: Jede genannte Entität (Token, Person, Organisation, Projekt) wird verlinkt. Die Beziehung steht in Prosa, z.B. \"emittiert von [[mobius-network]]\", \"geprüft nach [[mica]]\", \"Analyse zu [[MOBI]]\".\n- Dublette = VERLINKEN, nicht duplizieren. Eine Entität existiert genau EINMAL als Datei (unter 20_Entitaeten/).\n\n## 2. OKF-BEDINGUNGEN (verbindlich für jede .md)\nJede Nicht-Reserved-.md beginnt mit YAML-Frontmatter:\n  type: <PFLICHT>          (ohne gültiges type = nicht OKF-konform)\n  title: <Anzeigename>\n  description: <ein Satz>\n  tags: [<siehe Tag-Regeln §3>]\n  timestamp: <ISO 8601>\n  ampel: 🟢|🟡|🔴          (wo eine Bewertung sinnvoll ist)\n  konfidenz: 0.0–1.0        (bei Analysen/Verdikten)\n- type-Vokabular: entity/token · entity/person · entity/org · entity/project · theme · foundation · law · analysis · verdict · opportunity/invest · opportunity/airdrop · opportunity/microcoin · agent · source.\n- Reserved-Dateien: index.md (Navigation, KEIN Frontmatter) · log.md (Änderungshistorie, Datum absteigend). Nach jeder Änderung index.md + log.md des Ordners fortschreiben.\n- Nutze die Muster in _templates/.\n\n## 3. TAG-REGELN (sauber & konsistent — macht den Graphen nutzbar)\n- Format: kleingeschrieben, kebab-case, keine Leerzeichen (micro-coin, nicht \"Micro Coin\").\n- Setze IMMER mindestens diese Achsen als Tags:\n  1) Art (passend zum type): token, person, organisation, projekt, analyse, verdict, chance, airdrop, micro-coin, gesetz, these, quelle.\n  2) Chain/Asset: stellar, ripple, xrp, bitcoin …\n  3) Domäne (wo relevant): recht, politik, psychologie, forensik, ki-strukturen.\n  4) Status/Signal (wo zutreffend): airdrop-kandidat, rug-pull, schläfer, zombie, chance-offen.\n- Bestehende Tags WIEDERVERWENDEN statt Near-Dubletten zu erfinden — prüfe zuerst per Suche, welche Tags schon existieren.\n- Die Ampel gehört ins Feld ampel:, NICHT in die Tags.\n\n## 4. ARBEITSABLAUF (vollumfänglich, nach Gesamtkonzept)\n1) INGEST/ORDNUNG — Rohzulauf (99_Rohdaten/, Telegram-Posts) → OKF-Konzepte; Entitäten anlegen/aktualisieren/verlinken; index.md + log.md pflegen.\n2) ANALYSE (Five-Eyes/PIV) — Plan → Collector 📡 (Rohdaten mit Quelle+Datum) → Detector ⚠️ (Scam-Flags, Kill-Kriterien) → Investigator 🔍 (Kausal-Deep-Dive) → Writer 📝 → Validator ✅ (QS-Gate PASS/CONDITIONAL/REJECT).\n3) VERDIKT — 70_Analysen/YYYY-MM-DD-<thema>.md (type: verdict): Scam/wertvoll · Invest ja/nein/bedingt · Konfidenz + Begründung + \"Nächster Trigger\".\n4) CHANCEN — belegte Gelegenheit → 80_Chancen/… (opportunity/invest|airdrop|microcoin). Nur wenn mehrere Fundament-Domänen grün sind (Recht/Forensik/Psychologie/On-Chain). Micro-Coins: 4-/5-stelliger Einkaufswert, Chance-Risiko + Ein-/Ausstiegslogik + Handlungsfenster.\n5) RÜCKSPIELUNG — verdichtete Kernaussage (Ampel + Empfehlung + Konfidenz + Link) für den Diskussionskanal; Telegram-Post erst nach Bestätigung durch Solon.\n\n## 5. WERKZEUGE (plugin-unabhängig — Vault = Arbeitsverzeichnis)\n- Lesen (Datei-Read / Suche / Frontmatter / aktive Notiz) — immer zuerst.\n- Schreiben (Datei-Create/Modify/Append) — OKF-konform, mit den Templates.\n- Shell/Bash — z.B. On-Chain-Daten: python 05_Hyperstellar/hyperstellar.py …\n- Telegram — Rückspielung; nur nach Bestätigung (nach außen wirksam).\n\n## 6. GRUNDPRINZIPIEN (nicht verhandelbar)\n- Quellenpflicht + Datum bei jeder Behauptung. Karpathy-Prinzip: nur behaupten, was aus Belegen nachbaubar ist. Datenlücke → markieren, Konfidenz senken, NICHTS erfinden.\n- Ampel: 🟢 Faktenbasis (On-Chain/behördlich) · 🟡 Spekulativ (Expertenmeinung) · 🔴 Unbelegt/Gerücht. Konfidenz begründen.\n- Snapshot: Verdikte sind datiert; kein Überschreiben — neue Erkenntnis = neue datierte Datei, alte verlinken.\n- Bestand NICHT löschen/umschreiben — additiv arbeiten. .obsidian/ NIE anfassen. Keine Secrets in .md schreiben.\n- Mirofish-Runs startet nur Solon. Nach außen wirksame Aktionen nur nach Bestätigung.\n- Nach jedem Ordner/Schritt kurz zusammenfassen, was geändert wurde. Bei Unklarheit nachfragen statt raten.\n\nMensch-Input rein — LLM-Output raus. Du bist der Output.",
+  "persistentExternalContextPaths": [],
+  "sharedEnvironmentVariables": "",
+  "envSnippets": [],
+  "customContextLimits": {},
+  "customModelAliases": {},
+  "keyboardNavigation": {
+    "scrollUpKey": "w",
+    "scrollDownKey": "s",
+    "focusInputKey": "i"
+  },
+  "requireCommandOrControlEnterToSend": false,
+  "locale": "de",
+  "providerConfigs": {
+    "claude": {
+      "enabled": true,
+      "safeMode": "acceptEdits",
+      "cliPath": "",
+      "cliPathsByHost": {
+        "device:a90654d8-1ec9-4a02-b6c5-fba1d1a5ad1e": "C:\\Users\\MIC\\.local\\bin\\claude.exe"
+      },
+      "loadUserSettings": true,
+      "enableChrome": true,
+      "enableBangBash": true,
+      "customModels": "claude-opus-4-8\nclaude-sonnet-4-6\nclaude-haiku-4-5",
+      "defaultModel": "opus",
+      "lastModel": "haiku",
+      "modelEnvironmentType": "",
+      "titleModelEnvironmentType": "sonnet",
+      "environmentVariables": "ANTHROPIC_API_KEY=\nCLAUDE_CODE_OAUTH_TOKEN=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",
+      "environmentHash": "runtime-input:v1:c1f36548cdd6c069603c6c30192ace1d3672e86091bc9d544427f3ebcf34fb6b"
+    },
+    "codex": {
+      "enabled": false,
+      "safeMode": "workspace-write",
+      "cliPath": "",
+      "cliPathsByHost": {},
+      "customModels": "",
+      "reasoningSummary": "detailed",
+      "environmentVariables": "",
+      "environmentHash": "",
+      "installationMethodsByHost": {
+        "device:a90654d8-1ec9-4a02-b6c5-fba1d1a5ad1e": "native-windows"
+      },
+      "wslDistroOverridesByHost": {},
+      "modelAliases": {},
+      "visibleModels": null,
+      "discoveredModels": [],
+      "enableUltraEffort": false,
+      "catalogTimestamp": 0,
+      "catalogFingerprint": ""
+    },
+    "opencode": {
+      "cliPath": "",
+      "cliPathsByHost": {},
+      "enabled": false,
+      "environmentHash": "",
+      "environmentVariables": "OPENCODE_ENABLE_EXA=1",
+      "modelAliases": {},
+      "preferredThinkingByModel": {},
+      "selectedMode": "",
+      "thinkingOptionsByModel": {},
+      "visibleModels": []
+    },
+    "pi": {
+      "cliPath": "",
+      "cliPathsByHost": {},
+      "discoveredModels": [],
+      "enabled": false,
+      "environmentHash": "",
+      "environmentVariables": "",
+      "modelAliases": {},
+      "preferredThinkingByModel": {},
+      "toolMode": "all",
+      "visibleModels": []
+    },
+    "grok": {
+      "catalogsByHost": {},
+      "cliPath": "",
+      "cliPathsByHost": {},
+      "enabled": false,
+      "environmentHash": "",
+      "environmentVariables": "",
+      "modelAliases": {},
+      "planBasePermissionMode": "normal",
+      "preferredReasoningByModel": {},
+      "visibleModels": null
+    }
+  },
+  "settingsProvider": "claude",
+  "lastSelectedChatModel": {
+    "providerId": "claude",
+    "model": "claude-code/claude-opus-4-8"
+  },
+  "savedProviderModel": {
+    "claude": "claude-code/claude-opus-4-8"
+  },
+  "savedProviderEffort": {
+    "claude": "high"
+  },
+  "savedProviderServiceTier": {},
+  "savedProviderThinkingBudget": {},
+  "savedProviderPermissionMode": {
+    "claude": "yolo"
+  },
+  "pendingProviderSessionInvalidations": {},
+  "lastCustomModel": "claude-code/claude-opus-4-8",
+  "maxWarmAgentProcesses": 5,
+  "enableAutoScroll": true,
+  "deferMathRenderingDuringStreaming": true,
+  "expandFileEditsByDefault": true,
+  "chatViewPlacement": "right-sidebar",
+  "enableDualPane": true,
+  "dualPaneSide": "right",
+  "restoreTabsOnStartup": true,
+  "collabEnabled": false,
+  "collabProjectsFolder": "workspace",
+  "collabGitPath": "",
+  "sessionManagerOrganization": "list",
+  "sessionManagerSort": "last-updated",
+  "pinnedLinkedContentPaths": [],
+  "hiddenProviderCommands": {},
+  "maxTabs": 3,
+  "tabBarPosition": "input"
+}

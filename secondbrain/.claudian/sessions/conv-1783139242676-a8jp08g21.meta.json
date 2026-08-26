@@ -1,0 +1,26 @@
+{
+  "id": "conv-1783139242676-a8jp08g21",
+  "providerId": "claude",
+  "title": "Hallo",
+  "titleGenerationStatus": "failed",
+  "createdAt": 1783139242677,
+  "lastActivityAt": 1783240020014,
+  "sessionId": null,
+  "selectedModel": "claude-code/claude-opus-4-8",
+  "providerState": {
+    "previousProviderSessionIds": [
+      "325d99e0-bcd5-46a1-9fa9-1b3c296ae07e"
+    ]
+  },
+  "linkedContentPath": "06_Corp_Workflow/Bewertungen_Stella/20260701_bewertung_stella_post.md",
+  "usage": {
+    "model": "claude-code/claude-opus-4-8",
+    "inputTokens": 2,
+    "cacheCreationInputTokens": 495,
+    "cacheReadInputTokens": 105858,
+    "contextWindow": 200000,
+    "contextTokens": 106355,
+    "percentage": 53,
+    "contextWindowIsAuthoritative": false
+  }
+}
