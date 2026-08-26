@@ -1,0 +1,10 @@
+{
+    "code": "DOM-BUERO2",
+    "titel": "Bürokratie & Verwaltung",
+    "untertitel": "Antragsprüfung, Fristen, Formular-Automation",
+    "stufe": 0,
+    "dauer_h": "4-6",
+    "voraussetzung": 3,
+    "bestehen_prozent": 60,
+    "geruest": true
+}

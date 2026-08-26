@@ -1,0 +1,10 @@
+{
+  "code": "STUFE-2",
+  "titel": "PRIESTER",
+  "untertitel": "Prompting, Logik und die Kunst, einer Maschine etwas aufzutragen",
+  "stufe": 2,
+  "dauer_h": "6-8",
+  "voraussetzung": 1,
+  "bestehen_prozent": 60,
+  "geruest": false
+}

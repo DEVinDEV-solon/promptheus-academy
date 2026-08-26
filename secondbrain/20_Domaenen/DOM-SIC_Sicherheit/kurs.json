@@ -1,0 +1,10 @@
+{
+    "code": "DOM-SIC",
+    "titel": "Sicherheit & Secrets",
+    "untertitel": "Audit, Secrets-Management, Herkunftsnachweis",
+    "stufe": 0,
+    "dauer_h": "4-6",
+    "voraussetzung": 3,
+    "bestehen_prozent": 60,
+    "geruest": true
+}
