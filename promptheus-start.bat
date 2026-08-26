@@ -12,9 +12,19 @@ cd /d "%~dp0"
 title PROMPTHEUS
 set "PORT=8801"
 
+rem --- PHP bestimmen ------------------------------------------------
 set "PHP_DIR=%~dp0PHP\php8.2"
 if not exist "%PHP_DIR%\php.exe" set "PHP_DIR=%~dp0php\php8.2"
 set "RUN=%PHP_DIR%\php.exe"
+
+rem --- Falls php.exe fehlt: aus dem mitgelieferten Paket entpacken -
+if not exist "%RUN%" (
+    if exist "%~dp0data\php8.2-paket.zip" (
+        echo   Entpacke PHP 8.2 aus dem mitgelieferten Paket ...
+        if not exist "%PHP_DIR%" mkdir "%PHP_DIR%" >nul 2>&1
+        powershell.exe -NoProfile -Command "Expand-Archive -Force '%~dp0data\php8.2-paket.zip' '%PHP_DIR%'" >nul 2>&1
+    )
+)
 
 echo.
 echo   PROMPTHEUS Start
@@ -24,7 +34,8 @@ echo.
 if not exist "%RUN%" (
     echo   FEHLER: php.exe wurde nicht gefunden unter:
     echo       %PHP_DIR%\php.exe
-    echo   Der Ordner PHP\php8.2 muss neben dieser Batch liegen.
+    echo   Bitte stelle sicher, dass PHP 8.2 vorhanden ist (entweder
+    echo   in PHP\php8.2 entpackt oder data\php8.2-paket.zip liegt da).
     pause
     exit /b 1
 )
