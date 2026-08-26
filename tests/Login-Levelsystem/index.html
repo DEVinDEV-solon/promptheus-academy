@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROMPTHEUS · Login &amp; Rechte</title>
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-role="admin">
+
+<div class="bg-ember" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="flame" aria-hidden="true">🔥</span>
+    <div class="brand-text">
+      <strong>PROMPTHEUS</strong>
+      <small>Login &amp; Rechte · Verwaltung</small>
+    </div>
+  </div>
+  <div class="role-switch" role="group" aria-label="Ebene wechseln">
+    <button class="chip" data-role-trigger="admin">Admin</button>
+    <button class="chip" data-role-trigger="schule">Schule</button>
+    <button class="chip" data-role-trigger="lehrer">Lehrer</button>
+    <button class="chip" data-role-trigger="eltern">Eltern</button>
+    <button class="chip" data-role-trigger="schueler">Schüler</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- Linke Spalte: Rollen-Matrix -->
+  <section class="card matrix-card">
+    <div class="card-head">
+      <h1>Rechte-Matrix</h1>
+      <p>Alle Berechtigungen je Ebene — komplett aufgeklappt, ohne Überlagerung.</p>
+    </div>
+
+    <p class="legend">5 Ebenen je Recht · Admin · Schule · Lehrer · Eltern · Schüler — jede Zeile einzeln auf/zu.</p>
+  </div>
+  <div id="groups" class="groups"><!-- dynamisch per JS --></div>
+
+    <div class="card-foot">
+      <button id="save" class="btn primary">Änderungen übernehmen</button>
+      <button id="reset" class="btn ghost">Zurück zur Standard-Matrix</button>
+      <span id="save-note" class="note" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <!-- Rechte Spalte: Vorschau / Simulation -->
+  <aside class="card sim-card">
+    <div class="card-head">
+      <h2>Vorschau</h2>
+      <p>Was diese Ebene (aktuell <strong id="sim-role">Admin</strong> · <span id="sim-hint">Plattform</span>) damit kann:</p>
+    </div>
+    <div id="sim" class="sim-list" role="group" aria-label="Vorschau der Ebene, togglebar"></div>
+    <div class="card-head audit">
+      <h2>Audit-Protokoll</h2>
+      <p>Recht-Änderungen (append-only, Hash-Kette).</p>
+    </div>
+    <ul id="audit" class="audit-list"></ul>
+  </aside>
+
+</main>
+
+<footer class="footer">
+  <span>PROMPTHEUS · Muster-Seite zum <em>Login-Level-Rechte-Plan</em></span>
+  <span class="muted">Deterministische RBAC-Engine — kein Modell vergibt Rechte.</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

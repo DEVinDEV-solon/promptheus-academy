@@ -1,0 +1,660 @@
+/* PROMPTHEUS — Landingpage (die oeffentliche Startseite vor der Anmeldung).
+ *
+ * Sie steht neben promptheus.css und marke.css und benutzt DEREN Tokens — hier
+ * stehen nur `var(--…)`, nie ein roher Hexwert. Das ist die Regel aus BRAND.md,
+ * und sie sorgt dafuer, dass die Seite in allen sechs Paletten stimmt, hell wie
+ * dunkel.
+ *
+ * Aufbau als Scroll-Folge mit wechselnden Mitteln (kein Mittel zweimal
+ * hintereinander): Parallax-Held, angehaltene Frage mit Zeilenaufbau, ein
+ * Wisch-Aufdecken, ein gestaffeltes Raster, ein seitlicher Stufen-Zug, DER
+ * inszenierte Feuer-Hoehepunkt, die ruhige Preistafel, ein fester Abschluss.
+ *
+ * Der Login steht NICHT in der Seite. Er ist ein eigener Schirm (`.login-schirm`),
+ * der ueber den Knopf rechts oben erscheint — dann ist nur er zu sehen.        */
+
+/* Die Landingpage traegt denselben festen Prometheus-Hintergrund wie das Tor.
+   marke.css setzt ihn fuer `body.uni` und `.tor-flaeche`; die Landingpage bekommt
+   ihn hier ueber ihre eigene Klasse, damit sie ohne die Academy-Klasse auskommt. */
+body.landing {
+  --bild-staerke: .26;
+  min-height: 100vh;
+}
+html[data-thema-effektiv="hell"] body.landing { --bild-staerke: .12; }
+
+body.landing.zeigt-login { overflow: hidden; }
+
+/* ============================================================ Kopfleiste */
+.lp-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .7rem clamp(1rem, 4vw, 2.2rem);
+  background: transparent;
+  transition: background .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+  border-bottom: 1px solid transparent;
+}
+.lp-bar.fest {
+  background: rgb(var(--karte-schleier) / .82);
+  backdrop-filter: var(--glas-blur);
+  border-bottom-color: var(--rand);
+}
+body.zeigt-login .lp-bar { display: none; }
+
+.lp-wort {
+  display: inline-flex; align-items: baseline; gap: .5rem;
+  font-family: var(--serif); font-size: 1.15rem; letter-spacing: .14em;
+  text-decoration: none; color: var(--schrift);
+}
+.lp-wort .lp-flamme { font-size: 1.1rem; transform: translateY(1px); }
+.lp-wort b {
+  font-weight: 700; letter-spacing: .14em;
+  background: linear-gradient(180deg, var(--gold), var(--glut));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lp-wort span {
+  font-size: .78rem; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--schrift-3);
+}
+
+.lp-bar-nav { display: flex; align-items: center; gap: clamp(.6rem, 2vw, 1.6rem); }
+.lp-bar-nav a {
+  font-family: var(--sans); font-size: .9rem; color: var(--schrift-2);
+  text-decoration: none; padding: .3rem 0; position: relative;
+}
+.lp-bar-nav a::after {
+  content: ''; position: absolute; left: 0; right: 100%; bottom: -.1rem; height: 2px;
+  background: var(--glut); transition: right .2s ease;
+}
+.lp-bar-nav a:hover { color: var(--schrift); }
+.lp-bar-nav a:hover::after { right: 0; }
+.lp-bar-nav .lp-nav-fern { display: none; }
+@media (min-width: 720px) { .lp-bar-nav .lp-nav-fern { display: inline; } }
+
+/* ============================================================ Grundraster */
+.lp { position: relative; z-index: 1; }
+body.zeigt-login .lp { display: none; }
+
+.lp-sektion {
+  position: relative;
+  padding: clamp(4rem, 12vh, 9rem) clamp(1.2rem, 5vw, 2.4rem);
+}
+.lp-mitte { max-width: var(--breit); margin: 0 auto; }
+.lp-schmal { max-width: 760px; }
+
+.lp-kicker {
+  font-family: var(--sans); font-size: .8rem; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--glut); margin: 0 0 1rem;
+}
+.lp h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.15; margin: 0 0 .6rem; }
+.lp h3 { font-size: 1.15rem; }
+.lp-lead {
+  font-family: var(--serif); font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  line-height: 1.55; color: var(--schrift-2); max-width: 60ch;
+}
+
+/* -------- Aufdecken beim Scrollen. Nur transform + opacity (billig, ruckelfrei).
+   Die Seite ist auch ohne JavaScript und ohne Bewegung vollstaendig lesbar:
+   dann steht `.lp-auf` einfach sichtbar da (siehe der Bewegung-aus-Block). */
+.lp-auf {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .7s ease, transform .7s cubic-bezier(.22,.61,.36,1);
+}
+.lp-auf.sicht { opacity: 1; transform: none; }
+
+/* ============================================================ 1 · Held (Parallax) */
+.lp-hero {
+  min-height: 100vh; display: grid; align-items: center;
+  padding-top: clamp(6rem, 14vh, 10rem);
+  isolation: isolate; overflow: hidden;
+}
+/* Ein Schleier NUR dort, wo der Text sitzt — nicht ueber das ganze Bild.
+   Links fast deckend, nach rechts durchlaessig, damit der Prometheus bleibt. */
+.lp-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg,
+    rgb(var(--bild-schleier) / .82) 0%,
+    rgb(var(--bild-schleier) / .62) 40%,
+    rgb(var(--bild-schleier) / .12) 78%,
+    transparent 100%);
+}
+/* Die vollflächige Videoschleife hinter dem Held. Liegt hinter dem Schleier
+   (::before, z-index -1), der Text bleibt darüber lesbar. */
+.lp-hero-video {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover;
+  pointer-events: none;
+}
+.lp-hero-inhalt {
+  max-width: 40rem;
+  transform: translateY(calc(var(--sy, 0) * -1px));
+  will-change: transform;
+}
+.lp-hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 7vw, 4.6rem); line-height: 1.04;
+  letter-spacing: -.01em; margin: 0 0 1.1rem; text-wrap: balance;
+}
+.lp-hero h1 .glimm { color: var(--glut); }
+.lp-hero .lp-lead { color: var(--schrift); font-size: clamp(1.1rem, 2.4vw, 1.5rem); }
+.lp-cta { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1.8rem 0 1.2rem; }
+.knopf.gross { padding: .8rem 1.5rem; font-size: 1.02rem; }
+.lp-mini {
+  font-family: var(--sans); font-size: .82rem; color: var(--schrift-3);
+  display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin: 0;
+}
+.lp-mini span { display: inline-flex; align-items: center; gap: .35rem; }
+.lp-mini b { color: var(--gut); font-weight: 700; }
+
+/* ============================================================ 2 · Frage (Pin + Zeilenaufbau)
+   Der Rahmen haelt still (sticky), die Zeilen bauen sich auf. */
+.lp-frage { padding: 0; }
+.lp-frage-bahn { min-height: 190vh; position: relative; }
+.lp-frage-halt {
+  position: sticky; top: 0; min-height: 100vh;
+  display: grid; place-items: center; text-align: center;
+  padding: 2rem clamp(1.2rem, 5vw, 2.4rem);
+}
+.lp-frage-halt::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: rgb(var(--bild-schleier) / .55);
+}
+/* Jede Zeile nimmt die ganze Breite: ein volles Statement, kein Streifen in
+   der Mitte. Die drei Sätze stehen groß untereinander und entzünden sich der
+   Reihe nach. */
+.lp-frage-text { width: min(94vw, 68rem); }
+.lp-frage-text .z {
+  display: block;
+  font-family: var(--serif); font-size: clamp(1.7rem, 5.2vw, 3.1rem);
+  line-height: 1.18; color: var(--schrift-3);
+  margin: .1rem 0;
+  opacity: .28; transform: translateY(14px);
+  transition: opacity .55s ease, transform .55s ease, color .55s ease;
+}
+.lp-frage-text .z.an { opacity: 1; transform: none; color: var(--schrift); }
+.lp-frage-text .z.glut.an { color: var(--glut); }
+
+/* ============================================================ 3 · Methode (Wisch-Aufdecken) */
+.lp-methode { }
+.lp-methode-raster {
+  display: grid; gap: clamp(1.4rem, 4vw, 3rem); align-items: center;
+  grid-template-columns: 1fr;
+}
+/* Das Video ist hochkant (9:16); es bekommt eine schmale Spalte, damit die
+   Textkarte rechts nicht gestaucht wird. */
+@media (min-width: 860px) { .lp-methode-raster { grid-template-columns: minmax(220px, 300px) 1fr; } }
+
+/* Der Wisch: ein Bild, das per clip-path von links freigelegt wird. */
+.lp-wisch {
+  position: relative; border-radius: var(--radius); overflow: hidden;
+  aspect-ratio: 4 / 3; border: 1px solid var(--rand); box-shadow: var(--schatten);
+  background-size: cover; background-position: center;
+}
+.lp-wisch::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(115deg,
+    rgb(var(--bild-schleier) / .62), rgb(var(--bild-schleier) / .18) 70%, transparent);
+}
+.lp-wisch {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.1s cubic-bezier(.76,0,.24,1);
+}
+.lp-wisch.sicht { clip-path: inset(0 0 0 0); }
+.lp-wisch-schrift {
+  position: absolute; left: 1.1rem; bottom: 1rem; z-index: 2;
+  font-family: var(--serif); font-style: italic; color: var(--schrift);
+  font-size: 1.05rem; max-width: 20ch;
+}
+
+/* -------- Der sprechende Prometheus neben „So lernst du".
+   Der Rahmen ist oben und unten mit dem Mäander verziert und pulsiert: ein
+   ruhiges Glühen, kein Blinken. Bei „weniger Bewegung" steht er still. */
+.lp-video-rahmen {
+  position: relative; margin: 0; padding: 12px 10px; border-radius: var(--radius);
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  max-width: 320px; width: 100%; justify-self: center;
+  animation: lp-video-puls 3s ease-in-out infinite;
+}
+@keyframes lp-video-puls {
+  0%, 100% { box-shadow: 0 0 0 1px var(--rand-hell), 0 0 22px -10px var(--glut); }
+  50%      { box-shadow: 0 0 0 1px var(--glut),      0 0 34px -4px var(--glut-hell); }
+}
+.lp-video-rahmen::before, .lp-video-rahmen::after {
+  content: ''; position: absolute; left: 8px; right: 8px; height: 8px; z-index: 3;
+  pointer-events: none; background-color: var(--gold);
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+  animation: lp-orn-puls 3s ease-in-out infinite;
+}
+.lp-video-rahmen::before { top: 2px; }
+.lp-video-rahmen::after  { bottom: 2px; transform: scaleY(-1); }
+@keyframes lp-orn-puls { 0%, 100% { opacity: .3; } 50% { opacity: .7; } }
+.lp-video {
+  display: block; width: 100%; border-radius: var(--radius-klein);
+  background: var(--grund-3);
+}
+
+.lp-schritte { list-style: none; padding: 0; margin: 1.2rem 0 0; display: grid; gap: .7rem; }
+.lp-schritte li {
+  display: grid; grid-template-columns: auto 1fr; gap: .8rem; align-items: baseline;
+  padding: .7rem .9rem; background: var(--glas); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+}
+.lp-schritte .num {
+  font-family: var(--mono); font-size: .9rem; color: var(--glut);
+  font-variant-numeric: tabular-nums;
+}
+.lp-schritte b { display: block; }
+.lp-schritte span.was { font-size: .9rem; color: var(--schrift-2); }
+
+/* ============================================================ 4 · Substanz (gestaffeltes Raster) */
+/* Die Überschrift soll auf einer Zeile stehen. Ab Tablet halten wir sie
+   zusammen; auf schmalen Handys darf sie umbrechen, sonst liefe sie über. */
+.lp-features-intro { max-width: 62ch; }
+@media (min-width: 768px) {
+  .lp-features-intro h2 { white-space: nowrap; }
+}
+.lp-features-raster {
+  display: grid; gap: 1rem; margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.lp-feature {
+  padding: 1.3rem 1.2rem; background: var(--glas); border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  transition: opacity .6s ease, transform .6s ease, border-color .2s ease;
+}
+.lp-feature:hover { border-color: var(--glas-rand); }
+.lp-feature .sym {
+  font-size: 1.5rem; display: block; margin-bottom: .5rem; line-height: 1;
+}
+.lp-feature h3 { margin: 0 0 .35rem; font-size: 1.05rem; }
+.lp-feature p { margin: 0; font-size: .92rem; color: var(--schrift-2); line-height: 1.55; }
+/* Staffelung: jede Karte kommt kurz nach der vorigen. */
+.lp-features-raster .lp-auf { transition-delay: 0s; }
+.lp-features-raster.sicht .lp-feature:nth-child(1) { transition-delay: .00s; }
+.lp-features-raster.sicht .lp-feature:nth-child(2) { transition-delay: .06s; }
+.lp-features-raster.sicht .lp-feature:nth-child(3) { transition-delay: .12s; }
+.lp-features-raster.sicht .lp-feature:nth-child(4) { transition-delay: .18s; }
+.lp-features-raster.sicht .lp-feature:nth-child(5) { transition-delay: .24s; }
+.lp-features-raster.sicht .lp-feature:nth-child(6) { transition-delay: .30s; }
+.lp-features-raster.sicht .lp-feature:nth-child(7) { transition-delay: .36s; }
+.lp-features-raster.sicht .lp-feature:nth-child(8) { transition-delay: .42s; }
+.lp-feature { opacity: 0; transform: translateY(24px); }
+.lp-features-raster.sicht .lp-feature { opacity: 1; transform: none; }
+
+/* ============================================================ 5 · Stufen (seitlicher Zug) */
+.lp-stufen { overflow: hidden; }
+.lp-stufen-kopf { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+.lp-stufen-hint { font-size: .82rem; color: var(--schrift-3); }
+/* Der Zug läuft von selbst: die sechs Karten stehen zweimal hintereinander und
+   wandern stetig nach links. Nach genau einer Runde (-50 %) sitzt die Kopie
+   deckungsgleich über dem Anfang, der Sprung ist unsichtbar. Jede Karte trägt
+   ihren Abstand als `margin-right` (nicht als `gap`), damit -50 % exakt eine
+   Runde ist. Mit der Maus darüber hält der Zug an. */
+.lp-zug-rahmen {
+  overflow: hidden; margin-top: 1.6rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.lp-zug {
+  display: flex; width: max-content; will-change: transform;
+  animation: lp-zug-lauf 50s linear infinite;
+}
+.lp-zug:hover, .lp-zug:focus-within { animation-play-state: paused; }
+@keyframes lp-zug-lauf { to { transform: translateX(-50%); } }
+
+.lp-stufe {
+  flex: 0 0 auto; width: min(58vw, 196px); margin-right: 1rem;
+  position: relative; aspect-ratio: 3 / 4;
+  border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--rand); box-shadow: var(--schatten);
+  background-size: cover; background-position: center;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  text-decoration: none; color: var(--schrift);
+}
+/* Der schraege Schutzverlauf aus BRAND.md, links deckend, rechts unten durchlaessig. */
+.lp-stufe::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(115deg,
+    rgb(var(--bild-schleier) / .96) 0%,
+    rgb(var(--bild-schleier) / .90) 38%,
+    rgb(var(--bild-schleier) / .66) 72%,
+    rgb(var(--bild-schleier) / .42) 100%);
+}
+html[data-thema-effektiv="hell"] .lp-stufe::before {
+  background: linear-gradient(115deg,
+    rgb(var(--bild-schleier) / .97) 0%,
+    rgb(var(--bild-schleier) / .94) 38%,
+    rgb(var(--bild-schleier) / .80) 72%,
+    rgb(var(--bild-schleier) / .62) 100%);
+}
+.lp-stufe-inhalt { position: relative; padding: .85rem .9rem; }
+.lp-stufe-nr {
+  font-family: var(--mono); font-size: .72rem; color: var(--gold);
+  letter-spacing: .1em;
+}
+.lp-stufe h3 {
+  margin: .15rem 0 .1rem; font-family: var(--serif); font-size: 1.15rem;
+  letter-spacing: .06em;
+}
+.lp-stufe p { margin: 0; font-size: .82rem; color: var(--schrift-2); }
+
+/* ============================================================ 6 · Hoehepunkt: Prometheus bringt das Feuer
+   Das Markenbild fuellt den Schirm. Beim Scrollen tritt der Schleier zurueck
+   (das Bild kommt aus dem Dunkel), die Glut waechst, der Spruch entzuendet sich
+   Zeile fuer Zeile. Der laengste Abschnitt der Seite.
+
+   `--p` (0..1) setzt landing.js aus dem Scrollfortschritt. Liegt ein
+   Video vor (assets/video/peak.mp4), scrubbt landing.js es ueber `--p`;
+   sonst traegt das Standbild denselben Moment.                                */
+.lp-peak { padding: 0; }
+.lp-peak-bahn { min-height: 300vh; position: relative; }
+.lp-peak-halt {
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+  display: grid; place-items: center; isolation: isolate;
+}
+.lp-peak-bild, .lp-peak-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; background-size: cover; background-position: center;
+  z-index: -3;
+  /* aus dem Dunkel: leicht heranfahren und aufhellen */
+  transform: scale(calc(1.12 - var(--p, 0) * .12));
+  filter: brightness(calc(.55 + var(--p, 0) * .55))
+          saturate(calc(.7 + var(--p, 0) * .5));
+}
+.lp-peak-video { display: none; }
+body.hat-peak-video .lp-peak-video { display: block; }
+body.hat-peak-video .lp-peak-bild { display: none; }
+/* Der Schleier tritt zurueck: aus fast deckend wird durchlaessig. */
+.lp-peak-halt::before {
+  content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background: rgb(var(--bild-schleier) / calc(.9 - var(--p, 0) * .58));
+}
+/* Die wachsende Glut — ein radialer Schein von unten, nie flaechig ueber Text. */
+.lp-peak-halt::after {
+  content: ''; position: absolute; left: 50%; bottom: -12%; z-index: -1;
+  width: 120vmax; height: 120vmax; transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--schein), transparent 68%);
+  opacity: calc(.15 + var(--p, 0) * .6);
+}
+.lp-peak-text { position: relative; text-align: center; width: min(92vw, 34rem); padding: 1rem; }
+.lp-peak-text .z {
+  display: block; font-family: var(--serif);
+  font-size: clamp(1.6rem, 5vw, 3.2rem); line-height: 1.14;
+  color: var(--schrift); opacity: 0; transform: translateY(18px);
+  transition: opacity .5s ease, transform .5s ease;
+  text-shadow: 0 2px 18px rgb(var(--bild-schleier) / .8);
+}
+.lp-peak-text .z.an { opacity: 1; transform: none; }
+.lp-peak-text .z.gold { color: var(--gold); }
+.lp-peak-text .z.feuer {
+  font-size: clamp(2.1rem, 7vw, 4.4rem); margin-top: .5rem;
+  color: var(--glut); font-weight: 700; letter-spacing: -.01em;
+}
+
+/* ============================================================ 7 · Preise (ruhiges Absetzen) */
+.lp-preise { background: rgb(var(--karte-schleier) / .5); }
+.lp-preise-kopf { text-align: center; max-width: 60ch; margin: 0 auto 1.4rem; }
+.lp-preise .preistafel { margin-top: 1.6rem; }
+.lp-preise h3 { margin-top: 3rem; }
+.lp-preise .hinweis { max-width: 60ch; }
+
+/* Die deckende Fläche für die Token-Preise: die Pläne dürfen über dem
+   Prometheus schweben, die feingliedrige Token-Tabelle braucht festen Grund. */
+/* ============================================================ 7.5 · Die zwei Wege
+   Steht zwischen Preistafel und Token-Tafel. Zwei Karten nebeneinander, weil
+   der Unterschied nur nebeneinander zu sehen ist — untereinander liest man die
+   zweite als Fortsetzung der ersten, und genau das ist sie nicht. */
+.wege {
+  margin-top: 2.4rem; padding: clamp(1.3rem, 3vw, 2.2rem);
+  background: var(--grund); border: 1px solid var(--rand);
+  border-radius: var(--radius); box-shadow: var(--schatten);
+}
+.wege > h3 { margin: 0 0 .3rem; }
+.wege > .hinweis { margin: 0 0 1.4rem; }
+
+.weg-reihe { display: grid; gap: 1rem; }
+@media (min-width: 760px) { .weg-reihe { grid-template-columns: 1fr 1fr; } }
+
+.weg-karte {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+  background: var(--grund-2);
+}
+.weg-nr {
+  margin: 0; font-family: var(--sans); font-size: .72rem;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--glut);
+}
+.weg-karte h4 { margin: 0; font-family: var(--serif); font-size: 1.15rem; color: var(--schrift); }
+.weg-was   { margin: 0; color: var(--schrift-2); font-size: .92rem; }
+.weg-folge { margin: .2rem 0 0; color: var(--gold); font-size: .92rem; }
+.weg-karte .klein { margin: 0; color: var(--schrift-3); }
+/* Der Knopf sitzt unten, damit beide Karten ihn auf derselben Linie tragen —
+   sonst sieht der kuerzere Weg aus wie der wichtigere. */
+.weg-karte .knopf { margin-top: auto; align-self: flex-start; }
+
+.weg-fuss { margin: 1.3rem 0 0; }
+.weg-fuss a { color: var(--gold); }
+
+.lp-token {
+  margin-top: 2.4rem; padding: clamp(1.3rem, 3vw, 2.2rem);
+  background: var(--grund); border: 1px solid var(--rand);
+  border-radius: var(--radius); box-shadow: var(--schatten);
+}
+.lp-token h3 { margin-top: 2.4rem; }
+.lp-token h3:first-child { margin-top: 0; }
+
+/* ============================================================ 6.5 · Community (Vorschau) */
+.lp-community-karte {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: min(64vh, 520px);
+  display: flex; align-items: center;
+  border-radius: 18px; border: 1px solid var(--rand-hell);
+  box-shadow: var(--schatten);
+  background-size: cover; background-position: center;
+  padding: clamp(1.6rem, 5vw, 3.4rem);
+}
+/* Schleier nur links, wo der Text sitzt; rechts bleibt der Jubel sichtbar. */
+.lp-community-karte::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(100deg,
+    rgb(var(--bild-schleier) / .90) 0%,
+    rgb(var(--bild-schleier) / .74) 42%,
+    rgb(var(--bild-schleier) / .28) 76%,
+    transparent 100%);
+}
+.lp-community-inhalt { max-width: 34rem; }
+.lp-community-claim {
+  margin: .7rem 0 0; font-family: var(--serif); font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.65rem); color: var(--gold);
+}
+.lp-tag {
+  display: inline-block; margin-top: 1.1rem;
+  font-family: var(--sans); font-size: .74rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--gold);
+  padding: .3rem .8rem; border: 1px solid var(--gold); border-radius: 999px;
+}
+
+/* ============================================================ 8 · Abschluss (fest, kein Ausklang) */
+.lp-close { }
+.lp-close-karte {
+  max-width: 720px; margin: 0 auto; text-align: center;
+  padding: clamp(2.4rem, 6vw, 4rem) clamp(1.6rem, 5vw, 3rem);
+  background: var(--glas); border: 1px solid var(--rand-hell);
+  border-radius: 18px; box-shadow: var(--schatten); position: relative;
+  isolation: isolate; overflow: hidden;
+}
+.lp-close-karte::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 120%, var(--schein), transparent 60%);
+}
+.lp-close-karte h2 { font-family: var(--serif); }
+.lp-close-karte .lp-lead { margin: .6rem auto 1.6rem; }
+.lp-close .lp-cta { justify-content: center; }
+
+/* Luft zwischen der Abschlusskarte und dem Fussteil.
+   Beide stehen in derselben Sektion und lagen deshalb Kante an Kante — das
+   liest sich, als gehoere die Zeile mit dem Impressum noch zur Aufforderung.
+   Der Abstand ist bewusst klein: Der Fussteil soll abgesetzt sein, nicht
+   verloren. */
+.lp-close .lp-fuss { margin-top: clamp(1.6rem, 4vw, 2.4rem); }
+
+/* Fussteil: Zeichen links, Rechtliches rechts.
+   Auf schmalen Schirmen untereinander und mittig — nebeneinander waeren es
+   zwei Spalten von je vier Zeichen Breite. */
+.lp-fuss {
+  display: flex; flex-wrap: wrap; gap: .8rem 1.6rem;
+  align-items: center; justify-content: space-between;
+  /* Volle Breite mit milchigem Band: der Ornamentrand des Hintergrundbildes
+     laeuft genau hier durch, und eine Zeile Kleinschrift darauf ist nicht zu
+     lesen. Der Inhalt bleibt trotzdem auf Lesebreite — das macht das Polster,
+     nicht ein zweiter Kasten. */
+  width: 100%;
+  padding: 1.4rem max(3vw, calc((100% - 68rem) / 2)) 2.2rem;
+  background: rgb(var(--bild-schleier) / .88);
+  backdrop-filter: var(--glas-blur);
+  border-top: 1px solid var(--rand);
+  font-family: var(--sans); font-size: .84rem; color: var(--schrift-2);
+}
+.lp-fuss-links { margin: 0; }
+.lp-fuss .lp-fuss-wort { color: var(--schrift-2); letter-spacing: .1em; }
+
+.lp-fuss-rechts { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; }
+.lp-fuss-rechts a {
+  color: var(--schrift-2); text-decoration: none;
+  padding: .3rem 0; border-bottom: 1px solid transparent;
+}
+.lp-fuss-rechts a:hover,
+.lp-fuss-rechts a:focus-visible { color: var(--gold); border-bottom-color: var(--gold); }
+
+@media (max-width: 34rem) {
+  .lp-fuss { justify-content: center; text-align: center; }
+  .lp-fuss-rechts { justify-content: center; }
+}
+
+/* ============================================================ Rechtstexte
+   recht.php rendert Impressum, Datenschutz, AGB und Widerruf aus `recht/`.
+   Eine Lesespalte, sonst nichts: hier wird nichts inszeniert, hier wird
+   gelesen — meist von jemandem, der eine Anschrift sucht. */
+/* Die Kopfzeile ist hier **immer** deckend. Auf der Startseite blendet sie
+   landing.js beim Scrollen ein (`.fest`); recht.php laedt kein JavaScript, und
+   eine durchsichtige Leiste ueber laufendem Text ergibt genau das Gewirr, das
+   man beim Scrollen sieht. Ein Rechtstext hat ohnehin keinen Held, den die
+   Leiste freigeben muesste. */
+body.recht-seite .lp-bar {
+  background: rgb(var(--karte-schleier) / .94);
+  backdrop-filter: var(--glas-blur);
+  border-bottom-color: var(--rand);
+}
+/* Platz unter der festen Leiste, damit die Ueberschrift nicht darunter startet. */
+body.recht-seite { padding-top: 4.6rem; }
+
+/* „Zur Startseite": dunkel statt Glut, damit die Schrift auch über einer hellen
+   Stelle des Hintergrundbildes steht. Breiter als ein Glut-Knopf, weil der Text
+   laenger ist als „Anmelden" — sonst quetscht er sich auf zwei Zeilen. */
+.knopf.recht-heim {
+  background: var(--grund); color: var(--schrift);
+  border: 1px solid var(--rand-hell);
+  padding: .55rem 1.4rem; min-width: 11rem; text-align: center;
+  text-decoration: none; white-space: nowrap;
+}
+.knopf.recht-heim:hover,
+.knopf.recht-heim:focus-visible { border-color: var(--glut); color: var(--gold); filter: none; }
+
+/* Das Blatt liegt als milchige Scheibe auf dem Prometheus-Hintergrund. Ohne
+   sie steht ein Paragraph auf einer Flamme, und lesbar ist er dann nicht. */
+.recht-blatt {
+  width: min(92vw, 48rem); margin: 2.4rem auto 1rem;
+  padding: clamp(1.4rem, 4vw, 3rem) clamp(1.2rem, 4vw, 3.2rem);
+  background: rgb(var(--karte-schleier) / .92);
+  backdrop-filter: var(--glas-blur);
+  border: 1px solid var(--rand); border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  font-family: var(--serif); color: var(--schrift-2); line-height: 1.7;
+}
+.recht-blatt h1 { font-family: var(--serif); margin: 0 0 1.4rem; color: var(--schrift); }
+.recht-blatt h2 {
+  font-family: var(--serif); margin: 2.4rem 0 .7rem; color: var(--schrift);
+  padding-bottom: .3rem; border-bottom: 1px solid var(--rand);
+}
+.recht-blatt h3 { margin: 1.8rem 0 .5rem; color: var(--schrift); }
+.recht-blatt p, .recht-blatt li { font-size: .95rem; }
+.recht-blatt li { margin-bottom: .4rem; }
+.recht-blatt strong, .recht-blatt b { color: var(--schrift); }
+.recht-blatt hr { border: 0; border-top: 1px solid var(--rand); margin: 2.4rem 0; }
+.recht-blatt blockquote {
+  margin: 1.2rem 0; padding: .2rem 0 .2rem 1rem;
+  border-left: 2px solid var(--gold); color: var(--schrift-3);
+}
+.recht-blatt code { font-family: var(--mono); font-size: .88em; }
+/* Breite Tabellen rollen in sich, nie die Seite. */
+.recht-blatt .tabellenrahmen { overflow-x: auto; margin: 1.2rem 0; }
+.recht-blatt table { border-collapse: collapse; min-width: 100%; font-family: var(--sans); font-size: .86rem; }
+.recht-blatt th, .recht-blatt td {
+  text-align: left; padding: .5rem .8rem; border-bottom: 1px solid var(--rand);
+  vertical-align: top;
+}
+.recht-blatt th { color: var(--schrift); font-weight: 600; }
+
+.recht-warnung {
+  margin: 3rem 0 1rem; padding: 1rem 1.2rem;
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+  background: var(--grund-2);
+  font-family: var(--sans); font-size: .84rem; color: var(--schrift-3);
+}
+.recht-warnung p { margin: 0; }
+.recht-warnung b { color: var(--warn); }
+
+/* ============================================================ Login-Schirm
+   Erscheint ueber den Knopf rechts oben. Dann ist nur er zu sehen. */
+.login-schirm {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center; padding: 2rem 1rem;
+  overflow-y: auto;
+}
+.login-schirm[hidden] { display: none; }
+.login-schirm::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: rgb(var(--bild-schleier) / .78);
+  backdrop-filter: var(--glas-blur);
+}
+.login-zurueck {
+  position: fixed; top: 1rem; left: 1rem; z-index: 2;
+  display: inline-flex; align-items: center; gap: .4rem;
+  font: inherit; font-family: var(--sans); font-size: .9rem; cursor: pointer;
+  color: var(--schrift-2); background: var(--grund-3);
+  border: 1px solid var(--rand-hell); border-radius: 999px; padding: .45rem .9rem;
+}
+.login-zurueck:hover { color: var(--schrift); border-color: var(--glut); }
+
+/* ============================================================ Bewegung aus
+   `data-bewegung="wenig"` und die Systemvorgabe „weniger Bewegung" schalten
+   Parallax, Scrub und Aufbau ab. Alles steht dann sichtbar da — die Seite
+   verliert nichts an Inhalt, nur an Bewegung. */
+@media (prefers-reduced-motion: reduce) {
+  .lp-auf, .lp-feature, .lp-wisch { transition: none !important; }
+  .lp-auf, .lp-feature { opacity: 1 !important; transform: none !important; }
+  .lp-wisch { clip-path: none !important; }
+  .lp-hero-inhalt { transform: none !important; }
+  .lp-zug { animation: none !important; }
+  .lp-zug-rahmen { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .lp-video-rahmen,
+  .lp-video-rahmen::before, .lp-video-rahmen::after { animation: none !important; }
+  .lp-hero-video { display: none; }
+}
+html[data-bewegung="wenig"] .lp-auf,
+html[data-bewegung="wenig"] .lp-feature { opacity: 1 !important; transform: none !important; transition: none !important; }
+html[data-bewegung="wenig"] .lp-wisch { clip-path: none !important; transition: none !important; }
+html[data-bewegung="wenig"] .lp-hero-inhalt { transform: none !important; }
+html[data-bewegung="wenig"] .lp-frage-text .z,
+html[data-bewegung="wenig"] .lp-peak-text .z { opacity: 1 !important; transform: none !important; }
+html[data-bewegung="wenig"] .lp-peak-bild,
+html[data-bewegung="wenig"] .lp-peak-video { transform: none !important; filter: none !important; }
+html[data-bewegung="wenig"] .lp-zug { animation: none !important; }
+html[data-bewegung="wenig"] .lp-zug-rahmen { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+html[data-bewegung="wenig"] .lp-video-rahmen,
+html[data-bewegung="wenig"] .lp-video-rahmen::before,
+html[data-bewegung="wenig"] .lp-video-rahmen::after { animation: none !important; }
+html[data-bewegung="wenig"] .lp-hero-video { display: none; }

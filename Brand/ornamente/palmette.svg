@@ -1,0 +1,25 @@
+<!-- PROMPTHEUS — Palmette (Flammenrosette).
+
+     Das zweite Ornament: acht Blätter um eine Mitte, die zugleich als Flamme
+     und als antike Palmette lesbar ist. Kachel 72×72.
+
+     Es ist das wärmere der beiden Muster und gehört auf Flächen, die eine
+     Leistung feiern — Abzeichen, Ränge, Prüfung bestanden. Der Mäander ist
+     die Ordnung, die Palmette der Lohn.
+
+     Wie beim Mäander: weiss, weil es als Maske läuft. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+  <g fill="#fff" transform="translate(36 36)">
+    <g id="blatt">
+      <path d="M0 -6 C 5 -12, 5 -22, 0 -28 C -5 -22, -5 -12, 0 -6 Z"/>
+    </g>
+    <use href="#blatt" transform="rotate(45)"/>
+    <use href="#blatt" transform="rotate(90)"/>
+    <use href="#blatt" transform="rotate(135)"/>
+    <use href="#blatt" transform="rotate(180)"/>
+    <use href="#blatt" transform="rotate(225)"/>
+    <use href="#blatt" transform="rotate(270)"/>
+    <use href="#blatt" transform="rotate(315)"/>
+    <circle r="4"/>
+  </g>
+</svg>

@@ -1,0 +1,143 @@
+# PROMPTHEUS — was den Ordner nicht verlaesst
+#
+# Diese Datei ist die Wache vor dem oeffentlichen Repo. WAS mitgeht und warum,
+# steht in VEROEFFENTLICHUNG.md; hier steht nur, was draussen bleibt.
+#
+# Gemessen am 24.08.2026, vor dem ersten Commit: von 2659 Dateien im Ordner
+# waeren unter der vorigen Fassung 2550 mitgegangen — darunter vier Dateien mit
+# gueltigen Schluesseln und der gesamte fremde Quelltext unter .claude/.
+#
+# Zwei Luecken hatten denselben Grund, und er ist der wichtigste Satz dieser
+# Datei: Ein Muster, das einen Schraegstrich enthaelt, ist am Repo-Anfang
+# verankert. `.obsidian/plugins/*/data.json` traf deshalb nur ein .obsidian
+# direkt in der Wurzel — das in secondbrain/ lief daran vorbei. Wo die Tiefe
+# nicht feststeht, steht jetzt `**/` davor.
+#
+# Geprueft wird das von tests/veroeffentlichung_test.php. Der Test glaubt
+# diesen Mustern nicht, sondern fragt git selbst.
+
+
+# ─────────────────────────────────────────────────────────── 1. Schluessel
+#
+# Der einzige Abschnitt, bei dem ein Fehler nicht zu reparieren ist: was einmal
+# in einer Historie steht, ist auch nach dem Loeschen noch da. Ein Schluessel
+# im Repo ist ein verbrannter Schluessel, egal wie schnell der Commit
+# zurueckgenommen wird.
+.env
+.env.*
+!.env.example
+
+# Obsidian legt die Einstellungen jedes Plugins in data.json ab — und Plugins,
+# die mit einem Dienst sprechen, legen den Schluessel genau dorthin. Gemessen
+# betroffen: claudian-solon, deepseekian, obsidian-local-rest-api,
+# telegram-sync. Der ganze Plugin-Ordner bleibt ohnehin draussen: das sind
+# 25 MB fremder, gebauter Code, der in diesem Repo nichts zu suchen hat.
+**/.obsidian/plugins/
+**/.obsidian/workspace*.json
+
+# Die Ernte-Freigabeliste. Sie enthaelt die Pfade fremder Vaults auf diesem
+# Rechner — keine Schluessel, aber eine Landkarte der Ablage.
+setup/quellen.json
+
+
+# ─────────────────────────────────────────────── 2. Daten von Menschen
+#
+# Lernstaende, Antworten, Urkunden, Protokoll, Sprachaufnahmen, Datenbank.
+# Wer welche Aufgabe falsch beantwortet hat, ist eine Leistungsbewertung einer
+# moeglicherweise minderjaehrigen Person. Das gehoert nicht in eine Historie,
+# aus der es sich nicht mehr entfernen laesst.
+data/
+
+
+# ─────────────────────────────────────────── 3. Fremder Code im Ordner
+#
+# `.claude/worktrees/` enthaelt einen vollstaendigen Arbeitsbaum des
+# umschliessenden Agent-Zero-Repos: 1605 Dateien, 25 MB, fremdes Urheberrecht,
+# eigene Historie. Er liegt hier nur, weil das Werkzeug ihn hier anlegt.
+# Ein `git add .` ohne diese Zeile veroeffentlicht ein zweites Projekt mit.
+.claude/
+.agents/
+
+
+# ────────────────────────────────────────────────────── 4. Der Lehrstoff
+#
+# secondbrain/ ist der Vault: Lektionen, Aufgaben — und pruefung.md. Waere er
+# oeffentlich, stuende jede Pruefung vor der Pruefung im Netz. Genau dagegen
+# steht router.php; ein oeffentliches Repo waere dieselbe Tuer, nur breiter.
+#
+# Das ist die vorsichtige Vorgabe, keine endgueltige Entscheidung. Sie laesst
+# sich spaeter oeffnen; der umgekehrte Weg — erst veroeffentlichen, dann
+# zurueckziehen — existiert nicht. Siehe VEROEFFENTLICHUNG.md, Entscheidung 1.
+secondbrain/
+
+
+# ──────────────────────────────────────────────────── 5. Die Serverseite
+#
+# Relay, Hauptbuch, Kundenbereich, Verwaltung. Sie laeuft auf unserem VPS und
+# nie beim Kunden. Wer sie mitliefert, gibt den Teil, der die Freischaltung
+# durchsetzt, an den, der freigeschaltet werden soll. Dieselbe Begruendung
+# steht in router.php; siehe LIZENZ-RELAY-PLAN.md.
+vps/
+
+
+# ───────────────────────────────────────────────────────── 6. Aufnahmen
+#
+# Video und Ton gehoeren nicht in eine Codehistorie: sie sind gross, sie
+# aendern sich immer als Ganzes, und ein einziges Video macht jedes spaetere
+# Klonen zaeh. Die Ordner bleiben stehen, damit klar ist, wohin sie gehoeren —
+# siehe medien/README.md.
+assets/video/
+medien/**/*.mp3
+medien/**/*.m4a
+medien/**/*.ogg
+medien/**/*.opus
+medien/**/*.wav
+medien/**/*.mp4
+medien/**/*.webm
+medien/**/*.m4v
+
+# Rohton aus der Sprachausgabe. Kein eigenes Format, nur ungepackte Samples —
+# rund 2 MB je Datei, jederzeit neu erzeugbar.
+**/*.pcm16
+**/*.ser
+
+# Das Hero-Video der Stufen-Seite: 17 MB, die sich nur als Ganzes aendern. Die
+# sieben Stiche (webp, je ~0,5 MB) bleiben in der Historie, denn ohne sie ist
+# die Seite leer. Ohne das Video ist sie es nicht: `hero-poster.jpg` geht mit,
+# und die Seite zeigt dann das Standbild statt der Bewegung — sichtbar
+# unvollstaendig, aber nicht kaputt.
+stufen/assets/*.mp4
+
+# 68 MB Standbilder aus einem frueheren Anlauf der Ueber-Seite. Gemessen von
+# keiner Zeile Code referenziert; die heutige Seite nimmt stufen/assets/*.webp.
+assets/img/ueber/
+
+
+# ──────────────────────────────────────── 7. Interne Arbeitsunterlagen
+#
+# Die Plaene sind Werkstattpapiere: sie nennen Preise, den VPS, die Bauweise
+# der Freischaltung und Zwischenstaende, die morgen anders aussehen. Nichts
+# davon ist geheim, aber es ist auch nicht das, was jemand liest, der das
+# Programm benutzen will.
+#
+# Dreizehn davon liegen seit dem 24.08.2026 in `vps/plan/` und sind damit
+# schon durch Abschnitt 5 gedeckt. Hier stehen nur die beiden, die in der
+# Wurzel geblieben sind — einzeln aufgezaehlt und nicht per Platzhalter:
+# sonst verschwindet spaeter still ein Dokument, das mitsollte.
+# Siehe VEROEFFENTLICHUNG.md, Entscheidung 2.
+LIZENZ-RELAY-PLAN.md
+VEROEFFENTLICHUNG.md
+
+
+# ─────────────────────────────────────────────────────── 8. Arbeitsreste
+#
+# `_vorschau_*` sind Wegwerfseiten aus der Entwicklung. Die Datei `0` ist ein
+# verungluecktes `2>&1` aus einer Shell-Zeile: zehn Bytes ohne Bedeutung.
+_vorschau_*
+/0
+
+Thumbs.db
+desktop.ini
+*.bak
+*.bak_*
+*.tmp

@@ -1,0 +1,126 @@
+{
+    "marke": "PROMPTHEUS ACADEMY",
+    "vorgabe": "schmiede",
+    "varianten": {
+        "schmiede": {
+            "name": "Schmiede",
+            "was": "Die Vorgabe: Glut auf dunklem Grund, Gold für Erfolg.",
+            "grundton": "dunkel",
+            "farben": {
+                "grund": "#14110f",
+                "grund-2": "#1c1815",
+                "grund-3": "#262019",
+                "rand": "#3a3129",
+                "rand-hell": "#504338",
+                "schrift": "#ede5db",
+                "schrift-2": "#b3a596",
+                "schrift-3": "#8b8178",
+                "glut": "#ff7a1c",
+                "glut-hell": "#ffa347",
+                "glut-tief": "#c14e00",
+                "gold": "#ffc94d",
+                "lapis": "#4e82b6"
+            }
+        },
+        "pergament": {
+            "name": "Pergament",
+            "was": "Hell und warm, wie ein Buch bei Tageslicht.",
+            "grundton": "hell",
+            "farben": {
+                "grund": "#f7f3ec",
+                "grund-2": "#fffdfa",
+                "grund-3": "#efe8dc",
+                "rand": "#ddd2c0",
+                "rand-hell": "#c4b49a",
+                "schrift": "#241d16",
+                "schrift-2": "#55483c",
+                "schrift-3": "#796c5e",
+                "glut": "#b74e0c",
+                "glut-hell": "#e2711d",
+                "glut-tief": "#8f3800",
+                "gold": "#9a6a00",
+                "lapis": "#2f6394"
+            }
+        },
+        "olymp": {
+            "name": "Olymp",
+            "was": "Nachtblau mit Gold — ruhiger als die Glut, für lange Sitzungen.",
+            "grundton": "dunkel",
+            "farben": {
+                "grund": "#0d1420",
+                "grund-2": "#141d2c",
+                "grund-3": "#1c2839",
+                "rand": "#2c3a4f",
+                "rand-hell": "#3e5069",
+                "schrift": "#e4ebf5",
+                "schrift-2": "#a3b2c6",
+                "schrift-3": "#77879e",
+                "glut": "#5b9bd8",
+                "glut-hell": "#8dbcea",
+                "glut-tief": "#2c5f96",
+                "gold": "#ffd27a",
+                "lapis": "#7fb0dd"
+            }
+        },
+        "marmor": {
+            "name": "Marmor",
+            "was": "Hell und kühl, sehr ruhig. Für Bildschirme in hellen Räumen.",
+            "grundton": "hell",
+            "farben": {
+                "grund": "#f4f5f7",
+                "grund-2": "#ffffff",
+                "grund-3": "#e8eaee",
+                "rand": "#d3d7de",
+                "rand-hell": "#b3bac5",
+                "schrift": "#1a1e26",
+                "schrift-2": "#454c58",
+                "schrift-3": "#676e7d",
+                "glut": "#9a5b1e",
+                "glut-hell": "#b06d28",
+                "glut-tief": "#6d3c0d",
+                "gold": "#8a6a12",
+                "lapis": "#2a5d90"
+            }
+        },
+        "terrakotta": {
+            "name": "Terrakotta",
+            "was": "Erdig und warm — gebrannter Ton statt schwarzer Bildschirm.",
+            "grundton": "dunkel",
+            "farben": {
+                "grund": "#20120e",
+                "grund-2": "#2b1a14",
+                "grund-3": "#38231b",
+                "rand": "#4d3225",
+                "rand-hell": "#6b4632",
+                "schrift": "#f3e3d5",
+                "schrift-2": "#c3a794",
+                "schrift-3": "#988374",
+                "glut": "#e0642f",
+                "glut-hell": "#f08a58",
+                "glut-tief": "#a33d13",
+                "gold": "#e8b45c",
+                "lapis": "#5f93ab"
+            }
+        },
+        "funkenflug": {
+            "name": "Funkenflug",
+            "was": "Kräftig und bunt. Gedacht für die jüngeren Stufen.",
+            "grundton": "dunkel",
+            "farben": {
+                "grund": "#161028",
+                "grund-2": "#211838",
+                "grund-3": "#2d2149",
+                "rand": "#413063",
+                "rand-hell": "#5b4487",
+                "schrift": "#f2ecff",
+                "schrift-2": "#c0b3dd",
+                "schrift-3": "#8f80b3",
+                "glut": "#ff8a3d",
+                "glut-hell": "#ffab6b",
+                "glut-tief": "#d1550e",
+                "gold": "#ffd93d",
+                "lapis": "#6ac9e8"
+            }
+        }
+    }
+}

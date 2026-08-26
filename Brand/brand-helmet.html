@@ -1,0 +1,56 @@
+<!-- PROMPTHEUS ACADEMY — Tokens fuer eine neue Seite.
+
+     In den <head> kopieren, danach im Layout nur noch var(--...) benutzen.
+     KEINE Webschrift: die Academy laedt nichts nach. Die Ersatzstapel haben
+     aehnliche Masse, damit auch der PDF-Druck stimmt.
+
+     Erzeugt aus srv/varianten.php — dort steht die eine Quelle. Diese Datei
+     nicht von Hand pflegen. -->
+<style>
+:root {
+  --grund:       #14110f;
+  --grund-2:     #1c1815;
+  --grund-3:     #262019;
+  --rand:        #3a3129;
+  --rand-hell:   #504338;
+  --schrift:     #ede5db;
+  --schrift-2:   #b3a596;
+  --schrift-3:   #8b8178;
+  --glut:        #ff7a1c;
+  --glut-hell:   #ffa347;
+  --glut-tief:   #c14e00;
+  --gold:        #ffc94d;
+  --lapis:       #4e82b6;
+
+  --breit:        1180px;
+  --radius:       10px;
+  --radius-klein: 6px;
+  --schatten:     0 2px 10px rgba(0,0,0,.45);
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans:  "Segoe UI", -apple-system, system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --mono:  "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+  /* Zustaende. Nur mit Bedeutung, nie als zweiter Markenakzent. */
+  --gut: #5fbf7a; --schlecht: #e8635a; --warn: #e5b34a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--grund); color: var(--schrift);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
+
+/* Linkfarbe immer setzen — sonst rendert ein spaeter ergaenzter Link im
+   Browser-Standardblau, und das ist die einzige Farbe, die hier verboten ist. */
+a { color: var(--glut-hell); }
+:focus-visible { outline: 2px solid var(--glut); outline-offset: 2px; }
+
+/* .lbl — technische Beschriftung. .val — Zahlen mit gleicher Ziffernbreite,
+   damit Spalten stehen. */
+.lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+       text-transform: uppercase; color: var(--schrift-3); }
+.val { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+</style>
