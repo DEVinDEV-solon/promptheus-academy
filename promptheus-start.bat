@@ -70,11 +70,12 @@ set "PORT=%PORT: =%"
 
 if not exist "data\logs" mkdir "data\logs" >nul 2>&1
 
-rem --- Laeuft schon ein Server auf dem Port? ---------------------
-rem  Exitcode 0 = Port belegt. NICHT in einem if-Block ausfuehren:
-rem  die Klammern im PHP-Ausdruck wuerden den Block zerreissen.
-%PHP_BIN% -r "$f=@fsockopen('127.0.0.1',getenv('PORT'),$e,$s,0.7); exit($f?0:1);" >nul 2>&1
-if not errorlevel 1 goto schon_da
+rem --- Port aufraeumen: alten/defekten Server beenden ------------
+rem  Ein noch laufender spaeterer Server mit einer kaputten PHP
+rem  wuerde den Port blockieren und die Seite weiter kaputt zeigen.
+rem  Deshalb wird jeder Prozess, der auf %PORT% lauscht, beendet,
+rem  bevor neu gestartet wird.
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort %PORT% -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }" >nul 2>&1
 
 rem --- Sprach-Erkennung (Mikro zu Text) eingerichtet? ------------
 set "SPRACHE_HINWEIS="
@@ -103,18 +104,6 @@ if "%OPEN%"=="1" start "" "http://127.0.0.1:%PORT%/"
 echo.
 echo   Der Server wurde beendet.
 pause
-exit /b 0
-
-rem ---------------------------------------------------------------
-:schon_da
-echo.
-echo   Auf Port %PORT% laeuft bereits ein Server.
-echo   Falls die Seite den Fehler "pdo_sqlite" zeigt, laeuft dort
-echo   noch ein alter Server mit einer kaputten PHP - dann bitte
-echo   das alte Fenster schliessen und die Batch erneut starten.
-echo.
-if "%OPEN%"=="1" start "" "http://127.0.0.1:%PORT%/"
-timeout /t 6 /nobreak >nul 2>&1
 exit /b 0
 
 rem ---------------------------------------------------------------
