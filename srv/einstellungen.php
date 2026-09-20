@@ -129,6 +129,13 @@ const PU_EINST_PERSON = [
     'klang_athena'       => ['vorgabe' => '', 'text' => '#^(-?\d{1,3}(,-?\d{1,3}){3})?$#'],
     'klang_hermes'       => ['vorgabe' => '', 'text' => '#^(-?\d{1,3}(,-?\d{1,3}){3})?$#'],
     'klang_hephaistos'   => ['vorgabe' => '', 'text' => '#^(-?\d{1,3}(,-?\d{1,3}){3})?$#'],
+
+    // -------- Der Coder der Werkstatt
+    //
+    // Welches der freigegebenen Modelle. Das Muster prüft nur die Form; ob es
+    // freigegeben ist, prüft `pu_einst_person_setzen()` gegen die Liste der
+    // Academy (srv/coder.php). Leer = das Hausmodell.
+    'coder_modell'       => ['vorgabe' => '', 'text' => '#^([A-Za-z0-9][A-Za-z0-9._:/-]{0,80})?$#'],
 ];
 
 /**
@@ -262,6 +269,31 @@ const PU_EINST_GLOBAL = [
     'weitere_infos'     => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
     'tutor_modell'      => ['vorgabe' => '',   'text'  => '/^[A-Za-z0-9][A-Za-z0-9._:-]{0,60}$/'],
     'tutor_zeitgrenze'  => ['vorgabe' => '90', 'zahl'  => [15, 300]],
+
+    // -------- Der Coder der Werkstatt (srv/coder.php)
+    //
+    // Ab Werk **aus**, aus demselben Grund wie das Vorlesen: Er schickt Text
+    // aus dem Haus und kostet je Token. Frei wird er erst nach dem 7. Kurs.
+    'coder_an'          => ['vorgabe' => 'aus', 'werte' => ['an', 'aus']],
+
+    // Das Hausmodell: günstig, schnell, 1 M Kontext, kann Werkzeuge rufen.
+    // Ohne Werkzeugaufrufe ist ein Coder kein Coder — das ist die Bedingung
+    // an jedes Modell, das hier eingetragen wird.
+    'coder_modell'      => ['vorgabe' => 'deepseek/deepseek-v4.1-flash',
+                            'text'    => '#^[A-Za-z0-9][A-Za-z0-9._:/-]{0,80}$#'],
+
+    // Was ein Lernender statt des Hausmodells wählen darf, durch Komma
+    // getrennt, ohne Leerzeichen. Die Vorgabe ist am 19.09.2026 gegen den
+    // OpenRouter-Katalog geprüft (beide mit Werkzeugaufrufen). Leer = nur das
+    // Hausmodell.
+    'coder_auswahl'     => ['vorgabe' => 'anthropic/claude-sonnet-5,anthropic/claude-opus-5',
+                            'text'    => '#^[A-Za-z0-9][A-Za-z0-9._:/-]{0,80}(,[A-Za-z0-9][A-Za-z0-9._:/-]{0,80}){0,11}$#'],
+
+    // An: OpenRouter leitet nur an Anbieter weiter, die Eingaben nicht
+    // speichern und nicht zum Training verwenden. Das schränkt die Auswahl
+    // ein und kann teurer sein — dafür verlässt die Guideline eines
+    // Lernenden das Haus nicht dauerhaft.
+    'coder_datenschutz' => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
 ];
 
 // ================================================================ Prüfung
@@ -346,6 +378,16 @@ function pu_einst_person_setzen(int $lernender, string $schluessel, string $wert
         throw new RuntimeException('Unbekannte Einstellung: ' . $schluessel);
     }
     $wert = pu_einst_pruefen(PU_EINST_PERSON[$schluessel], $schluessel, $wert);
+
+    // Die Form allein reicht beim Coder nicht: Gewählt werden darf nur, was
+    // die Academy freigegeben hat. Sonst stünde über die Schnittstelle jedes
+    // Modell des Katalogs offen — auf Rechnung der Academy.
+    if ($schluessel === 'coder_modell' && $wert !== '') {
+        require_once PU_ROOT . '/srv/coder.php';
+        if (!in_array($wert, pu_coder_modelle(), true)) {
+            throw new RuntimeException('Dieses Modell ist für den Coder nicht freigegeben.');
+        }
+    }
 
     $st = pu_db()->prepare(
         'INSERT INTO person_einstellungen (lernender, schluessel, wert) VALUES (?,?,?)
