@@ -44,6 +44,7 @@ require_once __DIR__ . '/srv/stimme.php';
 require_once __DIR__ . '/srv/persona.php';
 require_once __DIR__ . '/srv/katalog.php';
 require_once __DIR__ . '/srv/raenge.php';
+require_once __DIR__ . '/srv/coder.php';
 
 header('X-Content-Type-Options: nosniff');
 
@@ -645,6 +646,12 @@ try {
                     PU_STIMM_AGENTEN,
                     array_map(fn($a) => pu_stimme_fuer($a), PU_STIMM_AGENTEN)),
             ];
+
+            /* Der Coder der Werkstatt: frei oder nicht, warum, und welche
+               Modelle zur Wahl stehen. Für jeden — wer noch nicht darf, soll
+               sehen, wie weit es noch ist. Nichts davon ist ein Geheimnis;
+               der Schlüssel bleibt im Tutor-KI-Zweig. */
+            $aus['coder_stand'] = pu_coder_stand($ichId);
 
             if (pu_recht_hat('regeln.manage')) {
                 $aus['global']              = pu_einst_global();

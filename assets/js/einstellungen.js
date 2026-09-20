@@ -114,12 +114,16 @@ function einstZeichnen() {
     ['konto',       'Konto']
   ];
 
+  // Die Werkstatt erst, wenn die Academy den Coder eingeschaltet hat. Einen
+  // Reiter zu zeigen, hinter dem nur „abgeschaltet" steht, wäre Werbung für
+  // etwas, das es nicht gibt.
+  if (d.coder_stand && d.coder_stand.an) reiter.splice(5, 0, ['coder', 'Werkstatt-Coder']);
+
   // Reiter für die Verwaltung: jeder hängt an genau dem Recht, das die
   // Aktionen dahinter fordern. Was hier fehlt, gäbe hinterher 403.
   const tutorReiter = [
     ['ki',      'Tutor-KI',      'ki.einstellungen'],
     ['regeln',  'Academy-Regeln',    'regeln.manage'],
-    ['rechte',  'Login & Rechte','rechte.einstellungen'],
     ['konten',  'Konten',        'lernende.manage'],
     ['wartung', 'Wartung',       'wartung.ausfuehren']
   ].filter(r => PU.darf(r[2]));
@@ -141,7 +145,7 @@ function einstZeichnen() {
   });
 
   if (tutor) {
-    html += '<div class="reiter-trenner">' + PU.h(d.ebene_anzeige || 'Verwaltung') + '</div>';
+    html += '<div class="reiter-trenner">Verwaltung</div>';
     tutorReiter.forEach(r => {
       html += '<button class="reiter-knopf' + (r[0] === PU.einstZustand.reiter ? ' aktiv' : '') +
               '" data-reiter="' + r[0] + '" type="button">' + PU.h(r[1]) + '</button>';
@@ -185,6 +189,7 @@ function inhaltZeichnen() {
     case 'lernen':      lernenZeichnen(ziel);      break;
     case 'lob':         lobZeichnen(ziel);         break;
     case 'konto':       kontoZeichnen(ziel);       break;
+    case 'coder':       coderZeichnen(ziel);       break;
     case 'sprache':     spracheZeichnen(ziel);     break;
     case 'profil':      profilZeichnen(ziel);      break;
     case 'ueber':       ueberZeichnen(ziel);       break;
@@ -192,7 +197,6 @@ function inhaltZeichnen() {
     case 'regeln':      regelnZeichnen(ziel);      break;
     case 'konten':      kontenZeichnen(ziel);      break;
     case 'wartung':     wartungZeichnen(ziel);     break;
-    case 'rechte':      rechteZeichnen(ziel);      break;
   }
 }
 
@@ -416,7 +420,6 @@ function kontoZeichnen(ziel) {
   tabelle.innerHTML =
     '<table><tbody>' +
     '<tr><th>Kennung</th><td>' + PU.h(ich.kennung) + '</td></tr>' +
-    '<tr><th>Ebene</th><td>' + PU.h(PU.ebenenName(ich.rolle)) + '</td></tr>' +
     (ich.gruppe ? '<tr><th>Gruppe</th><td>' + PU.h(ich.gruppe) + '</td></tr>' : '') +
     '</tbody></table>';
   ziel.appendChild(tabelle);
@@ -759,6 +762,8 @@ function kiZeichnen(ziel) {
     beiWahl: w => regelSetzen('or_modell', w),
     beiTest: (id, knopf) => modellTesten(id, knopf)
   });
+
+  coderRegelnZeichnen(ziel, g);
 
   // ---------------- Sprachausgabe
   //
@@ -1356,6 +1361,103 @@ function zeileText(ziel, titel, warum, jetzt, platzhalter, beiWahl, links, vorsc
   zeile.appendChild(gruppe);
   if (warum) zeile.appendChild(PU.el('p', 'warum', PU.h(warum)));
   ziel.appendChild(zeile);
+}
+
+/* ================================================================ Werkstatt-Coder
+ *
+ * Zwei Hälften, zwei Reiter: Die Academy legt im Reiter „Tutor-KI" fest,
+ * welche Modelle es gibt; jeder Lernende wählt im Reiter „Werkstatt-Coder"
+ * eines davon. Ob er schon darf, entscheidet der Server (srv/coder.php) —
+ * hier wird es nur gesagt.
+ */
+
+/** Was die Kürzel aus pu_coder_stand() für einen Lernenden bedeuten. */
+const CODER_GRUND = {
+  aus:         'Die Academy hat den Coder noch nicht eingeschaltet.',
+  kein_modell: 'Es ist noch kein Modell für den Coder eingetragen.',
+  kurs_fehlt:  'Der 7. Kurs ist auf diesem Rechner noch nicht eingerichtet.',
+  kurs_leer:   'Der 7. Kurs wird gerade geschrieben. Sobald er Aufgaben hat, kannst du ihn abschliessen.',
+  kurs_offen:  'Der Coder wird frei, wenn du den 7. Kurs vollständig abgeschlossen hast.',
+  betreiber:   'Frei für dich als Betreiber, damit du die Werkstatt vorab prüfen kannst.',
+  kurs:        'Frei. Der Coder arbeitet mit deiner Brand-Guideline aus dem 7. Kurs.'
+};
+
+function coderZeichnen(ziel) {
+  const c = PU.einstZustand.daten.coder_stand;
+
+  ziel.appendChild(PU.el('h3', '', 'Werkstatt-Coder'));
+  ziel.appendChild(PU.el('p', 'hinweis',
+    'Der Coder baut in der Werkstatt, was du beschreibst — nach deiner eigenen ' +
+    'Brand-Guideline. Deshalb kommt er erst nach dem 7. Kurs.'));
+
+  const stand = PU.el('p', 'merkzettel' + (c.frei ? ' gut' : ''));
+  let text = '<b>' + (c.frei ? 'Frei.' : 'Noch nicht frei.') + '</b> ' +
+             PU.h(CODER_GRUND[c.grund] || '');
+  if (c.grund === 'kurs_offen') text += ' Stand: <b>' + c.prozent + ' %</b>.';
+  stand.innerHTML = text;
+  ziel.appendChild(stand);
+
+  // Die Wahl steht auch vor der Freigabe da — wer weiss, womit er später
+  // arbeitet, hat einen Grund mehr, den Kurs fertigzumachen.
+  const modelle = c.modelle || [];
+  if (modelle.length === 0) return;
+
+  const haus = modelle[0];
+  const beschriftung = {};
+  modelle.forEach(m => { beschriftung[m] = m === haus ? m + ' (Vorgabe)' : m; });
+
+  zeileWahl(ziel, 'Modell',
+    'Die Vorgabe ist günstig und schnell. Die anderen sind stärker bei grossen ' +
+    'Vorhaben und kosten mehr Token von deinem Konto.',
+    // Angezeigt wird, was der Server auflöst — nicht der gespeicherte Wert.
+    // Hat die Academy ein gewähltes Modell gestrichen, gilt das Hausmodell,
+    // und genau das soll hier markiert sein.
+    modelle, c.modell || haus,
+    w => { personSetzen('coder_modell', w === haus ? '' : w); c.modell = w; },
+    beschriftung);
+}
+
+function coderRegelnZeichnen(ziel, g) {
+  if (!g) return;   // ohne regeln.manage kommen die Regeln gar nicht mit
+
+  ziel.appendChild(PU.el('h4', '', 'Werkstatt-Coder'));
+
+  const was = PU.el('div', 'einst-zeile');
+  was.innerHTML =
+    '<div class="titel">Was das ist</div><div></div>' +
+    '<p class="warum">Der Agent der Werkstatt. Er läuft über denselben ' +
+    'OpenRouter-Schlüssel wie die Tutoren und bucht auf das Tokenkonto des ' +
+    'Lernenden. Frei wird er für jeden erst mit dem <b>7. Kurs zu 100 %</b> — ' +
+    'geprüft auf dem Server, nicht am Knopf. Admins sind davon ausgenommen, ' +
+    'damit die Werkstatt vorab geprüft werden kann.</p>';
+  ziel.appendChild(was);
+
+  zeileWahl(ziel, 'Coder', 'Ab Werk aus: Er gibt Text aus dem Haus und kostet je Token.',
+    ['an', 'aus'], g.coder_an,
+    w => { regelSetzen('coder_an', w).then(() => PU.einstellungenOeffnen('ki')); }, AN_AUS);
+
+  modellWaehler(ziel, {
+    titel: 'Hausmodell',
+    warum: 'Die Vorgabe für jeden, der nichts anderes wählt. Das Modell muss ' +
+           'Werkzeugaufrufe können — sonst ist es kein Coder.',
+    jetzt: g.coder_modell,
+    platzhalter: 'deepseek/deepseek-v4.1-flash',
+    beiWahl: w => regelSetzen('coder_modell', w),
+    beiTest: (id, knopf) => modellTesten(id, knopf)
+  });
+
+  zeileText(ziel, 'Weitere zur Wahl',
+    'Kennungen durch Komma getrennt, höchstens 12. Nur was hier steht, können ' +
+    'Lernende auswählen. Leer = nur das Hausmodell.',
+    g.coder_auswahl, 'anthropic/claude-sonnet-5,anthropic/claude-opus-5',
+    // Leerzeichen nach dem Komma tippt jeder — die Regel verlangt keine.
+    w => regelSetzen('coder_auswahl', w.split(',').map(s => s.trim()).filter(Boolean).join(',')));
+
+  zeileWahl(ziel, 'Nur Anbieter ohne Datenspeicherung',
+    'An: OpenRouter leitet nur an Anbieter weiter, die Eingaben weder speichern ' +
+    'noch zum Training nutzen. Weniger Auswahl, dafür bleibt die Guideline ' +
+    'eines Lernenden nicht bei Dritten liegen.',
+    ['an', 'aus'], g.coder_datenschutz, w => regelSetzen('coder_datenschutz', w), AN_AUS);
 }
 
 /* ================================================================ Modellwahl
@@ -2002,6 +2104,19 @@ function profilZeile(ziel, titel, wert, warum, beiWahl, max) {
  * Jede Änderung wird sofort gespeichert. Einen Speichern-Knopf gäbe es nur,
  * damit man vergessen kann, ihn zu drücken.
  */
+/* ──────────────────────────────────────────────────────────────────────
+ * Der Reiter "Login & Rechte" ist seit dem 20.09.2026 nicht mehr im
+ * Einstellungsfenster, und mit ihm die Zeile "Ebene" im Reiter Konto sowie
+ * die Ebenen-Überschrift über den Verwaltungsreitern. Der Grund ist der
+ * heutige Betrieb: es gibt ein Konto, das alles darf — eine Matrix
+ * anzuzeigen, in der überall ein Haken steht, erklärt nichts.
+ *
+ * Das Rechtesystem selbst bleibt unangetastet (srv/rechte.php, pu_recht_hat,
+ * die Matrix, das Protokoll mit Hash-Kette). Sobald eine Schule getrennte
+ * Konten für Lehrkräfte und Schüler führt, wird die Trennung wieder
+ * gebraucht — und dann fehlt nur die Zeile in `tutorReiter`, nicht die
+ * Mechanik. Deshalb bleiben die Zeichenfunktionen hier stehen.
+ * ────────────────────────────────────────────────────────────────────── */
 PU.rechteStand = { ebene: 'lehrer', daten: null };
 
 function rechteZeichnen(ziel) {
