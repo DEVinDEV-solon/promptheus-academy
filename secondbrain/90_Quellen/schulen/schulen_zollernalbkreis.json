@@ -1,0 +1,436 @@
+[
+  {
+    "name": "Joachim-Schäfer-Schule Grund- und Werkrealschule",
+    "ort": "Rangendingen",
+    "strasse": "e 10",
+    "plz": "72414",
+    "website": null
+  },
+  {
+    "name": "Ignaz-Demeter-Schule Grund- und Hauptschule Lautlingen",
+    "ort": "Albstadt",
+    "strasse": "e 10",
+    "plz": "72459",
+    "website": null
+  },
+  {
+    "name": "Kirchgrabenschule Grundschule Ebingen",
+    "ort": "Albstadt",
+    "strasse": "Landgraben 16",
+    "plz": "72458",
+    "website": null
+  },
+  {
+    "name": "Schalksburgschule Grund- und Hauptschule Ebingen",
+    "ort": "Albstadt",
+    "strasse": "e 200",
+    "plz": "72458",
+    "website": null
+  },
+  {
+    "name": "Oststadtschule Grundschule Ebingen",
+    "ort": "Albstadt",
+    "strasse": "e 25",
+    "plz": "72458",
+    "website": null
+  },
+  {
+    "name": "Grundschule Laufen",
+    "ort": "Albstadt",
+    "strasse": "e 30",
+    "plz": "72459",
+    "website": null
+  },
+  {
+    "name": "Hohenbergschule Grund- und Werkrealschule Ebingen",
+    "ort": "Albstadt",
+    "strasse": "e 20",
+    "plz": "72458",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grund- und Werkrealschule Onstmettingen",
+    "ort": "Albstadt",
+    "strasse": "e 4",
+    "plz": "72461",
+    "website": null
+  },
+  {
+    "name": "Grundschule Pfeffingen",
+    "ort": "Albstadt",
+    "strasse": "e 1",
+    "plz": "72459",
+    "website": null
+  },
+  {
+    "name": "Lutherschule Grund- und Werkrealschule Tailfingen",
+    "ort": "Albstadt",
+    "strasse": "e 25",
+    "plz": "72461",
+    "website": null
+  },
+  {
+    "name": "Lammerberg-Grundschule Tailfingen",
+    "ort": "Albstadt",
+    "strasse": "e 72",
+    "plz": "72461",
+    "website": null
+  },
+  {
+    "name": "Langenwandschule Grundschule Tailfingen",
+    "ort": "Albstadt",
+    "strasse": "e 46",
+    "plz": "72461",
+    "website": null
+  },
+  {
+    "name": "Schule an der Sommerhalde Grundschule Truchtelfingen",
+    "ort": "Albstadt",
+    "strasse": "Sommerhalde 9",
+    "plz": "72461",
+    "website": null
+  },
+  {
+    "name": "Sichelschule Grund- und Werkrealschule",
+    "ort": "Balingen",
+    "strasse": "e 30",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Sichelschule Grund- und Werkrealschule Außenstelle Werkrealschule Längenfeldschule",
+    "ort": "Balingen",
+    "strasse": "e 32",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Längenfeldschule Grundschule",
+    "ort": "Balingen",
+    "strasse": "e 32",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grundschule Endingen-Erzingen",
+    "ort": "Balingen",
+    "strasse": "Am Wettbach 20",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Langwiesenschule Grund- und Hauptschule mit Werkrealschule Engstlatt",
+    "ort": "Balingen",
+    "strasse": "Auf der Halde 21",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Frommern",
+    "ort": "Balingen",
+    "strasse": "e 16",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grung- und Werkrealschule Frommern Außenstelle Werkrealschule Weilstetten",
+    "ort": "Balingen",
+    "strasse": "e 20",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weilstetten",
+    "ort": "Balingen",
+    "strasse": "Grauenstein 20",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weilstetten Außenstelle Rosswangen",
+    "ort": "Balingen",
+    "strasse": "e 4",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schmiden",
+    "ort": "Balingen",
+    "strasse": "e 28",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grundschule Streichen/Zillhausen",
+    "ort": "Balingen",
+    "strasse": "e 19",
+    "plz": "72336",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Bisingen",
+    "ort": "Bisingen",
+    "strasse": "Auf der Halde 17",
+    "plz": "72406",
+    "website": null
+  },
+  {
+    "name": "Lichtensteinschule Bitz Grundschule",
+    "ort": "Bitz",
+    "strasse": "e 7",
+    "plz": "72475",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Winterlingen Außenstelle Werkrealschule Bitz",
+    "ort": "Bitz",
+    "strasse": "e 7",
+    "plz": "72475",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hausen im Killertal",
+    "ort": "Burladingen",
+    "strasse": "e 9",
+    "plz": "72393",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stetten unter Holstein",
+    "ort": "Burladingen",
+    "strasse": "Silvesterweg 13",
+    "plz": "72393",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Burladingen",
+    "ort": "Burladingen",
+    "strasse": "e 7",
+    "plz": "72393",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Burladingen Aussenstelle Grundschule Gauselfingen",
+    "ort": "Burladingen",
+    "strasse": "0",
+    "plz": "72393",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ringingen",
+    "ort": "Burladingen",
+    "strasse": "Rausse 1",
+    "plz": "72393",
+    "website": null
+  },
+  {
+    "name": "Schlossbergschule Grundschule Außenstelle Dormettingen",
+    "ort": "Dormettingen",
+    "strasse": "e 30",
+    "plz": "72358",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Schömberg Außenstelle Werkrealschule Dotternhausen",
+    "ort": "Dotternhausen",
+    "strasse": "e 11",
+    "plz": "72359",
+    "website": null
+  },
+  {
+    "name": "Schlossparkschule Grund- und Werkrealschule",
+    "ort": "Geislingen",
+    "strasse": "e 25",
+    "plz": "72351",
+    "website": null
+  },
+  {
+    "name": "Grundschule Binsdorf-Erlaheim",
+    "ort": "Geislingen",
+    "strasse": "Hintere Gasse 13",
+    "plz": "72351",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Bisingen Außenstelle Werkrealschule Großelfingen",
+    "ort": "Grosselfingen",
+    "strasse": "e 7-9",
+    "plz": "72415",
+    "website": null
+  },
+  {
+    "name": "Hainburgschule Grundschule",
+    "ort": "Grosselfingen",
+    "strasse": "e 7-9",
+    "plz": "72415",
+    "website": null
+  },
+  {
+    "name": "Grundschule Haigerloch-Gruol",
+    "ort": "Haigerloch",
+    "strasse": "Matthias-Miller-Weg 8",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Witthauschule",
+    "ort": "Haigerloch",
+    "strasse": "e 74",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Haigerloch-Stetten",
+    "ort": "Haigerloch",
+    "strasse": "Andreasweg 10",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Grundschule Trillfingen",
+    "ort": "Haigerloch",
+    "strasse": "Nonnenhof 3",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Grundschule Trillfingen Außenstelle Bad Imnau",
+    "ort": "Haigerloch",
+    "strasse": "e 14",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Grundschule Owingen",
+    "ort": "Haigerloch",
+    "strasse": "e 2",
+    "plz": "72401",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hechingen",
+    "ort": "Hechingen",
+    "strasse": "Am Schlossberg 13",
+    "plz": "72379",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hechingen Außenstelle Zollerstraße",
+    "ort": "Hechingen",
+    "strasse": "Am Schlossberg 13",
+    "plz": "72379",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sickingen",
+    "ort": "Hechingen",
+    "strasse": "e 3",
+    "plz": "72379",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hartheim-Heinstetten",
+    "ort": "Messstetten",
+    "strasse": "e 6",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hartheim-Heinstetten Außenstelle Heinstetten",
+    "ort": "Messstetten",
+    "strasse": "e 5",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Burgschule Grund- und Werkrealschule Außenstelle Grundschule Hossingen",
+    "ort": "Messstetten",
+    "strasse": "e 9",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Burgschule Grund- und Werkrealschule Außenstelle Grundschule Büloch",
+    "ort": "Messstetten",
+    "strasse": "e 3",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Grundschule Tieringen",
+    "ort": "Messstetten",
+    "strasse": "An der Bittenhalde 1",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Grundschule Tieringen Außenstelle Oberdigisheim",
+    "ort": "Messstetten",
+    "strasse": "Sommerhalde 20",
+    "plz": "72469",
+    "website": null
+  },
+  {
+    "name": "Kallenbergschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Nusplingen",
+    "strasse": "e 27/1",
+    "plz": "72362",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heiligen-Zimmern-Isingen",
+    "ort": "Rosenfeld",
+    "strasse": "e 6",
+    "plz": "72348",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heiligen-Zimmern-Isingen Außenstelle Heiligenzimmern",
+    "ort": "Rosenfeld",
+    "strasse": "e 5",
+    "plz": "72348",
+    "website": null
+  },
+  {
+    "name": "Grundschule Leidringen",
+    "ort": "Rosenfeld",
+    "strasse": "e 11",
+    "plz": "72348",
+    "website": null
+  },
+  {
+    "name": "Iselin-Schule Grund- und Werkrealschule",
+    "ort": "Rosenfeld",
+    "strasse": "e 11",
+    "plz": "72348",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schörzingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schlossgartenschule Grundschule",
+    "ort": "Strassberg",
+    "strasse": "e 9",
+    "plz": "72479",
+    "website": null
+  },
+  {
+    "name": "Paul-Hepp-Schule Grundschule Benzingen",
+    "ort": "Winterlingen",
+    "strasse": "In der Bize 1",
+    "plz": "72474",
+    "website": null
+  },
+  {
+    "name": "Grundschule Harthausen",
+    "ort": "Winterlingen",
+    "strasse": "Schulweg 4",
+    "plz": "72474",
+    "website": null
+  }
+]

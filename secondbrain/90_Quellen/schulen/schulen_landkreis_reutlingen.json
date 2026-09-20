@@ -1,0 +1,530 @@
+[
+  {
+    "name": "IB Berufliche Schule Reutlingen",
+    "typ": "Privat",
+    "strasse": "Gustav-Schwab-Str. 34",
+    "plz": "72762",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wittlingen",
+    "typ": "Öffentlich",
+    "strasse": "Bühlstraße 18",
+    "plz": "72574",
+    "ort": "Bad Urach",
+    "website": null
+  },
+  {
+    "name": "Freibühl-Schule Grund-, Haupt- und Realschule Grossengstingen",
+    "typ": "Öffentlich",
+    "strasse": "Churstraße 38",
+    "plz": "72829",
+    "ort": "Engstingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kleinengstingen",
+    "typ": "Öffentlich",
+    "strasse": "Sternbergstraße 20",
+    "plz": "72829",
+    "ort": "Engstingen",
+    "website": null
+  },
+  {
+    "name": "Achalmschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Burgtalstraße 15",
+    "plz": "72800",
+    "ort": "Eningen unter Achalm",
+    "website": null
+  },
+  {
+    "name": "Sternbergschule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "72532",
+    "ort": "Gomadingen",
+    "website": null
+  },
+  {
+    "name": "Rulamanschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Böhringer Straße 10/1",
+    "plz": "72582",
+    "ort": "Grabenstetten",
+    "website": null
+  },
+  {
+    "name": "Digelfeldschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 12",
+    "plz": "72534",
+    "ort": "Hayingen",
+    "website": null
+  },
+  {
+    "name": "Hohensteinschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Am Grenzwald 1",
+    "plz": "72531",
+    "ort": "Hohenstein",
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Römerstein Böhringen Außenstelle Werkrealschule Hülben",
+    "typ": "Öffentlich",
+    "strasse": "Dettinger Straße 17",
+    "plz": "72584",
+    "ort": "Hülben",
+    "website": null
+  },
+  {
+    "name": "Grundschule Holzelfingen-Honau",
+    "typ": "Öffentlich",
+    "strasse": "Greifensteinstraße 4",
+    "plz": "72805",
+    "ort": "Lichtenstein",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Mühlstraße 24 – 28",
+    "plz": "72805",
+    "ort": "Lichtenstein",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Hauptschule mit Werkrealschule Außenstelle Grundschule Brögerschule",
+    "typ": "Öffentlich",
+    "strasse": "Härdtleweg 1",
+    "plz": "72805",
+    "ort": "Lichtenstein",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Mehrstetten",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 3",
+    "plz": "72537",
+    "ort": "Mehrstetten",
+    "website": null
+  },
+  {
+    "name": "Sieben-Keltern-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Konrad-Adenauer-Platz 2",
+    "plz": "72555",
+    "ort": "Metzingen",
+    "website": null
+  },
+  {
+    "name": "Neugreuthschule Grund- und Werkrealschule Metzingen",
+    "typ": "Öffentlich",
+    "strasse": "Neugreuthstraße 24",
+    "plz": "72555",
+    "ort": "Metzingen",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Hauptschule Neuhausen",
+    "typ": "Öffentlich",
+    "strasse": "Wolfgrubstraße 24 – 26",
+    "plz": "72555",
+    "ort": "Metzingen",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Hauptschule Neuhausen Außenstelle Grundschule Glems",
+    "typ": "Öffentlich",
+    "strasse": "Neuhauser Straße 48",
+    "plz": "72555",
+    "ort": "Metzingen",
+    "website": null
+  },
+  {
+    "name": "Hardtschule Auingen Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 7 – 9",
+    "plz": "72525",
+    "ort": "Münsingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule am Eisenrüttel Dottingen",
+    "typ": "Öffentlich",
+    "strasse": "Reutlinger Straße 56",
+    "plz": "72525",
+    "ort": "Münsingen",
+    "website": null
+  },
+  {
+    "name": "Lautertal-Schule Grundschule Hundersingen",
+    "typ": "Öffentlich",
+    "strasse": "Bronnhaldeweg 25",
+    "plz": "72525",
+    "ort": "Münsingen",
+    "website": null
+  },
+  {
+    "name": "Wunderbuch-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "72539",
+    "ort": "Pfronstetten",
+    "website": null
+  },
+  {
+    "name": "Laiblinschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Kernerstraße 5",
+    "plz": "72793",
+    "ort": "Pfullingen",
+    "website": null
+  },
+  {
+    "name": "Uhland-Grundschule Pfullingen",
+    "typ": "Öffentlich",
+    "strasse": "Kaiserstraße 1",
+    "plz": "72793",
+    "ort": "Pfullingen",
+    "website": null
+  },
+  {
+    "name": "Uhland-Grundschule Pfullingen Außenstelle Burgweg-Gebäude",
+    "typ": "Öffentlich",
+    "strasse": "Kaiserstraße 114",
+    "plz": "72793",
+    "ort": "Pfullingen",
+    "website": null
+  },
+  {
+    "name": "Schloß-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schloss-Straße 24",
+    "plz": "72793",
+    "ort": "Pfullingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gniebel-Dörnach",
+    "typ": "Öffentlich",
+    "strasse": "Dörnacher Straße 31",
+    "plz": "72124",
+    "ort": "Pliezhausen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rübgarten",
+    "typ": "Öffentlich",
+    "strasse": "Wildenaustraße 12",
+    "plz": "72124",
+    "ort": "Pliezhausen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Mittelstadt",
+    "typ": "Öffentlich",
+    "strasse": "Mönchstraße 1",
+    "plz": "72766",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Eduard-Spranger-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Paul-Pfizer-Straße 61",
+    "plz": "72762",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Hermann-Kurz-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Gminderstraße 40",
+    "plz": "72762",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Jos-Weiss-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Lederstraße 107",
+    "plz": "72764",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Matthäus-Beger-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Planie 21 – 27",
+    "plz": "72764",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Römerschanz-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Sonnenstraße 70",
+    "plz": "72760",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Hofschule Altenburg Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Bei der Schule 16",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Hoffmann-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Hoffmannstraße 4+7",
+    "plz": "72770",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Auchtert-Grundschule Degerschlacht",
+    "typ": "Öffentlich",
+    "strasse": "Schinkelstraße 1",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Rossbergschule Grund- und Hauptschule mit Werkrealschule Gönningen",
+    "typ": "Öffentlich",
+    "strasse": "Öschinger Straße 23",
+    "plz": "72770",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Waldschule Grundschule Ohmenhausen",
+    "typ": "Öffentlich",
+    "strasse": "Hornstraße 40",
+    "plz": "72770",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oferdingen",
+    "typ": "Öffentlich",
+    "strasse": "Hardenbergstraße 12",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grund- und Hauptschule mit Werkrealschule Orschelhagen",
+    "typ": "Öffentlich",
+    "strasse": "Esslinger Straße 14 – 18",
+    "plz": "72760",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Silcher-Schule Grundschule Sickenhausen",
+    "typ": "Öffentlich",
+    "strasse": "Wartburgstraße 30",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Mörikeschule Grund- und Hauptschule Sondelfingen",
+    "typ": "Öffentlich",
+    "strasse": "Schleestraße 30",
+    "plz": "72766",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rommelsbach",
+    "typ": "Öffentlich",
+    "strasse": "Reisweg 25",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Hohbuchschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Theodor-Heuss-Straße 8 – 10",
+    "plz": "72762",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Bildungszentrum Reutlingen-Nord Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Wittumstraße 37",
+    "plz": "72768",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "St. Wolfgang-Schule Grund- und Werkrealschule",
+    "typ": "Privat",
+    "strasse": "Werastraße 81",
+    "plz": "72764",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Freie evangelische Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "typ": "Privat",
+    "strasse": "Königsträssle 27",
+    "plz": "72766",
+    "ort": "Reutlingen",
+    "website": null
+  },
+  {
+    "name": "Gutenbergschule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Hegwiesenstraße 25",
+    "plz": "72585",
+    "ort": "Riederich",
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Römerstein Böhringen",
+    "typ": "Öffentlich",
+    "strasse": "Burgstraße 6",
+    "plz": "72587",
+    "ort": "Römerstein",
+    "website": null
+  },
+  {
+    "name": "Grundschule Römerstein Zainingen",
+    "typ": "Öffentlich",
+    "strasse": "Schillerstraße 8",
+    "plz": "72587",
+    "ort": "Römerstein",
+    "website": null
+  },
+  {
+    "name": "Grundschule Römerstein Zainingen Außenstelle Donnstetten",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 6",
+    "plz": "72587",
+    "ort": "Römerstein",
+    "website": null
+  },
+  {
+    "name": "Johann-Ludwig-Schneller-Grundschule Erpfingen",
+    "typ": "Öffentlich",
+    "strasse": "Hausener Straße 11",
+    "plz": "72820",
+    "ort": "Sonnenbühl",
+    "website": null
+  },
+  {
+    "name": "Brühlschule Genkingen Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulplatz 2",
+    "plz": "72820",
+    "ort": "Sonnenbühl",
+    "website": null
+  },
+  {
+    "name": "Steinbühlschule Grundschule Undingen",
+    "typ": "Öffentlich",
+    "strasse": "Falltorstraße 33",
+    "plz": "72820",
+    "ort": "Sonnenbühl",
+    "website": null
+  },
+  {
+    "name": "Bolbergschule Grundschule Sonnenbühl-Willmandingen",
+    "typ": "Öffentlich",
+    "strasse": "Brühlstraße 9",
+    "plz": "72820",
+    "ort": "Sonnenbühl",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsgrundschule Lonsingen",
+    "typ": "Öffentlich",
+    "strasse": "Gänshornstraße 12",
+    "plz": "72813",
+    "ort": "St. Johann",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Würtingen",
+    "typ": "Öffentlich",
+    "strasse": "Ohnastetter Straße 8",
+    "plz": "72813",
+    "ort": "St. Johann",
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuss-Schule Grundschule Mägerkingen",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 36",
+    "plz": "72818",
+    "ort": "Trochtelfingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Steinhilben",
+    "typ": "Öffentlich",
+    "strasse": "Rathausstraße 1",
+    "plz": "72818",
+    "ort": "Trochtelfingen",
+    "website": null
+  },
+  {
+    "name": "Werdenbergschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Hohenbergstraße 13 – 19",
+    "plz": "72818",
+    "ort": "Trochtelfingen",
+    "website": null
+  },
+  {
+    "name": "Römerwegschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 22",
+    "plz": "72141",
+    "ort": "Walddorfhäslach",
+    "website": null
+  },
+  {
+    "name": "Gustav-Werner-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Nonnengasse 34",
+    "plz": "72141",
+    "ort": "Walddorfhäslach",
+    "website": null
+  },
+  {
+    "name": "Graf-Eberhard-Schule Grund-, Werkreal- und Realschule Kirchentellinsfurt Außenstelle Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Lindenstraße 6",
+    "plz": "72827",
+    "ort": "Wannweil",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Wannweil Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Lindenstraße 6",
+    "plz": "72827",
+    "ort": "Wannweil",
+    "website": null
+  },
+  {
+    "name": "Münsterschule Grund-, Hauptschule mit Werkrealschule und Realschule",
+    "typ": "Öffentlich",
+    "strasse": "Panoramastraße 4",
+    "plz": "88529",
+    "ort": "Zwiefalten",
+    "website": null
+  }
+]

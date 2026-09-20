@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Grundschule Bitzfeld",
+    "ort": "Bretzfeld",
+    "strasse": "e 17",
+    "plz": "74626",
+    "website": null
+  },
+  {
+    "name": "Grund-, Werkreal- und Realschule im Bildungszentrum Bretzfeld",
+    "ort": "Bretzfeld",
+    "strasse": "e 28",
+    "plz": "74626",
+    "website": null
+  },
+  {
+    "name": "Grundschule Unterheimbach",
+    "ort": "Bretzfeld",
+    "strasse": "e 30",
+    "plz": "74626",
+    "website": null
+  },
+  {
+    "name": "Grundschule Unterheimbach Außenstelle Scheppach",
+    "ort": "Bretzfeld",
+    "strasse": "e 18",
+    "plz": "74626",
+    "website": null
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Grund- und Hauptschule",
+    "ort": "Forchtenberg",
+    "strasse": "Im Spitzen 4",
+    "plz": "74670",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ernsbach",
+    "ort": "Forchtenberg",
+    "strasse": "e 34",
+    "plz": "74670",
+    "website": null
+  },
+  {
+    "name": "Georg-Fahrbach-Schule Grund- und Hauptschule",
+    "ort": "Ingelfingen",
+    "strasse": "e 11",
+    "plz": "74653",
+    "website": null
+  },
+  {
+    "name": "Bildungszentrum Hohenlohe-Franken Grund- und Werkrealschule",
+    "ort": "Krautheim",
+    "strasse": "Gustav-Meyer-Zentrum 2",
+    "plz": "74238",
+    "website": null
+  },
+  {
+    "name": "Grundschule Amrichshausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Amrichshausen Außenstelle Belsenberg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Kocherstetten",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Reinhold-Würth-Schule Grundschule Gaisbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Taläcker",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Freie Schule Anne-Sophie Private Grund-, Werkreal-, Realschule und Gymnasium",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Johann-Friedrich-Mayer-Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Kupferzell",
+    "strasse": "e 22",
+    "plz": "74635",
+    "website": null
+  },
+  {
+    "name": "Bischof-von-Lipp-Schule Schule für Erziehungshilfe am Heim St.Josefspflege",
+    "ort": "Mulfingen",
+    "strasse": "Unterer Bach 2",
+    "plz": "74673",
+    "website": null
+  },
+  {
+    "name": "Bildungszentrum Niedernhall Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "ort": "Niedernhall",
+    "strasse": "Brückenwiesenweg 8",
+    "plz": "74676",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Öhringen",
+    "ort": "Öhringen",
+    "strasse": "e 1",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Öhringen Außenstelle Verrenberg",
+    "ort": "Öhringen",
+    "strasse": "e 9",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Weygang-Schule Werkrealschule",
+    "ort": "Öhringen",
+    "strasse": "e 17",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Grundschule Michelbach am Wald",
+    "ort": "Öhringen",
+    "strasse": "Keltergasse 24",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Grundschule Cappel",
+    "ort": "Öhringen",
+    "strasse": "e 6",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Hungerfeldschule Grundschule",
+    "ort": "Öhringen",
+    "strasse": "e 9",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Christliche Grund- und Hauptschule Öhringen",
+    "ort": "Öhringen",
+    "strasse": "An der Lehmgrube 14",
+    "plz": "74613",
+    "website": null
+  },
+  {
+    "name": "Creutzfelder-Schule Grund- und Werkrealschule",
+    "ort": "Pfedelbach",
+    "strasse": "16",
+    "plz": "74629",
+    "website": null
+  },
+  {
+    "name": "Grundschule Untersteinbach",
+    "ort": "Pfedelbach",
+    "strasse": "e 4",
+    "plz": "74629",
+    "website": null
+  },
+  {
+    "name": "Max-Eyth-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Sindelbachtal",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberkessach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Westernhausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Josef-Helmer-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Waldenburg",
+    "strasse": "e 1",
+    "plz": "74638",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weissbach",
+    "ort": "Weissbach",
+    "strasse": "e 25",
+    "plz": "74679",
+    "website": null
+  }
+]

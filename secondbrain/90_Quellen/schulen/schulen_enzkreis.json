@@ -1,0 +1,380 @@
+[
+  {
+    "name": "Johann-Christoph-Blumhardt-Schule Freie evangelische Grund- und Werkrealschule und berufliches Gymna",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.jcbs.de"
+  },
+  {
+    "name": "Grundschule Gräfenhausen",
+    "ort": "Birkenfeld",
+    "strasse": "e 35",
+    "plz": "75217",
+    "website": null
+  },
+  {
+    "name": "Ludwig-Uhland-Schule Grund- und Hauptschule mit  Werkreal- und Realschule",
+    "ort": "Birkenfeld",
+    "strasse": "e 20",
+    "plz": "75217",
+    "website": null
+  },
+  {
+    "name": "Grundschule Eisingen Bergäcker",
+    "ort": "Eisingen",
+    "strasse": "Bergäcker",
+    "plz": "75239",
+    "website": null
+  },
+  {
+    "name": "Grundschule Engelsbrand",
+    "ort": "Engelsbrand",
+    "strasse": "e 18",
+    "plz": "75331",
+    "website": null
+  },
+  {
+    "name": "Grundschule Engelsbrand Außenstelle Grunbach",
+    "ort": "Engelsbrand",
+    "strasse": "e 54",
+    "plz": "75331",
+    "website": null
+  },
+  {
+    "name": "Grundschule Friolzheim",
+    "ort": "Friolzheim",
+    "strasse": "e 28",
+    "plz": "71292",
+    "website": null
+  },
+  {
+    "name": "Ludwig-Uhland-Schule Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "ort": "Heimsheim",
+    "strasse": "21",
+    "plz": "71296",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schützingen",
+    "ort": "Illingen",
+    "strasse": "e 10",
+    "plz": "75428",
+    "website": null
+  },
+  {
+    "name": "Otto-Riehm-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Ispringen",
+    "strasse": "e 50",
+    "plz": "75228",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bilfingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kirchbergschule Ersingen Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Bergschule Singen Grund- und Werkrealschule Remchingen Außenstelle Werkrealschule Kämpfelbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Johannes-Kepler-Grund- und Hauptschule mit Werkrealschule Keltern-Dietlingen",
+    "ort": "Keltern",
+    "strasse": "Im Speiterling 10",
+    "plz": "75210",
+    "website": null
+  },
+  {
+    "name": "Johannes-Kepler-Grund- und Hauptschule mit Werkrealschule Keltern-Dietlingen Außenstelle Ellmendinge",
+    "ort": "Keltern",
+    "strasse": "e 7",
+    "plz": "75210",
+    "website": null
+  },
+  {
+    "name": "Grundschule Freudenstein",
+    "ort": "Knittlingen",
+    "strasse": "e 41",
+    "plz": "75438",
+    "website": null
+  },
+  {
+    "name": "Dr.Johannes-Faust-Schule Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "ort": "Knittlingen",
+    "strasse": "e 5",
+    "plz": "75438",
+    "website": null
+  },
+  {
+    "name": "Johannes-Schoch-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Heynlin-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Heynlin-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Johann-Schoch-Schule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schule am Silahopp Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Maulbronn",
+    "strasse": "Silahopp 9",
+    "plz": "75433",
+    "website": null
+  },
+  {
+    "name": "Willy-Schenk-Grundschule Zaiserweiher",
+    "ort": "Maulbronn",
+    "strasse": "e 28",
+    "plz": "75433",
+    "website": null
+  },
+  {
+    "name": "Heckengäuschule Grund- und Werkrealschule Wiernheim Außenstelle Werkrealschule Mönsheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Appenbergschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Lienzingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Ulrich-von-Dürrmenz-Grund- und Werkrealschule Mühlacker",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Heidenwäldle-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Hartfeldschule Enzberg Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Wendler-Grundschule Lomersheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Grossglattbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Arnbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schlossbergschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Verbandsschule im Biet Grund- und Werkrealschule",
+    "ort": "Neuhausen",
+    "strasse": "e 30",
+    "plz": "75242",
+    "website": null
+  },
+  {
+    "name": "Grundschule Göbrichen",
+    "ort": "Neulingen",
+    "strasse": "e 49/1",
+    "plz": "75245",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Weinbrenner-Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Neulingen",
+    "strasse": "e 10",
+    "plz": "75245",
+    "website": null
+  },
+  {
+    "name": "Astrid-Lindgren-Schule Grundschule Nussbaum",
+    "ort": "Neulingen",
+    "strasse": "e 10",
+    "plz": "75245",
+    "website": null
+  },
+  {
+    "name": "Kirnbachschule Grund- und Werkrealschule Niefern",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Eichelbergschule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kirsten-Boie-Grundschule Dürrn",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Henri-Arnaud-Schule Grundschule",
+    "ort": "Ötisheim",
+    "strasse": "e 2",
+    "plz": "75443",
+    "website": null
+  },
+  {
+    "name": "Bertha-Benz-Schule Grundschule Nöttingen",
+    "ort": "Remchingen",
+    "strasse": "e 25",
+    "plz": "75196",
+    "website": null
+  },
+  {
+    "name": "Bergschule Singen Grund- und Werkrealschule Remchingen",
+    "ort": "Remchingen",
+    "strasse": "e 21",
+    "plz": "75196",
+    "website": null
+  },
+  {
+    "name": "Peter-Härtling-Schule Grundschule Wilferdingen",
+    "ort": "Remchingen",
+    "strasse": "e 12",
+    "plz": "75196",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sternenfels",
+    "ort": "Sternenfels",
+    "strasse": "Langwiesenweg",
+    "plz": "75447",
+    "website": null
+  },
+  {
+    "name": "Freie Schule Diefenbach Grund-, Haupt- und Realschule",
+    "ort": "Sternenfels",
+    "strasse": "e 20",
+    "plz": "75447",
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Ganzhorn-Schule Grund- und Hauptschule mit Werkrealschule Conweiler",
+    "ort": "Straubenhardt",
+    "strasse": "Burgweg 5",
+    "plz": "75334",
+    "website": null
+  },
+  {
+    "name": "Grundschule Feldrennach",
+    "ort": "Straubenhardt",
+    "strasse": "e 3",
+    "plz": "75334",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schwann",
+    "ort": "Straubenhardt",
+    "strasse": "e 64",
+    "plz": "75334",
+    "website": null
+  },
+  {
+    "name": "Grundschule Langenalb",
+    "ort": "Straubenhardt",
+    "strasse": "Auf der Metter 1",
+    "plz": "75334",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ottenhausen",
+    "ort": "Straubenhardt",
+    "strasse": "e 9",
+    "plz": "75334",
+    "website": null
+  },
+  {
+    "name": "Lucas-Moser-Schule Grundschule Tiefenbronn",
+    "ort": "Tiefenbronn",
+    "strasse": "e 9",
+    "plz": "75233",
+    "website": null
+  },
+  {
+    "name": "Heckengäuschule Grund- und Werkrealschule Wiernsheim",
+    "ort": "Wiernsheim",
+    "strasse": "e 40",
+    "plz": "75446",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wimsheim",
+    "ort": "Wimsheim",
+    "strasse": "e 1",
+    "plz": "71299",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wurmberg",
+    "ort": "Wurmberg",
+    "strasse": "e 11",
+    "plz": "75449",
+    "website": null
+  }
+]

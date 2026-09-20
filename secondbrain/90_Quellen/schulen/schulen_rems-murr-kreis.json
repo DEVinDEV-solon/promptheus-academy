@@ -1,0 +1,770 @@
+[
+  {
+    "name": "Staatlich anerkannte Physiotherapeuten- und Massage-Schule e.V.",
+    "typ": "Öffentlich",
+    "strasse": "Fellbacher Straße 115",
+    "plz": "70736",
+    "ort": "Fellbach-Schmiden",
+    "website": "www.do-physio.de"
+  },
+  {
+    "name": "Schiller-Schule Grund- und Hauptschule mit Werkrealschule Bittenfeld",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 41",
+    "plz": "71336",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Birkmannsweiler",
+    "typ": "Öffentlich",
+    "strasse": "Jahnstraße 38",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Schloßgartenschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Obere Schloss-Straße 70",
+    "plz": "73553",
+    "ort": "Alfdorf",
+    "website": null
+  },
+  {
+    "name": "Schule im Lindengarten Grundschule Pfahlbronn",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 17",
+    "plz": "73553",
+    "ort": "Alfdorf",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hellershof",
+    "typ": "Öffentlich",
+    "strasse": "Cronhütteweg 15",
+    "plz": "73553",
+    "ort": "Alfdorf",
+    "website": null
+  },
+  {
+    "name": "Grundschule im Wacholder",
+    "typ": "Öffentlich",
+    "strasse": "Im Wacholder 59",
+    "plz": "71573",
+    "ort": "Allmersbach im Tal",
+    "website": null
+  },
+  {
+    "name": "Anna-Haag-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 15",
+    "plz": "71566",
+    "ort": "Althütte",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sechselberg",
+    "typ": "Öffentlich",
+    "strasse": "Murrhardter Straße 4",
+    "plz": "71566",
+    "ort": "Althütte",
+    "website": null
+  },
+  {
+    "name": "Grundschule Allmersbach am Weinberg",
+    "typ": "Öffentlich",
+    "strasse": "Weinstraße 39",
+    "plz": "71546",
+    "ort": "Aspach",
+    "website": null
+  },
+  {
+    "name": "Conrad-Weiser-Schule Grund- und Hauptschule Aspach",
+    "typ": "Öffentlich",
+    "strasse": "Hermann-Schadt-Straße 17",
+    "plz": "71546",
+    "ort": "Aspach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kleinaspach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 8",
+    "plz": "71546",
+    "ort": "Aspach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rietenau",
+    "typ": "Öffentlich",
+    "strasse": "August-Lämmle-Straße 46",
+    "plz": "71546",
+    "ort": "Aspach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Lippoldsweiler",
+    "typ": "Öffentlich",
+    "strasse": "Ammerweg 8",
+    "plz": "71549",
+    "ort": "Auenwald",
+    "website": null
+  },
+  {
+    "name": "Grundschule Auenwald-Unterbrüden/Oberbrüden",
+    "typ": "Öffentlich",
+    "strasse": "Beaurepaire Straße 3",
+    "plz": "71549",
+    "ort": "Auenwald",
+    "website": null
+  },
+  {
+    "name": "Grundschule Auenwald-Unterbrüden/Oberbrüden Außenstelle Oberbrüden",
+    "typ": "Öffentlich",
+    "strasse": "Bruckwiesen 20",
+    "plz": "71549",
+    "ort": "Auenwald",
+    "website": null
+  },
+  {
+    "name": "Mörikeschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Richard-Wagner-Straße 9",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule in der Taus",
+    "typ": "Öffentlich",
+    "strasse": "Seelacher Weg 40",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Talschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Bietigheimer Straße 50",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Plaisir-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Berliner Ring 18",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sachsenweiler",
+    "typ": "Öffentlich",
+    "strasse": "Waldstraße 16",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Grundschule Maubach",
+    "typ": "Öffentlich",
+    "strasse": "Stubener Weg 1",
+    "plz": "71522",
+    "ort": "Backnang",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsschule in den Berglen Grund- und Hauptschule Oppelsbohm",
+    "typ": "Öffentlich",
+    "strasse": "Stockwiesen 1",
+    "plz": "73663",
+    "ort": "Berglen",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsschule in den Berglen Grund- und Hauptschule Oppelsbach Außenstelle Grundschule Hössli",
+    "typ": "Öffentlich",
+    "strasse": "Ameisenstraße 10",
+    "plz": "73663",
+    "ort": "Berglen",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsschule in den Berglen Grund- und Haupsschule Oppelsbach Außenstelle Grundschule Steina",
+    "typ": "Öffentlich",
+    "strasse": "Erlenstraße 7",
+    "plz": "73663",
+    "ort": "Berglen",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsgrundschule Buhlbronn-Vorderweissbuch",
+    "typ": "Öffentlich",
+    "strasse": "Tribergstraße 7",
+    "plz": "73663",
+    "ort": "Berglen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Burgstetten",
+    "typ": "Öffentlich",
+    "strasse": "Marbacher Straße 58",
+    "plz": "71576",
+    "ort": "Burgstetten",
+    "website": null
+  },
+  {
+    "name": "Grundschule Burgstetten Außenstelle Erbstetten",
+    "typ": "Öffentlich",
+    "strasse": "Obere Dorfstraße 2",
+    "plz": "71576",
+    "ort": "Burgstetten",
+    "website": null
+  },
+  {
+    "name": "Maicklerschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Maicklerstraße 30",
+    "plz": "70736",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "Zeppelinschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Thomas-Mann-Straße 51",
+    "plz": "70734",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Öffingen",
+    "typ": "Öffentlich",
+    "strasse": "Rilkestraße 3",
+    "plz": "70736",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund- und Werkrealschule Schmiden",
+    "typ": "Öffentlich",
+    "strasse": "Talstraße 4",
+    "plz": "70736",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "Anne-Frank-Schule Grundschule Schmiden",
+    "typ": "Öffentlich",
+    "strasse": "Käthe-Kollwitz-Straße 17",
+    "plz": "70736",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "SIS-Swiss-International School Fellbach Grundschule und Gymnasium",
+    "typ": "Privat",
+    "strasse": "Schmidener Weg 7/1",
+    "plz": "70736",
+    "ort": "Fellbach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Grosserlach",
+    "typ": "Öffentlich",
+    "strasse": "Liemersbacher Straße 10",
+    "plz": "71577",
+    "ort": "Grosserlach",
+    "website": null
+  },
+  {
+    "name": "Haldenschule Grundschule Rommelshausen",
+    "typ": "Öffentlich",
+    "strasse": "Haldenstraße 26",
+    "plz": "71394",
+    "ort": "Kernen im Remstal",
+    "website": null
+  },
+  {
+    "name": "Karl-Mauch-Schule Grund- und Hauptschule Stetten",
+    "typ": "Öffentlich",
+    "strasse": "Albert-Moser-Straße 16",
+    "plz": "71394",
+    "ort": "Kernen im Remstal",
+    "website": null
+  },
+  {
+    "name": "Keplerschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Bruckner Straße 10",
+    "plz": "71404",
+    "ort": "Korb",
+    "website": null
+  },
+  {
+    "name": "Urbanschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Urbanstraße 5",
+    "plz": "71404",
+    "ort": "Korb",
+    "website": null
+  },
+  {
+    "name": "Urbanschule Grundschule Korb Außenstelle Kleinheppach",
+    "typ": "Öffentlich",
+    "strasse": "Endersbacher Straße 42",
+    "plz": "71404",
+    "ort": "Korb",
+    "website": null
+  },
+  {
+    "name": "Grundschule Nellmersbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 12",
+    "plz": "71397",
+    "ort": "Leutenbach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weiler zum Stein",
+    "typ": "Öffentlich",
+    "strasse": "Fröbelstraße 23",
+    "plz": "71397",
+    "ort": "Leutenbach",
+    "website": null
+  },
+  {
+    "name": "Hörschbachschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Berliner Straße 3",
+    "plz": "71540",
+    "ort": "Murrhardt",
+    "website": null
+  },
+  {
+    "name": "Walterichschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Nägelestraße 17",
+    "plz": "71540",
+    "ort": "Murrhardt",
+    "website": null
+  },
+  {
+    "name": "Grundschule Fornsbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 3",
+    "plz": "71540",
+    "ort": "Murrhardt",
+    "website": null
+  },
+  {
+    "name": "Daniel-Schule Anerkannte Grundschule und genehmigte Realschule",
+    "typ": "Privat",
+    "strasse": "Fornsbacherstraße 121",
+    "plz": "71540",
+    "ort": "Murrhardt",
+    "website": null
+  },
+  {
+    "name": "Murrtal-Schule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Wilhelmsheimer Straße 8 – 10",
+    "plz": "71570",
+    "ort": "Oppenweiler",
+    "website": null
+  },
+  {
+    "name": "Hohbergschule Plüderhausen Grund-, Haupt- und Realschule",
+    "typ": "Öffentlich",
+    "strasse": "Kantstraße 30+32",
+    "plz": "73655",
+    "ort": "Plüderhausen",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Geradstetten",
+    "typ": "Öffentlich",
+    "strasse": "Friedensstraße 28",
+    "plz": "73630",
+    "ort": "Remshalden",
+    "website": null
+  },
+  {
+    "name": "Grundschule Grunbach",
+    "typ": "Öffentlich",
+    "strasse": "Lehenstraße 17",
+    "plz": "73630",
+    "ort": "Remshalden",
+    "website": null
+  },
+  {
+    "name": "Schulzentrum Rudersberg Grund-, Werkreal- und Realschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 49",
+    "plz": "73635",
+    "ort": "Rudersberg",
+    "website": null
+  },
+  {
+    "name": "August-Lämmle-Schule Grundschule Steinenberg",
+    "typ": "Öffentlich",
+    "strasse": "Lenzweg 13",
+    "plz": "73635",
+    "ort": "Rudersberg",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schlechtbach",
+    "typ": "Öffentlich",
+    "strasse": "Pappelweg 10",
+    "plz": "73635",
+    "ort": "Rudersberg",
+    "website": null
+  },
+  {
+    "name": "Nachbarschaftsgrundschule Buhlbronn-Vorderweissbuch Außenstelle Schorndorf",
+    "typ": "Öffentlich",
+    "strasse": "Tannenwaldstraße",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grund- und Hauptschule mit Werkrealschule Haubersbronn",
+    "typ": "Öffentlich",
+    "strasse": "Bei den Linden 18",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Schurwaldschule Grundschule Oberberken",
+    "typ": "Öffentlich",
+    "strasse": "Wangener Straße 73",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Sommerrainschule Grundschule Schornbach",
+    "typ": "Öffentlich",
+    "strasse": "Sommerrain 3",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Fuchshofschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Silcherstraße 91 – 95",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Keplerschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Rainbrunnenstraße 22",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Künkelinschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schlichtener Straße 22",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Karl-Friedrich-Reinhard-Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Rehhaldenweg 6",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Schlosswallschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Archivstraße 14",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Grundschule Miedelsbach",
+    "typ": "Öffentlich",
+    "strasse": "Eichendorffstraße 16",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Reinhold-Maier-Schule Grundschule Weiler",
+    "typ": "Öffentlich",
+    "strasse": "Kärntner Straße 1",
+    "plz": "73614",
+    "ort": "Schorndorf",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Außenstelle Grundschule Eichendorffschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 7",
+    "plz": "71409",
+    "ort": "Schwaikheim",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Sulzbach",
+    "typ": "Öffentlich",
+    "strasse": "Jahnstraße 13",
+    "plz": "71560",
+    "ort": "Sulzbach an der Murr",
+    "website": null
+  },
+  {
+    "name": "Atriumschule Urbach Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Lerchenstraße 37",
+    "plz": "73660",
+    "ort": "Urbach",
+    "website": null
+  },
+  {
+    "name": "Wittumschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Wittumstraße 17",
+    "plz": "73660",
+    "ort": "Urbach",
+    "website": null
+  },
+  {
+    "name": "Salierschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Im Sämann 76",
+    "plz": "71334",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Rinnenäckerschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Danziger Platz 21",
+    "plz": "71332",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Wolfgang-Zacher-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Röntgenweg 1 – 7",
+    "plz": "71332",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Beinstein",
+    "typ": "Öffentlich",
+    "strasse": "Bei der Schule 17",
+    "plz": "71334",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Burgschule Grundschule Hegnach",
+    "typ": "Öffentlich",
+    "strasse": "An der Burgschule 6",
+    "plz": "71334",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Lindenschule Hohenacker Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Rechbergstraße 27",
+    "plz": "71336",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Friedensschule Grund-, Werkreal- und Realschule Neustadt",
+    "typ": "Öffentlich",
+    "strasse": "Ringstraße 34",
+    "plz": "71336",
+    "ort": "Waiblingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Beutelsbach",
+    "typ": "Öffentlich",
+    "strasse": "Kellereistraße 6",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Erich-Kästner-Schule Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Pestalozzistraße 34",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Silcherschule Grundschule Endersbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 24",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Grundschule Strümpfelbach",
+    "typ": "Öffentlich",
+    "strasse": "Hindenburgstraße 15",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Schiller-Grundschule Grossheppach",
+    "typ": "Öffentlich",
+    "strasse": "Zügernbergstraße 35",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schnait",
+    "typ": "Öffentlich",
+    "strasse": "Beethovenstraße 12",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Christlicheschule Unteres Remstal Private Grundschule",
+    "typ": "Privat",
+    "strasse": "Heinkelstraße 39",
+    "plz": "71384",
+    "ort": "Weinstadt",
+    "website": null
+  },
+  {
+    "name": "Schule an der Weissach Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Kelterweg 16",
+    "plz": "71554",
+    "ort": "Weissach im Tal",
+    "website": null
+  },
+  {
+    "name": "Bildungszentrum Weissacher Tal Werkreal-, Realschule und Gymnasium",
+    "typ": "Öffentlich",
+    "strasse": "Place de Marly 1",
+    "plz": "71554",
+    "ort": "Weissach im Tal",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberweissach",
+    "typ": "Öffentlich",
+    "strasse": "Kammerhofweg 25",
+    "plz": "71554",
+    "ort": "Weissach im Tal",
+    "website": null
+  },
+  {
+    "name": "Bürgfeldschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Helmut-Glock-Straße 17",
+    "plz": "73642",
+    "ort": "Welzheim",
+    "website": null
+  },
+  {
+    "name": "Hofgarten-Grundschule Welzheim",
+    "typ": "Öffentlich",
+    "strasse": "Lindenstraße 5",
+    "plz": "73642",
+    "ort": "Welzheim",
+    "website": null
+  },
+  {
+    "name": "Kastenschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Bahnhofstraße 43",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schelmenholz",
+    "typ": "Öffentlich",
+    "strasse": "Steinhäusle 43",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Stöckachschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Ringstraße 126",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Grundschule Breuningsweiler",
+    "typ": "Öffentlich",
+    "strasse": "Quellenstraße 5",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hertmannsweiler",
+    "typ": "Öffentlich",
+    "strasse": "Im Lerchenberg 1",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Höfen",
+    "typ": "Öffentlich",
+    "strasse": "Bürger Straße 38",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Robert-Boehringer-Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Albertviller Straße 26",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Hungerberg-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Hungerbergstraße 93",
+    "plz": "71364",
+    "ort": "Winnenden",
+    "website": null
+  },
+  {
+    "name": "Lehenbach-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "73650",
+    "ort": "Winterbach",
+    "website": null
+  }
+]

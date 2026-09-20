@@ -1,0 +1,594 @@
+[
+  {
+    "name": "Kepler-Gymnasium Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Keplerstraße 1",
+    "plz": "72074",
+    "typ": "Gymnasium",
+    "website": "https://www.kepler-gymnasium-tuebingen.de/"
+  },
+  {
+    "name": "Uhland-Gymnasium Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Uhlandstraße 24",
+    "plz": "72072",
+    "typ": "Gymnasium",
+    "website": "https://www.uhland-gymnasium.org/"
+  },
+  {
+    "name": "Wildermuth-Gymnasium Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Derendinger Straße 46",
+    "plz": "72072",
+    "typ": "Gymnasium",
+    "website": "https://www.wildermuth-gymnasium.de/"
+  },
+  {
+    "name": "Carlo-Schmid-Gymnasium Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Primus-Truber-Straße 37",
+    "plz": "72072",
+    "typ": "Gymnasium",
+    "website": "https://www.csg-tuebingen.de/"
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Berliner Ring 33",
+    "plz": "72076",
+    "typ": "Gymnasium/Gemeinschaftsschule",
+    "website": "https://www.gss-tuebingen.de/"
+  },
+  {
+    "name": "Hans-Küng-Gemeinschaftsschule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Gemeinschaftsschule mit gymnasialer Oberstufe",
+    "plz": "",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.hanskueng-schule.de/"
+  },
+  {
+    "name": "Französische Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Galgenbergstraße 86",
+    "plz": "72072",
+    "typ": "Gemeinschaftsschule/Grundschule",
+    "website": "https://www.franzoesische-schule-tuebingen.de/"
+  },
+  {
+    "name": "Grundschule Im Aischbach",
+    "ort": "Tübingen",
+    "strasse": "Sindelfinger Straße 1",
+    "plz": "72070",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-im-aischbach.de/"
+  },
+  {
+    "name": "Silcherschule Grundschule Innenstadt",
+    "ort": "Tübingen",
+    "strasse": "Seelhausgasse 31",
+    "plz": "72070",
+    "typ": "Grundschule",
+    "website": "https://www.silcherschule-tuebingen.de/"
+  },
+  {
+    "name": "Grundschule auf der Wanne",
+    "ort": "Tübingen",
+    "strasse": "Eduard-Spranger-Straße 69",
+    "plz": "72076",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-wanne.de/"
+  },
+  {
+    "name": "Grundschule Winkelwiese Waldhäuser Ost",
+    "ort": "Tübingen",
+    "strasse": "Weißdornweg 22",
+    "plz": "72076",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-winkelwiese.de/"
+  },
+  {
+    "name": "Uhlandschule Grundschule Bühl",
+    "ort": "Tübingen",
+    "strasse": "Sengentalstraße 16",
+    "plz": "72072",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Hagelloch",
+    "ort": "Tübingen",
+    "strasse": "Viehtorstraße 20",
+    "plz": "72070",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Uhlandschule Grundschule Hirschau",
+    "ort": "Tübingen",
+    "strasse": "Schulstraße 28",
+    "plz": "72070",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Charlottenschule Grundschule Kilchberg",
+    "ort": "Tübingen",
+    "strasse": "Rammertstraße 27",
+    "plz": "72072",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Dorfackerschule Grundschule Lustnau",
+    "ort": "Tübingen",
+    "strasse": "Neuhaldenstraße 2",
+    "plz": "72074",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Pfrondorf",
+    "ort": "Tübingen",
+    "strasse": "Kohlplattenweg 49",
+    "plz": "72074",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Unterjesingen",
+    "ort": "Tübingen",
+    "strasse": "Am Baylerberg 12",
+    "plz": "72070",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Weilheim",
+    "ort": "Tübingen",
+    "strasse": "Wilonstraße 41",
+    "plz": "72072",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule an der Hügelstraße",
+    "ort": "Tübingen",
+    "strasse": "Hügelstraße 17–19",
+    "plz": "72072",
+    "typ": "Grundschule",
+    "website": "https://www.gs-huegelstrasse.de/"
+  },
+  {
+    "name": "Grundschule am Hechinger Eck",
+    "ort": "Tübingen",
+    "strasse": "Schickhardstraße 11",
+    "plz": "72072",
+    "typ": "Grundschule",
+    "website": "https://www.gsh-tuebingen.de/"
+  },
+  {
+    "name": "Mörike-Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Primus-Truber-Straße 27",
+    "plz": "72072",
+    "typ": "Werkrealschule",
+    "website": "https://www.moerike-schule-tuebingen.de/"
+  },
+  {
+    "name": "Tübinger Freie Waldorfschule",
+    "ort": "Tübingen",
+    "strasse": "Rotdornweg 30",
+    "plz": "72076",
+    "typ": "Waldorfschule",
+    "website": "https://www.waldorfschule-tuebingen.de/"
+  },
+  {
+    "name": "Freie Aktive Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Schwärzlocher Täle 3",
+    "plz": "72070",
+    "typ": "Freie Schule (Grund-/Haupt- und Werkrealschule)",
+    "website": "https://www.aktive-schule.de/"
+  },
+  {
+    "name": "Gewerbliche Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Raichbergstraße 81–83",
+    "plz": "72072",
+    "typ": "Berufliche Schule (gewerblich)",
+    "website": "https://www.gs-tuebingen.de/"
+  },
+  {
+    "name": "Wilhelm-Schickard-Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Kaufmännische Schule",
+    "plz": "72072",
+    "typ": "Berufliche Schule (kaufmännisch)",
+    "website": "https://www.wss-tuebingen.de/"
+  },
+  {
+    "name": "Mathilde-Weber-Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Hauswirtschaftliche Schule",
+    "plz": "72072",
+    "typ": "Berufliche Schule (hauswirtschaftlich)",
+    "website": "https://www.mathilde-weber-schule.de/"
+  },
+  {
+    "name": "IB Berufliche Schule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "Eugenstraße 71",
+    "plz": "72072",
+    "typ": "Berufliche Schule (privat)",
+    "website": "https://tuebingen.ib-schulen.de/"
+  },
+  {
+    "name": "Kirnbachschule Tübingen",
+    "ort": "Tübingen",
+    "strasse": "SBBZ – Förderschwerpunkt Geistige Entwicklung",
+    "plz": "",
+    "typ": "SBBZ",
+    "website": "https://www.kirnbachschule.de/"
+  },
+  {
+    "name": "Eugen-Bolz-Gymnasium Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Zeppelinstraße 2",
+    "plz": "72108",
+    "typ": "Gymnasium",
+    "website": "https://www.ebg-rottenburg.de/"
+  },
+  {
+    "name": "Paul-Klee-Gymnasium Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Gymnasium",
+    "plz": "72108",
+    "typ": "Gymnasium",
+    "website": "https://www.paul-klee-gymnasium.de/"
+  },
+  {
+    "name": "St. Meinrad Gymnasium Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Eugenstraße 57",
+    "plz": "72108",
+    "typ": "Gymnasium (katholische Freie Schule)",
+    "website": "https://www.st-meinrad-gymnasium.de/"
+  },
+  {
+    "name": "Gymnasium St. Klara Rottenburg am Neckar (Mädchen-Progymnasium, Wirtschafts- und Sozialwissenschaftliches Gymnasium)",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Kloster",
+    "plz": "72108",
+    "typ": "Gymnasium (katholische Freie Schule)",
+    "website": "https://www.st-klara-rottenburg.de/"
+  },
+  {
+    "name": "Realschule im Kreuzerfeld Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Realschule",
+    "plz": "72108",
+    "typ": "Realschule",
+    "website": "https://www.rs-kreuzerfeld.de/"
+  },
+  {
+    "name": "Josef-Eberle-Schule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Verbundschule (Werkreal- und Realschule)",
+    "plz": "72108",
+    "typ": "Verbundschule (Werkreal-/Realschule)",
+    "website": "https://www.josef-eberle-schule.de/"
+  },
+  {
+    "name": "Mädchenrealschule St. Klara Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Realschule",
+    "plz": "72108",
+    "typ": "Realschule (katholische Freie Schule)",
+    "website": "https://www.st-klara-rottenburg.de/"
+  },
+  {
+    "name": "Gemeinschaftsschule im Gäu Ergenzingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Kornstraße",
+    "plz": "72108",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.gms-im-gaeu.de/"
+  },
+  {
+    "name": "Carl-Joseph-Leiprecht-Schule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Weggentalstraße 85",
+    "plz": "72108",
+    "typ": "Gemeinschaftsschule (katholische freie Grund- und Gemeinschaftsschule)",
+    "website": "https://www.cjls-rottenburg.de/"
+  },
+  {
+    "name": "Hohenbergschule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Jahnstraße 25–27",
+    "plz": "72108",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.hohenbergschule-rottenburg.de/"
+  },
+  {
+    "name": "Grundschule im Kreuzerfeld Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Gelber Kreidebusen 43",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-kreuzerfeld.de/"
+  },
+  {
+    "name": "Grundschule Bad Niedernau",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Marienbergstraße 9",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Baisingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Kaiserstraße 6",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Dettingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Pfarrer-Uhl-Straße 11",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Außenstelle Hemmendorf der Grundschule Dettingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Johanniterstraße 3",
+    "plz": "72108",
+    "typ": "Grundschule (Außenstelle)",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Ergenzingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Kornstraße 25",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Sophie-Scholl-Schule Hailfingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Hadolfingerstraße 2",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Kiebingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Vorstadtstraße 31",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Oberndorf",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Eduard-Spranger-Straße 17",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Schwalldorf-Frommenhausen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Schützenstraße 15",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Seebronn",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Achalmstraße 20",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Wendelsheim",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Steinbruchstraße 20",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Uhlandschule Wurmlingen",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Hegelstraße 17–21",
+    "plz": "72108",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Berufliche Schule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "Eugen-Semle-Straße 9",
+    "plz": "72108",
+    "typ": "Berufliche Schule",
+    "website": "https://www.bs-rottenburg.de/"
+  },
+  {
+    "name": "Lindenschule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "SBBZ – Förderschwerpunkt Geistige Entwicklung",
+    "plz": "72108",
+    "typ": "SBBZ",
+    "website": "https://www.lindenschule-rottenburg.de/"
+  },
+  {
+    "name": "Weggentalschule Rottenburg am Neckar",
+    "ort": "Rottenburg am Neckar",
+    "strasse": "SBBZ – Förderschwerpunkt Lernen",
+    "plz": "72108",
+    "typ": "SBBZ",
+    "website": "https://www.weggentalschule.de/"
+  },
+  {
+    "name": "Quenstedt-Gymnasium Mössingen",
+    "ort": "Mössingen",
+    "strasse": "Gymnasium",
+    "plz": "72116",
+    "typ": "Gymnasium",
+    "website": "https://www.qg-moessingen.de/"
+  },
+  {
+    "name": "Gottlieb-Rühle-Schule Mössingen",
+    "ort": "Mössingen",
+    "strasse": "Goethestraße 13",
+    "plz": "72116",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.gottlieb-ruehle-schule.de/"
+  },
+  {
+    "name": "Bästenhardt-Schule Mössingen",
+    "ort": "Mössingen",
+    "strasse": "Hallstattstraße 32",
+    "plz": "72116",
+    "typ": "Grund- und Hauptschule mit Werkrealschule",
+    "website": "https://www.baestenhardt-schule.de/"
+  },
+  {
+    "name": "Filsenbergschule Öschingen",
+    "ort": "Mössingen",
+    "strasse": "Dürerstraße 11",
+    "plz": "72116",
+    "typ": "Grund- und Hauptschule",
+    "website": ""
+  },
+  {
+    "name": "Andeckschule Talheim",
+    "ort": "Mössingen",
+    "strasse": "Beethovenstraße 13",
+    "plz": "72116",
+    "typ": "Grund- und Hauptschule",
+    "website": ""
+  },
+  {
+    "name": "Evangelische Grundschule am Firstwald",
+    "ort": "Mössingen",
+    "strasse": "Firstwaldstraße 44",
+    "plz": "72116",
+    "typ": "Grundschule (privat)",
+    "website": "https://www.ev-grundschule-moessingen.de/"
+  },
+  {
+    "name": "Drei-Fürstenstein-Schule Mössingen",
+    "ort": "Mössingen",
+    "strasse": "Im Rosenbenz 20",
+    "plz": "72116",
+    "typ": "Grundschule (privat)",
+    "website": ""
+  },
+  {
+    "name": "Schloß-Schule Gomaringen",
+    "ort": "Gomaringen",
+    "strasse": "Pestalozzistraße 7",
+    "plz": "72810",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.schloss-schule-gomaringen.de/"
+  },
+  {
+    "name": "Grund- und Werkrealschule Altingen",
+    "ort": "Ammerbuch",
+    "strasse": "Schulstraße 14",
+    "plz": "72119",
+    "typ": "Grund- und Werkrealschule",
+    "website": ""
+  },
+  {
+    "name": "Grund- und Hauptschule Entringen",
+    "ort": "Ammerbuch",
+    "strasse": "Heinrich-Zeller-Straße 7",
+    "plz": "72119",
+    "typ": "Grund- und Hauptschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Breitenholz (Außenstelle Entringen)",
+    "ort": "Ammerbuch",
+    "strasse": "Bei der Linde",
+    "plz": "72119",
+    "typ": "Grundschule (Außenstelle)",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Pfäffingen",
+    "ort": "Ammerbuch",
+    "strasse": "Michaelstraße 15",
+    "plz": "72119",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Poltringen",
+    "ort": "Ammerbuch",
+    "strasse": "Aiblestraße 15",
+    "plz": "72119",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Härtenschule Grundschule Mähringen",
+    "ort": "Kusterdingen",
+    "strasse": "Wankheimer Straße 10",
+    "plz": "72127",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Schönbuchschule Dettenhausen",
+    "ort": "Dettenhausen",
+    "strasse": "Karlstraße 1",
+    "plz": "72135",
+    "typ": "Grund- und Hauptschule",
+    "website": "https://www.schoenbuchschule-dettenhausen.de/"
+  },
+  {
+    "name": "Anne-Frank-Schule Dusslingen",
+    "ort": "Dusslingen",
+    "strasse": "Im Kugelwörth 3",
+    "plz": "72144",
+    "typ": "Grund- und Hauptschule mit Werkrealschule",
+    "website": "https://www.afs-dusslingen.de/"
+  },
+  {
+    "name": "Graf-Eberhard-Schule Kirchentellinsfurt",
+    "ort": "Kirchentellinsfurt",
+    "strasse": "Kirchfeldstraße 15",
+    "plz": "72138",
+    "typ": "Grund-, Werkreal- und Realschule",
+    "website": "https://www.ges-kirchentellinsfurt.de/"
+  },
+  {
+    "name": "Grundschule Neustetten",
+    "ort": "Neustetten",
+    "strasse": "Hauptstraße 102",
+    "plz": "72149",
+    "typ": "Grundschule",
+    "website": ""
+  },
+  {
+    "name": "Grundschule Neustetten, Außenstelle Wolfenhausen",
+    "ort": "Neustetten",
+    "strasse": "Schulstraße 4",
+    "plz": "72149",
+    "typ": "Grundschule (Außenstelle)",
+    "website": ""
+  }
+]

@@ -1,0 +1,359 @@
+[
+  {
+    "name": "Haupt- und Realschule",
+    "ort": "Blaufelden",
+    "strasse": "e 30",
+    "plz": "74572",
+    "website": null
+  },
+  {
+    "name": "Grundschule Brettheim Außenstelle Gammesfeld",
+    "ort": "Blaufelden",
+    "strasse": "e 13 A",
+    "plz": "74572",
+    "website": null
+  },
+  {
+    "name": "Grundschule Braunsbach",
+    "ort": "Braunsbach",
+    "strasse": "e 16",
+    "plz": "74542",
+    "website": null
+  },
+  {
+    "name": "Grund- und Nachbarschafts- Haupt- mit Werkrealschule und Realschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Bühlerzell-Geifertshofen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Eichendorffschule Grund- und Werkrealschule Außenstelle Grundschule Rossfeld",
+    "ort": "Crailsheim",
+    "strasse": "e 4",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Leonhard-Sachs-Schule Grund- und Werkrealschule",
+    "ort": "Crailsheim",
+    "strasse": "e 28",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Grundschule Altenmünster",
+    "ort": "Crailsheim",
+    "strasse": "Schulplatz 1",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Grundschule Altenmünster Außenstelle Onolzheim",
+    "ort": "Crailsheim",
+    "strasse": "e 4",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Grundschule Crailsheim",
+    "ort": "Crailsheim",
+    "strasse": "e 50",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Grundschule Crailsheim Außenstelle Grundschule Jagstheim",
+    "ort": "Crailsheim",
+    "strasse": "e 157",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Reussenbergschule Grundschule Tiefenbach",
+    "ort": "Crailsheim",
+    "strasse": "e 7",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Astrid-Lindgren-Schule Grundschule Kreuzberg",
+    "ort": "Crailsheim",
+    "strasse": "e 75",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Freie Akademie Albertus Magnus Crailsheim offene Ganztagesgrundschule und Gymnasium",
+    "ort": "Crailsheim",
+    "strasse": "Zollernweg 10",
+    "plz": "74564",
+    "website": null
+  },
+  {
+    "name": "Christoph-von-Pfeil-Schule Grund- und Hauptschule",
+    "ort": "Fichtenau",
+    "strasse": "Christoph-von-Pfeil-Weg 5",
+    "plz": "74579",
+    "website": null
+  },
+  {
+    "name": "Grundschule Frankenhardt",
+    "ort": "Frankenhardt",
+    "strasse": "Schulweg 6",
+    "plz": "74586",
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Honhardt",
+    "ort": "Frankenhardt",
+    "strasse": "e 5",
+    "plz": "74586",
+    "website": null
+  },
+  {
+    "name": "Parkschule Grund- und Werkrealschule",
+    "ort": "Gaildorf",
+    "strasse": "e 26",
+    "plz": "74405",
+    "website": null
+  },
+  {
+    "name": "Bühläckerschule Grundschule Unterrot",
+    "ort": "Gaildorf",
+    "strasse": "e 14",
+    "plz": "74405",
+    "website": null
+  },
+  {
+    "name": "Grundschule Eutendorf-Ottendorf",
+    "ort": "Gaildorf",
+    "strasse": "Auf dem Hohbühl 2",
+    "plz": "74405",
+    "website": null
+  },
+  {
+    "name": "Grundschule Eutendorf-Ottendorf Außenstelle Ottendorf",
+    "ort": "Gaildorf",
+    "strasse": "e 9",
+    "plz": "74405",
+    "website": null
+  },
+  {
+    "name": "Hermann-Merz-Schule Grund-, Werkreal- und Realschule",
+    "ort": "Ilshofen",
+    "strasse": "e 25",
+    "plz": "74532",
+    "website": null
+  },
+  {
+    "name": "Schmerachschule Grundschule",
+    "ort": "Ilshofen",
+    "strasse": "e 20",
+    "plz": "74532",
+    "website": null
+  },
+  {
+    "name": "Schmerachschule Grundschule Außenstelle Oberaspach",
+    "ort": "Ilshofen",
+    "strasse": "Lindenweg 4",
+    "plz": "74532",
+    "website": null
+  },
+  {
+    "name": "August-Ludwig-Schlözer Grund-, Haupt- und Realschule",
+    "ort": "Kirchberg an der Jagst",
+    "strasse": "e1",
+    "plz": "74592",
+    "website": null
+  },
+  {
+    "name": "August-Ludwig-Schlözer Grund-, Haupt- und Realschule Kirchberg Außenstelle Grundschule Lendsiedel",
+    "ort": "Kirchberg an der Jagst",
+    "strasse": "Alter Schmiedberg 1",
+    "plz": "74592",
+    "website": null
+  },
+  {
+    "name": "Schule am Kressberg Grund- und Werkrealschule",
+    "ort": "Kressberg",
+    "strasse": "In den Weidengärten 3",
+    "plz": "74594",
+    "website": null
+  },
+  {
+    "name": "Grundschule Langenburg",
+    "ort": "Langenburg",
+    "strasse": "e 27",
+    "plz": "74595",
+    "website": null
+  },
+  {
+    "name": "Helmut-Rau-Schule Grund-, Haupt- mit Werkrealschule und Realschule",
+    "ort": "Mainhardt",
+    "strasse": "e 11",
+    "plz": "74535",
+    "website": null
+  },
+  {
+    "name": "Grundschule Michelfeld",
+    "ort": "Michelfeld",
+    "strasse": "e 7",
+    "plz": "74545",
+    "website": null
+  },
+  {
+    "name": "Schenk-Friedrich-Schule Grund- und Hauptschule",
+    "ort": "Obersontheim",
+    "strasse": "e 24",
+    "plz": "74423",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rosengarten",
+    "ort": "Rosengarten",
+    "strasse": "Falkenweg 1",
+    "plz": "74538",
+    "website": null
+  },
+  {
+    "name": "Grundschule Brettheim",
+    "ort": "Rot Am See",
+    "strasse": "e 2",
+    "plz": "74585",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Satteldorf",
+    "ort": "Satteldorf",
+    "strasse": "e 3",
+    "plz": "74589",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Satteldorf Außenstelle Grundschule Gröningen",
+    "ort": "Satteldorf",
+    "strasse": "Oberer Kochbuck 16",
+    "plz": "74589",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "ort": "Schrozberg",
+    "strasse": "e 11",
+    "plz": "74575",
+    "website": null
+  },
+  {
+    "name": "Thomas-Schweicker-Werkrealschule im Schulzentrum West",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule am Langen Graben",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kreuzäcker-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Rollhofschule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Bibersfeld",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Breit-Eich-Grundschule Gottwollshausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Hessental",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Steinbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Sulzdorf",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Schenkensee",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Gailenkirchen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kaspar-Mettmann-Schule Grund- und Hauptschule Stimpfach",
+    "ort": "Stimpfach",
+    "strasse": "e 33",
+    "plz": "74597",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Vellberg Außenstelle Grundschule Grossaltdorf",
+    "ort": "Vellberg",
+    "strasse": "e 13",
+    "plz": "74541",
+    "website": null
+  },
+  {
+    "name": "Julius-Wengert-Schule Grundschule",
+    "ort": "Wallhausen",
+    "strasse": "e 8",
+    "plz": "74599",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wolpertshausen",
+    "ort": "Wolpertshausen",
+    "strasse": "e 27",
+    "plz": "74549",
+    "website": null
+  }
+]

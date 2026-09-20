@@ -1,0 +1,681 @@
+[
+  {
+    "name": "Kocherburgschule Grund-, Werkreal- und Realschule Unterkochen",
+    "ort": "Aalen",
+    "strasse": "Kutschenweg 27",
+    "plz": "73432",
+    "website": null
+  },
+  {
+    "name": "Greutschule Grundschule",
+    "ort": "Aalen",
+    "strasse": "e 14",
+    "plz": "73430",
+    "website": null
+  },
+  {
+    "name": "Greutschule Grundschule Außenstelle Hofacker-Schule",
+    "ort": "Aalen",
+    "strasse": "e 93",
+    "plz": "73430",
+    "website": null
+  },
+  {
+    "name": "Bohlschule Werkrealschule",
+    "ort": "Aalen",
+    "strasse": "e 50",
+    "plz": "73430",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grund- und Werkrealschule",
+    "ort": "Aalen",
+    "strasse": "e 40",
+    "plz": "73431",
+    "website": null
+  },
+  {
+    "name": "Grauleshofschule Grundschule",
+    "ort": "Aalen",
+    "strasse": "e 20",
+    "plz": "73431",
+    "website": null
+  },
+  {
+    "name": "Schwarzfeldschule Grundschule Dewangen",
+    "ort": "Aalen",
+    "strasse": "e 1",
+    "plz": "73434",
+    "website": null
+  },
+  {
+    "name": "Gartenschule Grundschule Ebnat",
+    "ort": "Aalen",
+    "strasse": "e 5",
+    "plz": "73432",
+    "website": null
+  },
+  {
+    "name": "Reinhard-Von-König Schule Grundschule",
+    "ort": "Aalen",
+    "strasse": "47",
+    "plz": "73434",
+    "website": null
+  },
+  {
+    "name": "Hofherrnschule Grund- und Werkrealschule",
+    "ort": "Aalen",
+    "strasse": "e 41",
+    "plz": "73434",
+    "website": null
+  },
+  {
+    "name": "Hofherrnschule Grund- und Werkrealschule Außenstelle Werkrealschule Reinhard-Von-König-Schule",
+    "ort": "Aalen",
+    "strasse": "47",
+    "plz": "73434",
+    "website": null
+  },
+  {
+    "name": "Grundschule Waldhausen",
+    "ort": "Aalen",
+    "strasse": "e 14",
+    "plz": "73432",
+    "website": null
+  },
+  {
+    "name": "Braunenbergschule Grundschule",
+    "ort": "Aalen",
+    "strasse": "e 38",
+    "plz": "73433",
+    "website": null
+  },
+  {
+    "name": "Kappelbergschule Grundschule Hofen",
+    "ort": "Aalen",
+    "strasse": "e 30",
+    "plz": "73433",
+    "website": null
+  },
+  {
+    "name": "Langertschule Grundschule",
+    "ort": "Aalen",
+    "strasse": "e 26",
+    "plz": "73431",
+    "website": null
+  },
+  {
+    "name": "Talschule Grund- und Werkrealschule",
+    "ort": "Aalen",
+    "strasse": "47",
+    "plz": "73433",
+    "website": null
+  },
+  {
+    "name": "Talschule Grund- und Werkrealschule Außenstelle Werkrealschule Braunenbergschule",
+    "ort": "Aalen",
+    "strasse": "e 38",
+    "plz": "73433",
+    "website": null
+  },
+  {
+    "name": "Rombachschule Grundschule Unterrombach",
+    "ort": "Aalen",
+    "strasse": "Fuchsweg 27",
+    "plz": "73434",
+    "website": null
+  },
+  {
+    "name": "Friedrich-von-Keller-Schule Grund-, Werkreal- und Realschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Hohenstadt",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Pommertsweiler",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Untergröningen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Laubenhartschule Grundschule Bartholomä",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schule am Römerkastell Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Werkrealschule",
+    "ort": "Bopfingen",
+    "strasse": "e 39",
+    "plz": "73441",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberdorf",
+    "ort": "Bopfingen",
+    "strasse": "e 2",
+    "plz": "73441",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schlossberg",
+    "ort": "Bopfingen",
+    "strasse": "e 42",
+    "plz": "73441",
+    "website": null
+  },
+  {
+    "name": "Schule am IPF Grundschule",
+    "ort": "Bopfingen",
+    "strasse": "e 15",
+    "plz": "73441",
+    "website": null
+  },
+  {
+    "name": "Christoph-von-Schmid-Schule Grundschule",
+    "ort": "Durlangen",
+    "strasse": "e 42",
+    "plz": "73568",
+    "website": null
+  },
+  {
+    "name": "Buchenbergschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Mittelhofschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kastellschule Grundschule Pfahlheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Rindelbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Johann-Sebastian-von-Drey-Schule Grund- und Hauptschule Röhlingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Neunheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "St.Georgschule Grundschule Schrezheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Klosterfeldschule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Park-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Essingen",
+    "strasse": "Amselweg 18",
+    "plz": "73457",
+    "website": null
+  },
+  {
+    "name": "Heinrich-Prescher-Schule Grund- und Hauptschule",
+    "ort": "Gschwend",
+    "strasse": "Steingasse 15",
+    "plz": "74417",
+    "website": null
+  },
+  {
+    "name": "Grundschule Frickenhofen",
+    "ort": "Gschwend",
+    "strasse": "e 65",
+    "plz": "74417",
+    "website": null
+  },
+  {
+    "name": "Breulingschule Grundschule Lautern",
+    "ort": "Heubach",
+    "strasse": "e 35",
+    "plz": "73540",
+    "website": null
+  },
+  {
+    "name": "Alemannenschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Alemannenschule Grund- und Hauptschule",
+    "ort": "Kirchheim am Ries",
+    "strasse": "e 9",
+    "plz": "73467",
+    "website": null
+  },
+  {
+    "name": "Deutschorden-Schule Grund-, Haupt- und Realschule",
+    "ort": "Lauchheim",
+    "strasse": "e 48",
+    "plz": "73466",
+    "website": null
+  },
+  {
+    "name": "Grundschule Leinzell Werkrealschule Leintal",
+    "ort": "Leinzell",
+    "strasse": "e 6",
+    "plz": "73575",
+    "website": null
+  },
+  {
+    "name": "Stauferschule Grundschule",
+    "ort": "Lorch",
+    "strasse": "e 39",
+    "plz": "73547",
+    "website": null
+  },
+  {
+    "name": "Hauptschule",
+    "ort": "Lorch",
+    "strasse": "Auf dem Schäfersfeld 2",
+    "plz": "73547",
+    "website": null
+  },
+  {
+    "name": "Schule am Römerkastell Grund- und Werkrealschule Böbingen Außenstelle Werkrealschule Mögglingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Limesschule Mögglingen Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Werkrealschule Schwäbischer Wald",
+    "ort": "Mutlangen",
+    "strasse": "e 21/1",
+    "plz": "73557",
+    "website": null
+  },
+  {
+    "name": "Grundschule Mutlangen Außenstelle Schulzentrum",
+    "ort": "Mutlangen",
+    "strasse": "e 23",
+    "plz": "73557",
+    "website": null
+  },
+  {
+    "name": "Härtsfeld-Schule Grund-, Werkreal- und Realschule",
+    "ort": "Neresheim",
+    "strasse": "Dossinger Weg 18",
+    "plz": "73450",
+    "website": null
+  },
+  {
+    "name": "Härtsfeld-Schule Grund-, Werkreal- und Realschule Aussenstelle GS Kösingen",
+    "ort": "Neresheim",
+    "strasse": "Postweg 4",
+    "plz": "73450",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dorfmerkingen",
+    "ort": "Neresheim",
+    "strasse": "e 17",
+    "plz": "73450",
+    "website": null
+  },
+  {
+    "name": "Grundschule Elchingen",
+    "ort": "Neresheim",
+    "strasse": "e 8",
+    "plz": "73450",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ohmenheim",
+    "ort": "Neresheim",
+    "strasse": "Silcherweg 9",
+    "plz": "73450",
+    "website": null
+  },
+  {
+    "name": "Alemannenschule Grund- und Werkrealschule Hüttlingen Außenstelle Werkrealschule Neuler",
+    "ort": "Neuler",
+    "strasse": "e 20",
+    "plz": "73491",
+    "website": null
+  },
+  {
+    "name": "Brühlschule Grundschule",
+    "ort": "Neuler",
+    "strasse": "e 20",
+    "plz": "73491",
+    "website": null
+  },
+  {
+    "name": "Dreissentalschule Grund- und Werkrealschule",
+    "ort": "Oberkochen",
+    "strasse": "e 12",
+    "plz": "73447",
+    "website": null
+  },
+  {
+    "name": "Tiersteinschule Grundschule Oberkochen",
+    "ort": "Oberkochen",
+    "strasse": "Hölderlinweg 15",
+    "plz": "73447",
+    "website": null
+  },
+  {
+    "name": "Propsteischule Grund- und Werkrealschule Westhausen Außenstelle Werkrealschule Rainau",
+    "ort": "Rainau",
+    "strasse": "Strutrain 2",
+    "plz": "73492",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dalkingen",
+    "ort": "Rainau",
+    "strasse": "e 16",
+    "plz": "73492",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schwabsberg",
+    "ort": "Rainau",
+    "strasse": "Strutrain 2",
+    "plz": "73492",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schwabsberg Außenstelle Buch",
+    "ort": "Rainau",
+    "strasse": "e 42",
+    "plz": "73492",
+    "website": null
+  },
+  {
+    "name": "Goldbergschule Pflaumloch Grundschule Riesbürg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Riesbürg Außenstelle Utzmemmingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Karl-Stirner-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Rosenberg",
+    "strasse": "Virngrundweg 7",
+    "plz": "73494",
+    "website": null
+  },
+  {
+    "name": "Zenneck-Grundschule Grundschule",
+    "ort": "Ruppertshofen",
+    "strasse": "e 9",
+    "plz": "73577",
+    "website": null
+  },
+  {
+    "name": "Grundschule Schechingen",
+    "ort": "Schechingen",
+    "strasse": "e 2",
+    "plz": "73579",
+    "website": null
+  },
+  {
+    "name": "Scherr-Grundschule Rechberg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Friedensschule Grund- und Hauptschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Klösterleschule Grundschule Stadtmitte",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Rauchbein-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Stauferschule Grund- und Hauptschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Werkrealschule Bettringen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Scheuelberg-Schule Grund- und Hauptschule Bargau",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Grossdeinbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuss-Schule Grundschule Herlikofen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Mozartschule Grund- und Hauptschule Hussenhofen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Eichenrainschule Grundschule Lindach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Römerschule Grundschule Straßdorf",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Unterm Hohenrechberg Außenstelle Werkrealschule Strassdorf",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Weiler in den Bergen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Hardt",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Domino-Servite-Schule Freie evangelische Schule Lindach Grund-,Haupt- und Realschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Franziskus-Grundschule Katholische Schule in freier Trägerschaft",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Dietrich-Bonhöffer-Grundschule Freie Christliche Schule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Stödtlen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Täferrot",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Sechta-Ries-Schule Werkreal- und Realschule",
+    "ort": "Unterschneidheim",
+    "strasse": "Ziegelhütte 29",
+    "plz": "73485",
+    "website": null
+  },
+  {
+    "name": "Grundschule Zipplingen",
+    "ort": "Unterschneidheim",
+    "strasse": "e 7",
+    "plz": "73485",
+    "website": null
+  },
+  {
+    "name": "Grundschule Zöbingen",
+    "ort": "Unterschneidheim",
+    "strasse": "e 13",
+    "plz": "73485",
+    "website": null
+  },
+  {
+    "name": "Franz-Bühler-Schule Grundschule Unterschneidheim",
+    "ort": "Unterschneidheim",
+    "strasse": "Ziegelhütte 29",
+    "plz": "73485",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule unterm Hohenrechberg",
+    "ort": "Waldstetten",
+    "strasse": "28",
+    "plz": "73550",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wissgoldingen",
+    "ort": "Waldstetten",
+    "strasse": "e 18",
+    "plz": "73550",
+    "website": null
+  },
+  {
+    "name": "Propstei-Schule Grund- und Werkrealschule Westhausen",
+    "ort": "Westhausen",
+    "strasse": "e 4",
+    "plz": "73463",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wört",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  }
+]

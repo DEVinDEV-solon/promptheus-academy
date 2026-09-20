@@ -1,0 +1,922 @@
+[
+  {
+    "name": "Grund- und Hauptschule Frankenbach",
+    "typ": "Öffentlich",
+    "strasse": "Würzburger Straße 38",
+    "plz": "74078",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Dammschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Dammstraße 14",
+    "plz": "74076",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Gerhart-Hauptmann-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Karlstraße 104",
+    "plz": "74076",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Rosenauschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Bergstraße 40",
+    "plz": "74072",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Wartbergschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Stielerstraße 20",
+    "plz": "74076",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Hauff-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Charlottenstraße 62",
+    "plz": "74074",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Fritz-Ulrich-Schule Grund- und Werkrealschule Böckingen",
+    "typ": "Öffentlich",
+    "strasse": "Längelterstraße 105",
+    "plz": "74080",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Grünewaldschule Grundschule Böckingen",
+    "typ": "Öffentlich",
+    "strasse": "Grünewaldstraße 16",
+    "plz": "74080",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Reinöhlschule Grundschule Böckingen",
+    "typ": "Öffentlich",
+    "strasse": "Ludwigsburger Straße 75",
+    "plz": "74080",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Deutschorden-Grundschule Kirchhausen",
+    "typ": "Öffentlich",
+    "strasse": "Gustav-Lohmiller-Straße 4",
+    "plz": "74078",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Grundschule Klingenberg",
+    "typ": "Öffentlich",
+    "strasse": "Sonnenhalde 25",
+    "plz": "74081",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Albrecht-Dürer-Schule Grund- und Werkrealschule Neckargartach",
+    "typ": "Öffentlich",
+    "strasse": "Dürerstraße 1",
+    "plz": "74078",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Albrecht-Dürer-Schule Grund- und Werkrealschule Neckargartach Außenstelle Grundschule Leinbachschule",
+    "typ": "Öffentlich",
+    "strasse": "Frankenbacher Straße",
+    "plz": "74078",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Staufenbergschule Grund- und Werkrealschule Sontheim",
+    "typ": "Öffentlich",
+    "strasse": "Staufenbergstraße 91",
+    "plz": "74081",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Biberach",
+    "typ": "Öffentlich",
+    "strasse": "Bibersteige 9",
+    "plz": "74078",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Grundschule Horkheim",
+    "typ": "Öffentlich",
+    "strasse": "Hohenloher Straße 10",
+    "plz": "74081",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Elly-Heuss-Knapp-Grund- und Werkrealschule Böckingen",
+    "typ": "Öffentlich",
+    "strasse": "Pfaffenhofener Straße 9 – 11",
+    "plz": "74080",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Max-von-Laue-Straße 7 – 9",
+    "plz": "74081",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Ludwig-Pfau-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Herbert-Hoover-Straße 1",
+    "plz": "74074",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Katholisches freies Bildungszentrum St.Kilian-Grund-, Haupt- und Realschule mit Gymnasium",
+    "typ": "Privat",
+    "strasse": "John-F-Kennedy-Straße 21",
+    "plz": "74074",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Advent-Schule Heilbronn Advent. Bekenntnisschule Grundschule",
+    "typ": "Privat",
+    "strasse": "Oststraße 10",
+    "plz": "74072",
+    "ort": "Heilbronn",
+    "website": null
+  },
+  {
+    "name": "Hölderlin-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Charlottenstraße 87",
+    "plz": "74348",
+    "ort": "Lauffen am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hagenbach",
+    "typ": "Öffentlich",
+    "strasse": "Ohrnbergerstraße 4",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Jagstfeld",
+    "typ": "Öffentlich",
+    "strasse": "Hohe Straße 26",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kochendorf",
+    "typ": "Öffentlich",
+    "strasse": "Lindenweg 4",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Höchstberg-Untergriesheim",
+    "typ": "Öffentlich",
+    "strasse": "Austraße 11",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Glück-auf Werkrealschule Bad Friedrichshall",
+    "typ": "Öffentlich",
+    "strasse": "Fahräcker 2",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Duttenberg",
+    "typ": "Öffentlich",
+    "strasse": "Zur Schön 32",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Plattenwald",
+    "typ": "Öffentlich",
+    "strasse": "Am Römerturm 10 und 12",
+    "plz": "74177",
+    "ort": "Bad Friedrichshall",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bonfeld",
+    "typ": "Öffentlich",
+    "strasse": "Biberacher Straße 6",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heinsheim",
+    "typ": "Öffentlich",
+    "strasse": "Schulgasse 12",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Obergimpern",
+    "typ": "Öffentlich",
+    "strasse": "Am Dreschplatz 1 – 3",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Grombach",
+    "typ": "Öffentlich",
+    "strasse": "Ortsstraße 22",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Fürfeld",
+    "typ": "Öffentlich",
+    "strasse": "Sinsheimer Straße 16",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuss-Schule Grundschule Babstadt",
+    "typ": "Öffentlich",
+    "strasse": "Sportplatzweg 4",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "Mühlentalschule Zimmerhof Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Ehrenbergstraße 28",
+    "plz": "74906",
+    "ort": "Bad Rappenau",
+    "website": null
+  },
+  {
+    "name": "L.-Frohnhäuser-Schule Grund- und Hauptschule mit Werkrealschule Bad Wimpfen",
+    "typ": "Öffentlich",
+    "strasse": "Frohnhäuser Straße 11",
+    "plz": "74206",
+    "ort": "Bad Wimpfen",
+    "website": null
+  },
+  {
+    "name": "langhansschule Beilstein Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 14",
+    "plz": "71717",
+    "ort": "Beilstein",
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuss-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Am Schulzentrum 10",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hausen an der Zaber",
+    "typ": "Öffentlich",
+    "strasse": "Schillerstraße 1",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Albert-Hirth-Grundschule Meimsheim",
+    "typ": "Öffentlich",
+    "strasse": "Lindenstraße 32",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Botenheim",
+    "typ": "Öffentlich",
+    "strasse": "Heidestraße 13",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Helmut-Kromik-Grundschule Stockheim",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 11",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dürrenzimmern",
+    "typ": "Öffentlich",
+    "strasse": "Mönchsbergstraße 28",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Neipperg",
+    "typ": "Öffentlich",
+    "strasse": "Friedenstraße 11",
+    "plz": "74336",
+    "ort": "Brackenheim",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Hölderlin-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Botenheimer Weg 15",
+    "plz": "74389",
+    "ort": "Cleebronn",
+    "website": null
+  },
+  {
+    "name": "Grundschule Eberstadt",
+    "typ": "Öffentlich",
+    "strasse": "Lennacher Straße 20",
+    "plz": "74246",
+    "ort": "Eberstadt",
+    "website": null
+  },
+  {
+    "name": "Johann-Dietz-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Binweg 10",
+    "plz": "74248",
+    "ort": "Ellhofen",
+    "website": null
+  },
+  {
+    "name": "Hellbergschule Eppingen Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Berliner Ring 14",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule im Rot",
+    "typ": "Öffentlich",
+    "strasse": "Kaiserstraße 2 – 4",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Elsenz",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kleingartach",
+    "typ": "Öffentlich",
+    "strasse": "Südstraße 2",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Mühlbach",
+    "typ": "Öffentlich",
+    "strasse": "Hauptstraße 9",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rohrbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulpfad 1",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Burgbergschule Richen Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Stebbacher Straße 11",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Adelshofen",
+    "typ": "Öffentlich",
+    "strasse": "Friedrich-Pfeil-Straße 4",
+    "plz": "75031",
+    "ort": "Eppingen",
+    "website": null
+  },
+  {
+    "name": "Kaybergschule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 39",
+    "plz": "74235",
+    "ort": "Erlenbach",
+    "website": null
+  },
+  {
+    "name": "St.Veit-Schule Flein Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 35",
+    "plz": "74223",
+    "ort": "Flein",
+    "website": null
+  },
+  {
+    "name": "Wolf-von-Gemmingen-Schule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Massenbacher Weg 11",
+    "plz": "75050",
+    "ort": "Gemmingen",
+    "website": null
+  },
+  {
+    "name": "Wolf-von-Gemmingen-Schule Grund- und Hauptschule Außenstelle Grundschule Stebbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 9",
+    "plz": "75050",
+    "ort": "Gemmingen",
+    "website": null
+  },
+  {
+    "name": "Katharina-Kepler-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Weinsteige 35",
+    "plz": "74363",
+    "ort": "Güglingen",
+    "website": null
+  },
+  {
+    "name": "Katharina-Kepler-Schule Grund- und Werkrealschule Außenstelle Grundschule Eibensbach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße",
+    "plz": "74363",
+    "ort": "Güglingen",
+    "website": null
+  },
+  {
+    "name": "Horneckschule Grund- und Hauptschule mit Werkrealschule und Realschule",
+    "typ": "Öffentlich",
+    "strasse": "Panoramastraße 22",
+    "plz": "74831",
+    "ort": "Gundelsheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gochsen",
+    "typ": "Öffentlich",
+    "strasse": "Gartenstraße 3",
+    "plz": "74239",
+    "ort": "Hardthausen am Kocher",
+    "website": null
+  },
+  {
+    "name": "Grundschule Lampoldshausen",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "74239",
+    "ort": "Hardthausen am Kocher",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kochersteinsfeld",
+    "typ": "Öffentlich",
+    "strasse": "Bahnhofstraße 12",
+    "plz": "74239",
+    "ort": "Hardthausen am Kocher",
+    "website": null
+  },
+  {
+    "name": "Steinbeis-Schulzentrum Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Bollwerkstraße 9",
+    "plz": "74360",
+    "ort": "Ilsfeld",
+    "website": null
+  },
+  {
+    "name": "Schloßbergschule Grundschule Auenstein",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 35",
+    "plz": "74360",
+    "ort": "Ilsfeld",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ittlingen",
+    "typ": "Öffentlich",
+    "strasse": "Hauptstraße 107",
+    "plz": "74930",
+    "ort": "Ittlingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule am Römerbad",
+    "typ": "Öffentlich",
+    "strasse": "Gartenstraße 24",
+    "plz": "74249",
+    "ort": "Jagsthausen",
+    "website": null
+  },
+  {
+    "name": "Birkenbachschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Goethestraße 3",
+    "plz": "74912",
+    "ort": "Kirchardt",
+    "website": null
+  },
+  {
+    "name": "Birkenbachschule Grund- und Werkrealschule Kirchardt Außenstelle Grundschule Berwangen",
+    "typ": "Öffentlich",
+    "strasse": "Hausener Straße",
+    "plz": "74912",
+    "ort": "Kirchardt",
+    "website": null
+  },
+  {
+    "name": "Grundschule Langenbrettach",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 54",
+    "plz": "74243",
+    "ort": "Langenbrettach",
+    "website": null
+  },
+  {
+    "name": "Grundschule Langenbrettach Außenstelle Brettach",
+    "typ": "Öffentlich",
+    "strasse": "Brennofenstraße 32",
+    "plz": "74243",
+    "ort": "Langenbrettach",
+    "website": null
+  },
+  {
+    "name": "Herzog-Ulrich-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Ludwigstraße 1",
+    "plz": "74348",
+    "ort": "Lauffen am Neckar",
+    "website": null
+  },
+  {
+    "name": "Hölderlin-Schule Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Herdegenstraße 15",
+    "plz": "74348",
+    "ort": "Lauffen am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Lehrensteinsfeld",
+    "typ": "Öffentlich",
+    "strasse": "Carl-Dietzsch-Straße 28",
+    "plz": "74251",
+    "ort": "Lehrensteinsfeld",
+    "website": null
+  },
+  {
+    "name": "Eichbottschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schwaigerner Straße 78",
+    "plz": "74211",
+    "ort": "Leingarten",
+    "website": null
+  },
+  {
+    "name": "Hans-Sauter-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Friedrichstraße 1",
+    "plz": "74211",
+    "ort": "Leingarten",
+    "website": null
+  },
+  {
+    "name": "Manfred-Kyber-Grundschule Löwenstein",
+    "typ": "Öffentlich",
+    "strasse": "Lustgarten 1",
+    "plz": "74245",
+    "ort": "Löwenstein",
+    "website": null
+  },
+  {
+    "name": "Lindenhofschule Grundschule Massenbachhausen",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 30",
+    "plz": "74252",
+    "ort": "Massenbachhausen",
+    "website": null
+  },
+  {
+    "name": "Werkrealschule im Schulzentrum",
+    "typ": "Öffentlich",
+    "strasse": "Schubertstraße 11",
+    "plz": "74219",
+    "ort": "Möckmühl",
+    "website": null
+  },
+  {
+    "name": "Grundschule Züttlingen",
+    "typ": "Öffentlich",
+    "strasse": "Jahnstraße 5",
+    "plz": "74219",
+    "ort": "Möckmühl",
+    "website": null
+  },
+  {
+    "name": "Amorbachschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Amorbacher Straße 23",
+    "plz": "74172",
+    "ort": "Neckarsulm",
+    "website": null
+  },
+  {
+    "name": "Johannes-Häussler-Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Karlstraße 3",
+    "plz": "74172",
+    "ort": "Neckarsulm",
+    "website": null
+  },
+  {
+    "name": "Neubergschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Berliner Straße 11",
+    "plz": "74172",
+    "ort": "Neckarsulm",
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Maier-Schule Grund- und Hauptschule mit Werkrealschule Obereisesheim",
+    "typ": "Öffentlich",
+    "strasse": "Rosenstraße 11",
+    "plz": "74172",
+    "ort": "Neckarsulm",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dahenfeld",
+    "typ": "Öffentlich",
+    "strasse": "Cäcilienstraße 9",
+    "plz": "74172",
+    "ort": "Neckarsulm",
+    "website": null
+  },
+  {
+    "name": "Grundschule Herbolzheim",
+    "typ": "Öffentlich",
+    "strasse": "Pestalozzistraße 1",
+    "plz": "74861",
+    "ort": "Neudenau",
+    "website": null
+  },
+  {
+    "name": "Kurmainz-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 9",
+    "plz": "74861",
+    "ort": "Neudenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Siglingen",
+    "typ": "Öffentlich",
+    "strasse": "Heilbronner Straße 11",
+    "plz": "74861",
+    "ort": "Neudenau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stein",
+    "typ": "Öffentlich",
+    "strasse": "Lobenbacher Straße 8",
+    "plz": "74196",
+    "ort": "Neuenstadt am Kocher",
+    "website": null
+  },
+  {
+    "name": "Helmbundschule Werkrealschule und Realschule",
+    "typ": "Öffentlich",
+    "strasse": "Gymnasiumstraße 14",
+    "plz": "74196",
+    "ort": "Neuenstadt am Kocher",
+    "website": null
+  },
+  {
+    "name": "Lindenschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Öhringer Straße 12",
+    "plz": "74196",
+    "ort": "Neuenstadt am Kocher",
+    "website": null
+  },
+  {
+    "name": "Kurt-von-Marval-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Im Geissbühl",
+    "plz": "74226",
+    "ort": "Nordheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Nordhausen",
+    "typ": "Öffentlich",
+    "strasse": "Raiffeisenstraße 5",
+    "plz": "74226",
+    "ort": "Nordheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Affaltrach",
+    "typ": "Öffentlich",
+    "strasse": "Hegelstraße 15",
+    "plz": "74182",
+    "ort": "Obersulm",
+    "website": null
+  },
+  {
+    "name": "Grundschule Eschenau",
+    "typ": "Öffentlich",
+    "strasse": "Bahnhofstraße 30",
+    "plz": "74182",
+    "ort": "Obersulm",
+    "website": null
+  },
+  {
+    "name": "Michael-Beheim-Schule Grund- und Werkrealschule Willbach",
+    "typ": "Öffentlich",
+    "strasse": "Beheimstraße 50",
+    "plz": "74182",
+    "ort": "Obersulm",
+    "website": null
+  },
+  {
+    "name": "Kochertalschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Uhlandstraße 21",
+    "plz": "74229",
+    "ort": "Ödheim",
+    "website": null
+  },
+  {
+    "name": "Kochertalschule Grund- und Hauptschule mit Werkrealschule Außenstelle Grundschule Degmarn",
+    "typ": "Öffentlich",
+    "strasse": "0",
+    "plz": "74229",
+    "ort": "Ödheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Pfaffenhofen",
+    "typ": "Öffentlich",
+    "strasse": "Rodbachstraße 17",
+    "plz": "74397",
+    "ort": "Pfaffenhofen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Roigheim",
+    "typ": "Öffentlich",
+    "strasse": "Eugen-Reichert-Straße 47",
+    "plz": "74255",
+    "ort": "Roigheim",
+    "website": null
+  },
+  {
+    "name": "Leintalschule Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Im Falltor",
+    "plz": "74193",
+    "ort": "Schwaigern",
+    "website": null
+  },
+  {
+    "name": "Sonnenberg-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Weststraße 4 – 6",
+    "plz": "74193",
+    "ort": "Schwaigern",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stetten am Heuchelberg",
+    "typ": "Öffentlich",
+    "strasse": "Oststraße 16",
+    "plz": "74193",
+    "ort": "Schwaigern",
+    "website": null
+  },
+  {
+    "name": "Grundschule Massenbach",
+    "typ": "Öffentlich",
+    "strasse": "Schumannstraße 1",
+    "plz": "74193",
+    "ort": "Schwaigern",
+    "website": null
+  },
+  {
+    "name": "Stettenfelsschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Humboldtstraße 9",
+    "plz": "74199",
+    "ort": "Untergruppenbach",
+    "website": null
+  },
+  {
+    "name": "Eberhard-Schweizer Grundschule Unterheinriet",
+    "typ": "Öffentlich",
+    "strasse": "Kelterstraße 12",
+    "plz": "74199",
+    "ort": "Untergruppenbach",
+    "website": null
+  },
+  {
+    "name": "Stauferwerkrealschule Weinsberg",
+    "typ": "Öffentlich",
+    "strasse": "Rossäckerstraße",
+    "plz": "74189",
+    "ort": "Weinsberg",
+    "website": null
+  },
+  {
+    "name": "Grundschule am Grasigen Hag",
+    "typ": "Öffentlich",
+    "strasse": "Zehntgasse 10",
+    "plz": "74189",
+    "ort": "Weinsberg",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weinsberg-Grantschen-Wimmental",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 7",
+    "plz": "74189",
+    "ort": "Weinsberg",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rossäcker",
+    "typ": "Öffentlich",
+    "strasse": "Rossäckerstraße 15",
+    "plz": "74189",
+    "ort": "Weinsberg",
+    "website": null
+  },
+  {
+    "name": "Grundschule Neuhütten",
+    "typ": "Öffentlich",
+    "strasse": "Öhringer Straße 76",
+    "plz": "71543",
+    "ort": "Wüstenrot",
+    "website": null
+  },
+  {
+    "name": "Grundschule Zaberfeld",
+    "typ": "Öffentlich",
+    "strasse": "In der Fuchsgrube 6",
+    "plz": "74374",
+    "ort": "Zaberfeld",
+    "website": null
+  }
+]

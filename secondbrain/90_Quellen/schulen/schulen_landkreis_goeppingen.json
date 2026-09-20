@@ -1,0 +1,478 @@
+[
+  {
+    "name": "Albert-Schweitzer-Schule Albershausen Gemeinschaftsschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ass-albershausen.de"
+  },
+  {
+    "name": "Hiltenburgschule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.hiltenburgschule.de"
+  },
+  {
+    "name": "Ulrich-Schiegg-Schule  Gosbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ulrich-schiegg-schule.de"
+  },
+  {
+    "name": "Grundschule Adelberg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Ursenwangschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ursenwangschule.de"
+  },
+  {
+    "name": "Staufeneckschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.sts.gp.schule-bw.de"
+  },
+  {
+    "name": "Hornwiesen-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Schlierbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.schlierbach-grundschule.de"
+  },
+  {
+    "name": "Heinrich-Schickhardt-Schule Bad Boll Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.heinrich-schickhardt-schule.de"
+  },
+  {
+    "name": "Grundschule Unterböhringen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gs-unterboehringen.de"
+  },
+  {
+    "name": "Grundschule Treffelhausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gs.treffelhausen.de"
+  },
+  {
+    "name": "Grundschule Reichenbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.deggingen.de/index.php"
+  },
+  {
+    "name": "Messelbergschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.messelbergschule.de"
+  },
+  {
+    "name": "Messelbergschule Grund- und Werkrealschule Außenstelle Grundschule Reichenbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.messelbergschule.de"
+  },
+  {
+    "name": "Messelbergschule Grund- und Werkrealschule Außenstelle Grundschule Winzingen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.messelbergschule.de"
+  },
+  {
+    "name": "Steingarten-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.steingarten-grundschule.de"
+  },
+  {
+    "name": "Grundschule Dürnau-Gammelshausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gs-duernau-gammelshausen.de"
+  },
+  {
+    "name": "Hardt-Schule Grund-, Haupt- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.hardtschule.de"
+  },
+  {
+    "name": "Markt-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.marktschule-ebersbach.de"
+  },
+  {
+    "name": "Grundschule Rosswälden",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gs-rosswaelden.de"
+  },
+  {
+    "name": "Schiller-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.schillerschule-eislingen.de"
+  },
+  {
+    "name": "Silcher-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.silcherschule-eislingen.de"
+  },
+  {
+    "name": "Lindenschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Tegelbergschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.tegelbergschule.de"
+  },
+  {
+    "name": "Uhland-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.uhlandschule-geislingen.de"
+  },
+  {
+    "name": "Hohensteinschule Gingen an der Fils Grund- und Hauptschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ass-gp.de"
+  },
+  {
+    "name": "Uhland-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ugs-gp.de"
+  },
+  {
+    "name": "Südstadt-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.suegs.gp.schule-bw.de"
+  },
+  {
+    "name": "Janusz-Korczak-Schule Grundschule im Reusch",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.janusz-korczak-schule-gp.de"
+  },
+  {
+    "name": "Grundschule im Stauferpark",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.grundschule-im-stauferpark.de"
+  },
+  {
+    "name": "Grundschule Hattenhofen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.schule-hattenhofen.de"
+  },
+  {
+    "name": "Gottfried-von-Spitzenberg-Schule Grund- und Hauptschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.ghskuchen.de"
+  },
+  {
+    "name": "Felix-Nabor-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.fns-muehlhausen.de"
+  },
+  {
+    "name": "Georg-Thierer-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gtg-rechberghausen.de"
+  },
+  {
+    "name": "Johann-Georg-Fischer-Grund-und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.jg-fischer-schule.de"
+  },
+  {
+    "name": "Hieberschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.hieberschule-uhingen.de"
+  },
+  {
+    "name": "Grundschule im Nassachtal",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.grundschule-nassachtal.de"
+  },
+  {
+    "name": "Stauferschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.stauferschule.de"
+  },
+  {
+    "name": "Franz-Xaver-Messerschmidt-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.fxm.gp.schule-bw.de"
+  },
+  {
+    "name": "Walther-Hensel-Schule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.whs-goeppingen.de"
+  },
+  {
+    "name": "Grundschule Bünzwangen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.grundschule-buenzwangen.de"
+  },
+  {
+    "name": "Grundschule Aufhausen",
+    "ort": "Geislingen an der Steige",
+    "strasse": "e 13",
+    "plz": "73312",
+    "website": null
+  },
+  {
+    "name": "Albert-Einstein-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.aegs-geislingen.de"
+  },
+  {
+    "name": "Grundschule Lauterstein",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.gs-lauterstein.de"
+  },
+  {
+    "name": "Grundschule am Lindach Holzhausen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.grundschule-am-lindach.de"
+  },
+  {
+    "name": "Grundschule Sparwiesen",
+    "ort": "Uhingen",
+    "strasse": "e 19",
+    "plz": "73066",
+    "website": null
+  },
+  {
+    "name": "Bodenfeld-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Holzheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Hieberschule Grund- und Werkrealschule Außenstelle Grundschule Haldenberg",
+    "ort": "Uhingen",
+    "strasse": "e 22",
+    "plz": "73066",
+    "website": null
+  },
+  {
+    "name": "Friedrich-von-Büren-Schule Grundschule",
+    "ort": "Birenbach",
+    "strasse": "e 32",
+    "plz": "73102",
+    "website": null
+  },
+  {
+    "name": "Paul-Roth-Schule Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Eybach",
+    "ort": "Geislingen an der Steige",
+    "strasse": "Mühlsteige 1",
+    "plz": "73312",
+    "website": null
+  },
+  {
+    "name": "Haier-Schule Grund- und Werkrealschule Faurndau",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Meerbach-Grundschule Bartenbach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Bezgenriet",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Hohenstaufen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Blumhardt- Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schiller-Grundschule Faurndau",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Gruibingen",
+    "ort": "Gruibingen",
+    "strasse": "Im Steig 3",
+    "plz": "73344",
+    "website": null
+  },
+  {
+    "name": "Heinrich-Schickhardt-Schule Bad Boll Grund- und Werkrealschule Außenstelle Werkrealschule Heiningen",
+    "ort": "Heiningen",
+    "strasse": "e 11",
+    "plz": "73092",
+    "website": null
+  },
+  {
+    "name": "Ernst-Weichel-Schule Grundschule",
+    "ort": "Heiningen",
+    "strasse": "e 11",
+    "plz": "73092",
+    "website": null
+  },
+  {
+    "name": "Schule am Sellenberg Grundschule Westerheim Außenstelle Grundschule Hohenstadt",
+    "ort": "Hohenstadt",
+    "strasse": "e 5",
+    "plz": "73345",
+    "website": null
+  },
+  {
+    "name": "Schurwaldschule Werkrealschule und Realschule",
+    "ort": "Rechberghausen",
+    "strasse": "Ebene 16",
+    "plz": "73098",
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund-und Werkrealschule Albershausen Außenstelle Werkrealschule Schlierbac",
+    "ort": "Schlierbach",
+    "strasse": "e 28",
+    "plz": "73278",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Deggingen Außenstelle Werkrealschule Wiesensteig",
+    "ort": "Wiesensteig",
+    "strasse": "e 7",
+    "plz": "73349",
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund-und Werkrealschule Albershausen Außenstelle Werkrealschule Zell unter",
+    "ort": "Zell unter Aichelberg",
+    "strasse": "e 15",
+    "plz": "73119",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weiler",
+    "ort": "Ebersbach an der Fils",
+    "strasse": "e 14",
+    "plz": "73061",
+    "website": null
+  }
+]

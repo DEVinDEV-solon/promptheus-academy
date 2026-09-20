@@ -1,0 +1,401 @@
+[
+  {
+    "name": "Abendgymnasium der Volkshochschule",
+    "ort": "Pforzheim",
+    "strasse": "Zerrennerstraße 29",
+    "plz": "75172",
+    "website": "https://www.vhs-pforzheim.de/schulabschluesse/abendgymnasium.html"
+  },
+  {
+    "name": "Abendhauptschule der Volkshochschule",
+    "ort": "Pforzheim",
+    "strasse": "Zerrennerstraße 29",
+    "plz": "75172",
+    "website": "https://www.vhs-pforzheim.de/schulabschluesse/abendhauptschule.html"
+  },
+  {
+    "name": "Abendrealschule der Volkshochschule",
+    "ort": "Pforzheim",
+    "strasse": "Zerrennerstraße 29",
+    "plz": "75172",
+    "website": "http://www.vhs-pforzheim.de/schulabschluesse/abendrealschule.html"
+  },
+  {
+    "name": "Akademie für Kommunikation",
+    "ort": "Pforzheim",
+    "strasse": "Habermehlstraße 11",
+    "plz": "75172",
+    "website": "https://www.akademie-bw.de/"
+  },
+  {
+    "name": "Alfons-Kern-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Theaterstraße 8",
+    "plz": "75175",
+    "website": "http://www.alfons-kern-schule.de"
+  },
+  {
+    "name": "Anna-Bertha-Königsegg-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Blumenheckstraße 41",
+    "plz": "75177",
+    "website": "https://www.caritas-pforzheim.de/wir-unterstuetzen/kinder-jugendliche-familien/kita-hort-schule/anna-bertha-koenigsegg-schule.html"
+  },
+  {
+    "name": "Arlingerschule",
+    "ort": "Pforzheim",
+    "strasse": "Börthstraße 1",
+    "plz": "75179",
+    "website": "https://www.arlingerschule.de"
+  },
+  {
+    "name": "Bohrainschule (Schule für Lernbehinderte)",
+    "ort": "Pforzheim",
+    "strasse": "Gustav-Rau-Straße 10",
+    "plz": "75173",
+    "website": "https://www.bohrainschule.de"
+  },
+  {
+    "name": "Brötzinger Schule",
+    "ort": "Pforzheim",
+    "strasse": "Westliche Karl-Friedrich-Straße 235",
+    "plz": "75172",
+    "website": "https://www.broetzinger-schule.de"
+  },
+  {
+    "name": "Buckenbergschule",
+    "ort": "Pforzheim",
+    "strasse": "Birkenweg 44",
+    "plz": "75175",
+    "website": "https://www.buckenbergschule-pf.de/"
+  },
+  {
+    "name": "Carlo Schmid Schule Pforzheim",
+    "ort": "Pforzheim",
+    "strasse": "Bleichstraße 81",
+    "plz": "75173",
+    "website": "https://www.carlo-schmid-schule.de/pforzheim/"
+  },
+  {
+    "name": "Dillweißensteinschule",
+    "ort": "Pforzheim",
+    "strasse": "Hirsauerstraße 222",
+    "plz": "75180",
+    "website": null
+  },
+  {
+    "name": "Erich-Kästner-Schule (Schule für Hörgeschädigte und Sprachbehinderte)",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": null,
+    "website": "https://www.eks-ka.de"
+  },
+  {
+    "name": "Fritz-Erler-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Westliche Karl-Friedrich-Straße 215",
+    "plz": "75172",
+    "website": "https://www.fes-pforzheim.de/"
+  },
+  {
+    "name": "Fritz-Erler-Schule - Wirtschaftsgymnasium -",
+    "ort": "Pforzheim",
+    "strasse": "Westliche Karl-Friedrich-Straße 215",
+    "plz": "75172",
+    "website": "https://www.fes-pforzheim.de/"
+  },
+  {
+    "name": "Goetheschule - Freie Waldorfschule Pforzheim e. V. -",
+    "ort": "Pforzheim",
+    "strasse": "Schwarzwaldstraße 66",
+    "plz": "75173",
+    "website": "http://www.waldorfschule-pforzheim.de/"
+  },
+  {
+    "name": "Goldschmiedeschule mit Uhrmacherschule",
+    "ort": "Pforzheim",
+    "strasse": "St.-Georgen-Steige 65",
+    "plz": "75175",
+    "website": "https://www.goldschmiedeschule.de"
+  },
+  {
+    "name": "Grundschule Hohenwart",
+    "ort": "Pforzheim",
+    "strasse": "Kastanienallee 5",
+    "plz": "75181",
+    "website": "http://www.gs-huchenfeld-hohenwart.de/"
+  },
+  {
+    "name": "Grundschule Huchenfeld",
+    "ort": "Pforzheim",
+    "strasse": "Ulrichstraße 32",
+    "plz": "75181",
+    "website": "http://www.gs-huchenfeld-hohenwart.de"
+  },
+  {
+    "name": "Grundschule Würm",
+    "ort": "Pforzheim",
+    "strasse": "Schulstraße 8 a",
+    "plz": "75181",
+    "website": "http://www.gs-pf-wuerm.de/"
+  },
+  {
+    "name": "Gustav-Heinemann-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Habsburgerstraße 14",
+    "plz": "75177",
+    "website": "http://www.gustav-heinemann-schule-pforzheim.de"
+  },
+  {
+    "name": "Haidachschule",
+    "ort": "Pforzheim",
+    "strasse": "Gumbinner Straße 3",
+    "plz": "75181",
+    "website": "https://www.haidachschule.de"
+  },
+  {
+    "name": "Hebel-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": "Simmlerstraße 1",
+    "plz": "75172",
+    "website": "https://www.hebel-pf.de"
+  },
+  {
+    "name": "Heinrich-Wieland-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Graf-Leutrum-Straße 3",
+    "plz": "75175",
+    "website": "https://www.hw-schule.de"
+  },
+  {
+    "name": "Heinrich-Wieland-Schule - Technisches Gymnasium -",
+    "ort": "Pforzheim",
+    "strasse": "Graf-Leutrum-Straße 3",
+    "plz": "75175",
+    "website": "https://www.hw-schule.de"
+  },
+  {
+    "name": "Hilda-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": "Kiehnlestraße 25",
+    "plz": "75172",
+    "website": "http://www.hilda-pforzheim.de"
+  },
+  {
+    "name": "Insel-Grundschule",
+    "ort": "Pforzheim",
+    "strasse": "Emma-Jaeger-Straße 25",
+    "plz": "75175",
+    "website": "https://insel-grundschule.de"
+  },
+  {
+    "name": "Insel-Realschule",
+    "ort": "Pforzheim",
+    "strasse": "Altstädter Kirchenweg 22",
+    "plz": "75175",
+    "website": "https://www.insel-realschule.de"
+  },
+  {
+    "name": "Insel-Werkrealschule",
+    "ort": "Pforzheim",
+    "strasse": "Altstädter Kirchenweg 26",
+    "plz": "75175",
+    "website": "https://www.insel-wrs.de"
+  },
+  {
+    "name": "Johanna-Wittum-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Kaulbachstraße 34",
+    "plz": "75175",
+    "website": "https://www.johanna-wittum-schule.de/"
+  },
+  {
+    "name": "Johanna-Wittum-Schule - Biotechnologisches Gymnasium -",
+    "ort": "Pforzheim",
+    "strasse": "Kaulbachstraße 34",
+    "plz": "75175",
+    "website": "https://www.johanna-wittum-schule.de/"
+  },
+  {
+    "name": "Johanna-Wittum-Schule - Ernährungswissenschaftliches Gymnasium -",
+    "ort": "Pforzheim",
+    "strasse": "Kaulbachstraße 34",
+    "plz": "75175",
+    "website": "https://www.johanna-wittum-schule.de/"
+  },
+  {
+    "name": "Johanna-Wittum-Schule - Sozialwissenschaftliches Gymnasium -",
+    "ort": "Pforzheim",
+    "strasse": "Kaulbachstraße 34",
+    "plz": "75175",
+    "website": "https://www.johanna-wittum-schule.de/"
+  },
+  {
+    "name": "Karl-Friedrich-Schule Eutingen",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": "75181",
+    "website": "https://www.karl-friedrich-schule-eutingen.de/"
+  },
+  {
+    "name": "Kepler-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": "Redtenbacherstraße 101",
+    "plz": "75177",
+    "website": "https://www.keplerweb.de"
+  },
+  {
+    "name": "Konrad-Adenauer-Realschule",
+    "ort": "Pforzheim",
+    "strasse": "Kaulbachstraße 30",
+    "plz": "75175",
+    "website": "https://www.kar-pf.de"
+  },
+  {
+    "name": "Ludwig Guttmann Schule Karlsbad - SBBZ Förderschwerpunkt körperliche und motorische Entwicklung",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": null,
+    "website": "http://www.ludwig-guttmann-schule.de"
+  },
+  {
+    "name": "Ludwig-Erhard-Schule",
+    "ort": "Pforzheim",
+    "strasse": "Schoferweg 21",
+    "plz": "75175",
+    "website": "https://www.les-pforzheim.de"
+  },
+  {
+    "name": "Maihälden-Grundschule",
+    "ort": "Pforzheim",
+    "strasse": "Leonhard-Kleber-Straße 5",
+    "plz": "75179",
+    "website": null
+  },
+  {
+    "name": "Nordstadtschule",
+    "ort": "Pforzheim",
+    "strasse": "Brettener Straße 19",
+    "plz": "75177",
+    "website": "https://www.nordstadtschule.de"
+  },
+  {
+    "name": "Osterfeld-Grundschule",
+    "ort": "Pforzheim",
+    "strasse": "Neßlerstraße 10",
+    "plz": "75172",
+    "website": "http://www.osterfeld-grundschule-pforzheim.de/"
+  },
+  {
+    "name": "Osterfeld-Realschule",
+    "ort": "Pforzheim",
+    "strasse": "Neßlerstraße 10",
+    "plz": "75172",
+    "website": "https://www.osterfeld-realschule.de/"
+  },
+  {
+    "name": "Otterstein-Realschule",
+    "ort": "Pforzheim",
+    "strasse": "Schwarzwaldstraße 143",
+    "plz": "75173",
+    "website": "https://www.otterstein-realschule.de"
+  },
+  {
+    "name": "Otterstein-Werkrealschule",
+    "ort": "Pforzheim",
+    "strasse": "Schwarzwaldstraße 145",
+    "plz": "75173",
+    "website": "https://www.ottersteinschule.de"
+  },
+  {
+    "name": "Pestalozzischule (SBBZ mit Förderschwerpunkt Lernen)",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": "75175",
+    "website": "https://www.pestalozzischule-pf.de"
+  },
+  {
+    "name": "Raphael-Schule Pforzheim e.V.",
+    "ort": "Pforzheim",
+    "strasse": "Hauptstraße 73",
+    "plz": "75181",
+    "website": "https://www.raphaelschule-pforzheim.de"
+  },
+  {
+    "name": "Reuchlin-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": "Schwarzwaldstraße 84",
+    "plz": "75173",
+    "website": "https://www.reuchlin-gymnasium.de"
+  },
+  {
+    "name": "Schanzschule",
+    "ort": "Pforzheim",
+    "strasse": "Habsburger Straße 11",
+    "plz": "75177",
+    "website": "http://www.schanzschule.de"
+  },
+  {
+    "name": "Schiller-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": "Siedlungstraße 38",
+    "plz": "75180",
+    "website": "https://schiller-gymnasium.com/"
+  },
+  {
+    "name": "Schlossparkschule - Schule, Schulkindergarten und Beratungsstelle für Sprachbehinderte",
+    "ort": "Pforzheim",
+    "strasse": "Schulberg 17a",
+    "plz": "75175",
+    "website": "https://www.schlossparkzentrum-pforzheim.de"
+  },
+  {
+    "name": "Schule am Winterrain (Sonderpädagogisches Bildungs- und Beratungszentrum mit dem Förderschwerpunkt geistige Entwicklung)",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": null,
+    "website": "https://www.schule-am-winterrain.de"
+  },
+  {
+    "name": "Schule für Lernbehinderte am Bildungszentrum Königsbach",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Sonnenhofschule",
+    "ort": "Pforzheim",
+    "strasse": "Konrad-Adenauer-Straße 10",
+    "plz": "75180",
+    "website": "http://sonnenhofschule-pforzheim.de/"
+  },
+  {
+    "name": "Südstadtschule",
+    "ort": "Pforzheim",
+    "strasse": "Hauffstraße 24",
+    "plz": "75175",
+    "website": "https://www.suedstadtschule-pf.de"
+  },
+  {
+    "name": "Theodor-Heuss-Gymnasium",
+    "ort": "Pforzheim",
+    "strasse": null,
+    "plz": "75172",
+    "website": "https://www.thg-pforzheim.de"
+  },
+  {
+    "name": "Waldschule Büchenbronn",
+    "ort": "Pforzheim",
+    "strasse": "Siedlungsstraße 42",
+    "plz": "75180",
+    "website": null
+  },
+  {
+    "name": "Weiherbergschule",
+    "ort": "Pforzheim",
+    "strasse": "Bergstraße 28",
+    "plz": "75173",
+    "website": "https://www.weiherbergschule.de"
+  }
+]

@@ -1,0 +1,682 @@
+[
+  {
+    "name": "Eugen-Bolz-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Bolzstraße 96",
+    "plz": "70806",
+    "ort": "Kornwestheim",
+    "website": null
+  },
+  {
+    "name": "Apfelbachschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Klingenstraße 14",
+    "plz": "71563",
+    "ort": "Affalterbach",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Hölderlin-Schule Grund- und Werkrealschule Asperg",
+    "typ": "Öffentlich",
+    "strasse": "Lyonel-Feininger-Weg 1",
+    "plz": "71679",
+    "ort": "Asperg",
+    "website": null
+  },
+  {
+    "name": "Goetheschule Grundschule Asperg",
+    "typ": "Öffentlich",
+    "strasse": "Wilhelmstraße 17",
+    "plz": "71679",
+    "ort": "Asperg",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Schelling-Schule Grund- und Werkrealschule Besigheim",
+    "typ": "Öffentlich",
+    "strasse": "Schulweg 6",
+    "plz": "74354",
+    "ort": "Besigheim",
+    "website": null
+  },
+  {
+    "name": "Kreuzäcker-Grundschule Ottmarsheim",
+    "typ": "Öffentlich",
+    "strasse": "Keitländerstraße 17",
+    "plz": "74354",
+    "ort": "Besigheim",
+    "website": null
+  },
+  {
+    "name": "Hiller-Schule Grundschule Bietigheim",
+    "typ": "Öffentlich",
+    "strasse": "Hillerstraße 2",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Hiller-Schule Grundschule Bietigheim Außenstelle Metterzimmern",
+    "typ": "Öffentlich",
+    "strasse": "Bietigheimer Straße 20",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Schule im Buch Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Breslauer Straße 5",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Schule im Sand Grund- und Werkrealschule Bietigheim",
+    "typ": "Öffentlich",
+    "strasse": "Friedrich-Ebert-Straße 18",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weimarer Weg Bietigheim",
+    "typ": "Öffentlich",
+    "strasse": "Weimarer Weg 33",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Bissingen",
+    "typ": "Öffentlich",
+    "strasse": "Bahnhofstraße 10",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Bissingen Außenstelle Ludwig-Heyd-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Jahnstraße 50",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Waldschule Grund- und Werkrealschule Bissingen",
+    "typ": "Öffentlich",
+    "strasse": "Panoramastraße 2",
+    "plz": "74321",
+    "ort": "Bietigheim-Bissingen",
+    "website": null
+  },
+  {
+    "name": "Ganerbenschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 10 – 12",
+    "plz": "74357",
+    "ort": "Bönnigheim",
+    "website": null
+  },
+  {
+    "name": "Konrad-Kocher-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Gottfr.-Keller-Straße 40 – 44",
+    "plz": "71254",
+    "ort": "Ditzingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heimerdingen",
+    "typ": "Öffentlich",
+    "strasse": "Weissacher Straße 44",
+    "plz": "71254",
+    "ort": "Ditzingen",
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuglin-Schule Grund- und Hauptschule mit Werkrealschule Hirschlanden-Schöckingen",
+    "typ": "Öffentlich",
+    "strasse": "Leiterweg 70",
+    "plz": "71254",
+    "ort": "Ditzingen",
+    "website": null
+  },
+  {
+    "name": "Wilhelmschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Gerlinger Straße 5",
+    "plz": "71254",
+    "ort": "Ditzingen",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Eberdingen",
+    "typ": "Öffentlich",
+    "strasse": "Schillerstraße 33",
+    "plz": "71735",
+    "ort": "Eberdingen",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Eberdingen Außenstelle Grundschule Nussdorf",
+    "typ": "Öffentlich",
+    "strasse": "Schloss-Straße 37",
+    "plz": "71735",
+    "ort": "Eberdingen",
+    "website": null
+  },
+  {
+    "name": "Enzweihinger Grund- und Werkrealschule Vaihingen a.d. Enz Außenstelle Werkrealschule Eberdingen",
+    "typ": "Öffentlich",
+    "strasse": "Schillerstraße 33",
+    "plz": "71735",
+    "ort": "Eberdingen",
+    "website": null
+  },
+  {
+    "name": "Astrid-Lindgren-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Goethestraße 8",
+    "plz": "71729",
+    "ort": "Erdmannhausen",
+    "website": null
+  },
+  {
+    "name": "Grundschule Erligheim-Hofen",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 1",
+    "plz": "74391",
+    "ort": "Erligheim",
+    "website": null
+  },
+  {
+    "name": "Flattichschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Mühlstraße 40",
+    "plz": "71691",
+    "ort": "Freiberg am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grünlandschule Grundschule Geisingen",
+    "typ": "Öffentlich",
+    "strasse": "Grünlandstraße 9",
+    "plz": "71691",
+    "ort": "Freiberg am Neckar",
+    "website": null
+  },
+  {
+    "name": "Kasteneckschule Grundschule Heutingsheim",
+    "typ": "Öffentlich",
+    "strasse": "Katharinenstraße 2",
+    "plz": "71691",
+    "ort": "Freiberg am Neckar",
+    "website": null
+  },
+  {
+    "name": "Oscar-Paret-Schule Werkreal-, Realschule und Gymnasium",
+    "typ": "Öffentlich",
+    "strasse": "Marktplatz 3",
+    "plz": "71691",
+    "ort": "Freiberg am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gemmrigheim",
+    "typ": "Öffentlich",
+    "strasse": "Bergstraße 28",
+    "plz": "74376",
+    "ort": "Gemmrigheim",
+    "website": null
+  },
+  {
+    "name": "Schule auf dem Laiern Grund-u.Werkrealschule Kirchheim a. Neckar Außenst. Werkrealschule Gemmrigheim",
+    "typ": "Öffentlich",
+    "strasse": "Bergstraße 28",
+    "plz": "74376",
+    "ort": "Gemmrigheim",
+    "website": null
+  },
+  {
+    "name": "Breitwiesenschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Zedernweg 1",
+    "plz": "70839",
+    "ort": "Gerlingen",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Hasenbergstraße 16",
+    "plz": "70839",
+    "ort": "Gerlingen",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Schule Grund- und Hauptschule mit Werkrealschule Gerlingen Außenstelle Grundschule Waldsc",
+    "typ": "Öffentlich",
+    "strasse": "Dietrich-Bonhoeffer-Platz 5",
+    "plz": "70839",
+    "ort": "Gerlingen",
+    "website": null
+  },
+  {
+    "name": "Wunnensteinschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Lindenstraße 11",
+    "plz": "71723",
+    "ort": "Grossbottwar",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule Grossingersheim",
+    "typ": "Öffentlich",
+    "strasse": "Wilhelmstraße 30",
+    "plz": "74379",
+    "ort": "Ingersheim",
+    "website": null
+  },
+  {
+    "name": "Schule auf dem Laiern Grund- und Werkrealschule Kirchheim am Neckar",
+    "typ": "Öffentlich",
+    "strasse": "Friedrichstraße 59",
+    "plz": "74366",
+    "ort": "Kirchheim am Neckar",
+    "website": null
+  },
+  {
+    "name": "Teichwiesenschule Grundschule Korntal",
+    "typ": "Öffentlich",
+    "strasse": "Feuerseeweg 1 – 3",
+    "plz": "70825",
+    "ort": "Korntal-Münchingen",
+    "website": null
+  },
+  {
+    "name": "Flattichschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 2",
+    "plz": "70825",
+    "ort": "Korntal-Münchingen",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schillerstraße 13",
+    "plz": "70806",
+    "ort": "Kornwestheim",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Hohenstaufenallee 6",
+    "plz": "70806",
+    "ort": "Kornwestheim",
+    "website": null
+  },
+  {
+    "name": "Jakob-Loeffler-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 2",
+    "plz": "74369",
+    "ort": "Löchgau",
+    "website": null
+  },
+  {
+    "name": "Grundschule Marbach",
+    "typ": "Öffentlich",
+    "strasse": "Kernerstraße 36",
+    "plz": "71672",
+    "ort": "Marbach am Neckar",
+    "website": null
+  },
+  {
+    "name": "Tobias-Mayer-Schule Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 33",
+    "plz": "71672",
+    "ort": "Marbach am Neckar",
+    "website": null
+  },
+  {
+    "name": "Quellen-Grundschule Rielingshausen",
+    "typ": "Öffentlich",
+    "strasse": "Paul-Gerhard-Straße 5 und 12",
+    "plz": "71672",
+    "ort": "Marbach am Neckar",
+    "website": null
+  },
+  {
+    "name": "Freie Schule Marbach private Grundschule",
+    "typ": "Privat",
+    "strasse": "Ludwigsburger Straße 24A",
+    "plz": "71672",
+    "ort": "Marbach am Neckar",
+    "website": null
+  },
+  {
+    "name": "Ludwig-Heyd-Schule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Graf-Hartmann-Straße 34",
+    "plz": "71706",
+    "ort": "Markgröningen",
+    "website": null
+  },
+  {
+    "name": "Landern-Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Sudetenstraße 10",
+    "plz": "71706",
+    "ort": "Markgröningen",
+    "website": null
+  },
+  {
+    "name": "Glemstal-Grundschule Unterriexingen",
+    "typ": "Öffentlich",
+    "strasse": "Talstraße 23",
+    "plz": "71706",
+    "ort": "Markgröningen",
+    "website": null
+  },
+  {
+    "name": "Hanfbachschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Hanfbachstraße 30",
+    "plz": "71696",
+    "ort": "Möglingen",
+    "website": null
+  },
+  {
+    "name": "Grundschule im Löscher",
+    "typ": "Öffentlich",
+    "strasse": "Hohenstaufenstraße 46",
+    "plz": "71696",
+    "ort": "Möglingen",
+    "website": null
+  },
+  {
+    "name": "Georg-Hager-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Urbanstraße 12",
+    "plz": "74395",
+    "ort": "Mundelsheim",
+    "website": null
+  },
+  {
+    "name": "Blankensteinschule Grund- und Werkrealschule Steinheim Außenstelle Werkrelschule Murr",
+    "typ": "Öffentlich",
+    "strasse": "Lindenweg 3 – 5",
+    "plz": "71711",
+    "ort": "Murr",
+    "website": null
+  },
+  {
+    "name": "Lichtenbergschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Martin-Luther-Straße 13",
+    "plz": "71720",
+    "ort": "Oberstenfeld",
+    "website": null
+  },
+  {
+    "name": "Lichtenbergschule Grund- und Werkrealschule Außenstelle Grundschule Gronau",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße",
+    "plz": "71720",
+    "ort": "Oberstenfeld-Gronau",
+    "website": null
+  },
+  {
+    "name": "Neckarschule Grundschule Aldingen",
+    "typ": "Öffentlich",
+    "strasse": "Neckarkanalstraße 55",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hochberg",
+    "typ": "Öffentlich",
+    "strasse": "Waldallee 17",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hochdorf",
+    "typ": "Öffentlich",
+    "strasse": "Schulweg 22",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Neckargröningen",
+    "typ": "Öffentlich",
+    "strasse": "Eichendorffstraße 15",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Kelterschule Neckarrems Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Marbacher Straße 2 – 4",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Keil-Schule Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Neckarkanalstraße 55",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Grundschule Pattonville",
+    "typ": "Öffentlich",
+    "strasse": "John-F.-Kennedy-Allee 43",
+    "plz": "71686",
+    "ort": "Remseck am Neckar",
+    "website": null
+  },
+  {
+    "name": "Burgfeldschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Oberriexinger Straße 33",
+    "plz": "74343",
+    "ort": "Sachsenheim",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kleinsachsenheim",
+    "typ": "Öffentlich",
+    "strasse": "Besigheimer Weg 8",
+    "plz": "74343",
+    "ort": "Sachsenheim",
+    "website": null
+  },
+  {
+    "name": "Kirbachschule Grund- und Hauptschule",
+    "typ": "Öffentlich",
+    "strasse": "Klingenstraße 35",
+    "plz": "74343",
+    "ort": "Sachsenheim",
+    "website": null
+  },
+  {
+    "name": "Hermann-Butzer-Schule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Herrenwiesenweg 31",
+    "plz": "71701",
+    "ort": "Schwieberdingen",
+    "website": null
+  },
+  {
+    "name": "Hermann-Butzer-Schule Grund- und Hauptschule mit Werkrealschule Schwieberd. Außenstelle Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulberg 21",
+    "plz": "71701",
+    "ort": "Schwieberdingen",
+    "website": null
+  },
+  {
+    "name": "Hofäckerschule Grund- und Hauptschule mit Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Wilhelm-Hauff-Straße 16",
+    "plz": "74372",
+    "ort": "Sersheim",
+    "website": null
+  },
+  {
+    "name": "Burgfeldschule Grund- und Werkrealschule Sachsenheim Außenstelle Werkrealschule Sersheim",
+    "typ": "Öffentlich",
+    "strasse": "Wilhelm-Hauff-Straße 16",
+    "plz": "74372",
+    "ort": "Sersheim",
+    "website": null
+  },
+  {
+    "name": "Blankensteinschule Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 25",
+    "plz": "71711",
+    "ort": "Steinheim an der Murr",
+    "website": null
+  },
+  {
+    "name": "Grundschule Höpfigheim",
+    "typ": "Öffentlich",
+    "strasse": "Keltergasse 31",
+    "plz": "71711",
+    "ort": "Steinheim an der Murr",
+    "website": null
+  },
+  {
+    "name": "Schule an der Bottwar Grundschule Kleinbottwar",
+    "typ": "Öffentlich",
+    "strasse": "Bottwarstraße 5",
+    "plz": "71711",
+    "ort": "Steinheim an der Murr",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Hölderlin-Schule Grund- und Werkrealschule Asperg Außenstelle Werkrealschule Tamm",
+    "typ": "Öffentlich",
+    "strasse": "Maystraße 4",
+    "plz": "71732",
+    "ort": "Tamm",
+    "website": null
+  },
+  {
+    "name": "Gustav-Sieber-Schule Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Maystraße 4",
+    "plz": "71732",
+    "ort": "Tamm",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hohenstange",
+    "typ": "Öffentlich",
+    "strasse": "Ulmer Straße 20",
+    "plz": "71732",
+    "ort": "Tamm",
+    "website": null
+  },
+  {
+    "name": "Auricher Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Pestalozzistraße 7",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Schloßbergschule Vaihingen an der Enz Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Friedrichstraße 1",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Schlossbergschule Grund- und Werkrealschule Vaihingen a.d.Enz Außenstelle Werkrealschule Kleinglattb",
+    "typ": "Öffentlich",
+    "strasse": "Im See 8",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Horrheimer Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Eugenstraße 39",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Enzweihinger Grund- und Werkrealschule",
+    "typ": "Öffentlich",
+    "strasse": "Schulstraße 38",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Ensinger Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Schwalbenweg 5",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Bartenbergschule Kleinglattbach Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Oberriexinger Weg 5",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Rieter Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Raiffeisenstraße 22",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Rosswager Grundschule",
+    "typ": "Öffentlich",
+    "strasse": "Adlerstraße 6",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gündelbach",
+    "typ": "Öffentlich",
+    "strasse": "Karl-Stotz-Platz 4",
+    "plz": "71665",
+    "ort": "Vaihingen an der Enz",
+    "website": null
+  },
+  {
+    "name": "Grundschule Walheim",
+    "typ": "Öffentlich",
+    "strasse": "Paulinenstraße 3",
+    "plz": "74399",
+    "ort": "Walheim",
+    "website": null
+  }
+]

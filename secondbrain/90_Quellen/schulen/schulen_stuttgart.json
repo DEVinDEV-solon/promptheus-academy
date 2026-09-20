@@ -1,0 +1,1432 @@
+[
+  {
+    "name": "Abendgymnasium Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Abendrealschule Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Akademie der media GmbH",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Akademie für Betriebswirtschaft (ABW)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Akademie für Bürokommunikation und Welthandelssprachen (ABW)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Akademie für Kommunikation",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Akademie Vaihingen e.V.",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Albert-Schweitzer-Schule (SBBZ sozial-emotionale Entwicklung)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Albertus-Magnus-Gymnasium",
+    "ort": "Stuttgart",
+    "strasse": "In den Ringelgärten 90",
+    "plz": "70374",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Albschule",
+    "ort": "Stuttgart",
+    "strasse": "Wurmlinger Straße 61",
+    "plz": "70597",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Alexander-Fleming-Schule",
+    "ort": "Stuttgart",
+    "strasse": "Hedwig-Dohm-Straße 1",
+    "plz": "70191",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Altenburgschule",
+    "ort": "Stuttgart",
+    "strasse": "Auf der Altenburg 10",
+    "plz": "70376",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Altenpflegeschule der Evangelischen Diakonissenanstalt",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Ameisenbergschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Anne-Frank-Gemeinschaftsschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Auschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Bachschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "BBQ Bildung und Berufliche Qualifizierung gGmbH",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Berger Schule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Bertha-von-Suttner-Gemeinschaftsschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Berufsfachschule für Altenpflege des Eigenbetriebs Leben & Wohnen",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Berufsfachschule für Kosmetik Edith Lehmann",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Berufsfachschule für Mode - Brigitte Kehrer",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Berufsfortbildungswerk Altenpflegeschule",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Berufskolleg für Chemie, Pharmazie und Umwelt Institut Dr. Flad",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Betty-Hirsch-Schule 1 (Nikolauspflege)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Betty-Hirsch-Schule 2 (Nikolauspflege)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Betty-Hirsch-Schulzentrum (Grundschule)",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Betty-Hirsch-Schulzentrum (Realschule)",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Betty-Hirsch-Schulzentrum (Werkrealschule)",
+    "ort": "Stuttgart",
+    "typ": "Werkrealschule"
+  },
+  {
+    "name": "BiL-Privatschulen (Realschule und Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Bildungszentrum Stuttgart des Kolping-Bildungswerkes",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Birken-Realschule Heumaden",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Bismarckschule",
+    "ort": "Stuttgart",
+    "typ": "Werkrealschule"
+  },
+  {
+    "name": "Bodelschwinghschule (SBBZ geistige Entwicklung)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Brunnen-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Carl-Benz-Schule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Deutsch-Französische Grundschule Sillenbuch",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Dietrich-Bonhoeffer-Schule (SBBZ sozial-emotionale Entwicklung)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Dillmann-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Eberhard-Ludwigs-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Eduard-Pfeiffer-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Eichendorffschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Element-i-Schule im Step (Freie Grundschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Elise von König-Gemeinschaftsschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Elly-Heuss-Knapp-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Engelbergschule Bergheim",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Ernst-Abbe-Schule (SBBZ Sehen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Eschbach-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Eurythmeum Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Evangelische Fachschule für Sozialpädagogik",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Evangelische Mörike-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Evangelisches Bildungszentrum für Gesundheitsberufe Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Evangelisches Heidehof-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Evangelisches Mörike-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Fachschule für Altenpflege Stuttgart (Caritas)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Falkertschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Fanny-Leicht-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Fasanenhofschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "FBD Bildungspark Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Ferdinand-Porsche-Gymnasium Rot",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Filderschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Forum für Bildung (Berufsschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Franz-Schubert-Schule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Franziska von Hohenheim Schule (Berufliche Schule für Gartenbau)",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Freie Aktive Schule",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Freie Duale Fachschule für Pädagogik",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Freie element-i Gemeinschaftsschule in Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Freie element-i Grundschule in Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Freie Evangelische Schule (GWRS/Realschule/Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Freie Kolping-Grundschule Villa Scheufelen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Freie Kunstschule P.ART",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Freie Waldorfschule am Kräherwald",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Freie Waldorfschule Silberwald",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Freie Waldorfschule Uhlandshöhe",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Friedrich-Eugens-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Fritz-Leonhardt-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Fritz-Nuss-Schule (SBBZ, Krankenhausbehandlung)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Fuchsrainschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Föhrichschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Galileo Bildungshaus Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Galileo Grundschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Gemeinschaftsschule Weilimdorf",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Geschwister-Scholl-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Gewerbliche Schule für Farbe und Gestaltung",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Gewerbliche Schule für Holztechnik",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Gewerbliche Schule Im Hoppenlau",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "GluckerSchule (Sport- und Gymnastiklehrer)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Gottlieb-Daimler-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Grafische Fachschule (Berufsschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Griechisches Lyzeum Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Gablenberg",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Ostheim",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Plieningen",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule am Stadtpark",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Birkach",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Burgholzhof",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Gaisburg",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Heumaden",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Hofen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule im Bildungshaus NeckarPark",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Kaltental",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Mühlhausen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Obertürkheim",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Riedenberg",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Stuttgart-Stammheim",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Uhlbach",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Zazenhausen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Gustav-Werner-Schule (SBBZ geistige Entwicklung)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Haldenrainschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Handelsschule C.G. Zimmermann (Berufl. Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Hasenbergschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Hattenbühlschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Hauswirtschaftliche Schule Stuttgart-Ost",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Hedwig-Dohm-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Hegel-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Heilbrunnenschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Helene-Fernau-Horn-Schule (SBBZ Sprache)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Helene-Schoettle-Schule (SBBZ geistige Entwicklung)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Herbert-Hoover-Schule Freiberg",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Heusteigschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Hohensteinschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Hohewartschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Hölderlin-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "IB Berufliche Schule Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "IB Berufliche Schulen Stuttgart-Vaihingen",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "IDI Sprachen- und Dolmetscher-Institut",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Immenhoferschule (SBBZ Hören)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Institut Dr. Flad",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Institut für soziale Berufe gGmbH",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "International School of Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Internationale Schauspielakademie CreArte",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Internationaler Bund (IB) Bildungszentrum",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "it.schule stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Jahn-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Jakobschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Johann-Friedrich-von-Cotta-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Johannes Brenz Schule (Grundschule)",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Johannes-Brenz-Schule (Freie Evang. Grundschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Johannes-Gutenberg-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Johannes-Kepler-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "John Cranko Schule (Ballettakademie)",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Jörg-Ratgeb-Schule Stuttgart-Neugereut",
+    "ort": "Stuttgart",
+    "strasse": "Seeadlerstraße 3",
+    "plz": "70378",
+    "typ": "Schulverbund (Werkrealschule/Realschule/Gymnasium)"
+  },
+  {
+    "name": "Karl-Döttinger-Schule",
+    "ort": "Stuttgart",
+    "typ": "SBBZ"
+  },
+  {
+    "name": "Karl-Schubert-Schule (Waldorfschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Karls-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Katholische Berufsfachschule für Altenpflege und Altenpflegehilfe",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Katholische Fachschule für Sozialpädagogik",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Katholische Fachschule für Sozialwesen",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kaufmännische Schule 1",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Kaufmännische Schule Stuttgart-Nord",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Kaufmännische Schule Stuttgart-Süd",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Kaufmännisches Berufskolleg Fremdsprachen IB",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kaufmännisches Berufskolleg IB Berufliche Schulen Stuttgart-Vaihingen",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kerschensteinerschule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Kiedaisch-Schule - Berufsfachschule für Sport- und Gymnastiklehrer",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kiedaisch-Schulen",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kirchhaldenschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Kolping Bildungswerk - Kolleg - Gymnasium für Erwachsene",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kolping Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Kolping Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Kolping-Kolleg",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Kompetenzzentrum Silberburg",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Kreuzsteinschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Königin-Charlotte-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Königin-Katharina-Stift-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Königin-Olga-Stift",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Körschtalschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Körschtalschule Gemeinschaftsschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Landwirtschaftliche Schule Hohenheim",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Lehenschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Lerchenrainschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Lessing-Schulen Berufskolleg",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Lessing-Schulen Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Lessing-Schulen Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Linden-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "LIVE act Akademie der Schauspielkunst",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Louis-Leitz-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Luginslandschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Manfred-Ehringer Grundschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Margarete-Steiff-Schule",
+    "ort": "Stuttgart",
+    "typ": "SBBZ"
+  },
+  {
+    "name": "Maria Montessori-Schule Hausen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Maria-Montessori-Schule Hausen",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Marienschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Martin-Luther-Schule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Max-Eyth-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Medizinische Akademie (Ergotherapie)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Medizinische Akademie (Logopädie)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Medizinische Akademie (Physiotherapie)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Merz-Schule (Grundschule/Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Michael Bauer Schule (Sonderberufsfachschule)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Michael Bauer Werkhof",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Michael-Bauer-Schule (Waldorfschule)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Modeschule Brigitte Kehrer (Berufsfachschule für Mode)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Monte Sole - Schule für individuelle Entwicklung",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Mädchen-Gymnasium St. Agnes",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Mädchengymnasium St. Agnes",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Mönchfeldschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Mühlbachhofschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Neckar-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Neues Gymnasium Leibniz",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Neuwirtshausschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Nikolauspflege Private Bildungsstätte für Blinde",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Paracelsus Schule Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "SBBZ"
+  },
+  {
+    "name": "Paracelsus-Gymnasium Hohenheim",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Park-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Pelikanschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Pestalozzischule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Pfaffenwaldschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Pragschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Privates Berufskolleg der Deutschen Angestellten-Akademie",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Raichberg-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Raiffeisen-Grundschule Feuerbach",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Raitelsbergschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Rappachschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Realschule Feuerbach",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Realschule Ostheim",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Reisachschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Riedseeschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Rilke-Realschule Rot",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Robert-Bosch-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Robert-Koch-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Robert-Mayer-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Rosenschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Rosensteinschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "SAE Institute Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Salzäckerschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Schickhardt-Gemeinschaftsschule",
+    "ort": "Stuttgart",
+    "typ": "Gemeinschaftsschule"
+  },
+  {
+    "name": "Schickhardt-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Schillerschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Schloss-Realschule",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Schloss-Realschule für Mädchen",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Schule für Körperbehinderte",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Schule Im Sonnigen Winkel",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Schulzentrum Silberburg (Berufsfachschule für Sozialpädagogik)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Schwabschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Schönbuchschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Schülerhaus Grundschule Ostheim",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Seelachschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Silcherschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Solitude-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Sommerrainschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Sozialwissenschaftliches Gymnasium IB",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Staatlich anerkannte Berufsfachschule für Kosmetik",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Staatlich anerkannte Hebammenschule (Klinikum Stuttgart)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Staatlich anerkannte Schule für Gesundheits- und Krankenpflege",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Staatsschule für Gartenbau und Landwirtschaft Hohenheim",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Steigschule (SBBZ Lernen)",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Steinbachschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Steinbeisschule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Steinenbergschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Steinhaldenfeldschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Stuttgarter Berufskolleg Modegestaltung Bekleidung",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "TASK Schauspielschule für Kinder und Jugendliche",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Technische Fachschule Tochtermann",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Technische Oberschule Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Technisches Berufskolleg IB",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "THALAMUS Schulen für ganzheitliche Heilkunde",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Theater Akademie Stuttgart",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Tiefenbachschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Torwiesenschule (Private Grundschule und SBBZ)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Uhlandschule Rot",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Verbundschule Stuttgart-Rohr",
+    "ort": "Stuttgart",
+    "typ": "Sonderpädagogisches Bildungs- und Beratungszentrum"
+  },
+  {
+    "name": "Vogelsangschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Wagenburg-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Waldorfkindergartenseminar (Fachschule für Sozialpädagogik)",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Waldschule Degerloch (Grundschule)",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Waldschule Degerloch (Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Waldschule Degerloch (Realschule und Gymnasium)",
+    "ort": "Stuttgart",
+    "typ": "Privatschule"
+  },
+  {
+    "name": "Waldschule Degerloch (Realschule)",
+    "ort": "Stuttgart",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Werner-Siemens-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Wilhelm-Hauff-Schule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Wilhelm-Maybach-Schule",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Wilhelms-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Wilhelmsschule Untertürkheim",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Wilhelmsschule Wangen",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Wirtemberg-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Wirtschaftsgymnasium West",
+    "ort": "Stuttgart",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Wirtschaftswissenschaftliches Gymnasium IB",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Wohlfahrtswerk - Berufsfachschule für Altenpflege und Altenpflegehilfe",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Wohlfahrtswerk - Berufsfachschule für Sozialpflege",
+    "ort": "Stuttgart",
+    "typ": "Private berufliche Schule"
+  },
+  {
+    "name": "Wolfbuschschule",
+    "ort": "Stuttgart",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Zeppelin-Gymnasium",
+    "ort": "Stuttgart",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Österfeldschule",
+    "ort": "Stuttgart",
+    "typ": "Grundschule"
+  }
+]

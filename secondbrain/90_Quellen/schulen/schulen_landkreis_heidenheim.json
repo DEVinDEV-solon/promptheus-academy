@@ -1,0 +1,296 @@
+[
+  {
+    "name": "Egauschule Grund- und Werkrealschule",
+    "ort": "Dischingen",
+    "strasse": "Am Baumwolf 15",
+    "plz": "89561",
+    "website": null
+  },
+  {
+    "name": "Egauschule Grund- und Werkrealschule Dischingen Außenstelle Grundschule Demmingen",
+    "ort": "Dischingen",
+    "strasse": "Kasperlegässle 3",
+    "plz": "89561",
+    "website": null
+  },
+  {
+    "name": "Egauschule Grund- und Werkrealschule Dischingen Außenstelle Grundschule Frickingen",
+    "ort": "Dischingen",
+    "strasse": "e 4",
+    "plz": "89561",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule mit Förderschule Gerstetten",
+    "ort": "Gerstetten",
+    "strasse": "e 18",
+    "plz": "89547",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dettingen am Albuch",
+    "ort": "Gerstetten",
+    "strasse": "e 18",
+    "plz": "89547",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gussenstadt",
+    "ort": "Gerstetten",
+    "strasse": "e 18",
+    "plz": "89547",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heuchlingen",
+    "ort": "Gerstetten",
+    "strasse": "e 9",
+    "plz": "89547",
+    "website": null
+  },
+  {
+    "name": "Grundschule Heldenfingen",
+    "ort": "Gerstetten",
+    "strasse": "e 6",
+    "plz": "89547",
+    "website": null
+  },
+  {
+    "name": "Bühl-Schule Grund- und Werkrealschule",
+    "ort": "Giengen an der Brenz",
+    "strasse": "e 2",
+    "plz": "89537",
+    "website": null
+  },
+  {
+    "name": "Grundschule Burgberg",
+    "ort": "Giengen an der Brenz",
+    "strasse": "e 33",
+    "plz": "89537",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hohenmemmingen",
+    "ort": "Giengen an der Brenz",
+    "strasse": "e 3",
+    "plz": "89537",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hürben",
+    "ort": "Giengen an der Brenz",
+    "strasse": "e 8",
+    "plz": "89537",
+    "website": null
+  },
+  {
+    "name": "Lina-Hähnle-Schule Grund- und Hauptschule",
+    "ort": "Giengen an der Brenz",
+    "strasse": "e 4",
+    "plz": "89537",
+    "website": null
+  },
+  {
+    "name": "Grundschule Grosskuchen",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "Rathausplatz 6",
+    "plz": "89520",
+    "website": null
+  },
+  {
+    "name": "Bergschule Grundschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 17",
+    "plz": "89518",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Voith-Schule Grund- und Werkrealschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 1",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Voith-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Ostschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "Ostplatz 1",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Ost-Schule Grundschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "Ostplatz 1",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Rauhbuchschule Grundschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 56",
+    "plz": "89518",
+    "website": null
+  },
+  {
+    "name": "Westschule Grund- und Werkrealschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 22",
+    "plz": "89518",
+    "website": null
+  },
+  {
+    "name": "Hirscheck-Schule Grund- und Werkrealschule Schnaitheim",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "Hirscheck 27",
+    "plz": "89520",
+    "website": null
+  },
+  {
+    "name": "Mittelrainschule Grundschule Schnaitheim",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 57",
+    "plz": "89520",
+    "website": null
+  },
+  {
+    "name": "Silcherschule Grund- und Hauptschule Mergelstetten",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "29",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oggenhausen",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 3",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Grundschule Reutenen",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 4",
+    "plz": "89522",
+    "website": null
+  },
+  {
+    "name": "Freie evangelische Schule Heidenheim e.V. Grund- und Realschule",
+    "ort": "Heidenheim an der Brenz",
+    "strasse": "e 66",
+    "plz": "89518",
+    "website": null
+  },
+  {
+    "name": "Wartbergschule Grundschule",
+    "ort": "Herbrechtingen",
+    "strasse": "e 4",
+    "plz": "89542",
+    "website": null
+  },
+  {
+    "name": "Bibrisschule Grund- und Werkrealschule",
+    "ort": "Herbrechtingen",
+    "strasse": "e 10",
+    "plz": "89542",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bolheim",
+    "ort": "Herbrechtingen",
+    "strasse": "Rottsteige 10",
+    "plz": "89542",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bissingen",
+    "ort": "Herbrechtingen",
+    "strasse": "e 36/1",
+    "plz": "89542",
+    "website": null
+  },
+  {
+    "name": "Rudolf-Magenau-Schule Grundschule",
+    "ort": "Hermaringen",
+    "strasse": "e 20",
+    "plz": "89568",
+    "website": null
+  },
+  {
+    "name": "Georg-Elser-Schule Grund-, Haupt- und Realschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Georg-Elser-Schule Grund-, Hauptschule und Realschule Außenstelle Grundschule Eichhalde",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Georg-Elser-Schule Grund-, Hauptschule und Realschule Außenstelle Grundschule Itzelberg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Georg-Elser-Schule Grund-, Haupt- und Realschule Außenstelle Grundschule Zang",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Wiesbühlschule Grund- und Hauptschule",
+    "ort": "Nattheim",
+    "strasse": "e 16",
+    "plz": "89564",
+    "website": null
+  },
+  {
+    "name": "Grundschule Auernheim",
+    "ort": "Nattheim",
+    "strasse": "Leiteweg 8",
+    "plz": "89564",
+    "website": null
+  },
+  {
+    "name": "Grund-, Werkreal- und Realschule Sontheim Außenstelle Werkrealschule Niederstotzingen",
+    "ort": "Niederstotzingen",
+    "strasse": "e 28",
+    "plz": "89168",
+    "website": null
+  },
+  {
+    "name": "Grund-, Werkreal- und Realschule Sontheim",
+    "ort": "Sontheim an der Brenz",
+    "strasse": "62",
+    "plz": "89567",
+    "website": null
+  },
+  {
+    "name": "Grund-, Werkreal- und Realschule Sontheim Außenstelle Grundschule Brenz",
+    "ort": "Sontheim an der Brenz",
+    "strasse": "e 33",
+    "plz": "89567",
+    "website": null
+  },
+  {
+    "name": "Hiller-Schule Grund-, Haupt- und Realschule",
+    "ort": "Steinheim am Albuch",
+    "strasse": "e 3",
+    "plz": "89555",
+    "website": null
+  },
+  {
+    "name": "Seebergschule Grund- und Hauptschule Söhnstetten",
+    "ort": "Steinheim am Albuch",
+    "strasse": "e 1",
+    "plz": "89555",
+    "website": null
+  }
+]

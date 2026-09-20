@@ -1,0 +1,352 @@
+[
+  {
+    "name": "Freie element-i Gemeinschaftsschule im Bildungshaus Karlsruhe",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.element-i.de/schulen"
+  },
+  {
+    "name": "Freie element-i Grundschule im Bildungshaus Karlsruhe",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.element-i.de/schulen"
+  },
+  {
+    "name": "Nordschule Grund- und Werkrealschule Außenstelle Werkrealschule Südschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 14",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Draisschule Grund- und Hauptschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 1",
+    "plz": "76185",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Ebert-Schule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 3",
+    "plz": "76185",
+    "website": null
+  },
+  {
+    "name": "Gartenschule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "22",
+    "plz": "76133",
+    "website": null
+  },
+  {
+    "name": "Gutenbergschule Grund- und Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 34",
+    "plz": "76135",
+    "website": null
+  },
+  {
+    "name": "Hardtschule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 3",
+    "plz": "76185",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 8",
+    "plz": "76133",
+    "website": null
+  },
+  {
+    "name": "Leopoldschule Grund- und Hauptschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 9",
+    "plz": "76133",
+    "website": null
+  },
+  {
+    "name": "Nebeniusschule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 22",
+    "plz": "76137",
+    "website": null
+  },
+  {
+    "name": "Rennbuckel-Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 22",
+    "plz": "76185",
+    "website": null
+  },
+  {
+    "name": "Schillerschule Grund- und Werkrealschule Außenstelle Werkrealschule Uhlandschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 35",
+    "plz": "76137",
+    "website": null
+  },
+  {
+    "name": "Werner-Von-Siemens-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Marylandschule",
+    "ort": "Karlsruhe",
+    "strasse": "Rhode-Island-Allee 70",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Werner-von-Siemens-Schule Grund- und Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 1",
+    "plz": "76187",
+    "website": null
+  },
+  {
+    "name": "Südendschule Grund- und Werkrealschule Außenstelle Werkrealschule Leopoldschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 9",
+    "plz": "76133",
+    "website": null
+  },
+  {
+    "name": "Südendschule Grund- und Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 35",
+    "plz": "76137",
+    "website": null
+  },
+  {
+    "name": "Hans-Thoma-Schule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 42",
+    "plz": "76133",
+    "website": null
+  },
+  {
+    "name": "Tulla-Schule Grund- und Hauptschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 57",
+    "plz": "76131",
+    "website": null
+  },
+  {
+    "name": "Weinbrennerschule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 141",
+    "plz": "76135",
+    "website": null
+  },
+  {
+    "name": "Oberwaldschule Aue Grund- und Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 25",
+    "plz": "76227",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Beiertheim",
+    "ort": "Karlsruhe",
+    "strasse": "e 51",
+    "plz": "76135",
+    "website": null
+  },
+  {
+    "name": "Bergwaldschule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 7",
+    "plz": "76228",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bulach",
+    "ort": "Karlsruhe",
+    "strasse": "e 10",
+    "plz": "76135",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Daxlanden",
+    "ort": "Karlsruhe",
+    "strasse": "e 8",
+    "plz": "76189",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Schule Grund- und Werkrealschule Durlach",
+    "ort": "Karlsruhe",
+    "strasse": "e 23",
+    "plz": "76227",
+    "website": null
+  },
+  {
+    "name": "Schloß-Schule Grund- und Hauptschule mit Werkrealschule Durlach",
+    "ort": "Karlsruhe",
+    "strasse": "e 1",
+    "plz": "76227",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Grünwinkel",
+    "ort": "Karlsruhe",
+    "strasse": "e 18",
+    "plz": "76185",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hagsfeld",
+    "ort": "Karlsruhe",
+    "strasse": "Ruschgraben 17",
+    "plz": "76139",
+    "website": null
+  },
+  {
+    "name": "Schule im Lustgarten Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "Kirchplatz 8",
+    "plz": "76228",
+    "website": null
+  },
+  {
+    "name": "Grundschule Knielingen",
+    "ort": "Karlsruhe",
+    "strasse": "e 3",
+    "plz": "76187",
+    "website": null
+  },
+  {
+    "name": "Viktor-von-Scheffel-Schule Grund- und Hauptschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 3",
+    "plz": "76187",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rintheim",
+    "ort": "Karlsruhe",
+    "strasse": "Weinweg 1",
+    "plz": "76131",
+    "website": null
+  },
+  {
+    "name": "Riedschule Grund- und Hauptschule Rüppurr",
+    "ort": "Karlsruhe",
+    "strasse": "e 11",
+    "plz": "76199",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stupferich",
+    "ort": "Karlsruhe",
+    "strasse": "e 14",
+    "plz": "76228",
+    "website": null
+  },
+  {
+    "name": "Ernst-Reuter-Schule Grund- und Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 15",
+    "plz": "76139",
+    "website": null
+  },
+  {
+    "name": "Eichelgarten-Grundschule Rüppurr",
+    "ort": "Karlsruhe",
+    "strasse": "Rosenweg 1",
+    "plz": "76199",
+    "website": null
+  },
+  {
+    "name": "Eichendorff-Schule Grund- und Werkrealschule Waldstadt",
+    "ort": "Karlsruhe",
+    "strasse": "e 2",
+    "plz": "76139",
+    "website": null
+  },
+  {
+    "name": "Weiherwald-Schule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "Scheibenhardter Weg 23",
+    "plz": "76199",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wolfartsweier",
+    "ort": "Karlsruhe",
+    "strasse": "e 56",
+    "plz": "76228",
+    "website": null
+  },
+  {
+    "name": "Adam-Remmele-Schule Grund- und Werkrealschule Daxlanden",
+    "ort": "Karlsruhe",
+    "strasse": "e 28",
+    "plz": "76189",
+    "website": null
+  },
+  {
+    "name": "Anne-Frank-Schule Grund- und Werkrealschule Oberreut",
+    "ort": "Karlsruhe",
+    "strasse": "e 12",
+    "plz": "76189",
+    "website": null
+  },
+  {
+    "name": "Heinrich-Köhler-Schule Grundschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 4",
+    "plz": "76131",
+    "website": null
+  },
+  {
+    "name": "Nordschule Grund- und Werkrealschule Neureut",
+    "ort": "Karlsruhe",
+    "strasse": "e 1",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Südschule Grund- und Hauptschule Neureut",
+    "ort": "Karlsruhe",
+    "strasse": "e 14",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Waldschule Grundschule Neureut",
+    "ort": "Karlsruhe",
+    "strasse": "e 37",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Heinz-Barth-Grund- und Hauptschule mit Werkrealschule Wettersbach",
+    "ort": "Karlsruhe",
+    "strasse": "e 2",
+    "plz": "76228",
+    "website": null
+  },
+  {
+    "name": "Marylandschule Grund- und Hauptschule",
+    "ort": "Karlsruhe",
+    "strasse": "Rhode-Island-Allee 70",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Freie aktive Schule e.V. Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Karlsruhe",
+    "strasse": "e 131",
+    "plz": "76149",
+    "website": null
+  },
+  {
+    "name": "Evangelische Grundschule Karlsruhe",
+    "ort": "Karlsruhe",
+    "strasse": "Linkenheimer Allee 12",
+    "plz": "76131",
+    "website": null
+  }
+]

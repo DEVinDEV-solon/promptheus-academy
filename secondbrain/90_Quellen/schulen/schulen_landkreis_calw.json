@@ -1,0 +1,338 @@
+[
+  {
+    "name": "Markgrafenschule Grundschule",
+    "ort": "Altensteig",
+    "strasse": "e 70",
+    "plz": "72213",
+    "website": null
+  },
+  {
+    "name": "Markgrafenschule Grundschule Außenstelle Spielberg",
+    "ort": "Altensteig",
+    "strasse": "Schulweg 1",
+    "plz": "72213",
+    "website": null
+  },
+  {
+    "name": "Markgrafenschule Grundschule Außenstelle Wart",
+    "ort": "Altensteig",
+    "strasse": "Oberer Steigweg 20",
+    "plz": "72213",
+    "website": null
+  },
+  {
+    "name": "Hohenbergschule Werkrealschule",
+    "ort": "Altensteig",
+    "strasse": "e 21",
+    "plz": "72213",
+    "website": null
+  },
+  {
+    "name": "Grundschule Walddorf",
+    "ort": "Altensteig",
+    "strasse": "e 10",
+    "plz": "72213",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Althengstett",
+    "ort": "Althengstett",
+    "strasse": "15",
+    "plz": "75382",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Althengstett Außenstelle Grundschule Ottenbronn",
+    "ort": "Althengstett",
+    "strasse": "e 18",
+    "plz": "75382",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Althengstett Außenstelle Grundschule Neuhengstett",
+    "ort": "Althengstett",
+    "strasse": "e 16",
+    "plz": "75382",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Bad Herrenalb",
+    "ort": "Bad Herrenalb",
+    "strasse": "Dobeltal 26",
+    "plz": "76332",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Bad Herrenalb Außenstelle Grundschule Klosterhof",
+    "ort": "Bad Herrenalb",
+    "strasse": "e 10",
+    "plz": "76332",
+    "website": null
+  },
+  {
+    "name": "Reuchlin-Schulen Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Bad Liebenzell",
+    "strasse": "e 6",
+    "plz": "75378",
+    "website": null
+  },
+  {
+    "name": "Reuchlin-Schulen Grund- u. Hauptschule mit Werkrealschule Außenst. Grundschule Möttlingen",
+    "ort": "Bad Liebenzell",
+    "strasse": "Köpflesweg 11",
+    "plz": "75378",
+    "website": null
+  },
+  {
+    "name": "Reuchlin-Schulen Realschule, Grund-und Haupschule mit WRS Aussenstelle Grundschule Unterhaugstett",
+    "ort": "Bad Liebenzell",
+    "strasse": "Jahnstr. 20",
+    "plz": "75378",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bad Teinach-Zavelstein",
+    "ort": "Bad Teinach-Zavelstein",
+    "strasse": "e 65",
+    "plz": "75385",
+    "website": null
+  },
+  {
+    "name": "Gossweilerschule Grund- und Werkrealschule Calmbach",
+    "ort": "Bad Wildbad",
+    "strasse": "e 4",
+    "plz": "75323",
+    "website": null
+  },
+  {
+    "name": "Heumadenschule Grund- und Werkrealschule",
+    "ort": "Calw",
+    "strasse": "e 45",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Bohnenberger-Grundschule Altburg",
+    "ort": "Calw",
+    "strasse": "e 57",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Wimbergschule Grund- und Werkrealschule",
+    "ort": "Calw",
+    "strasse": "e 7",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hirsau",
+    "ort": "Calw",
+    "strasse": "Klosterhof 3",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stammheim",
+    "ort": "Calw",
+    "strasse": "e 67",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Freie Evangelische Schule Nordschwarzwald e.V. Grund-, Haupt- und Realschule",
+    "ort": "Calw",
+    "strasse": "Weidensteige 18",
+    "plz": "75365",
+    "website": null
+  },
+  {
+    "name": "Grundschule Dobel",
+    "ort": "Dobel",
+    "strasse": "e 8",
+    "plz": "75335",
+    "website": null
+  },
+  {
+    "name": "Grund- und Nachbarschaftshauptschule mit Werkrealschule Ebhausen",
+    "ort": "Ebhausen",
+    "strasse": "8",
+    "plz": "72224",
+    "website": null
+  },
+  {
+    "name": "Grund- und Nachbarschaftshauptschule mit Werkrealschule Ebhausen Außenstelle Grundschule Rotfelden",
+    "ort": "Ebhausen",
+    "strasse": "Lerchenweg 23",
+    "plz": "72224",
+    "website": null
+  },
+  {
+    "name": "Grundschule Egenhausen",
+    "ort": "Egenhausen",
+    "strasse": "Schulweg 2",
+    "plz": "72227",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberes Enztal",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Schlehengäu-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Gechingen",
+    "strasse": "8",
+    "plz": "75391",
+    "website": null
+  },
+  {
+    "name": "Burgschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Haiterbach",
+    "strasse": "43",
+    "plz": "72221",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberschwandorf",
+    "ort": "Haiterbach",
+    "strasse": "e 10",
+    "plz": "72221",
+    "website": null
+  },
+  {
+    "name": "Grundschule Höfen",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Kernenschule Grundschule",
+    "ort": "Nagold",
+    "strasse": "e 70",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Lembergschule Grund- und Werkrealschule",
+    "ort": "Nagold",
+    "strasse": "e 1",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Zellerschule Grund- und Werkrealschule",
+    "ort": "Nagold",
+    "strasse": "e 19",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Wiestalschule Grundschule Emmingen",
+    "ort": "Nagold",
+    "strasse": "Malmenweg 12",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Grundschule Iselshausen",
+    "ort": "Nagold",
+    "strasse": "Schulweg 22",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gündringen/Schietingen",
+    "ort": "Nagold",
+    "strasse": "e 38",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Grundschule Vollmaringen",
+    "ort": "Nagold",
+    "strasse": "e 5",
+    "plz": "72202",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Neubulach",
+    "ort": "Neubulach",
+    "strasse": "e",
+    "plz": "75387",
+    "website": null
+  },
+  {
+    "name": "Waldschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Neuweiler",
+    "strasse": "e 22",
+    "plz": "75389",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberreichen-Bachwürzbach",
+    "ort": "Oberreichenbach",
+    "strasse": "e 27",
+    "plz": "75394",
+    "website": null
+  },
+  {
+    "name": "Malmenschule Grundschule",
+    "ort": "Rohrdorf",
+    "strasse": "Schulweg 1",
+    "plz": "72229",
+    "website": null
+  },
+  {
+    "name": "Ludwig-Uhland-Schule Grund- und Werkrealschule Schömberg",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Tannbergschule Grundschule",
+    "ort": "Unterreichenbach",
+    "strasse": "e 56",
+    "plz": "75399",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sulz am Eck-Gültlingen",
+    "ort": "Wildberg",
+    "strasse": "e 34",
+    "plz": "72218",
+    "website": null
+  },
+  {
+    "name": "Grundschule Sulz am Eck-Gültlingen Außenstelle Gültlingen",
+    "ort": "Wildberg",
+    "strasse": "Steingasse 11",
+    "plz": "72218",
+    "website": null
+  },
+  {
+    "name": "Grundschule Effringen",
+    "ort": "Wildberg",
+    "strasse": "e 5",
+    "plz": "72218",
+    "website": null
+  },
+  {
+    "name": "Bildungszentrum Wildberg Haupt- und Realschule",
+    "ort": "Wildberg",
+    "strasse": "Schafscheuernberg",
+    "plz": "72218",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wildberg",
+    "ort": "Wildberg",
+    "strasse": "e 6",
+    "plz": "72218",
+    "website": null
+  }
+]

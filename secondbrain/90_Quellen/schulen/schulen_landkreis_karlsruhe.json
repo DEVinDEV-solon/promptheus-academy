@@ -1,0 +1,737 @@
+[
+  {
+    "name": "Werkrealschule Karlsbad",
+    "ort": "Karlsbad",
+    "strasse": "Am Schelmenbusch",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund- und Hauptschule Mörsch",
+    "ort": "Rheinstetten",
+    "strasse": "e",
+    "plz": "76287",
+    "website": null
+  },
+  {
+    "name": "Franz-Josef-Kuhn Grundschule Langenbrücken",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Michael-Ende-Schule Grund- und Werkrealschule Bad Schönborn",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Schule Grund- und Werkrealschule",
+    "ort": "Bretten",
+    "strasse": "e 45",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Grundschule Bauerbach",
+    "ort": "Bretten",
+    "strasse": "e 69",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Grundschule Büchig",
+    "ort": "Bretten",
+    "strasse": "Schulhausplatz 1",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Schwandorf-Grundschule Diedelsheim",
+    "ort": "Bretten",
+    "strasse": "23",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Grundschule Gölshausen",
+    "ort": "Bretten",
+    "strasse": "e 3",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Pfarrer-Wolfram-Hartmann-Schule Grundschule Neibsheim",
+    "ort": "Bretten",
+    "strasse": "e 8",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rinklingen",
+    "ort": "Bretten",
+    "strasse": "14",
+    "plz": "75015",
+    "website": null
+  },
+  {
+    "name": "Konrad-Adenauer-Schule Grund- und Werkrealschule",
+    "ort": "Bruchsal",
+    "strasse": "Hardfeldplatz 8",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Schule Grund-schule",
+    "ort": "Bruchsal",
+    "strasse": "e 14",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Stirumschule Grund- und Werkrealschule",
+    "ort": "Bruchsal",
+    "strasse": "e 2 A",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Grundschule Büchenau",
+    "ort": "Bruchsal",
+    "strasse": "e 27",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Dietrich-Bonhoeffer-Grund- und Hauptschule Heidelsheim",
+    "ort": "Bruchsal",
+    "strasse": "e 2",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Grundschule Helmsheim",
+    "ort": "Bruchsal",
+    "strasse": "e 18",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Burgschule Grund- und Hauptschule",
+    "ort": "Bruchsal",
+    "strasse": "Danzberg 9",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Joss-Fritz-Schule Grundschule Untergrombach",
+    "ort": "Bruchsal",
+    "strasse": "e 4",
+    "plz": "76646",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Schule Grund- und Hauptschule Liedolsheim",
+    "ort": "Dettenheim",
+    "strasse": "e 30",
+    "plz": "76706",
+    "website": null
+  },
+  {
+    "name": "Tulla-Schule Grundschule Russheim",
+    "ort": "Dettenheim",
+    "strasse": "e 11",
+    "plz": "76706",
+    "website": null
+  },
+  {
+    "name": "Lindenschule Eggenstein Grundschule",
+    "ort": "Eggenstein-Leopoldshafen",
+    "strasse": "19",
+    "plz": "76344",
+    "website": null
+  },
+  {
+    "name": "Grund- und  Werkrealschule Eggenstein",
+    "ort": "Eggenstein-Leopoldshafen",
+    "strasse": "Buchheimer Weg 6",
+    "plz": "76344",
+    "website": null
+  },
+  {
+    "name": "Grundschule Leopoldshafen",
+    "ort": "Eggenstein-Leopoldshafen",
+    "strasse": "Nordring 9",
+    "plz": "76344",
+    "website": null
+  },
+  {
+    "name": "Pestalozzischule Grund- und Werkrealschule",
+    "ort": "Ettlingen",
+    "strasse": "8",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Thiebauth-Schule Grundschule",
+    "ort": "Ettlingen",
+    "strasse": "e 20",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Hans-Thoma-Schule Grundschule Spessart",
+    "ort": "Ettlingen",
+    "strasse": "e 26",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Erich-Kästner-Schule Grundschule",
+    "ort": "Ettlingen",
+    "strasse": "e 9",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Schule Grund- und Hauptschule Schöllbronn",
+    "ort": "Ettlingen",
+    "strasse": "e 7",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberweier",
+    "ort": "Ettlingen",
+    "strasse": "e 18",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Grund- und Hauptschule mit Werkrealschule Bruchhausen",
+    "ort": "Ettlingen",
+    "strasse": "e 6",
+    "plz": "76275",
+    "website": null
+  },
+  {
+    "name": "Lusshardtschule Grund- und Hauptschule",
+    "ort": "Forst",
+    "strasse": "e 1",
+    "plz": "76694",
+    "website": null
+  },
+  {
+    "name": "Kraichgauschule Grund- und Werkrealschule",
+    "ort": "Gondelsheim",
+    "strasse": "e 4",
+    "plz": "75053",
+    "website": null
+  },
+  {
+    "name": "Adolf-Kussmaul-Schule Grundschule Graben",
+    "ort": "Graben-Neudorf",
+    "strasse": "e 25",
+    "plz": "76676",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Schule Werkrealschule Graben-Neudorf",
+    "ort": "Graben-Neudorf",
+    "strasse": "e 2",
+    "plz": "76676",
+    "website": null
+  },
+  {
+    "name": "Pfarrer-Graf-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Grundschule Auerbach",
+    "ort": "Karlsbad",
+    "strasse": "In der Kail 10",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Grundschule Ittersbach",
+    "ort": "Karlsbad",
+    "strasse": "e 29",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Grundschule Langensteinbach",
+    "ort": "Karlsbad",
+    "strasse": "e 9/1",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Willi-Konstandin-Schule Grundschule Mutschelbach",
+    "ort": "Karlsbad",
+    "strasse": "e 20",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Grundschule Spielberg",
+    "ort": "Karlsbad",
+    "strasse": "e 20",
+    "plz": "76307",
+    "website": null
+  },
+  {
+    "name": "Schönbornschule Grund- und Werkrealschule Karlsdorf-Neuthard",
+    "ort": "Karlsdorf-Neuthard",
+    "strasse": "e 3",
+    "plz": "76689",
+    "website": null
+  },
+  {
+    "name": "Schönbornschule Grund- und Werkrealschule Aussenstelle WRS Sebastianschule",
+    "ort": "Karlsdorf-Neuthard",
+    "strasse": "Schulstr.32",
+    "plz": "76689",
+    "website": null
+  },
+  {
+    "name": "Sebastianschule Grund- und Hauptschule mit Werkrealschule Neuthard",
+    "ort": "Karlsdorf-Neuthard",
+    "strasse": "e 32",
+    "plz": "76689",
+    "website": null
+  },
+  {
+    "name": "Graf-Eberstein-Schule Grundschule Gochsheim",
+    "ort": "Kraichtal",
+    "strasse": "e 85",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Grundschule Landshausen",
+    "ort": "Kraichtal",
+    "strasse": "e 2",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Grundschule Menzingen",
+    "ort": "Kraichtal",
+    "strasse": "e 56",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Markgrafen-Schule Grund- und Werkrealschule Münzesheim",
+    "ort": "Kraichtal",
+    "strasse": "Mönchsweg 12",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Markgrafen-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Eisenhut-Schule",
+    "ort": "Kraichtal",
+    "strasse": "e 40",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Burggarten-Schule Grundschule Oberöwisheim",
+    "ort": "Kraichtal",
+    "strasse": "e 5",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Eisenhut-Schule Grund- und Hauptschule mit Werkrealschule Unteröwisheim",
+    "ort": "Kraichtal",
+    "strasse": "e 40",
+    "plz": "76703",
+    "website": null
+  },
+  {
+    "name": "Erich-Kästner-Schule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Kronau",
+    "strasse": "e 1",
+    "plz": "76709",
+    "website": null
+  },
+  {
+    "name": "Grundschule Hochstetten",
+    "ort": "Linkenheim-Hochstetten",
+    "strasse": "e 15",
+    "plz": "76351",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Linkenheim",
+    "ort": "Linkenheim-Hochstetten",
+    "strasse": "e 1",
+    "plz": "76351",
+    "website": null
+  },
+  {
+    "name": "Christliche Schule Hardt Freie Ev. Bekenntnisschule Grundschule",
+    "ort": "Linkenheim-Hochstetten",
+    "strasse": "e 27",
+    "plz": "76351",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Schule Grundschule",
+    "ort": "Malsch",
+    "strasse": "e 1",
+    "plz": "76316",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Schule Grundschule Malsch Außenstelle Grundschule Waldprechtsweier",
+    "ort": "Malsch",
+    "strasse": "e 27",
+    "plz": "76316",
+    "website": null
+  },
+  {
+    "name": "Hans-Thoma-Schule Grund- und Werkrealschule",
+    "ort": "Malsch",
+    "strasse": "e 11",
+    "plz": "76316",
+    "website": null
+  },
+  {
+    "name": "Mahlbergschule Grundschule",
+    "ort": "Malsch",
+    "strasse": "e 22",
+    "plz": "76316",
+    "website": null
+  },
+  {
+    "name": "Carl-Benz-Schule Grundschule Pfaffenrot",
+    "ort": "Marxzell",
+    "strasse": "e 40",
+    "plz": "76359",
+    "website": null
+  },
+  {
+    "name": "Carl-Benz-Schule Grundschule Pfaffenrot Außenstelle Grundschule Burbach",
+    "ort": "Marxzell",
+    "strasse": "Am Südhang 2",
+    "plz": "76359",
+    "website": null
+  },
+  {
+    "name": "Carl-Benz-Schule Grundschule Pfaffenrot Außenstelle Grundschule Schielberg",
+    "ort": "Marxzell",
+    "strasse": "e 2",
+    "plz": "76359",
+    "website": null
+  },
+  {
+    "name": "Strombergschule Grund- und Werkrealschule",
+    "ort": "Oberderdingen",
+    "strasse": "e 25",
+    "plz": "75038",
+    "website": null
+  },
+  {
+    "name": "Samuel-Friedrich-Sauter-Schule Grundschule Flehingen",
+    "ort": "Oberderdingen",
+    "strasse": "e 43",
+    "plz": "75038",
+    "website": null
+  },
+  {
+    "name": "Heinrich-Blanc-Schule Grundschule Grossvillars",
+    "ort": "Oberderdingen",
+    "strasse": "e 11",
+    "plz": "75038",
+    "website": null
+  },
+  {
+    "name": "Grundschule Oberhausen",
+    "ort": "Oberhausen-Rheinhausen",
+    "strasse": "e 2",
+    "plz": "68794",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Oberhausen",
+    "ort": "Oberhausen-Rheinhausen",
+    "strasse": "Am Schwarzen Weg 1",
+    "plz": "68794",
+    "website": null
+  },
+  {
+    "name": "Grundschule Rheinhausen",
+    "ort": "Oberhausen-Rheinhausen",
+    "strasse": "e 10",
+    "plz": "68794",
+    "website": null
+  },
+  {
+    "name": "Silcher-Grundschule",
+    "ort": "Östringen",
+    "strasse": "e 1c",
+    "plz": "76684",
+    "website": null
+  },
+  {
+    "name": "Grund- und Werkrealschule Odenheim",
+    "ort": "Östringen",
+    "strasse": "e 12",
+    "plz": "76684",
+    "website": null
+  },
+  {
+    "name": "Rosi-Gollmann-Grundschule Tiefenbach",
+    "ort": "Östringen",
+    "strasse": "e 13",
+    "plz": "76684",
+    "website": null
+  },
+  {
+    "name": "Schlossgartenschule Grund- und Werkrealschule Berghausen",
+    "ort": "Pfinztal",
+    "strasse": "e 9",
+    "plz": "76327",
+    "website": null
+  },
+  {
+    "name": "Grundschule Kleinsteinbach",
+    "ort": "Pfinztal",
+    "strasse": "Eschenweg 2",
+    "plz": "76327",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Söllingen",
+    "ort": "Pfinztal",
+    "strasse": "e 7",
+    "plz": "76327",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wöschbach",
+    "ort": "Pfinztal",
+    "strasse": "Im Eigen 8",
+    "plz": "76327",
+    "website": null
+  },
+  {
+    "name": "Aloys-Henhöfer-Schule Grund-, Werkrealschule, Gymnasium, berufliches Gymnasium und Förderschule",
+    "ort": "Pfinztal",
+    "strasse": "e 2",
+    "plz": "76327",
+    "website": null
+  },
+  {
+    "name": "Franz-Christoph-von-Hutten Grund- und Werkrealschule",
+    "ort": "Philippsburg",
+    "strasse": "Am Schulplatz 5",
+    "plz": "76661",
+    "website": null
+  },
+  {
+    "name": "Grund- und Hauptschule Rheinsheim",
+    "ort": "Philippsburg",
+    "strasse": "e 34",
+    "plz": "76661",
+    "website": null
+  },
+  {
+    "name": "Hieronymus-Nopp-Schule Grund- und Werkrealschule",
+    "ort": "Philippsburg",
+    "strasse": "e 1",
+    "plz": "76661",
+    "website": null
+  },
+  {
+    "name": "Johann-Rupprecht-Grundschule Forchheim",
+    "ort": "Rheinstetten",
+    "strasse": "e 16",
+    "plz": "76287",
+    "website": null
+  },
+  {
+    "name": "Schwarzwald-Grund- und Werkrealschule Rheinstetten",
+    "ort": "Rheinstetten",
+    "strasse": "e 20",
+    "plz": "76287",
+    "website": null
+  },
+  {
+    "name": "Pestalozzi-Grundschule Mörsch",
+    "ort": "Rheinstetten",
+    "strasse": "e 17",
+    "plz": "76287",
+    "website": null
+  },
+  {
+    "name": "Rheinwald-Grundschule Neuburgweiher",
+    "ort": "Rheinstetten",
+    "strasse": "e 15",
+    "plz": "76287",
+    "website": null
+  },
+  {
+    "name": "Theodor-Heuss-Schule Grundschule",
+    "ort": "Stutensee",
+    "strasse": "e 4",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Magnus-Schule Grund- und Hauptschule mit Werkrealschule Friedrichstal",
+    "ort": "Stutensee",
+    "strasse": "e der Picardie 1",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Drais-Grundschule Staffort",
+    "ort": "Stutensee",
+    "strasse": "e 2",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Richard-Hecht-Schule Grund- und Werkrealschule Spöck",
+    "ort": "Stutensee",
+    "strasse": "e 1",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Richard-Hecht-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Pestalozzi-Schule",
+    "ort": "Stutensee",
+    "strasse": "e 100",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Richard-Hecht-Schule Grund- und Werkrealschule Außenstelle Werkrealschule Friedrichstal",
+    "ort": "Stutensee",
+    "strasse": "e der Picardie 1",
+    "plz": "76297",
+    "website": null
+  },
+  {
+    "name": "Grundschule Weiher",
+    "ort": "Ubstadt-Weiher",
+    "strasse": "e 3",
+    "plz": "76698",
+    "website": null
+  },
+  {
+    "name": "Hermann-Gmeiner-Schule Grund- und Werkrealschule Ubstadt",
+    "ort": "Ubstadt-Weiher",
+    "strasse": "e 2",
+    "plz": "76698",
+    "website": null
+  },
+  {
+    "name": "Grundschule Stettfeld",
+    "ort": "Ubstadt-Weiher",
+    "strasse": "e 2",
+    "plz": "76698",
+    "website": null
+  },
+  {
+    "name": "Grundschule Zeutern",
+    "ort": "Ubstadt-Weiher",
+    "strasse": "Aue 1",
+    "plz": "76698",
+    "website": null
+  },
+  {
+    "name": "Adventistische Bekenntnis-Schule Zeutern Grund- und Realschule",
+    "ort": "Ubstadt-Weiher",
+    "strasse": "e 23",
+    "plz": "76698",
+    "website": null
+  },
+  {
+    "name": "Schiller-Schule Grund- und Werkrealschule Kirrlach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Goetheschule Grundschule Kirrlach",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Busch-Grundschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Bolandenschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Bolandenschule Grund- und Werkrealschule Waghauesel Außenstelle Grundschule Kirchstraße",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund- und Werkrealschule Reichenbach",
+    "ort": "Waldbronn",
+    "strasse": "e 15",
+    "plz": "76337",
+    "website": null
+  },
+  {
+    "name": "Anne-Frank-Schule Grund- und Hauptschule Busenbach",
+    "ort": "Waldbronn",
+    "strasse": "Brucknerweg 1",
+    "plz": "76337",
+    "website": null
+  },
+  {
+    "name": "Wald-Schule Etzenrot Grundschule",
+    "ort": "Waldbronn",
+    "strasse": "e 3",
+    "plz": "76337",
+    "website": null
+  },
+  {
+    "name": "Walzbachschule Grundschule Jöhlingen",
+    "ort": "Walzbachtal",
+    "strasse": "Kirchplatz 18",
+    "plz": "75045",
+    "website": null
+  },
+  {
+    "name": "Grundschule Wössingen",
+    "ort": "Walzbachtal",
+    "strasse": "e 56",
+    "plz": "75045",
+    "website": null
+  },
+  {
+    "name": "Turmbergschule Grund- und Werkrealschule",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": null
+  }
+]

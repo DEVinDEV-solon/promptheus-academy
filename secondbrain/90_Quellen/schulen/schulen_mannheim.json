@@ -1,0 +1,324 @@
+[
+  {
+    "name": "Integrierte Schule Mannheim",
+    "ort": null,
+    "strasse": null,
+    "plz": null,
+    "website": "www.igmh.de"
+  },
+  {
+    "name": "Almenhofschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "20",
+    "plz": "68199",
+    "website": null
+  },
+  {
+    "name": "Alfred-Delp-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "43",
+    "plz": "68305",
+    "website": null
+  },
+  {
+    "name": "Diesterwegschule Grundschule Lindenhof",
+    "ort": "Mannheim",
+    "strasse": "94",
+    "plz": "68163",
+    "website": null
+  },
+  {
+    "name": "Albrecht-Dürer-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 24",
+    "plz": "68309",
+    "website": null
+  },
+  {
+    "name": "Friedrich-Ebert-Schule Grund- und Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "e 6",
+    "plz": "68305",
+    "website": null
+  },
+  {
+    "name": "Brüder-Grimm-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "28",
+    "plz": "68259",
+    "website": null
+  },
+  {
+    "name": "Feudenheimschule Hauptschule mit Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "e 4",
+    "plz": "68259",
+    "website": null
+  },
+  {
+    "name": "Friedrichsfeldschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "e 26",
+    "plz": "68229",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Grundschule Neuhermsheim",
+    "ort": "Mannheim",
+    "strasse": "Ernst-Barlach-Allee 3",
+    "plz": "68163",
+    "website": null
+  },
+  {
+    "name": "Johann-Peter-Hebel-Grundschule Außenstelle Neuostheim",
+    "ort": "Mannheim",
+    "strasse": "e 9",
+    "plz": "68163",
+    "website": null
+  },
+  {
+    "name": "Neckarschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 4",
+    "plz": "68169",
+    "website": null
+  },
+  {
+    "name": "Hildaschule Hauptschule mit Werk-Realschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "7",
+    "plz": "68169",
+    "website": null
+  },
+  {
+    "name": "Humboldtschule Grundschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "22",
+    "plz": "68169",
+    "website": null
+  },
+  {
+    "name": "Humboldtschule Werkrealschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "e 29",
+    "plz": "68169",
+    "website": null
+  },
+  {
+    "name": "Johannes-Kepler-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "1",
+    "plz": "68159",
+    "website": null
+  },
+  {
+    "name": "Johannes-Kepler-Schule Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "1",
+    "plz": "68159",
+    "website": null
+  },
+  {
+    "name": "Hans-Christian-Andersen-Grundschule Schönau",
+    "ort": "Mannheim",
+    "strasse": "e 20",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Kerschensteinerschule Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "20",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Kerschensteiner-Schule Werkrealschule Aussenstelle P. Petersen",
+    "ort": "Mannheim",
+    "strasse": "4",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Käthe-Kollwitz-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "Zum Herrenried 1",
+    "plz": "68169",
+    "website": null
+  },
+  {
+    "name": "Oststadtschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "2",
+    "plz": "68161",
+    "website": null
+  },
+  {
+    "name": "Pfingstbergschule Grund- und Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "e 30",
+    "plz": "68219",
+    "website": null
+  },
+  {
+    "name": "Rheinauschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "Mutterstadter Platz 5",
+    "plz": "68219",
+    "website": null
+  },
+  {
+    "name": "Konrad-Duden-Schule Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "55",
+    "plz": "68219",
+    "website": null
+  },
+  {
+    "name": "Sandhofenschule Haupt- mit Werkrealschule und Realschule",
+    "ort": "Mannheim",
+    "strasse": "22",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Schönauschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "Kattowitzer Zeile 68",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Vogelstangschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "Eisenacher Weg 95",
+    "plz": "68309",
+    "website": null
+  },
+  {
+    "name": "Geschwister-Scholl-Schule Werkrealschule Vogelstang",
+    "ort": "Mannheim",
+    "strasse": "Warnemünder Weg 2",
+    "plz": "68309",
+    "website": null
+  },
+  {
+    "name": "Seckenheimschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 66",
+    "plz": "68239",
+    "website": null
+  },
+  {
+    "name": "Seckenheimschule Grundschule Außenstelle Süd",
+    "ort": "Mannheim",
+    "strasse": "Innerer Heckweg 3",
+    "plz": "68239",
+    "website": null
+  },
+  {
+    "name": "Seckenheimschule Werkrealschule und Realschule",
+    "ort": "Mannheim",
+    "strasse": "e 66",
+    "plz": "68239",
+    "website": null
+  },
+  {
+    "name": "Mozartschule Grundschule Außenstelle M 6",
+    "ort": "Mannheim",
+    "strasse": "M 6",
+    "plz": "68161",
+    "website": null
+  },
+  {
+    "name": "Uhlandschule Grundschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "e 6",
+    "plz": "68167",
+    "website": null
+  },
+  {
+    "name": "Uhland-Hauptschule Grund- und Werkrealschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "e 6",
+    "plz": "68167",
+    "website": null
+  },
+  {
+    "name": "Waldschule Werkrealschule und Realschule Gartenstadt",
+    "ort": "Mannheim",
+    "strasse": "e 7",
+    "plz": "68305",
+    "website": null
+  },
+  {
+    "name": "Waldhofschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 3",
+    "plz": "68305",
+    "website": null
+  },
+  {
+    "name": "Waldhofschule Grundschule Außenstelle Luzenberg",
+    "ort": "Mannheim",
+    "strasse": "8",
+    "plz": "68305",
+    "website": null
+  },
+  {
+    "name": "Wallstadtschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 33",
+    "plz": "68259",
+    "website": null
+  },
+  {
+    "name": "Gustav-Wiederkehr-Schule Grundschule Sandhofen",
+    "ort": "Mannheim",
+    "strasse": "e 28",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Gustav-Wiederkehr-Schule Grundschule Sandhofen Außenstelle Bartholomäus-Schule",
+    "ort": "Mannheim",
+    "strasse": "e 12",
+    "plz": "68307",
+    "website": null
+  },
+  {
+    "name": "Wohlgelegenschule Hauptschule mit Werkrealschule Neckarstadt",
+    "ort": "Mannheim",
+    "strasse": "e 4",
+    "plz": "68167",
+    "website": null
+  },
+  {
+    "name": "Wilhelm-Wundt-Schule Grundschule Neckarau",
+    "ort": "Mannheim",
+    "strasse": "47",
+    "plz": "68199",
+    "website": null
+  },
+  {
+    "name": "Käfertalschule Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Mannheim",
+    "strasse": "e 26",
+    "plz": "68309",
+    "website": null
+  },
+  {
+    "name": "Jungbuschschule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 6",
+    "plz": "68159",
+    "website": null
+  },
+  {
+    "name": "Bertha-Hirsch-Schule Grundschule",
+    "ort": "Mannheim",
+    "strasse": "e 26",
+    "plz": "68309",
+    "website": null
+  }
+]

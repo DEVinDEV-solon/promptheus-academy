@@ -1,0 +1,970 @@
+[
+  {
+    "name": "Buchhaldenschule",
+    "ort": "Aidlingen",
+    "strasse": "Buchhaldenstraße 4",
+    "plz": "71134",
+    "typ": "Grundschule",
+    "website": "http://www.buchhaldenschule.de/"
+  },
+  {
+    "name": "Sonnenbergschule",
+    "ort": "Aidlingen",
+    "strasse": "Feldbergstraße 28",
+    "plz": "71134",
+    "typ": "Werkrealschule",
+    "website": "http://www.sonnenbergschule-aidlingen.de/"
+  },
+  {
+    "name": "Schallenbergschule",
+    "ort": "Aidlingen-Deufringen",
+    "strasse": "Dachteler Straße 18",
+    "plz": "71134",
+    "typ": "Grundschule",
+    "website": "https://schallenbergschule.de/"
+  },
+  {
+    "name": "Adolf-Rehn-Schule",
+    "ort": "Altdorf",
+    "strasse": "Schulstraße 19",
+    "plz": "71155",
+    "typ": "Grundschule",
+    "website": "https://www.ars-altdorf.de/"
+  },
+  {
+    "name": "Grundschule Bondorf",
+    "ort": "Bondorf",
+    "strasse": "Alte Herrenberger Straße 22",
+    "plz": "71149",
+    "typ": "Grundschule",
+    "website": "https://www.gs-bondorf.de/"
+  },
+  {
+    "name": "Albert-Einstein-Gymnasium Böblingen",
+    "ort": "Böblingen",
+    "strasse": "Zeppelinstraße 50",
+    "plz": "71032",
+    "typ": "Gymnasium",
+    "website": "http://www.aeg-boeblingen.de"
+  },
+  {
+    "name": "Albert-Schweitzer-Realschule",
+    "ort": "Böblingen",
+    "strasse": "Murkenbachweg 2",
+    "plz": "71032",
+    "typ": "Realschule",
+    "website": "https://asr-bb.de/"
+  },
+  {
+    "name": "Eduard-Mörike-Schule",
+    "ort": "Böblingen",
+    "strasse": "Geschwister-Scholl-Straße 16",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://www.ems-boeblingen.de/"
+  },
+  {
+    "name": "Eichendorffschule",
+    "ort": "Böblingen",
+    "strasse": "Herdweg 95",
+    "plz": "71032",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://eds-bb.de/"
+  },
+  {
+    "name": "Erich-Kästner-Schule",
+    "ort": "Böblingen",
+    "strasse": "Freiburger Allee 50",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://www.eks-boeblingen.de/"
+  },
+  {
+    "name": "Friedrich-Schiller-Realschule",
+    "ort": "Böblingen",
+    "strasse": "Kremser Straße 5",
+    "plz": "71034",
+    "typ": "Realschule",
+    "website": "http://www.fsr-bb.de/"
+  },
+  {
+    "name": "Friedrich-Silcher-Schule",
+    "ort": "Böblingen",
+    "strasse": "Murkenbachweg 2",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://fsg-boeblingen.de/"
+  },
+  {
+    "name": "Justinus-Kerner-Schule",
+    "ort": "Böblingen",
+    "strasse": "Breslauer Straße 6",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://www.jks-bb.de/"
+  },
+  {
+    "name": "Klinikschule",
+    "ort": "Böblingen",
+    "strasse": "Bunsenstraße 120",
+    "plz": "71032",
+    "typ": "SBBZ Krankenhausbehandlung",
+    "website": "https://www.bildung.de/schule/schule-00176805/"
+  },
+  {
+    "name": "Käthe-Kollwitz-Schule",
+    "ort": "Böblingen",
+    "strasse": "Maienplatz 12",
+    "plz": "71032",
+    "typ": "SBBZ Förderschwerpunkt geistige Entwicklung",
+    "website": "http://www.kaethe-kollwitz-schule-bb.de/"
+  },
+  {
+    "name": "Lise-Meitner-Gymnasium Böblingen",
+    "ort": "Böblingen",
+    "strasse": "Triberger Straße 20",
+    "plz": "71034",
+    "typ": "Gymnasium",
+    "website": "http://www.lmgbb.de"
+  },
+  {
+    "name": "Ludwig-Uhland-Schule",
+    "ort": "Böblingen",
+    "strasse": "Galgenbergstraße 11-13",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://www.lus-bb.de/"
+  },
+  {
+    "name": "Max-Planck-Gymnasium Böblingen",
+    "ort": "Böblingen",
+    "strasse": "Murkenbachweg 4",
+    "plz": "71032",
+    "typ": "Gymnasium",
+    "website": "http://www.mpg-bb.de"
+  },
+  {
+    "name": "Otto-Hahn-Gymnasium Böblingen",
+    "ort": "Böblingen",
+    "strasse": "Danziger Straße 10",
+    "plz": "71034",
+    "typ": "Gymnasium",
+    "website": "http://www.ohg-boeblingen.de"
+  },
+  {
+    "name": "Paul-Lechler-Schule",
+    "ort": "Böblingen",
+    "strasse": "Pestalozzistraße 7",
+    "plz": "71032",
+    "typ": "Grundschule und SBBZ Lernen",
+    "website": "https://www.paul-lechler-schule.de/"
+  },
+  {
+    "name": "Schulkindergarten für Geistigbehindertean der Käthe-Kollwitz-Schule",
+    "ort": "Böblingen",
+    "strasse": "Maienplatz 12",
+    "plz": "71032",
+    "typ": "Schulkindergärten",
+    "website": "http://www.kaethe-kollwitz-schule-bb.de/Schulkindergarten/"
+  },
+  {
+    "name": "Theodor-Heuss-Schule",
+    "ort": "Böblingen",
+    "strasse": "Kremser Straße 5",
+    "plz": "71034",
+    "typ": "Werkrealschule",
+    "website": "https://www.theo-bb.de/"
+  },
+  {
+    "name": "Grundschule Dagersheim",
+    "ort": "Böblingen-Dagersheim",
+    "strasse": "Hauptstraße 19",
+    "plz": "71034",
+    "typ": "Grundschule",
+    "website": "https://grundschule-dagersheim.de/"
+  },
+  {
+    "name": "Gottlob-Ernst-Schule",
+    "ort": "Deckenpfronn",
+    "strasse": "Schulstraße 11",
+    "plz": "75392",
+    "typ": "Grundschule",
+    "website": "https://www.ges-deckenpfronn.de/"
+  },
+  {
+    "name": "Friedrich-Kammerer-Gemeinschaftsschule",
+    "ort": "Ehningen",
+    "strasse": "Schloßstraße 35",
+    "plz": "71139",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.fkg-ehningen.de/"
+  },
+  {
+    "name": "Grundschule Dätzingen",
+    "ort": "Grafenau-Dätzingen",
+    "strasse": "Döffinger Straße 55",
+    "plz": "71120",
+    "typ": "Grundschule",
+    "website": "http://www.grundschule-daetzingen.de/"
+  },
+  {
+    "name": "Gemeinschaftsschule Grafenau-Döffingen",
+    "ort": "Grafenau-Döffingen",
+    "strasse": "Bergstraße 18",
+    "plz": "71120",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://schule-doeffingen.de/"
+  },
+  {
+    "name": "Ludwig-Uhland-Gemeinschaftsschule",
+    "ort": "Gärtringen",
+    "strasse": "Wilhelmstraße 14-16",
+    "plz": "71116",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.lus-gaertringen.de/"
+  },
+  {
+    "name": "Peter-Rosegger-Schule",
+    "ort": "Gärtringen",
+    "strasse": "Schönbuchstraße 16",
+    "plz": "71116",
+    "typ": "Grundschule",
+    "website": "https://www.peter-rosegger-schule.de/"
+  },
+  {
+    "name": "Theodor-Heuss-Realschule",
+    "ort": "Gärtringen",
+    "strasse": "Schickhardtstraße 34",
+    "plz": "71116",
+    "typ": "Realschule",
+    "website": "https://thr-gaertringen.de/"
+  },
+  {
+    "name": "Joseph-Haydn-Schule",
+    "ort": "Gärtringen-Rohrau",
+    "strasse": "Hildrizhauser Straße 21",
+    "plz": "71116",
+    "typ": "Grundschule",
+    "website": "https://home.jhs-rohrau.de/startseite"
+  },
+  {
+    "name": "Gemeinschaftsschule Gäufelden",
+    "ort": "Gäufelden-Nebringen",
+    "strasse": "Schollerstraße 10",
+    "plz": "71126",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://gms-gaeufelden.de/"
+  },
+  {
+    "name": "Grundschule Tailfingen",
+    "ort": "Gäufelden-Tailfingen",
+    "strasse": "Kirchgasse 6",
+    "plz": "71126",
+    "typ": "Grundschule",
+    "website": "https://www.gaeufelden.de/leben-wohnen/schulen/grundschule-tailfingen"
+  },
+  {
+    "name": "Grundschule Öschelbronn",
+    "ort": "Gäufelden-Öschelbronn",
+    "strasse": "Mozartstraße 31",
+    "plz": "71126",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-oeschelbronn.de/"
+  },
+  {
+    "name": "Albert-Schweitzer-Schule",
+    "ort": "Herrenberg",
+    "strasse": "Bismarckstraße 7",
+    "plz": "71083",
+    "typ": "SBBZ Förderschwerpunkt Lernen",
+    "website": "https://www.ass-herrenberg.de/"
+  },
+  {
+    "name": "Andreae-Gymnasium Herrenberg",
+    "ort": "Herrenberg",
+    "strasse": "Schießtäle 33",
+    "plz": "71083",
+    "typ": "Gymnasium",
+    "website": "http://www.andreae-gymnasium.de"
+  },
+  {
+    "name": "Friedrich-Fröbel-Schule",
+    "ort": "Herrenberg",
+    "strasse": "Friedrich-Fröbel-Straße 4",
+    "plz": "71083",
+    "typ": "SBBZ Förderschwerpunkt geistige Entwicklung",
+    "website": "http://www.ffs-hbg.de/"
+  },
+  {
+    "name": "Jerg-Ratgeb-Realschule",
+    "ort": "Herrenberg",
+    "strasse": "Berliner Straße 5",
+    "plz": "71083",
+    "typ": "Realschule",
+    "website": "http://jrs-herrenberg.de/"
+  },
+  {
+    "name": "Pfalzgraf-Rudolf-Schule",
+    "ort": "Herrenberg",
+    "strasse": "Längenholz 12",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://www.pfalzgraf-rudolf-schule.de/"
+  },
+  {
+    "name": "Schickhardt-Gymnasium Herrenberg",
+    "ort": "Herrenberg",
+    "strasse": "Längenholz 2",
+    "plz": "71083",
+    "typ": "Gymnasium",
+    "website": "http://www.schickhardt.net"
+  },
+  {
+    "name": "Schulkindergarten für Geistigbehindertean der Friedrich-Fröbel-Schule",
+    "ort": "Herrenberg",
+    "strasse": "Friedrich-Fröbel-Straße 2",
+    "plz": "71083",
+    "typ": "Schulkindergärten",
+    "website": "http://www.ffs-hbg.de/index.php/kooperationen/schulkindergarten"
+  },
+  {
+    "name": "Theodor-Schüz-Realschule",
+    "ort": "Herrenberg",
+    "strasse": "Längenholz 13",
+    "plz": "71083",
+    "typ": "Realschule",
+    "website": "https://www.tsr-hbg.de/"
+  },
+  {
+    "name": "Vogt-Heß-Gemeinschaftsschule",
+    "ort": "Herrenberg",
+    "strasse": "Berliner Straße 3",
+    "plz": "71083",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.vogt-hess-schule.de/"
+  },
+  {
+    "name": "Grundschule Affstätt",
+    "ort": "Herrenberg-Affstätt",
+    "strasse": "Nelkenstraße 5",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://www.herrenberg.de/de/Stadtleben/Die-Stadt/Stadtteile/Affstaett/Grundschule-Affstaett"
+  },
+  {
+    "name": "Grundschule Gültstein",
+    "ort": "Herrenberg-Gültstein",
+    "strasse": "Zehnthofstraße 28",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-gueltstein.de/"
+  },
+  {
+    "name": "Grundschule Haslach",
+    "ort": "Herrenberg-Haslach",
+    "strasse": "Hornbergstraße 7",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "http://www.grundschulehaslach.de/"
+  },
+  {
+    "name": "Grundschule Kayh",
+    "ort": "Herrenberg-Kayh",
+    "strasse": "Mönchberger Straße 3",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://www.herrenberg.de/de/Stadtleben/Die-Stadt/Stadtteile/Kayh/Grundschule-Kayh"
+  },
+  {
+    "name": "Karl-Kühnle-Grundschule",
+    "ort": "Herrenberg-Kuppingen",
+    "strasse": "Keltenstraße 8",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "http://www.grundschule-kuppingen.de/"
+  },
+  {
+    "name": "Grundschule Mönchberg",
+    "ort": "Herrenberg-Mönchberg",
+    "strasse": "Waldstraße 1",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://www.herrenberg.de/de/Stadtleben/Die-Stadt/Stadtteile/Moenchberg/Grundschule-Moenchberg"
+  },
+  {
+    "name": "Grundschule Oberjesingen",
+    "ort": "Herrenberg-Oberjesingen",
+    "strasse": "Rheinstraße 75",
+    "plz": "71083",
+    "typ": "Grundschule",
+    "website": "https://gs-oberjesingen.de/"
+  },
+  {
+    "name": "Schönbuchschule",
+    "ort": "Hildrizhausen",
+    "strasse": "Im Sommerfeld 2",
+    "plz": "71157",
+    "typ": "Grundschule",
+    "website": "https://www.schoenbuchschule-hildrizhausen.de/"
+  },
+  {
+    "name": "Berkenschule",
+    "ort": "Holzgerlingen",
+    "strasse": "Berkenstraße 14",
+    "plz": "71088",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.berkenschule.de/"
+  },
+  {
+    "name": "Heinrich-Harpprecht-Schule",
+    "ort": "Holzgerlingen",
+    "strasse": "Berkenstraße 14",
+    "plz": "71088",
+    "typ": "SBBZ Förderschwerpunkt Lernen",
+    "website": "https://www.heinrich-harpprecht-schule.de/"
+  },
+  {
+    "name": "Otto-Rommel-Realschule",
+    "ort": "Holzgerlingen",
+    "strasse": "Schillerstraße 15",
+    "plz": "71088",
+    "typ": "Realschule",
+    "website": "https://www.otto-rommel-realschule.de/ors/"
+  },
+  {
+    "name": "Schönbuch-Gymnasium Holzgerlingen",
+    "ort": "Holzgerlingen",
+    "strasse": "Weihdorfer Straße 3",
+    "plz": "71088",
+    "typ": "Gymnasium",
+    "website": "http://www.schoenbuch-gymnasium.de"
+  },
+  {
+    "name": "Decker-Hauff-Schule",
+    "ort": "Jettingen",
+    "strasse": "Marktplatz 5",
+    "plz": "71131",
+    "typ": "Grundschule",
+    "website": "https://www.dhs-jettingen.de/"
+  },
+  {
+    "name": "Gemeinschaftsschule Jettingen",
+    "ort": "Jettingen",
+    "strasse": "Oberjettinger Straße 30",
+    "plz": "71131",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.gms-jettingen.de/"
+  },
+  {
+    "name": "Albert-Schweitzer-Gymnasium Leonberg",
+    "ort": "Leonberg",
+    "strasse": "Gerhart-Hauptmann-Straße 15",
+    "plz": "71229",
+    "typ": "Gymnasium",
+    "website": "http://www.asgleonberg.de"
+  },
+  {
+    "name": "Gerhart-Hauptmann-Realschule",
+    "ort": "Leonberg",
+    "strasse": "Herhart-Hauptmann-Straße 7",
+    "plz": "71229",
+    "typ": "Realschule",
+    "website": "http://www.ghr-leonberg.de/"
+  },
+  {
+    "name": "Johannes-Kepler-Gymnasium Leonberg",
+    "ort": "Leonberg",
+    "strasse": "Lindenstraße 4",
+    "plz": "71229",
+    "typ": "Gymnasium",
+    "website": "http://www.jkg-leonberg.de"
+  },
+  {
+    "name": "Karl-Georg-Haldenwang-Schule",
+    "ort": "Leonberg",
+    "strasse": "Ostertagstraße 24",
+    "plz": "71229",
+    "typ": "SBBZ Förderschwerpunkt geistige Entwicklung",
+    "website": "https://kghs-leo.de/"
+  },
+  {
+    "name": "Marie-Curie-Gemeinschaftsschule",
+    "ort": "Leonberg",
+    "strasse": "Gerlinger Straße 43-47",
+    "plz": "71229",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://mcs-leonberg.de/"
+  },
+  {
+    "name": "Mörikeschule",
+    "ort": "Leonberg",
+    "strasse": "Hindenburgstraße 21",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://www.moerikeschule-leonberg.de/"
+  },
+  {
+    "name": "Ostertag-Realschule",
+    "ort": "Leonberg",
+    "strasse": "Tiroler Straße 30",
+    "plz": "71229",
+    "typ": "Realschule",
+    "website": "https://ors-leonberg.de/"
+  },
+  {
+    "name": "Pestalozzischule",
+    "ort": "Leonberg",
+    "strasse": "Bahnhofstraße 69",
+    "plz": "71229",
+    "typ": "SBBZ Förderschwerpunkt Lernen",
+    "website": "https://www.pestalozzischule-leo.de/"
+  },
+  {
+    "name": "Schellingschule",
+    "ort": "Leonberg",
+    "strasse": "Eltinger Straße 46",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://www.schellingschule.de/"
+  },
+  {
+    "name": "Schulkindergarten für Geistigbehinderte an der Karl-Georg-Haldenwang-Schule",
+    "ort": "Leonberg",
+    "strasse": "Ostertagstraße 36",
+    "plz": "71229",
+    "typ": "Schulkindergärten",
+    "website": "http://www.haldenwangschule-leonberg.de/schulkindergarten"
+  },
+  {
+    "name": "Sophie-Scholl-Schule",
+    "ort": "Leonberg",
+    "strasse": "Wiesensteiger Straße 12",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "http://www.sophie-scholl-schule-leonberg.de/"
+  },
+  {
+    "name": "Spitalschule",
+    "ort": "Leonberg",
+    "strasse": "Spitalhof 2",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://www.spitalschule-leonberg.de/"
+  },
+  {
+    "name": "Grundschule Gebersheim",
+    "ort": "Leonberg-Gebersheim",
+    "strasse": "Heimerdinger Straße 39",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://www.gs-gebersheim.de/"
+  },
+  {
+    "name": "Grundschule Höfingen",
+    "ort": "Leonberg-Höfingen",
+    "strasse": "Ulmenstraße 8-12",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://grundschule-hoefingen.de/"
+  },
+  {
+    "name": "Grundschule Warmbronn",
+    "ort": "Leonberg-Warmbronn",
+    "strasse": "Büsnauer Straße 85",
+    "plz": "71229",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-warmbronn.de/"
+  },
+  {
+    "name": "Johannes-Kepler-Gemeinschaftsschule",
+    "ort": "Magstadt",
+    "strasse": "Marienstraße 5",
+    "plz": "71106",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.jkgms-magstadt.de/"
+  },
+  {
+    "name": "Grundschule Mötzingen",
+    "ort": "Mötzingen",
+    "strasse": "Schulstraße 10",
+    "plz": "71159",
+    "typ": "Grundschule",
+    "website": "https://grundschule-moetzingen.de/"
+  },
+  {
+    "name": "Schule im Wiesengrund",
+    "ort": "Nufringen",
+    "strasse": "Im Wiesengrund 22",
+    "plz": "71154",
+    "typ": "Grundschule",
+    "website": "http://www.gs-nufringen.de/"
+  },
+  {
+    "name": "Friedrich-Schiller-Schule",
+    "ort": "Renningen",
+    "strasse": "Poststraße 11",
+    "plz": "71272",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://fss-renningen.de/"
+  },
+  {
+    "name": "Gymnasium Renningen",
+    "ort": "Renningen",
+    "strasse": "Rankbachstraße 38",
+    "plz": "71272",
+    "typ": "Gymnasium",
+    "website": "http://www.gymnasium-renningen.de"
+  },
+  {
+    "name": "Realschule Renningen",
+    "ort": "Renningen",
+    "strasse": "Rankbachstraße 40",
+    "plz": "71272",
+    "typ": "Realschule",
+    "website": "https://www.rs-renningen.de/"
+  },
+  {
+    "name": "Friedrich-Silcher-Schule",
+    "ort": "Renningen-Malmsheim",
+    "strasse": "Schulstraße 6",
+    "plz": "71272",
+    "typ": "Grundschule",
+    "website": "https://www.friedrich-silcher-schule-malmsheim.de/"
+  },
+  {
+    "name": "Gymnasium Rutesheim",
+    "ort": "Rutesheim",
+    "strasse": "Robert-Bosch-Straße 19",
+    "plz": "71277",
+    "typ": "Gymnasium",
+    "website": "http://www.gymnasium-rutesheim.de"
+  },
+  {
+    "name": "Realschule Rutesheim",
+    "ort": "Rutesheim",
+    "strasse": "Robert-Bosch-Straße 31",
+    "plz": "71277",
+    "typ": "Realschule",
+    "website": "https://www.realschule-rutesheim.de/"
+  },
+  {
+    "name": "Theodor-Heuss-Schule",
+    "ort": "Rutesheim",
+    "strasse": "Robert-Bosch-Straße 27",
+    "plz": "71277",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.thsr.de/"
+  },
+  {
+    "name": "Johann-Bruecker-Realschule",
+    "ort": "Schönaich",
+    "strasse": "Bühlstraße 16",
+    "plz": "71101",
+    "typ": "Realschule",
+    "website": "https://realschule-schoenaich.de/"
+  },
+  {
+    "name": "Johann-Bruecker-Schule",
+    "ort": "Schönaich",
+    "strasse": "Bühlstraße 18",
+    "plz": "71101",
+    "typ": "Grundschule",
+    "website": "https://www.gfs-schoenaich.de/"
+  },
+  {
+    "name": "Bodelschwinghschule",
+    "ort": "Sindelfingen",
+    "strasse": "Sommerhofenstraße 99",
+    "plz": "71067",
+    "typ": "SBBZ Förderschwerpunkt geistige Entwicklung",
+    "website": "https://www.bss-sifi.de/"
+  },
+  {
+    "name": "Gemeinschaftsschule Goldberg",
+    "ort": "Sindelfingen",
+    "strasse": "Goldbergstraße 34",
+    "plz": "71065",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.gms-goldberg.de/"
+  },
+  {
+    "name": "Gemeinschaftsschule im Eichholz",
+    "ort": "Sindelfingen",
+    "strasse": "Theodor-Heuss-Straße 88-100",
+    "plz": "71067",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://www.eichholzschule.de/"
+  },
+  {
+    "name": "Goldberg-Gymnasium Sindelfingen",
+    "ort": "Sindelfingen",
+    "strasse": "Frankenstraße 15",
+    "plz": "71065",
+    "typ": "Gymnasium",
+    "website": "http://www.goldberg-gymnasium.de"
+  },
+  {
+    "name": "Grundschule Gartenstraße",
+    "ort": "Sindelfingen",
+    "strasse": "Gartenstraße 7/1",
+    "plz": "71063",
+    "typ": "Grundschule",
+    "website": "https://www.gs-gartenstrasse.de/"
+  },
+  {
+    "name": "Grundschule Hinterweil",
+    "ort": "Sindelfingen",
+    "strasse": "Nikolaus-Lenau-Platz 8",
+    "plz": "71067",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-hinterweil.de/"
+  },
+  {
+    "name": "Grundschule Klostergarten",
+    "ort": "Sindelfingen",
+    "strasse": "Klosterstraße 8",
+    "plz": "71063",
+    "typ": "Grundschule",
+    "website": "http://www.gs-klostergarten.de/"
+  },
+  {
+    "name": "Grundschule Königsknoll",
+    "ort": "Sindelfingen",
+    "strasse": "Wengertstraße 3-7",
+    "plz": "71065",
+    "typ": "Grundschule",
+    "website": "https://www.gs-koenigsknoll.de/"
+  },
+  {
+    "name": "Grundschule Sommerhofen",
+    "ort": "Sindelfingen",
+    "strasse": "Sommerhofenstraße 91-97",
+    "plz": "71067",
+    "typ": "Grundschule",
+    "website": "https://www.gs-soho.de/"
+  },
+  {
+    "name": "Gymnasium Unterrieden Sindelfingen",
+    "ort": "Sindelfingen",
+    "strasse": "Rudolf-Harbig-Straße 40",
+    "plz": "71069",
+    "typ": "Gymnasium",
+    "website": "http://www.gymnasium-unterrieden.de"
+  },
+  {
+    "name": "Gymnasium in den Pfarrwiesen Sindelfingen",
+    "ort": "Sindelfingen",
+    "strasse": "Pfarrwiesenallee 1-3",
+    "plz": "71067",
+    "typ": "Gymnasium",
+    "website": "http://www.pfarrwiesen-gymnasium.de"
+  },
+  {
+    "name": "Martinsschule",
+    "ort": "Sindelfingen",
+    "strasse": "Klosterstraße 8",
+    "plz": "71063",
+    "typ": "SBBZ Förderschwerpunkt Lernen",
+    "website": "https://www.martinsschule-sindelfingen.de/"
+  },
+  {
+    "name": "Realschule Goldberg",
+    "ort": "Sindelfingen",
+    "strasse": "Goldbergstraße 27",
+    "plz": "71065",
+    "typ": "Realschule",
+    "website": "https://www.rs-goldberg.de/"
+  },
+  {
+    "name": "Realschule Hinterweil",
+    "ort": "Sindelfingen",
+    "strasse": "Nikolaus-Lenau-Platz 8",
+    "plz": "71067",
+    "typ": "Realschule",
+    "website": "https://rs-hinterweil.de/"
+  },
+  {
+    "name": "Realschule Klostergarten",
+    "ort": "Sindelfingen",
+    "strasse": "Leonberger Straße 4",
+    "plz": "71063",
+    "typ": "Realschule",
+    "website": "https://rs-klostergarten.de/"
+  },
+  {
+    "name": "Schulkindergarten für Geistigbehinderte an der Bodelschwinghschule",
+    "ort": "Sindelfingen",
+    "strasse": "Sommerhofenstraße 99",
+    "plz": "71067",
+    "typ": "Schulkindergärten",
+    "website": "https://www.bss-sifi.de/ueber-uns/kindergarten/"
+  },
+  {
+    "name": "Schulkindergarten für Sprachbehinderte an der Sprachheilschule",
+    "ort": "Sindelfingen",
+    "strasse": "Hohenzollernstraße 51",
+    "plz": "71067",
+    "typ": "Schulkindergärten",
+    "website": "https://shs-sifi.de/sprachheilkindergarten/"
+  },
+  {
+    "name": "Sprachheilschule",
+    "ort": "Sindelfingen",
+    "strasse": "Sommerhofenstraße 101",
+    "plz": "71067",
+    "typ": "SBBZ Förderschwerpunkt Sprache",
+    "website": "https://shs-sifi.de/"
+  },
+  {
+    "name": "Stiftsgymnasium Sindelfingen",
+    "ort": "Sindelfingen",
+    "strasse": "Böblinger Straße 26",
+    "plz": "71065",
+    "typ": "Gymnasium",
+    "website": "http://www.stiftsgymnasium.de"
+  },
+  {
+    "name": "Winterhaldenkindergarten für Körperbehinderte",
+    "ort": "Sindelfingen",
+    "strasse": "Hohenzollernstraße 51",
+    "plz": "71067",
+    "typ": "Schulkindergärten",
+    "website": "http://www.winterhaldenkindergarten.de/"
+  },
+  {
+    "name": "Winterhaldenschule",
+    "ort": "Sindelfingen",
+    "strasse": "Sommerhofenstraße 105",
+    "plz": "71067",
+    "typ": "SBBZ Förderschwerpunkt motorische Entwicklung",
+    "website": "https://whs-sifi.de/"
+  },
+  {
+    "name": "Grundschule Darmsheim",
+    "ort": "Sindelfingen-Darmsheim",
+    "strasse": "Birkleweg 1",
+    "plz": "71069",
+    "typ": "Grundschule",
+    "website": "http://www.gs-darmsheim.de/"
+  },
+  {
+    "name": "Johannes-Widmann-Gemeinschaftsschule",
+    "ort": "Sindelfingen-Maichingen",
+    "strasse": "Bismarckstraße 34",
+    "plz": "71069",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://jws-maichingen.de/"
+  },
+  {
+    "name": "Klingenbachschule",
+    "ort": "Steinenbronn",
+    "strasse": "Stuttgarter Straße 21",
+    "plz": "71144",
+    "typ": "Grundschule",
+    "website": "https://www.klingenbachschule.de/"
+  },
+  {
+    "name": "Oskar-Schwenk-Schule",
+    "ort": "Waldenbuch",
+    "strasse": "Schulstraße 2",
+    "plz": "71111",
+    "typ": "Grund- und Realschule",
+    "website": "https://www.oss-waldenbuch.de/"
+  },
+  {
+    "name": "Heinrich-Steinhöwel-Gemeinschaftsschule",
+    "ort": "Weil der Stadt",
+    "strasse": "Jahnstraße 10",
+    "plz": "71263",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://hsgms.de/"
+  },
+  {
+    "name": "Johannes-Kepler-Gymnasium Weil der Stadt",
+    "ort": "Weil der Stadt",
+    "strasse": "Max-Caspar-Straße 47",
+    "plz": "71263",
+    "typ": "Gymnasium",
+    "website": "http://www.jkgweil.de"
+  },
+  {
+    "name": "Peter-Härtling-Schule",
+    "ort": "Weil der Stadt",
+    "strasse": "Jahnstraße 10",
+    "plz": "71263",
+    "typ": "SBBZ Förderschwerpunkt Lernen",
+    "website": "http://www.phs-wds.de/"
+  },
+  {
+    "name": "Realschule Weil der Stadt",
+    "ort": "Weil der Stadt",
+    "strasse": "Jahnstraße 12",
+    "plz": "71263",
+    "typ": "Realschule",
+    "website": "https://www.rswds.de/"
+  },
+  {
+    "name": "Grundschule Hausen",
+    "ort": "Weil der Stadt-Hausen",
+    "strasse": "Mittelfeldstraße 17",
+    "plz": "71263",
+    "typ": "Grundschule",
+    "website": "https://www.grundschulehausen.de/"
+  },
+  {
+    "name": "Würmtalschule",
+    "ort": "Weil der Stadt-Merklingen",
+    "strasse": "Friedhofstraße 9",
+    "plz": "71263",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.wuermtalschule.de/"
+  },
+  {
+    "name": "Grundschule Münklingen",
+    "ort": "Weil der Stadt-Münklingen",
+    "strasse": "Schulstraße 4",
+    "plz": "71263",
+    "typ": "Grundschule",
+    "website": "https://www.gs-muenklingen.de/"
+  },
+  {
+    "name": "Schule am Schafberg",
+    "ort": "Weil der Stadt-Schafhausen",
+    "strasse": "Neue Straße 14",
+    "plz": "71263",
+    "typ": "Grundschule",
+    "website": "https://schuleamschafberg.com/"
+  },
+  {
+    "name": "Gemeinschaftsschule Weil im Schönbuch",
+    "ort": "Weil im Schönbuch",
+    "strasse": "In der Röte 92",
+    "plz": "71093",
+    "typ": "Gemeinschaftsschule",
+    "website": "https://schule-weil.de/"
+  },
+  {
+    "name": "Grundschule Breitenstein",
+    "ort": "Weil im Schönbuch-Breitenstein",
+    "strasse": "Albert-Einstein-Straße 22",
+    "plz": "71093",
+    "typ": "Grundschule",
+    "website": "https://breitenstein.weil-im-schoenbuch.de/de/Einrichtungen/Kinder-Jugendliche/Schulen"
+  },
+  {
+    "name": "Ferdinand-Porsche-Gemeinschaftsschule",
+    "ort": "Weissach",
+    "strasse": "Nußdorfer Straße 34",
+    "plz": "71287",
+    "typ": "Gemeinschaftsschule",
+    "website": "http://www.gemeinschaftsschule-weissach.de/"
+  },
+  {
+    "name": "Grundschule Flacht",
+    "ort": "Weissach-Flacht",
+    "strasse": "Friolzheimer Straße 37",
+    "plz": "71287",
+    "typ": "Grundschule",
+    "website": "http://www.gsflacht.de/"
+  }
+]

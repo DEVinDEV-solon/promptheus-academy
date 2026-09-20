@@ -1,0 +1,716 @@
+[
+  {
+    "name": "Grund- und Hauptschule mit Werkrealschule Grötzingen",
+    "ort": "Aichtal",
+    "strasse": "Schulstraße 23",
+    "plz": "72631",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.ghwrs-groetzingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Aich",
+    "ort": "Aichtal",
+    "strasse": "Pfarrgarten 13",
+    "plz": "72631",
+    "typ": "Grundschule",
+    "website": "https://www.gs-aich.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Neuenhaus",
+    "ort": "Aichtal",
+    "strasse": "Talstraße 19",
+    "plz": "72631",
+    "typ": "Grundschule",
+    "website": "https://www.aichtal.de/de/oeffentliche-einrichtungen/schulen/schule-neuenhaus",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grund- und Hauptschule Aichwald",
+    "ort": "Aichwald",
+    "strasse": "Krummhardter Straße 58",
+    "plz": "73773",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.gwrs-aichwald.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grund- und Werkrealschule Aichwald",
+    "ort": "Aichwald",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Aichwald",
+    "ort": "Aichwald",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Altbach",
+    "ort": "Altbach",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Altbach",
+    "ort": "Altbach",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Altdorf",
+    "ort": "Altdorf",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Altenriet",
+    "ort": "Altenriet",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Baltmannsweiler",
+    "ort": "Baltmannsweiler",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Baltmannsweiler",
+    "ort": "Baltmannsweiler",
+    "strasse": "Hermannstraße 15",
+    "plz": "73666",
+    "typ": "Grundschule",
+    "website": "https://www.baltmannsweiler.de/2252",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Hohengehren",
+    "ort": "Baltmannsweiler",
+    "strasse": "Schulstraße 6",
+    "plz": "73666",
+    "typ": "Grundschule",
+    "website": "https://www.gs-hohengehren.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule auf Mauern",
+    "ort": "Bempflingen",
+    "strasse": "Schulstraße 1",
+    "plz": "72658",
+    "typ": "Grundschule",
+    "website": "https://grundschule-bempflingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Bempflingen",
+    "ort": "Bempflingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Beuren",
+    "ort": "Beuren",
+    "strasse": "Neuffener Straße 21",
+    "plz": "72660",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-beuren.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Willi-Gras-Grundschule Beuren",
+    "ort": "Beuren",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Deizisau",
+    "ort": "Deizisau",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Deizisau",
+    "ort": "Deizisau",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Albert-Schweitzer-Schule Grund-, Haupt- und Realschule",
+    "ort": "Denkendorf",
+    "strasse": "Goethestraße 58",
+    "plz": "73770",
+    "typ": "Realschule",
+    "website": "https://www.ass-denkendorf.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grund- und Werkrealschule Denkendorf",
+    "ort": "Denkendorf",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Denkendorf",
+    "ort": "Denkendorf",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Ludwig-Uhland-Schule Grundschule",
+    "ort": "Denkendorf",
+    "strasse": "Schulstraße 7",
+    "plz": "73770",
+    "typ": "Grundschule",
+    "website": "https://schullust.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Erkenbrechtsweiler",
+    "ort": "Erkenbrechtsweiler",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Freie Evangelische Schule Esslingen",
+    "ort": "Esslingen am Neckar",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Friedrich-Ebert-Schule",
+    "ort": "Esslingen am Neckar",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Georgii-Gymnasium",
+    "ort": "Esslingen am Neckar",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Grund- und Werkrealschule Esslingen am Neckar",
+    "ort": "Esslingen am Neckar",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Hegensberg-Liebersbronn",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Im Gehren 3",
+    "plz": "73732",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-hegensberg-liebersbronn.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Herderschule Grundschule",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Hindenburgstraße 177",
+    "plz": "73728",
+    "typ": "Grundschule",
+    "website": "https://www.herderschule-esslingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Hochschule Esslingen",
+    "ort": "Esslingen am Neckar",
+    "typ": "Hochschule"
+  },
+  {
+    "name": "John-F.-Kennedy-Schule",
+    "ort": "Esslingen am Neckar",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Katharinenschule Esslingen Grund- und Werkrealschule",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Blumenstraße 31",
+    "plz": "73728",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://katharinenschule-esslingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Kinderkosmos Freie aktive Grund- und Hauptschule EssIingen-Weil",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Klosterallee 23",
+    "plz": "73733",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.kinderkosmos-esslingen.de/fas",
+    "traeger": "privat"
+  },
+  {
+    "name": "Käthe-Kollwitz-Schule",
+    "ort": "Esslingen am Neckar",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Lerchenäckerschule Grundschule",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Potsdamer Straße 71-75",
+    "plz": "73730",
+    "typ": "Grundschule",
+    "website": "https://www.lerchenaeckerschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Mörike-Gymnasium",
+    "ort": "Esslingen am Neckar",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Silcherschule Grundschule",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Urbanstraße 110",
+    "plz": "73728",
+    "typ": "Grundschule",
+    "website": "https://www.silcherschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "St.Bernhardt-Grundschule",
+    "ort": "Esslingen am Neckar",
+    "strasse": "Bernhard-Denzel-Weg 9",
+    "plz": "73732",
+    "typ": "Grundschule",
+    "website": "https://www.grundschule-st-bernhardt.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Theodor-Heuss-Gymnasium",
+    "ort": "Esslingen am Neckar",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Bruckenacker-Schule Grundschule Bernhausen",
+    "ort": "Filderstadt",
+    "strasse": "Fröbelstraße 9",
+    "plz": "70794",
+    "typ": "Grundschule",
+    "website": "https://www.bruckenackerschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Eduard-Spranger-Gymnasium",
+    "ort": "Filderstadt",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Gotthard-Müller-Schule Grund-, Gemeinschafts- und Werkrealschule Bernhausen",
+    "ort": "Filderstadt",
+    "strasse": "La Souterrainer Straße 9",
+    "plz": "70794",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.gms-filderstadt.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Jahnschule Grund- und Hauptschule Harthausen",
+    "ort": "Filderstadt",
+    "strasse": "Jahnstraße 25-27",
+    "plz": "70794",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.jahnschule-harthausen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Profil C Freie Christliche Schule Grund- und Realschule",
+    "ort": "Filderstadt",
+    "typ": "Grundschule",
+    "traeger": "privat"
+  },
+  {
+    "name": "Grundschule Linsenhofen",
+    "ort": "Frickenhausen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Tischardt",
+    "ort": "Frickenhausen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Großbettlingen",
+    "ort": "Großbettlingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Hochdorf",
+    "ort": "Hochdorf",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Holzmaden",
+    "ort": "Holzmaden",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Alleenschule Grund- und Werkrealschule",
+    "ort": "Kirchheim unter Teck",
+    "strasse": "Jahnstraße 12",
+    "plz": "73230",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.alleenschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Eduard-Mörike-Schule Grund- und Hauptschule mit Werkrealschule Ötlingen",
+    "ort": "Kirchheim unter Teck",
+    "strasse": "Zum Rübholz 1",
+    "plz": "73230",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.ems-kirchheim.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Freihof-Realschule",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Kirchheim unter Teck",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Jakob-Friedrich-Schöllkopf-Schule",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Ludwig-Uhland-Gymnasium",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Max-Eyth-Schule",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Raunerschule Grund- und Werkrealschule",
+    "ort": "Kirchheim unter Teck",
+    "strasse": "Limburgstraße 71",
+    "plz": "73230",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.raunerschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Schlossgymnasium",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Teck-Realschule",
+    "ort": "Kirchheim unter Teck",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Grundschule Kohlberg",
+    "ort": "Kohlberg",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Burgschule Haupt- und Realschule",
+    "ort": "Köngen",
+    "strasse": "Burgweg 40",
+    "plz": "73257",
+    "typ": "Realschule",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Freie aktive Schule Auf den Fildern Grund- und Hauptschule mit Werkrealschule",
+    "ort": "Leinfelden-Echterdingen",
+    "strasse": "Schönbuchstraße 4",
+    "plz": "70771",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://pieks-fas.de",
+    "traeger": "privat"
+  },
+  {
+    "name": "Goldwiesenschule Grundschule Echterdingen",
+    "ort": "Leinfelden-Echterdingen",
+    "strasse": "Hainbuchenweg 1",
+    "plz": "70771",
+    "typ": "Grundschule",
+    "website": "https://www.goldwiesenschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Immanuel-Kant-Gymnasium",
+    "ort": "Leinfelden-Echterdingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Immanuel-Kant-Realschule",
+    "ort": "Leinfelden-Echterdingen",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Ludwig-Uhland-Schule Grund- und Werkrealschule Leinfelden",
+    "ort": "Leinfelden-Echterdingen",
+    "strasse": "Bahnhofstraße 65",
+    "plz": "70771",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.lus-leinfelden.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Philipp-Matthäus-Hahn-Gymnasium",
+    "ort": "Leinfelden-Echterdingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Grund- und Werkrealschule Lenningen",
+    "ort": "Lenningen",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Lenningen",
+    "ort": "Lenningen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Karl-Erhard-Scheufelen-Grund- und Werkrealschule Oberlenningen",
+    "ort": "Lenningen",
+    "strasse": "Tobelstraße 5",
+    "plz": "73252",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://gwrs-lenningen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Neckartailfingen",
+    "ort": "Neckartailfingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Neckartenzlingen",
+    "ort": "Neckartenzlingen",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Neckartenzlingen",
+    "ort": "Neckartenzlingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Grundschule Neidlingen",
+    "ort": "Neidlingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Friedrich-Schiller-Schule Neuhausen auf den Fildern Werkreal- und Realschule",
+    "ort": "Neuhausen an den Fildern",
+    "strasse": "Rupert-Mayer-Straße 70",
+    "plz": "73765",
+    "typ": "Realschule",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Notzingen",
+    "ort": "Notzingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Albert-Schäffle-Schule",
+    "ort": "Nürtingen",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Anna-Haag-Schule Grund- und Hauptschule Neckarhausen",
+    "ort": "Nürtingen",
+    "strasse": "Beethovenstr. 1",
+    "plz": "72622",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.anna-haag-schule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Ersbergschule Grund- und Werkrealschule",
+    "ort": "Nürtingen",
+    "strasse": "Ersbergstraße 40",
+    "plz": "72622",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.ersbergschule-nuertingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Fritz-Ruoff-Schule",
+    "ort": "Nürtingen",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Geschwister-Scholl-Realschule",
+    "ort": "Nürtingen",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Nürtingen",
+    "ort": "Nürtingen",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Hochschule für Wirtschaft und Umwelt Nürtingen-Geislingen",
+    "ort": "Nürtingen",
+    "typ": "Hochschule"
+  },
+  {
+    "name": "Hölderlin-Gymnasium",
+    "ort": "Nürtingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Max-Planck-Gymnasium",
+    "ort": "Nürtingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Philipp-Matthäus-Hahn-Schule",
+    "ort": "Nürtingen",
+    "typ": "Berufliche Schule"
+  },
+  {
+    "name": "Grundschule Oberboihingen",
+    "ort": "Oberboihingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Kirchrainschule Grund- und Werkrealschule",
+    "ort": "Oberboihingen",
+    "strasse": "Im Kirchrain 28",
+    "plz": "72644",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.kirchrainschule.de/web",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Ohmden",
+    "ort": "Ohmden",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Erich-Kästner-Schule Grund- und Werkrealschule",
+    "ort": "Ostfildern",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.eks-nellingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grund- und Werkrealschule Ostfildern",
+    "ort": "Ostfildern",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Ostfildern",
+    "ort": "Ostfildern",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Heinrich-Heine-Gymnasium",
+    "ort": "Ostfildern",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Otto-Hahn-Gymnasium",
+    "ort": "Ostfildern",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Realschule Ostfildern",
+    "ort": "Ostfildern",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Schule im Park Grund- und Werkrealschule",
+    "ort": "Ostfildern",
+    "strasse": "Gerhard-Koch-Straße 6",
+    "plz": "73760",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.schule-im-park.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Wasenäckerschule Grundschule Scharnhausen",
+    "ort": "Ostfildern",
+    "strasse": "Fröbelstraße 9",
+    "plz": "73760",
+    "typ": "Grundschule",
+    "website": "https://www.wasenaeckerschule.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Burgschule (Grundschule Plochingen)",
+    "ort": "Plochingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Burgschule Grund- und Werkrealschule",
+    "ort": "Plochingen",
+    "strasse": "Burgstraße 42",
+    "plz": "73207",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.burgschule-plochingen.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Gymnasium Plochingen",
+    "ort": "Plochingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Realschule Plochingen",
+    "ort": "Plochingen",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Grund- und Werkrealschule Reichenbach an der Fils",
+    "ort": "Reichenbach an der Fils",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Reichenbach an der Fils",
+    "ort": "Reichenbach an der Fils",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Lützelbachschule Grund- und Werkrealschule",
+    "ort": "Reichenbach an der Fils",
+    "strasse": "Seidenstraße 11",
+    "plz": "73262",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.luetzelbachschule-reichenbach.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Unterensingen",
+    "ort": "Unterensingen",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Realschule Weilheim an der Teck",
+    "ort": "Weilheim an der Teck",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Robert-Bosch-Gymnasium",
+    "ort": "Wendlingen",
+    "typ": "Gymnasium"
+  },
+  {
+    "name": "Grund- und Werkrealschule Wernau",
+    "ort": "Wernau",
+    "typ": "Grund- und Werkrealschule"
+  },
+  {
+    "name": "Grundschule Wernau",
+    "ort": "Wernau",
+    "typ": "Grundschule"
+  },
+  {
+    "name": "Realschule Wernau",
+    "ort": "Wernau",
+    "typ": "Realschule"
+  },
+  {
+    "name": "Schlossgartenschule Grund- und Werkrealschule",
+    "ort": "Wernau (Neckar)",
+    "strasse": "Schlosshof 9",
+    "plz": "73249",
+    "typ": "Grund- und Werkrealschule",
+    "website": "https://www.schlossgartenschule-wernau.de",
+    "traeger": "öffentlich"
+  },
+  {
+    "name": "Grundschule Wolfschlugen",
+    "ort": "Wolfschlugen",
+    "typ": "Grundschule"
+  }
+]
