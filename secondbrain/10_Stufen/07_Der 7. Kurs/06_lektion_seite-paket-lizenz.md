@@ -57,16 +57,21 @@ Am Ende steht ein Ordner, den du als **.zip** herunterlädst:
 | `index.html` | deine Seite |
 | `stil.css` | deine Farben als Tokens |
 | `PRUEFLISTE.md` | zehn Fragen vor dem Abgeben |
-| `LIZENZ.md` | MIT und Apache 2.0 zur Wahl |
+| `LIZENZ.md` | was für die Vorlage gilt — und was für deine Inhalte |
 
 Alles lesbare Dateien. Kein Format, das nur in dieser Academy aufgeht.
 
 ## Die Lizenz — und was sie nicht abdeckt
 
-Vorlage und Bausteine stehen unter **MIT** und **Apache 2.0**. Beide erlauben
-dasselbe: benutzen, ändern, weitergeben, verkaufen — ohne zu fragen und ohne zu
-zahlen. Apache 2.0 gibt zusätzlich eine **Patentzusage**, was für Betriebe
-zählt, die etwas darauf aufbauen. Du wählst, welche der beiden du nimmst.
+Vorlage und Bausteine stehen unter der **PolyForm Shield 1.0.0** — derselben
+Lizenz wie die Academy selbst. Sie erlaubt dir, sie zu benutzen, zu ändern und
+weiterzugeben, **auch geschäftlich**: Deine Seite darf für dein Gewerbe werben,
+für deinen Verein, für deine Bewerbung. Eine Patentzusage ist dabei.
+
+Sie verbietet genau eines: **daraus ein Produkt zu machen, das der Academy
+Konkurrenz macht.** Ein eigenes Lernprogramm aus diesen Bausteinen, verkauft
+oder verschenkt, ist nicht erlaubt. Deine eigene Seite ist keine Konkurrenz —
+die Grenze verläuft nicht bei „Geld verdienen", sondern bei „dasselbe anbieten".
 
 > **Was du hineingeschrieben hast, gehört dir allein.**
 > Deine Marke, deine Sätze, deine Farben. Darauf hat die Academy keinen
@@ -76,7 +81,9 @@ zählt, die etwas darauf aufbauen. Du wählst, welche der beiden du nimmst.
 
 Der Unterschied klingt spitzfindig und ist es nicht: Er entscheidet, ob du das
 Ergebnis in ein Geschäft mitnehmen, in ein Schulprojekt legen oder öffentlich
-stellen kannst, ohne noch einmal jemanden zu fragen.
+stellen kannst, ohne noch einmal jemanden zu fragen. Bei deinen eigenen Zeilen
+musst du niemanden fragen — bei der Vorlage nur dann, wenn du damit dasselbe
+anbieten willst wie wir.
 
 ## Die Prüfliste
 
@@ -99,13 +106,13 @@ id: K7-10
 typ: denkaufgabe
 titel: "Was die Lizenz abdeckt"
 punkte: 20
-frage: "Du lädst dein Paket herunter. Was steht unter MIT beziehungsweise Apache 2.0?"
+frage: "Du lädst dein Paket herunter. Wofür gilt die beigelegte Lizenz?"
 optionen:
-  - "Die Vorlage und die beigelegten Bausteine — nicht deine eigenen Inhalte"
-  - "Alles im Paket, auch die Sätze, die du selbst geschrieben hast"
-  - "Nur die CSS-Datei, weil sie Code ist"
-  - "Nichts davon, das Paket ist nur zum Ansehen"
-loesung: "Die Vorlage und die beigelegten Bausteine — nicht deine eigenen Inhalte"
+  - "Für die Vorlage und die beigelegten Bausteine — nicht für deine eigenen Inhalte"
+  - "Für alles im Paket, auch die Sätze, die du selbst geschrieben hast"
+  - "Nur für die CSS-Datei, weil sie Code ist"
+  - "Für nichts davon, das Paket ist nur zum Ansehen"
+loesung: "Für die Vorlage und die beigelegten Bausteine — nicht für deine eigenen Inhalte"
 richtzeit_s: 75
 hinweise:
   - text: "Eine Lizenz kann nur geben, was der Geber auch besitzt."

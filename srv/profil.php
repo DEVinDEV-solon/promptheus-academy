@@ -366,8 +366,10 @@ function pu_academy_wissen(): string
         . "ist, und dem, was frei bleibt. Eingesetzt wird er auf drei Stufen: "
         . "einzelner ChatBot, Agent mit Werkzeugen, System aus mehreren Agenten. "
         . "Am Ende steht ein Paket zum Herunterladen (Dokument, Systemprompt, "
-        . "eigene Webseite, Prüfliste) unter MIT und Apache 2.0 — die Lizenz gilt "
-        . "für Vorlage und Bausteine, die eigenen Inhalte gehören dem Lernenden.\n\n"
+        . "eigene Webseite, Prüfliste) unter der PolyForm Shield 1.0.0 — die Lizenz "
+        . "gilt für Vorlage und Bausteine und erlaubt auch den geschäftlichen "
+        . "Einsatz, nur kein Konkurrenzprodukt zur Academy; die eigenen Inhalte "
+        . "gehören dem Lernenden.\n\n"
         . "Frei wird er nach der bestandenen Prüfung der sechsten Stufe. Wer danach "
         . "fragt, bevor er so weit ist: Der Abstand steht auf der Karte „Dein Ziel“ "
         . "und hinter dem Menüpunkt „Der 7. Kurs“.";
