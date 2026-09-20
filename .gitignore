@@ -39,6 +39,14 @@
 # Rechner — keine Schluessel, aber eine Landkarte der Ablage.
 setup/quellen.json
 
+# Der VPS-Zugang. `vps/README.md` sagt es selbst: er steht in
+# projects/07_Dilek/GLANZZ/hostinger/ und bleibt dort. Am 20.09.2026 lag hier
+# trotzdem eine vollstaendige Kopie — 19 Dateien, darunter Zugangsdaten,
+# SFTP-Zugang und eine .env. Sie war weder verfolgt noch ausgeschlossen: ein
+# `git add -A` haette sie aufgenommen. Die Kopie ist geloescht; diese Zeile
+# steht hier, damit die naechste gar nicht erst mitgeht.
+hostinger/
+
 
 # ─────────────────────────────────────────────── 2. Daten von Menschen
 #
@@ -58,6 +66,13 @@ data/
 # (Solons Entscheidung): Skills und Einstellungen gehoeren zur Werkstatt.
 .claude/worktrees/
 .agents/**/evals/
+
+# `php/` ist die mitgelieferte PHP-Laufzeit fuer Windows: 111 MB in 85
+# Dateien, fremd, gebaut, und sie aendert sich immer als Ganzes. Ein Repo mit
+# eingebackenem Interpreter laedt niemand gern herunter, und in der Historie
+# waere jede neue Fassung noch einmal 111 MB. Wer das Programm baut, holt
+# PHP selbst; `promptheus-start.bat` sagt, welche Erweiterungen es braucht.
+php/
 
 
 # ────────────────────────────────────────────────────── 4. Der Lehrstoff
@@ -134,6 +149,15 @@ assets/img/ueber/
 LIZENZ-RELAY-PLAN.md
 VEROEFFENTLICHUNG.md
 
+# Seit dem 20.09.2026 liegt die Arbeitsfassung aller Plaene gesammelt in
+# `Plaene/` — kopiert aus vps/plan/ und aus dem Vault, damit man den Stand an
+# einer Stelle liest. Es gilt dieselbe Begruendung wie oben: Preise, Marge,
+# Vertraege, die Bauweise der Freischaltung. Der Ordnername traegt einen
+# Umlaut, deshalb stehen beide Schreibweisen hier — je nachdem, wie das
+# Dateisystem ihn ablegt, trifft die eine oder die andere.
+Pläne/
+Plaene/
+
 
 # ─────────────────────────────────────────────────────── 8. Arbeitsreste
 #
@@ -141,6 +165,13 @@ VEROEFFENTLICHUNG.md
 # verungluecktes `2>&1` aus einer Shell-Zeile: zehn Bytes ohne Bedeutung.
 _vorschau_*
 /0
+
+# Reste aus der Fehlersuche am Startskript (mb_strlen, 20.09.2026): zwei
+# Protokolle mit zusammen 47 Bytes und ein Bildschirmfoto der Meldung.
+# Sie haben ihren Zweck erfuellt; die Ursache steht in php/php8.2/php.ini.
+promptheus-start.log
+promptheus-start-php.txt
+promptheus-start-fehler-bild.jpg
 
 Thumbs.db
 desktop.ini
