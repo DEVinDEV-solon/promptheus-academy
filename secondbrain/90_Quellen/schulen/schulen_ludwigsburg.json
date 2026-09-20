@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "stadt": "Ludwigsburg",
+    "bundesland": "Baden-Württemberg",
+    "landkreis": "Ludwigsburg",
+    "quelle": "Stadt Ludwigsburg – Schularten (ludwigsburg.de/start/leben+in+ludwigsburg/schularten.html)",
+    "stand": "2026",
+    "anzahl_eintraege": 45
+  },
+  "schulen": {
+    "grundschulen": [
+      {"name": "Eichendorffschule", "adresse": "Neißestr. 22, 71638 Ludwigsburg", "form": "Teilgebundene Ganztagsschule", "website": "http://www.eichendorff-gs.de/"},
+      {"name": "Friedensschule", "adresse": "Friedenstr. 10, 71636 Ludwigsburg", "form": "Halbtagsschule", "website": "https://www.friedensschule-ludwigsburg.de/"},
+      {"name": "Friedrich-von-Keller-Schule", "adresse": "Schwarzwaldstr. 2, 71642 Ludwigsburg", "form": "Halbtagsschule", "website": "https://fvkschule.de/"},
+      {"name": "Fuchshofschule", "adresse": "Fuchshofstr. 53, 71638 Ludwigsburg", "form": "Ganztagsschule in Wahlform", "website": "http://fuchshof-lb.de/"},
+      {"name": "Grundschule Hoheneck", "adresse": "Ostertagstr. 7, 71642 Ludwigsburg", "form": "Halbtagsschule", "website": "http://www.gs-hoheneck.de/"},
+      {"name": "Grundschule Pflugfelden", "adresse": "Ditzinger Str. 19, 71636 Ludwigsburg", "form": "Halbtagsschule", "website": "http://www.grundschule-pflugfelden.de/"},
+      {"name": "Grundschule Oßweil", "adresse": "Westfalenstr. 54, 71640 Ludwigsburg", "form": "Halbtagsschule", "website": "https://www.gs-ossweil.de/"},
+      {"name": "Hirschbergschule (Grundschule Eglosheim)", "adresse": "Tammer Str. 34, 71634 Ludwigsburg", "form": "Ganztagsgrundschule in Wahlform", "website": "http://www.hirschbergschule.de/"},
+      {"name": "Lembergschule Poppenweiler", "adresse": "Erdmannhäuser Str. 1, 71642 Ludwigsburg", "form": "Halbtagsschule", "website": "http://www.lembergschule.de/"},
+      {"name": "Osterholzschule", "adresse": "Kaiserstr. 6-8, 71636 Ludwigsburg", "form": "Halbtagsschule", "website": "http://www.osterholzschule.de/"},
+      {"name": "Oststadtschule", "adresse": "Danziger Str. 30, 71638 Ludwigsburg", "form": "Halbtagsschule", "website": "https://www.oss-ludwigsburg.de/"},
+      {"name": "Schlößlesfeldschule", "adresse": "Corneliusstr. 36, 71640 Ludwigsburg", "form": "Ganztagsschule in Wahlform", "website": "http://schloesslesfeld-grundschule.de/"},
+      {"name": "Schubartschule Eglosheim", "adresse": "Frankfurter Straße 30, 71634 Ludwigsburg", "form": "Halbtagsschule", "website": "https://schubartschule.de/"},
+      {"name": "Sophie-Scholl-Schule (ehem. Anton-Bruckner-Schule)", "adresse": "Schulgasse 6, 71638 Ludwigsburg", "form": "Teilgebundene Ganztagsschule", "website": "http://www.sophie-scholl-schule-ludwigsburg.de"}
+    ],
+    "realschulen": [
+      {"name": "Elly-Heuss-Knapp-Realschule", "adresse": "Karlstraße 33, 71638 Ludwigsburg", "form": "Ganztagsschule", "website": "http://www.ehk-rs-lb.de/"},
+      {"name": "Gottlieb-Daimler-Realschule", "adresse": "Kaiserstraße 10, 71636 Ludwigsburg", "form": "Realschule", "website": "http://www.gdrs-lb.de/"},
+      {"name": "Hirschbergschule Realschule (ab 2026/27)", "adresse": "Tammer Straße 34, 71634 Ludwigsburg", "form": "Grund- und Realschule (Umwandlung ab 2026/27)", "website": "http://www.hirschbergschule.de/"},
+      {"name": "Abendrealschule Ludwigsburg e.V.", "adresse": "Kaiserstraße 10, 71636 Ludwigsburg", "form": "staatlich anerkannte Ersatzschule", "website": "http://www.abendrealschule-lb.de/"}
+    ],
+    "werkrealschulen": [
+      {"name": "Hirschbergschule (Werkrealschule, auslaufend)", "adresse": "Tammer Straße 34, 71634 Ludwigsburg", "form": "Werkrealschule (läuft zum 2026/27 aus)", "website": "http://www.hirschbergschule.de/"}
+    ],
+    "gemeinschaftsschulen": [
+      {"name": "Gemeinschaftsschule Innenstadt", "adresse": "Alleenstraße 21, 71638 Ludwigsburg", "form": "Verbindliche Ganztagsschule", "website": "http://www.gemeinschaftsschule-innenstadt-lb.de/"},
+      {"name": "Justinus-Kerner-Schule", "adresse": "Berliner Platz 2, 71638 Ludwigsburg", "form": "Verbindliche Ganztagsschule", "website": "https://justinus-kerner-schule.de/"}
+    ],
+    "gymnasien": [
+      {"name": "Friedrich-Schiller-Gymnasium", "adresse": "Alleenstraße 16, 71638 Ludwigsburg", "form": "Optionaler Ganztagszug Kl. 5-6", "website": "http://www.fsglb.de/"},
+      {"name": "Goethe-Gymnasium", "adresse": "Seestraße 37, 71638 Ludwigsburg", "form": "Ganztagsangebot Kl. 5-6", "website": "http://www.goethelb.de/"},
+      {"name": "Mörike-Gymnasium", "adresse": "Karlstraße 19, 71638 Ludwigsburg", "form": "Gymnasium (G9)", "website": "http://www.mglb.de/"},
+      {"name": "Otto-Hahn-Gymnasium", "adresse": "Kaiserstraße 14, 71636 Ludwigsburg", "form": "Gymnasium im Bildungszentrum West", "website": "http://www.ohg-lb.de/"}
+    ],
+    "sonderpaedagogik": [
+      {"name": "Eberhard-Ludwig-Schule", "adresse": "Tammer Straße 28, 71634 Ludwigsburg", "form": "SBBZ, Ganztagsschule Grundstufe Kl. 1-4", "website": "http://www.eberhard-ludwig-schule.de/"},
+      {"name": "Schule am Schloßpark", "adresse": "Ludwigsburg", "form": "SBBZ (Förderschwerpunkt: längerer Krankenhausbehandlung)", "website": "https://www.sas-lb.de/"},
+      {"name": "Fröbelschule", "adresse": "Ludwigsburg", "form": "SBBZ (Förderschwerpunkt: Sprache)", "website": "http://www.froebelschule-lbg.de/"},
+      {"name": "Schule am Favoritepark", "adresse": "Ludwigsburg", "form": "SBBZ (Förderschwerpunkt: geistige Entwicklung)", "website": "https://www.schule-am-favoritepark.de/"}
+    ],
+    "berufliche_schulen_stadt_ludwigsburg": [
+      {"name": "Carl-Schaefer-Schule", "adresse": "Hohenzollernstraße 26-30, 71638 Ludwigsburg", "form": "Gewerbliche Schule", "website": "http://www.css-lb.de/"},
+      {"name": "Oscar-Walcker-Schule", "adresse": "Römerhügelweg 53, 71636 Ludwigsburg", "form": "Gewerbliche Schule / Berufliches Schulzentrum", "website": "http://www.ows-lb.de/"},
+      {"name": "Robert-Franck-Schule", "adresse": "Römerhügelweg 53, 71636 Ludwigsburg", "form": "Kaufmännische Schule / Berufliches Schulzentrum", "website": "http://www.rfs-lb.de/"},
+      {"name": "Mathilde-Planck-Schule", "adresse": "Römerhügelweg 53, 71636 Ludwigsburg", "form": "Hauswirtschaftlich-pflegerisch-sozialpädagogische Schule", "website": "http://www.mps-lb.de/"},
+      {"name": "St. Loreto (Privatschule)", "adresse": "Straßenäcker 32, 71634 Ludwigsburg", "form": "Katholische Fachschule für Sozialpädagogik (Privatschule)", "website": "https://st-loreto.de/"}
+    ],
+    "berufliche_schulen_landkreis_umgebung": [
+      {"name": "Berufliches Schulzentrum Bietigheim-Bissingen", "adresse": "Fischerpfad 10-12, 74321 Bietigheim-Bissingen", "form": "Gewerbliche und kaufmännische Schule", "website": "http://www.bsz-bietigheim.de/"},
+      {"name": "Erich-Bracher-Schule Kornwestheim-Pattonville", "adresse": "John-F.-Kennedy-Allee 6, 70806 Kornwestheim", "form": "Kaufmännische Schule", "website": "http://www.erich-bracher-schule.de/"}
+    ],
+    "weitere_schulen": [
+      {"name": "Freie Waldorfschule Ludwigsburg", "adresse": "Ludwigsburg", "form": "Waldorfschule (Privatschule)", "website": "https://www.waldorfschule-ludwigsburg.de/"},
+      {"name": "Löwenherzschule", "adresse": "Ludwigsburg", "form": "Weitere Schule", "website": "https://loewenherzschule.de/"},
+      {"name": "Ulrich-Walter-Schule", "adresse": "Ludwigsburg", "form": "Weitere Schule", "website": "https://www.uw-ps.de/"},
+      {"name": "Sportinternat Ludwigsburg (Vollzeit)", "adresse": "Ludwigsburg", "form": "Sportinternat", "website": "http://www.sportinternat-ludwigsburg.de/"}
+    ],
+    "hochschulen": [
+      {"name": "Pädagogische Hochschule Ludwigsburg", "adresse": "Reuteallee 46, 71634 Ludwigsburg", "form": "Hochschule (Lehramt, Pädagogik)", "website": "https://www.ph-ludwigsburg.de/"},
+      {"name": "Evangelische Hochschule Ludwigsburg", "adresse": "Ludwigsburg", "form": "Staatlich anerkannte Hochschule", "website": "https://www.eh-ludwigsburg.de/"}
+    ]
+  }
+}
