@@ -141,6 +141,8 @@ function pu_ca_bundle(): string
         pu_env('PU_CA_BUNDLE', ''),
         (string)ini_get('curl.cainfo'),
         (string)ini_get('openssl.cafile'),
+        'D:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt',
+        'D:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt',
         'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt',
         'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt',
         'C:/Windows/System32/curl-ca-bundle.crt',
