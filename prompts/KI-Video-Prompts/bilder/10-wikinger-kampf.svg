@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d3a55"/><stop offset="0.55" stop-color="#e9a95a"/><stop offset="1" stop-color="#6c7a5a"/></linearGradient>
+    <radialGradient id="e"><stop offset="0" stop-color="#e8f4ff"/><stop offset="1" stop-color="#7fb8ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#g)"/>
+  <ellipse cx="900" cy="60" rx="320" ry="60" fill="#1f2638" opacity="0.8"/>
+  <path d="M600 300 l120 -60 l90 30 l110 -70 l120 50 l160 -40 v190 h-600z" fill="#39402f"/>
+  <path d="M600 360 h600 v40 h-600z" fill="#4d8aa6" opacity="0.6"/>
+  <rect x="700" y="210" width="26" height="70" fill="#5a5a55"/><rect x="1090" y="190" width="30" height="80" fill="#5a5a55"/>
+  <circle cx="930" cy="200" r="120" fill="url(#e)" opacity="0.7"/>
+  <polyline points="960,40 900,140 950,150 880,260 930,270 870,380" fill="none" stroke="#ffffff" stroke-width="10" stroke-linejoin="round"/>
+  <polyline points="960,40 900,140 950,150 880,260 930,270 870,380" fill="none" stroke="#8fc6ff" stroke-width="22" stroke-linejoin="round" opacity="0.35"/>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#ffd89a">PROMPT #10</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#fffaf0">Wikinger-Duell</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#f3e6d2">Kampfszene mit dir als Hauptfigur</text>
+</svg>

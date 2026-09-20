@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs><linearGradient id="v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9eb2c4"/><stop offset="0.5" stop-color="#f1c77a"/><stop offset="1" stop-color="#b58c45"/></linearGradient></defs>
+  <rect width="1200" height="400" fill="#8fa68a"/>
+  <rect x="660" y="50" width="200" height="330" fill="#050806"/>
+  <rect x="610" y="50" width="120" height="330" fill="#f4f4f0" stroke="#d6d6cf" stroke-width="4"/>
+  <path d="M730 90 q30 30 20 90 q-8 40 30 70 q20 30 -10 80" stroke="#7fbf3a" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <path d="M735 200 q40 -20 60 10 M738 214 q50 0 64 30 M735 226 q40 20 50 50" stroke="#2a2e24" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <g fill="#7fbf3a"><circle cx="700" cy="140" r="10"/><circle cx="680" cy="300" r="8"/><circle cx="720" cy="360" r="12"/></g>
+  <rect x="940" y="50" width="200" height="330" fill="url(#v)"/>
+  <polygon points="990,170 1050,90 1110,170" fill="#e9eef2"/><polygon points="940,200 1000,150 1060,210 1140,160 1140,230 940,230" fill="#2f4a36"/>
+  <path d="M940 290 q60 -20 100 0 t100 -10" stroke="#9fd0e0" stroke-width="8" fill="none"/>
+  <ellipse cx="975" cy="275" rx="14" ry="8" fill="#2a1c12"/>
+  <rect x="930" y="40" width="220" height="10" fill="#f4f4f0"/><rect x="930" y="40" width="10" height="340" fill="#f4f4f0"/><rect x="1140" y="40" width="10" height="340" fill="#f4f4f0"/>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#1f3a1a">PROMPT #13</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#10200e">Schauspiel</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#1f331c">Video-Edit: Dino-Tür &amp; Tal-Tür</text>
+</svg>

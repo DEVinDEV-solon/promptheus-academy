@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9d8b8"/><stop offset="1" stop-color="#b8a07a"/></linearGradient></defs>
+  <rect width="1200" height="400" fill="url(#g)"/>
+  <g stroke="#3b2f22" stroke-width="3" fill="none" opacity="0.55">
+    <path d="M640 40 h40 M640 40 v40"/><path d="M1160 40 h-40 M1160 40 v40"/><path d="M640 360 h40 M640 360 v-40"/><path d="M1160 360 h-40 M1160 360 v-40"/>
+  </g>
+  <circle cx="680" cy="80" r="0"/>
+  <circle cx="690" cy="72" r="9" fill="#d23b2e"/>
+  <text x="708" y="81" font-family="'Courier New', monospace" font-size="26" font-weight="700" fill="#3b2f22">REC</text>
+  <text x="1010" y="345" font-family="'Courier New', monospace" font-size="22" fill="#3b2f22">SEP 16 2003</text>
+  <g transform="translate(830 150)">
+    <rect x="0" y="0" width="200" height="120" rx="16" fill="#3a3a40"/>
+    <rect x="200" y="30" width="60" height="60" rx="6" fill="#2a2a2e"/>
+    <circle cx="260" cy="60" r="36" fill="#1a1a1d"/><circle cx="260" cy="60" r="20" fill="#3d5b7a"/><circle cx="252" cy="52" r="6" fill="#cfe3f5"/>
+    <rect x="-40" y="10" width="60" height="80" rx="6" fill="#55555c"/><rect x="-34" y="18" width="48" height="64" fill="#8fb3c8"/>
+    <rect x="30" y="-18" width="60" height="18" rx="4" fill="#2a2a2e"/>
+    <circle cx="170" cy="22" r="6" fill="#d23b2e"/>
+  </g>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#7a3a22">PROMPT #5</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#2b2118">KI-Influencer-Vlog</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#3b2f22">Ein Tag mit Maya · Camcorder-Look der 2000er</text>
+</svg>

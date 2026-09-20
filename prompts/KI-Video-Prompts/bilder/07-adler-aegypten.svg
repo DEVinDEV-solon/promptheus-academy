@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3b45a"/><stop offset="0.6" stop-color="#e9874a"/><stop offset="1" stop-color="#9c4f2c"/></linearGradient></defs>
+  <rect width="1200" height="400" fill="url(#g)"/>
+  <circle cx="1050" cy="130" r="60" fill="#fff1c9" opacity="0.8"/>
+  <polygon points="700,320 810,190 920,320" fill="#b76a36"/><polygon points="810,190 920,320 860,320" fill="#8a4a24"/>
+  <polygon points="900,320 1010,170 1120,320" fill="#c77a40"/><polygon points="1010,170 1120,320 1060,320" fill="#95512a"/>
+  <polygon points="1100,320 1160,250 1220,320" fill="#b76a36"/>
+  <path d="M600 330 q150 -30 300 0 t300 0 v70 h-600z" fill="#2f8f9d"/>
+  <path d="M600 345 q150 -20 300 0 t300 0" stroke="#bfe9ef" stroke-width="3" fill="none" opacity="0.6"/>
+  <g transform="translate(860 110)" fill="#3a2414">
+    <path d="M0 0 q-90 -60 -190 -30 q80 10 120 50 q-60 -10 -110 10 q70 10 110 30z"/>
+    <path d="M0 0 q90 -60 190 -30 q-80 10 -120 50 q60 -10 110 10 q-70 10 -110 30z"/>
+    <ellipse cx="0" cy="30" rx="22" ry="44"/>
+    <circle cx="0" cy="-12" r="16"/>
+    <path d="M-6 -8 l-4 16 l10 -8z" fill="#e2b04a"/>
+  </g>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#4a1f0e">PROMPT #7</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#2a1408">Adlerflug über Ägypten</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#3d1c0c">Riesenadler, Ich-Perspektive · 30 s</text>
+</svg>
