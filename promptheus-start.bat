@@ -43,7 +43,7 @@ if not exist "%RUN%" (
 rem --- Fertige php.ini im PHP-Ordner sicherstellen --------------
 rem   (Windows-PHP laedt php.ini automatisch aus dem eigenen Ordner)
 if not exist "%PHP_DIR%\php.ini" (
-    echo   Lege php.ini an ^(pdo_sqlite, sqlite3, mbstring, curl, openssl^) ...
+    echo   Lege php.ini an ^(pdo_sqlite, sqlite3, mbstring, curl, openssl, sodium^) ...
     >  "%PHP_DIR%\php.ini" echo ; PROMPTHEUS - php.ini
     >> "%PHP_DIR%\php.ini" echo extension_dir = "ext"
     >> "%PHP_DIR%\php.ini" echo extension=pdo_sqlite
@@ -51,14 +51,16 @@ if not exist "%PHP_DIR%\php.ini" (
     >> "%PHP_DIR%\php.ini" echo extension=mbstring
     >> "%PHP_DIR%\php.ini" echo extension=curl
     >> "%PHP_DIR%\php.ini" echo extension=openssl
+    >> "%PHP_DIR%\php.ini" echo extension=sodium
 )
 
 rem --- Aeltere php.ini nachruesten ------------------------------
 rem   Die ersten Fassungen schalteten nur pdo_sqlite und sqlite3 ein. Ohne
 rem   mbstring bricht jede Seite mit Umlauten ab ("Call to undefined function
-rem   mb_strlen()"). Fehlende Zeilen werden deshalb angehaengt, vorhandene
-rem   bleiben unberuehrt.
-for %%E in (mbstring curl openssl) do (
+rem   mb_strlen()"). Ohne sodium gibt es keine Installationsidentitaet und
+rem   damit keine Registrierung. Fehlende Zeilen werden deshalb angehaengt,
+rem   vorhandene bleiben unberuehrt.
+for %%E in (mbstring curl openssl sodium) do (
     findstr /i /c:"extension=%%E" "%PHP_DIR%\php.ini" >nul 2>&1
     if errorlevel 1 (
         echo   Ergaenze in php.ini: extension=%%E
