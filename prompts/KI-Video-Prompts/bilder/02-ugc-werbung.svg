@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d9c9"/><stop offset="1" stop-color="#8fb3de"/></linearGradient></defs>
+  <rect width="1200" height="400" fill="url(#g)"/>
+  <g opacity="0.25" stroke="#fff" stroke-width="3"><line x1="600" y1="0" x2="600" y2="400"/><line x1="720" y1="0" x2="720" y2="400"/><line x1="1080" y1="0" x2="1080" y2="400"/><line x1="600" y1="130" x2="1200" y2="130"/><line x1="600" y1="260" x2="1200" y2="260"/></g>
+  <rect x="800" y="30" width="190" height="340" rx="28" fill="#1f2433"/>
+  <rect x="812" y="52" width="166" height="296" rx="16" fill="#fbeee6"/>
+  <circle cx="895" cy="150" r="46" fill="#e8b89a"/>
+  <path d="M849 146 q46 -80 92 0 q-10 -30 -46 -34 q-36 4 -46 34z" fill="#b8925a"/>
+  <path d="M858 200 q37 -24 74 0 l14 70 h-102z" fill="#3c6fc4"/>
+  <ellipse cx="878" cy="160" rx="11" ry="5" fill="#fff" opacity="0.8"/><ellipse cx="912" cy="160" rx="11" ry="5" fill="#fff" opacity="0.8"/>
+  <rect x="930" y="220" width="36" height="80" rx="8" fill="#ffffff" stroke="#1f2433" stroke-width="3"/>
+  <rect x="936" y="246" width="24" height="26" fill="#e07a5f"/>
+  <circle cx="830" cy="72" r="6" fill="#e5484d"/>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#8a3b2b">PROMPT #2</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="84" font-weight="700" fill="#1f2433">KI-UGC-Werbung</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#2f3a52">Selfie-Produktvideo im Badezimmer · 9:16</text>
+</svg>

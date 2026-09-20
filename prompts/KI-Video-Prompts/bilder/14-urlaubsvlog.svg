@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a6b"/><stop offset="0.55" stop-color="#ffcf7f"/><stop offset="0.56" stop-color="#1f9aa6"/><stop offset="1" stop-color="#0f5f73"/></linearGradient></defs>
+  <rect width="1200" height="400" fill="url(#g)"/>
+  <circle cx="900" cy="222" r="80" fill="#fff0c2"/>
+  <rect x="600" y="220" width="600" height="180" fill="#1a8594"/>
+  <g stroke="#fff3d6" stroke-width="4" opacity="0.7"><line x1="840" y1="250" x2="960" y2="250"/><line x1="860" y1="275" x2="940" y2="275"/><line x1="880" y1="298" x2="920" y2="298"/></g>
+  <path d="M600 400 q120 -70 260 -40 q60 14 60 40z" fill="#e8c88f"/>
+  <g transform="translate(700 360)">
+    <path d="M0 0 q-10 -120 30 -230" stroke="#3a2a1c" stroke-width="12" fill="none"/>
+    <g fill="#1f4a2c"><path d="M30 -230 q-80 -10 -120 50 q60 -40 120 -50z"/><path d="M30 -230 q80 -20 130 30 q-70 -30 -130 -30z"/><path d="M30 -230 q-40 -60 -110 -60 q60 20 110 60z"/><path d="M30 -230 q40 -60 110 -50 q-70 10 -110 50z"/></g>
+  </g>
+  <g transform="translate(1100 150) rotate(12)"><rect x="-40" y="-70" width="80" height="140" rx="12" fill="#1c1c1f"/><rect x="-32" y="-60" width="64" height="120" rx="6" fill="#8fd3de"/></g>
+  <text x="70" y="130" font-family="'Segoe UI', Arial, sans-serif" font-size="26" letter-spacing="6" fill="#7a2b12">PROMPT #14</text>
+  <text x="66" y="220" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#2a1208">Urlaubs-Vlog</text>
+  <text x="70" y="280" font-family="'Segoe UI', Arial, sans-serif" font-size="28" fill="#4a200e">10 Tage Mexiko in 20 Sekunden</text>
+</svg>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<!--
+  PROMPTHEUS ACADEMY — Werkstatt, Musterbild.
+
+  Nur Schaubild: nichts hier ist anklickbar, es wird nichts geladen und
+  nichts gespeichert. Zweck ist ein Bildschirmfoto für die Gemeinde.
+
+  Gebaut nach Brand/BRAND.md: Palette "Schmiede", Tokens statt Hexwerten im
+  Layout, Systemschriften, ein Ornament (Mäander) nur an der Kopfkante, Gold
+  ausschliesslich dort, wo etwas geschafft wurde.
+
+  Die Farbwerte stehen einmal in :root, weil diese Datei allein stehen soll —
+  im Programm kommen sie aus assets/css/promptheus.css und marke.css.
+-->
+<html lang="de" data-thema="dunkel">
+<head>
+<meta charset="utf-8">
+<title>PROMPTHEUS Werkstatt — Musterbild</title>
+<style>
+:root {
+  /* Palette "Schmiede" */
+  --grund:      #14110f;
+  --grund-2:    #1c1815;
+  --grund-3:    #262019;
+  --rand:       #3a3129;
+  --rand-hell:  #504338;
+  --schrift:    #ede5db;
+  --schrift-2:  #b3a596;
+  --schrift-3:  #8b8178;
+  --glut:       #ff7a1c;
+  --glut-hell:  #ffa347;
+  --glut-tief:  #c14e00;
+  --gold:       #ffc94d;
+  --lapis:      #4e82b6;
+  --lapis-flor: rgba(78,130,182,.12);
+  --gut:        #5fbf7a;
+  --glas:       rgba(236,229,219,.045);
+
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:  "Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+  --mono:  "Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+
+  --radius:       10px;
+  --radius-klein: 6px;
+  --schatten:     0 2px 10px rgba(0,0,0,.45);
+  --ornament-staerke: .30;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--grund);
+  color: var(--schrift);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ───────────────────────────────────────────────── Kopfleiste */
+.kopf {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: .45rem 1.2rem .55rem;
+  background: var(--grund-2);
+  border-bottom: 1px solid var(--rand);
+}
+
+/* Das eine Ornament dieser Fläche: acht Pixel Mäander an der Unterkante.
+   Als Maske, nie als Bild — die Fläche darunter gibt die Farbe. */
+.kopf::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 8px;
+  background: var(--gold);
+  opacity: var(--ornament-staerke);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><g fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='square'><path d='M0 28 H32'/><path d='M6 28 V6 H26 V22 H12 V16 H20'/></g></svg>") repeat-x bottom / 32px 32px;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><g fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='square'><path d='M0 28 H32'/><path d='M6 28 V6 H26 V22 H12 V16 H20'/></g></svg>") repeat-x bottom / 32px 32px;
+}
+
+.marke { display: flex; align-items: center; gap: .6rem; }
+.marke svg { display: block; }
+.marke .name {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  letter-spacing: .06em;
+  color: var(--schrift);
+}
+.marke .zusatz {
+  font-size: .78rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--schrift-3);
+  border-left: 1px solid var(--rand-hell);
+  padding-left: .6rem;
+  margin-left: .15rem;
+}
+
+.menue { display: flex; gap: 1.1rem; font-size: .86rem; color: var(--schrift-2); }
+.fenster { margin-left: auto; display: flex; gap: 1.1rem; color: var(--schrift-3); font-size: .86rem; }
+
+/* ───────────────────────────────────────────────── Rumpf */
+.rumpf {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 216px 1fr 288px;
+  min-height: 0;
+}
+
+/* ───────────────────────────────────────────────── Sitzungen links */
+.spalte-links {
+  background: var(--grund-2);
+  border-right: 1px solid var(--rand);
+  padding: .9rem .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  min-height: 0;
+}
+
+.knopf-haupt {
+  font: inherit;
+  font-size: .9rem;
+  text-align: left;
+  padding: .55rem 1.1rem;
+  border: 0;
+  border-radius: var(--radius-klein);
+  background: linear-gradient(180deg, var(--glut-hell), var(--glut));
+  color: var(--grund);
+  font-weight: 600;
+}
+
+.knopf-still {
+  font: inherit;
+  font-size: .9rem;
+  text-align: left;
+  padding: .5rem .9rem;
+  border: 1px solid var(--rand-hell);
+  border-radius: var(--radius-klein);
+  background: var(--grund-3);
+  color: var(--schrift);
+}
+
+.rubrik {
+  margin: 1.2rem 0 .3rem;
+  font-size: .72rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--schrift-3);
+}
+
+.sitzung {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+  padding: .4rem .6rem;
+  border-radius: var(--radius-klein);
+  font-size: .9rem;
+  color: var(--schrift-2);
+}
+.sitzung > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.sitzung { white-space: nowrap; }
+.sitzung .zeit { margin-left: auto; flex: none; font-family: var(--mono); font-size: .76rem; color: var(--schrift-3); }
+.sitzung.offen { background: var(--grund-3); color: var(--schrift); border-left: 3px solid var(--glut); }
+.projekt { color: var(--schrift); }
+
+/* ───────────────────────────────────────────────── Mitte */
+.spalte-mitte {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.pfadleiste {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem 1.2rem;
+  border-bottom: 1px solid var(--rand);
+  font-size: .88rem;
+  color: var(--schrift-3);
+}
+.pfadleiste .jetzt { color: var(--schrift); }
+.pfadleiste .rechts { margin-left: auto; display: flex; align-items: center; gap: .6rem; }
+
+.marke-klein {
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: .76rem;
+  padding: .12rem .5rem;
+  border: 1px solid var(--rand-hell);
+  border-radius: 999px;
+  color: var(--schrift-2);
+}
+.marke-klein.gelungen { color: var(--gold); border-color: var(--glut-tief); }
+
+.blatt {
+  flex: 1;
+  overflow: hidden;
+  padding: 1.2rem 2.4rem .6rem;
+}
+
+/* Textkarte: schwächer als eine Karte, ohne Rahmen und ohne Schatten. */
+.textkarte {
+  background: var(--glas);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin-bottom: .9rem;
+}
+
+h1 { font-family: var(--serif); font-size: 2rem;    line-height: 1.25; margin: 0 0 .45rem; }
+h2 { font-family: var(--serif); font-size: 1.45rem; line-height: 1.25; margin: 0 0 .45rem; }
+h3 { font-family: var(--serif); font-size: 1.15rem; line-height: 1.25; margin: .9rem 0 .3rem; }
+p  { margin: 0 0 .6rem; }
+
+.klein   { font-size: .86rem; line-height: 1.5; }
+.hinweis { font-size: .86rem; line-height: 1.5; color: var(--schrift-3); }
+
+.wissen {
+  border-left: 3px solid var(--lapis);
+  background: var(--lapis-flor);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: .75rem .9rem;
+  margin: 0 0 .9rem;
+}
+
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--rand); vertical-align: top; }
+th { color: var(--schrift-3); font-weight: 600; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+td.feld { font-family: var(--mono); color: var(--glut); font-size: .84rem; }
+
+/* ───────────────────────────────────────────────── Eingabe */
+.eingabe {
+  flex: none;
+  margin: 0 2.4rem .9rem;
+  background: var(--grund-2);
+  border: 1px solid var(--rand-hell);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  padding: .8rem .9rem .6rem;
+}
+.eingabe .zeile { color: var(--schrift-3); font-size: .95rem; }
+.eingabe .fuss {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin-top: .8rem;
+  font-size: .82rem;
+  color: var(--schrift-2);
+}
+.eingabe .modell { font-family: var(--mono); font-size: .78rem; color: var(--schrift-2); }
+.senden {
+  margin-left: auto;
+  width: 2.55rem; height: 2.55rem;
+  display: grid; place-items: center;
+  border: 0;
+  border-radius: var(--radius-klein);
+  background: linear-gradient(180deg, var(--glut-hell), var(--glut));
+  color: var(--grund);
+  font-size: 1rem;
+}
+
+/* ───────────────────────────────────────────────── Rechte Spalte */
+.spalte-rechts {
+  background: var(--grund-2);
+  border-left: 1px solid var(--rand);
+  padding: .9rem .75rem;
+  min-height: 0;
+  overflow: hidden;
+}
+.spalte-rechts h3 { margin: 0 0 .45rem; font-size: 1rem; }
+.zaehler { display: flex; gap: .45rem; margin-bottom: .6rem; }
+.datei {
+  display: flex; align-items: baseline; gap: .5rem;
+  padding: .28rem .4rem;
+  font-family: var(--mono);
+  font-size: .8rem;
+  color: var(--schrift-2);
+  border-radius: var(--radius-klein);
+}
+.datei .zeichen { color: var(--gut); width: 1ch; }
+.datei .ordner  { color: var(--schrift-3); }
+
+/* ───────────────────────────────────────────────── Fussleiste */
+.fussleiste {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: .35rem 1.2rem;
+  background: var(--grund-2);
+  border-top: 1px solid var(--rand);
+  font-size: .8rem;
+  color: var(--schrift-3);
+}
+.fussleiste .gelungen { color: var(--gold); }
+.fussleiste .rechts { margin-left: auto; font-family: var(--mono); }
+
+/* Der Balken: Glut nach Gold, sechs Pixel hoch. */
+.balken {
+  width: 120px; height: 6px;
+  border-radius: 3px;
+  background: var(--grund-3);
+  overflow: hidden;
+}
+.balken > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--glut), var(--gold)); }
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <span class="marke">
+    <!-- Bildmarke, weil die Fläche klein und quadratisch ist. Die Wortmarke
+         gehört nicht ins Quadrat. -->
+    <svg viewBox="0 0 64 64" width="26" height="26" role="img" aria-label="PROMPTHEUS">
+      <defs>
+        <linearGradient id="flamme" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0"   stop-color="#ff4d1c"/>
+          <stop offset=".55" stop-color="#ff9d2e"/>
+          <stop offset="1"   stop-color="#ffe08a"/>
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="12" fill="#14110f"/>
+      <g fill="none" stroke="#ffc94d" stroke-width="2" opacity=".42">
+        <path d="M8 8 H20 V14 H14 V20 H8 Z"/>
+        <path d="M56 8 H44 V14 H50 V20 H56 Z"/>
+        <path d="M8 56 H20 V50 H14 V44 H8 Z"/>
+        <path d="M56 56 H44 V50 H50 V44 H56 Z"/>
+      </g>
+      <path d="M32 14C32 14 21 26 21 37a11 11 0 0 0 22 0C43 30 36.5 27.5 36.5 21c0 0-4 4-4 9.5 0 0-4-4-4-10.5 0 0 3.5-6 3.5-6z" fill="url(#flamme)"/>
+    </svg>
+    <span class="name">PROMPTHEUS</span>
+    <span class="zusatz">Werkstatt</span>
+  </span>
+
+  <nav class="menue">
+    <span>Datei</span><span>Bearbeiten</span><span>Ansicht</span><span>Hilfe</span>
+  </nav>
+
+  <span class="fenster"><span>─</span><span>□</span><span>✕</span></span>
+</header>
+
+<div class="rumpf">
+
+  <!-- ───────────── links: Sitzungen ───────────── -->
+  <aside class="spalte-links">
+    <button class="knopf-haupt" type="button">＋ Neue Sitzung</button>
+    <button class="knopf-still" type="button">⌕ Suchen</button>
+
+    <div class="rubrik">Projekte</div>
+    <div class="sitzung projekt">🗀 Elternbriefe 7b</div>
+    <div class="sitzung projekt">🗀 Vereinsplakat</div>
+
+    <div class="rubrik">Sitzungen</div>
+    <div class="sitzung offen">Absage Wandertag <span class="zeit">3 m</span></div>
+    <div class="sitzung">Anmeldebogen kürzen <span class="zeit">1 h</span></div>
+    <div class="sitzung">Plakat, zweiter Entwurf <span class="zeit">gestern</span></div>
+    <div class="sitzung">Systemprompt geprüft <span class="zeit">Mo</span></div>
+  </aside>
+
+  <!-- ───────────── Mitte: Arbeitsfläche ───────────── -->
+  <main class="spalte-mitte">
+    <div class="pfadleiste">
+      <span>Werkstatt</span><span>/</span>
+      <span>Elternbriefe 7b</span><span>/</span>
+      <span class="jetzt">Absage Wandertag</span>
+      <span class="rechts">
+        <span class="marke-klein">Guideline: Schule Musterstadt</span>
+        <span class="marke-klein gelungen">7. Kurs ✓</span>
+      </span>
+    </div>
+
+    <div class="blatt">
+      <div class="textkarte">
+        <h2>Was deine Guideline hier vorgibt</h2>
+        <p>Der Brief geht an Eltern, also gilt das Register „Erziehungsberechtigte":
+        kurze Sätze, keine Fachbegriffe, und die Absage nennt einen Weg. Deine
+        Verbotsliste streicht „leider" und jedes Ausrufezeichen.</p>
+      </div>
+
+      <div class="wissen">
+        <p class="klein" style="margin:0"><strong>Register</strong> heisst: dieselbe Haltung, andere
+        Tonlage. Ändern darf sich die Anrede und die Länge — nicht, was du nie tust.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Feld</th><th>Deine Festlegung</th><th>Im Entwurf</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feld">anrede</td>
+            <td>„Liebe Eltern"</td>
+            <td>✓ steht so da</td>
+          </tr>
+          <tr>
+            <td class="feld">absage</td>
+            <td>nennt immer einen Ersatztermin</td>
+            <td>✕ fehlt — Vorschlag: 14. Oktober</td>
+          </tr>
+          <tr>
+            <td class="feld">laenge</td>
+            <td>höchstens 120 Wörter</td>
+            <td>✕ 184 Wörter, gekürzt auf 116</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+      <h3>Der gekürzte Brief</h3>
+      <div class="textkarte" style="font-family: var(--serif)">
+        <p style="margin:0">Liebe Eltern, der Wandertag am 2. Oktober fällt aus; der Bus ist nicht
+        verfügbar. Der Ersatztermin ist der 14. Oktober, gleiche Uhrzeit, gleicher Treffpunkt.</p>
+      </div>
+
+    <div class="eingabe">
+      <div class="zeile">Schreib, was gebaut werden soll …</div>
+      <div class="fuss">
+        <span>＋</span>
+        <span>Immer fragen</span>
+        <span class="modell">deepseek-v4.1-flash</span>
+        <span>denkt nach</span>
+        <button class="senden" type="button">➤</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ───────────── rechts: was sich geändert hat ───────────── -->
+  <aside class="spalte-rechts">
+    <h3>Änderungen</h3>
+    <div class="zaehler">
+      <span class="marke-klein">Projekt: Elternbriefe 7b</span>
+      <span class="marke-klein">6 Dateien</span>
+    </div>
+
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">guideline/</span>BRAND.md</div>
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">guideline/</span>systemprompt.txt</div>
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">guideline/</span>PRUEFLISTE.md</div>
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">briefe/</span>absage-wandertag.md</div>
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">briefe/</span>anmeldebogen.md</div>
+    <div class="datei"><span class="zeichen">+</span><span class="ordner">seite/</span>stil.css</div>
+
+    <div class="rubrik">Skills im Projekt</div>
+    <div class="datei"><span class="zeichen">·</span>elternbrief-pruefer</div>
+    <div class="datei"><span class="zeichen">·</span>kuerzen-auf-mass</div>
+
+    <div class="rubrik">Geteilt mit der Gemeinde</div>
+    <div class="datei"><span class="zeichen">·</span>elternbrief-pruefer</div>
+    <p class="hinweis" style="margin:.1rem 0 0 1.4rem">wartet auf Freigabe</p>
+  </aside>
+</div>
+
+<footer class="fussleiste">
+  <span>Läuft auf diesem Rechner · 127.0.0.1</span>
+  <span class="gelungen">Stufe 6 abgeschlossen ✓</span>
+  <span class="balken" role="img" aria-label="7. Kurs vollständig"><i></i></span>
+  <span>7. Kurs vollständig</span>
+  <span class="rechts">Token heute: 12 400</span>
+</footer>
+
+</body>
+</html>
