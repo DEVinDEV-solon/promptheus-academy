@@ -27,6 +27,16 @@
 .env.*
 !.env.example
 
+# Die Saat der Installationsidentitaet. Aus ihr folgen das Ed25519-Paar,
+# die Installations-ID und jedes Lernenden-Pseudonym. Wer sie hat, kann
+# im Namen dieser Installation hochladen und Talente abbuchen — und sie
+# laesst sich nicht wechseln, ohne dass alle Pseudonyme wechseln.
+# `data/` faellt ohnehin schon heraus (Abschnitt 2); hier steht es
+# zusaetzlich, weil ein spaeteres `!data/...` die eine Ausnahme waere,
+# die man nicht bemerkt.
+data/identitaet/
+**/saat.bin
+
 # Obsidian legt die Einstellungen jedes Plugins in data.json ab — und Plugins,
 # die mit einem Dienst sprechen, legen den Schluessel genau dorthin. Gemessen
 # betroffen: claudian-solon, deepseekian, obsidian-local-rest-api,
