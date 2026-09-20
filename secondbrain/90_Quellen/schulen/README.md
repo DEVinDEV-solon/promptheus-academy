@@ -75,6 +75,38 @@ auseinanderhalten und verwirft die zweite.
 
 ---
 
+## Die flache Liste — das zweite erlaubte Format
+
+Wer eine Stadt- oder Landkreisseite abschreibt, bekommt selten Gruppen. Er
+bekommt eine Reihe. Deshalb darf eine Datei hier auch so aussehen:
+
+```json
+[
+  { "name": "Buchhaldenschule", "ort": "Aidlingen", "typ": "Grundschule",
+    "strasse": "Buchhaldenstraße 4", "plz": "71134",
+    "website": "http://www.buchhaldenschule.de/" },
+  { "name": "Abendgymnasium Stuttgart", "ort": "Stuttgart", "typ": "Privatschule" }
+]
+```
+
+Kein Kopf, keine Gruppen, `website` statt `webseite`, und `null` ist erlaubt.
+Davor steht `vps/db/wandeln_liste.php`, der daraus das Format oben macht.
+
+**`typ` darf zweierlei bedeuten.** Manche Quellen schreiben dort die Schulart
+(„Grund- und Werkrealschule"), andere den Träger („Öffentlich", „Privat").
+Der Wandler erkennt den Unterschied: steht dort nur ein Trägerwort, holt er
+die Art aus dem **Namen** — „Eugen-Bolz-Schule Grundschule" sagt sie ja
+selbst. Wo beides fehlt, wird die Zeile `sonstige`, und die Einrichtung
+berichtigt das bei der Registrierung.
+
+Bei zusammengesetzten Formen gilt, was **zuerst** dasteht: „Grund- und
+Werkrealschule" wird eine Grundschule, „Schulverbund (Werkrealschule/
+Realschule/Gymnasium)" eine Hauptschule. Das ist eine Wahl und keine
+Wahrheit — eine Verbundschule ist beides. Aber es ist die Wahl, die die
+Quelle selbst getroffen hat, als sie den Namen schrieb.
+
+---
+
 ## Einlesen
 
 ```bash
@@ -82,6 +114,16 @@ php vps/db/einlesen_schulen.php --datei=secondbrain/90_Quellen/schulen/<datei>.j
 ```
 
 `--probe` zeigt, was passieren würde, und ändert nichts.
+
+Eine flache Liste geht erst durch den Wandler. Beides zusammen, für alle
+Dateien in diesem Ordner:
+
+```bash
+for f in secondbrain/90_Quellen/schulen/*.json; do h="/tmp/$(basename "$f")"; if head -c1 "$f" | grep -q '\['; then php vps/db/wandeln_liste.php --datei="$f" --ziel="$h"; else cp "$f" "$h"; fi; php vps/db/einlesen_schulen.php --datei="$h" --ziel=/srv/daten; done
+```
+
+Das gewandelte Ergebnis wird nicht aufbewahrt. Hier liegt die Quelle so, wie
+sie kam; das Hausformat entsteht bei jedem Lauf neu.
 
 Zweimal einlesen doppelt nichts — dafür sorgt ein eindeutiger Index in der
 Datenbank, nicht das Skript. Der Einleser meldet am Ende, wie viele Zeilen
