@@ -517,7 +517,7 @@ PU.zielBild.paket = function () {
     ['index.html',         'deine Seite',                'var(--gut)'],
     ['stil.css',           'deine Farben als Tokens',    'var(--gut)'],
     ['PRUEFLISTE.md',      'zehn Fragen vor dem Abgeben','var(--gold)'],
-    ['LIZENZ.md',          'MIT · Apache 2.0',           'var(--schrift-2)']
+    ['LIZENZ.md',          'PolyForm Shield 1.0.0',      'var(--schrift-2)']
   ];
 
   let liste = '';

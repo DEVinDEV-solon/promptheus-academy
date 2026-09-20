@@ -94,12 +94,16 @@ Ein Ordner, herunterladbar als **.zip**:
 - `systemprompt.txt` — der Baustein zum Einsetzen
 - `index.html` + `stil.css` — die eigene Seite, gebaut nach dem Dokument
 - `PRUEFLISTE.md` — zehn Fragen vor dem Abgeben
-- `LIZENZ.md` — MIT und Apache 2.0 zur Wahl
+- `LIZENZ.md` — PolyForm Shield 1.0.0 für die Vorlage
 
 **Die Lizenz gilt für Vorlage und Bausteine, nicht für die eigenen Inhalte.**
 Was jemand hineingeschrieben hat, gehört ihm; die Academy erteilt dafür keine
 Erlaubnis, weil sie keine zu erteilen hat. Eine Lizenz auf eine fremde
 Handschrift wäre eine Anmaßung.
+
+Die Vorlage darf geschäftlich benutzt werden — die eigene Seite darf für das
+eigene Gewerbe werben. Ausgenommen ist allein, daraus ein Produkt zu bauen, das
+der Academy Konkurrenz macht (siehe [../../LIZENZ.md](../../LIZENZ.md)).
 
 ## Für wen, mit welchem Nutzen
 

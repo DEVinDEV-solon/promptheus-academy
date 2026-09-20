@@ -292,11 +292,9 @@ PU.ZIEL_ABSCHNITTE = [
       'die Prüfliste. Alles lesbare Dateien — kein Format, das nur in dieser ' +
       'Academy aufgeht.',
 
-      'Die Vorlage und die Bausteine stehen unter <b>MIT</b> und ' +
-      '<b>Apache&nbsp;2.0</b>. Beide erlauben dasselbe: benutzen, ändern, ' +
-      'weitergeben, verkaufen — ohne zu fragen und ohne zu zahlen. Apache 2.0 ' +
-      'gibt zusätzlich eine Patentzusage, was für Betriebe zählt, die etwas ' +
-      'darauf aufbauen wollen. <b>Du wählst, welche der beiden du nimmst.</b>',
+      'Die Vorlage und die Bausteine stehen unter der <b>PolyForm Shield&nbsp;1.0.0</b> — derselben Lizenz wie die Academy. Sie erlaubt benutzen, ' +
+      'ändern und weitergeben, <b>auch geschäftlich</b>: Deine Seite darf für dein Gewerbe werben. Eine Patentzusage ist dabei. ' +
+      'Nicht erlaubt ist allein, daraus ein Produkt zu bauen, das der Academy Konkurrenz macht.',
 
       '<b>Was du hineingeschrieben hast, gehört dir allein.</b> Deine Marke, ' +
       'deine Sätze, deine Farben — darauf hat die Academy keinen Anspruch und ' +
