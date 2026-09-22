@@ -146,7 +146,7 @@ PU.denktAntwort = function (el, text, fehler) {
 };
 
 /**
- * Kopieren und Vorlesen an eine Antwort hängen.
+ * Kopieren und Vorlesen an eine Nachricht hängen.
  *
  * **Eine Funktion für alle Chats, und das ist der ganze Punkt.** Vorher hatte
  * jede Ansicht ihre eigenen Knöpfe: die Tutoransicht einen, das Seitenmenü
@@ -159,24 +159,84 @@ PU.denktAntwort = function (el, text, fehler) {
  *
  * @param el    die Nachricht; sie braucht ein `.von`
  * @param text  was kopiert und vorgelesen wird — der ROHTEXT, nicht das HTML
- * @param agent wessen Stimme; leer nimmt die allgemeine
+ * @param wie   {agent, eigen, sprich}
+ *              agent  — wessen Stimme
+ *              eigen  — ob es die eigene Zeile ist (Beschriftung, Buchung)
+ *              sprich — was vorgelesen wird, falls das nicht der Text ist
  */
-PU.antwortKnoepfe = function (el, text, agent) {
+PU.nachrichtKnoepfe = function (el, text, wie) {
   if (!el || !text) return;
 
   const von = el.querySelector('.von');
   if (!von || von.querySelector('.nachricht-kopie')) return;   // schon dran
 
+  const w     = wie || {};
+  const eigen = !!w.eigen;
+  const was   = eigen ? 'Frage' : 'Antwort';
+
   const k = PU.el('button', 'nachricht-kopie', '📋');
   k.type = 'button';
-  k.title = 'Antwort kopieren';
-  k.setAttribute('aria-label', 'Antwort kopieren');
+  k.title = was + ' kopieren';
+  k.setAttribute('aria-label', was + ' kopieren');
   k.addEventListener('click', () => PU.inZwischenablage(text, k));
   von.appendChild(k);
 
   // Vorlesen nur, wenn es eingeschaltet ist. Ein Knopf, der jedes Mal „ist
   // abgeschaltet" meldet, ist kein Angebot, sondern eine Sackgasse mit Symbol.
-  if (PU.stimmeAn) von.appendChild(PU.vorleseKnopf(text, '', agent || el.dataset.agent || ''));
+  if (!PU.stimmeAn) return;
+
+  // Die Stimme ist die des Gesprächs, auch auf der eigenen Zeile.
+  //
+  // Hier stand zuerst das Gegenteil: die eigene Frage mit der allgemeinen
+  // Stimme, damit es nicht klingt, als hätte der Tutor sie gesagt. Im
+  // Gebrauch war das falsch herum — wer mit Athena spricht, hört zwei
+  // Stimmen abwechseln und fragt sich, wer die zweite ist. Wer spricht,
+  // steht ohnehin in der Zeile darüber.
+  //
+  // Die Buchung trägt einen eigenen Zweck: Im Cockpit muss ablesbar
+  // bleiben, wofür das Guthaben ging.
+  const stimme = w.agent || el.dataset.agent || '';
+  const zweck  = eigen ? 'Vorlesen · eigene Frage' : '';
+
+  // Vorgelesen wird, was abgeschickt wurde — nicht, was dasteht. Im grossen
+  // Chat spricht man einen Tutor mit `@athena` an; die Anrede geht nicht an
+  // das Modell, und sie gehört auch nicht in den Ton. Der Kopierknopf nimmt
+  // weiter den vollen Text: Wer ihn einfügt, will die Anrede mit haben.
+  const t = PU.vorleseKnopf(w.sprich || text, zweck, stimme);
+  if (eigen) {
+    t.title = 'Eigene Frage vorlesen';
+    t.setAttribute('aria-label', 'Eigene Frage vorlesen');
+  }
+  von.appendChild(t);
+};
+
+/**
+ * Die Knöpfe an einer Tutorantwort. Der gewohnte Name, damit die vier
+ * Aufrufstellen unverändert bleiben.
+ */
+PU.antwortKnoepfe = function (el, text, agent) {
+  PU.nachrichtKnoepfe(el, text, { agent: agent || '' });
+};
+
+/**
+ * Die Knöpfe an der eigenen Frage.
+ *
+ * @param wie {agent, sprich} — siehe `PU.nachrichtKnoepfe`
+ *
+ * **Warum man vorgelesen bekommen will, was man selbst getippt hat.** Wer
+ * seine Frage hört, hört, ob sie eine Frage ist — das ist in Stufe eins die
+ * halbe Übung. Wer mit dem Mikrofon diktiert hat, prüft damit, ob wirklich
+ * ankam, was er sagen wollte. Und wer eine Frage noch einmal stellen will,
+ * kopiert sie, statt sie abzutippen.
+ *
+ * Es stand hier einmal, das brauche man nicht: „Was man selbst getippt hat,
+ * hat man schon." Das gilt für das Lesen. Fürs Hören gilt es nicht, und für
+ * eine diktierte Frage gilt es in beiden Fällen nicht.
+ */
+PU.eigeneKnoepfe = function (el, text, wie) {
+  const w = wie || {};
+  PU.nachrichtKnoepfe(el, text,
+    { eigen: true, agent: w.agent || '', sprich: w.sprich || '' });
 };
 
 /* ---------------------------------------------------------------- Vorlesen
@@ -255,8 +315,35 @@ PU.vorleseKnopf = function (text, wofuer, agent) {
   return k;
 };
 
-PU.tonStoppen = function () {
-  if (!PU.stimmeLaeuft) return;
+/**
+ * Alles anhalten, was gerade klingt.
+ *
+ * **Zwei Sorten Ton, und sie wussten nichts voneinander.** Das Vorlesen
+ * benutzt ein `Audio`-Objekt, das nie im Dokument steht; die Podcastfolgen
+ * und die Medien einer Lektion sind gewoehnliche `<audio>`-Leisten darin.
+ * Wer eine Folge laufen liess und dann eine Antwort vorlesen liess, bekam
+ * beides uebereinander — und musste die Seite neu laden, um Ruhe zu haben.
+ *
+ * `muted` bleibt unberuehrt: Ein Film ohne Ton traegt nichts zum Klang bei,
+ * und ihn anzuhalten waere keine Ruhe, sondern ein Bild, das ohne Grund
+ * einfriert.
+ *
+ * Angehalten wird, nicht zurueckgesetzt — wer zurueckkommt, hoert weiter,
+ * wo er aufgehoert hat.
+ *
+ * @param ausser ein Element, das weiterlaufen darf — das gerade gestartete
+ */
+PU.tonStoppen = function (ausser) {
+  // 1. Die Abspielleisten im Dokument.
+  document.querySelectorAll('audio, video').forEach(a => {
+    if (a !== ausser && !a.paused && !a.muted) {
+      try { a.pause(); } catch (e) { /* schon vorbei */ }
+    }
+  });
+
+  // 2. Das Vorlesen. Es steht nicht im Dokument, also findet die Schleife
+  //    oben es nicht — es braucht seinen eigenen Absatz.
+  if (!PU.stimmeLaeuft || PU.stimmeLaeuft === ausser) return;
   const t = PU.stimmeLaeuft;
   PU.stimmeLaeuft = null;
   try { t.pause(); } catch (e) { /* schon vorbei */ }
@@ -264,6 +351,28 @@ PU.tonStoppen = function () {
   document.querySelectorAll('.nachricht-ton.laeuft')
           .forEach(b => b.classList.remove('laeuft'));
 };
+
+/**
+ * Der Gegenweg: eine Abspielleiste faengt an, alles andere hoert auf.
+ *
+ * `play` steigt nicht auf, laesst sich aber einfangen — daher der dritte
+ * Parameter. So erreicht der Hoerer auch Leisten, die erst beim Zeichnen
+ * einer Lektion entstehen, ohne dass jede Stelle daran denken muss.
+ */
+PU.eineStimme = function () {
+  document.addEventListener('play', (e) => {
+    if (e.target && e.target.pause) PU.tonStoppen(e.target);
+  }, true);
+};
+
+// Nicht auf `DOMContentLoaded` allein verlassen: Steht diese Datei mit
+// `defer` im Kopf oder wird sie nachgeladen, ist das Ereignis laengst
+// vorbei, und der Hoerer haenge sich nie ein.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => PU.eineStimme());
+} else {
+  PU.eineStimme();
+}
 
 PU.vorlesen = async function (text, knopf, wofuer, agent) {
   // Zweiter Klick auf denselben Knopf: aus. Das ist die Erwartung an jeden

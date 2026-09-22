@@ -523,9 +523,13 @@ async function fragen(text) {
   const vor = verlauf.querySelector('.panel-vorschlaege');
   if (vor) vor.remove();
 
+  // Der Tutor wird auch an der eigenen Zeile mitgeschrieben: Wer nach drei
+  // Fragen auf Hermes umschaltet, baut den Verlauf neu auf — und die alten
+  // Zeilen sollen dann die Stimme behalten, mit der sie gesprochen wurden.
   const k = PU.panelZustand.kontext || {};
-  PU.panelZustand.verlauf.push({ art: 'ich', von: 'Du', text: text });
-  verlauf.appendChild(panelNachricht('ich', 'Du', text));
+  PU.panelZustand.verlauf.push({ art: 'ich', von: 'Du', text: text,
+                                 agent: PU.panelZustand.agent });
+  verlauf.appendChild(panelNachricht('ich', 'Du', text, PU.panelZustand.agent));
 
   // Dieselbe Welle wie in der Tutor-Ansicht und im Glossar — PU.denktNachricht
   // in app.js. Hier stand vorher „denkt nach …" als Text.
@@ -563,19 +567,27 @@ async function fragen(text) {
   verlauf.scrollTop = verlauf.scrollHeight;
 }
 
-/* Kopieren und Vorlesen kommen aus `PU.antwortKnoepfe` in app.js — dieselbe
-   Funktion wie in der Tutoransicht und im Glossar. Vorher stand hier eine
-   eigene Fassung, die nur kopieren konnte; das Vorlesen fehlte im Seitenmenü,
-   weil niemand daran gedacht hat, es an der dritten Stelle nachzutragen.
+/* Kopieren und Vorlesen kommen aus app.js — dieselben Knöpfe wie in der
+   Tutoransicht und im Glossar. Vorher stand hier eine eigene Fassung, die nur
+   kopieren konnte; das Vorlesen fehlte im Seitenmenü, weil niemand daran
+   gedacht hat, es an der dritten Stelle nachzutragen.
 
-   Nur an Antworten, nicht an eigenen Nachrichten: Was man selbst getippt hat,
-   hat man schon. */
+   **An beiden Seiten des Gesprächs, nicht nur an der Antwort.** Hier stand
+   einmal „Was man selbst getippt hat, hat man schon" — das stimmt fürs Lesen
+   und nicht fürs Hören. Wer diktiert hat, will hören, was angekommen ist;
+   wer übt, hört an der eigenen Frage, ob sie eine ist.
+
+   Beide Seiten mit derselben Stimme: Ein Gespräch mit Athena, in dem die
+   eigene Zeile jemand anders spricht, klingt nach einem dritten im Raum. */
 function panelNachricht(art, von, text, agent) {
   const el = PU.el('div', 'nachricht ' + art);
   el.innerHTML = '<div class="von">' + PU.h(von) + '</div>' +
                  '<div class="text" style="white-space:pre-wrap"></div>';
   el.querySelector('.text').textContent = text;
-  if (art === 'agent') PU.antwortKnoepfe(el, text, agent || PU.panelZustand.agent);
+
+  const wer = agent || PU.panelZustand.agent;
+  if (art === 'agent') PU.antwortKnoepfe(el, text, wer);
+  else                 PU.eigeneKnoepfe(el, text, { agent: wer });
   return el;
 }
 

@@ -201,7 +201,10 @@ PU.tutorZeichnen = function () {
 
     feld.value = '';
     hoeheAnpassen(feld);
-    nachricht(gespraech, 'ich', 'Du', roh);
+    // `roh` steht da, `frage` geht hinaus — und `frage` wird vorgelesen.
+    // Die Anrede `@athena` ist Adressierung, kein Satzteil; sie im Ton zu
+    // wiederholen, macht aus einer Frage eine Ansage.
+    nachricht(gespraech, 'ich', 'Du', roh, agent, frage);
 
     const knopf = form.querySelector('button[type=submit]');
     knopf.disabled = true;
@@ -347,7 +350,14 @@ function agentName(kennung) {
   return a ? a.symbol + ' ' + a.name : kennung;
 }
 
-function nachricht(kasten, art, von, text, agent) {
+/**
+ * Eine Zeile ins Gespräch.
+ *
+ * @param text   was dasteht — bei der eigenen Zeile mit Anrede
+ * @param agent  wessen Stimme
+ * @param sprich was vorgelesen wird, falls das nicht `text` ist
+ */
+function nachricht(kasten, art, von, text, agent, sprich) {
   const el = PU.el('div', 'nachricht ' + art);
   el.innerHTML = '<div class="von">' + PU.h(von) + '</div>' +
                  '<div class="text" style="white-space:pre-wrap"></div>';
@@ -355,7 +365,12 @@ function nachricht(kasten, art, von, text, agent) {
 
   // Auch eine Antwort, die aus dem Verlauf wiederhergestellt wird, bekommt
   // ihre Knöpfe — sie ist nicht weniger kopierbar, weil sie älter ist.
+  //
+  // Die eigene Frage ebenso. Das ist dieselbe Unterhaltung wie im Seitenmenü,
+  // nur in der großen Ansicht: Würde sie sich hier anders verhalten, wäre das
+  // ein Unterschied, den niemand erklären könnte.
   if (art === 'agent') PU.antwortKnoepfe(el, text, agent);
+  else                 PU.eigeneKnoepfe(el, text, { agent: agent, sprich: sprich });
 
   kasten.appendChild(el);
   ansEnde(kasten);
