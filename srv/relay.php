@@ -33,6 +33,7 @@ require_once __DIR__ . '/identitaet.php';
 const PU_RELAY_ZEIT_VERBINDEN = 8;    // Sekunden bis zur Verbindung
 const PU_RELAY_ZEIT_GESAMT    = 25;   // Sekunden für den ganzen Aufruf
 const PU_RELAY_VERSUCHE       = 3;    // bei 5xx und Netzfehlern
+const PU_RELAY_ZEIT_MODELL    = 100;  // Sekunden: der Server wartet höchstens 90 s auf das Modell
 
 /**
  * Die Gründe, die der Server nennt, in Sätzen.
@@ -66,6 +67,14 @@ const PU_RELAY_GRUENDE = [
     'keine_adresse'     => 'Es ist keine Serveradresse eingetragen (PU_RELAY_URL).',
     'keine_identitaet'  => 'Diese Installation hat noch keine Identität. Sie entsteht bei der Registrierung.',
     'antwort_unlesbar'  => 'Die Antwort des Servers war unlesbar.',
+    // Modell über den Relay (Runde 2 des Cockpit-Plans)
+    'kein_tarif'        => 'Der Plan dieser Einrichtung enthält keine Modellaufrufe über den Server.',
+    'modell_nicht_im_tarif' => 'Dieses Modell ist im Plan der Einrichtung nicht enthalten.',
+    'kein_guthaben'     => 'Das Guthaben der Einrichtung ist aufgebraucht.',
+    'tagesdeckel'       => 'Die Einrichtung hat ihre Tagesgrenze erreicht. Morgen geht es weiter.',
+    'zu_viele'          => 'Zu viele Anfragen in kurzer Zeit. Bitte etwas warten.',
+    'modell_aus'        => 'Der Server nimmt gerade keine Modellanfragen an.',
+    'modell_fehler'     => 'Das Modell hat nicht geantwortet. Es wurde nichts abgebucht.',
 ];
 
 function pu_relay_grund_text(string $grund): string
@@ -94,7 +103,7 @@ function pu_relay_nein(string $grund): array
  * Wiederholungsregel gleich mit ersetzen — und genau die soll geprueft
  * werden. (Gefunden von tests/relay_test.php, 20.09.2026.)
  */
-function pu_relay_transport(string $json): array
+function pu_relay_transport(string $json, int $zeit = PU_RELAY_ZEIT_GESAMT): array
 {
     $ersatz = $GLOBALS['PU_RELAY_SENDER'] ?? null;
     if (is_callable($ersatz)) {
@@ -107,7 +116,7 @@ function pu_relay_transport(string $json): array
         CURLOPT_POSTFIELDS     => $json,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => PU_RELAY_ZEIT_VERBINDEN,
-        CURLOPT_TIMEOUT        => PU_RELAY_ZEIT_GESAMT,
+        CURLOPT_TIMEOUT        => $zeit,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
         // Keine Umleitungen: Wer uns umleitet, bekommt unsere
         // unterschriebene Anfrage — und die gilt nur für unseren Server.
@@ -154,7 +163,7 @@ function pu_relay_senden_roh(string $json): array
 /**
  * Baut eine unterschriebene Anfrage, schickt sie und liest die Antwort.
  */
-function pu_relay_ruf(string $zweck, array $nutzlast = []): array
+function pu_relay_ruf(string $zweck, array $nutzlast = [], bool $einmal = false): array
 {
     if (pu_relay_url() === '') {
         return pu_relay_nein('keine_adresse');
@@ -169,8 +178,11 @@ function pu_relay_ruf(string $zweck, array $nutzlast = []): array
         return pu_relay_nein('keine_identitaet');
     }
 
-    $antwort = pu_relay_senden_roh((string)json_encode($anfrage,
-        JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    $json = (string)json_encode($anfrage, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    // Einmal-Aufrufe (Modell) werden nicht wiederholt: Der Server hat den
+    // Einmalwert schon verbraucht und womöglich schon gebucht. Ein zweiter
+    // Versuch mit demselben Rumpf brächte nur „wiederholt“.
+    $antwort = $einmal ? pu_relay_transport($json, PU_RELAY_ZEIT_MODELL) : pu_relay_senden_roh($json);
 
     if ($antwort['status'] === 0) {
         return pu_relay_nein('kein_netz');
@@ -255,6 +267,45 @@ function pu_relay_stand(): array
     }
     return ['ok' => true, 'stand' => $aus['stand'] ?? [],
             'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z')];
+}
+
+/**
+ * Ein Modell über den Relay fragen (K-RELAY-MODELL, Runde 2 des Cockpit-Plans).
+ *
+ * Der Server prüft Tarif, Modell, Guthaben und Tagesdeckel, ruft das Modell
+ * mit seinem Schlüssel und bucht den gemessenen Verbrauch. Was zurückkommt,
+ * ist die Antwort und der neue Stand **laut Server** (maßgeblich, E9).
+ *
+ * `$nachrichten`: Liste aus ['rolle' => system|user|assistant, 'text' => …],
+ * die letzte vom Nutzer. **Vor dem Senden Klarnamen durch Pseudonyme
+ * ersetzen** — der Inhalt geht über den Server an den Modellanbieter.
+ *
+ * Keine Wiederholung (siehe `pu_relay_ruf`), längere Wartezeit als sonst.
+ */
+function pu_relay_modell(array $nachrichten, string $modell = '', int $max_tokens = 0,
+                         string $konto = ''): array
+{
+    $liste = [];
+    foreach ($nachrichten as $n) {
+        $liste[] = ['rolle' => (string)($n['rolle'] ?? ''), 'text' => (string)($n['text'] ?? '')];
+    }
+    $nutzlast = ['nachrichten' => $liste];
+    if ($modell !== '')   $nutzlast['modell'] = $modell;
+    if ($max_tokens > 0)  $nutzlast['max_tokens'] = $max_tokens;
+    if ($konto !== '')    $nutzlast['konto'] = $konto;
+
+    $aus = pu_relay_ruf('modell', $nutzlast, true);
+    if (!$aus['ok']) {
+        return $aus;
+    }
+    return [
+        'ok'         => true,
+        'antwort'    => (string)($aus['antwort'] ?? ''),
+        'modell'     => (string)($aus['modell'] ?? ''),
+        'verbrauch'  => (array)($aus['verbrauch'] ?? []),
+        'stand'      => (array)($aus['stand'] ?? []),
+        'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z'),
+    ];
 }
 
 /**
