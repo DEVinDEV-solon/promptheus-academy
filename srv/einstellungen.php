@@ -458,6 +458,21 @@ function pu_env_setzen(string $name, string $wert): void
     if (!in_array($name, PU_ENV_SCHREIBBAR, true)) {
         throw new RuntimeException('Dieser Schlüssel darf nicht gesetzt werden.');
     }
+    pu_env_datei_setzen($name, $wert);
+}
+
+/**
+ * Schreibt eine Zeile in die .env — **ohne** die Liste oben.
+ *
+ * Nur für Aufrufer im Programm, die ihren Namen selbst festlegen (z. B. der
+ * Relay mit `PU_VPS_SCHLUESSEL`), nie für einen Namen aus dem Browser; dafür
+ * ist `pu_env_setzen()` mit seiner Liste da.
+ */
+function pu_env_datei_setzen(string $name, string $wert): void
+{
+    if (!preg_match('/^[A-Z][A-Z0-9_]{1,60}$/', $name)) {
+        throw new RuntimeException('Ungültiger Name für die .env.');
+    }
     // Ein Zeilenumbruch im Wert erzeugte eine zweite Zuweisung.
     if (preg_match('/[\r\n]/', $wert)) {
         throw new RuntimeException('Der Wert darf keinen Zeilenumbruch enthalten.');
