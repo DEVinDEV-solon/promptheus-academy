@@ -417,14 +417,16 @@ function tokenKasten(d) {
     : '<div class="zahl">' + zahl(s.rest) + '</div><div class="was">Token übrig</div>';
   k.appendChild(rest);
 
-  // Zwei Töpfe, und der Unterschied ist wichtig: das Kontingent verfällt am
-  // Monatsende, gekaufte Token nicht. Wer das nicht weiss, spart falsch.
+  // Zwei Herkünfte, eine Regel: Es verfällt nichts. Jede Gutschrift — ein
+  // Monatskontingent wie ein gekauftes Paket — ist ein eigenes Los; was davon
+  // 365 Tage nach der Buchung noch frei ist, bringt die Einrichtung in Umlauf,
+  // 10 % bleiben (Cockpit-Plan E4). Maßgeblich rechnet das der Server.
   const t = PU.el('table', 'cockpit-tabelle');
   t.innerHTML = '<tbody>' +
-    '<tr><th>Monatskontingent</th><td>' + zahl(s.kontingent_rest) + ' von ' +
-      zahl(s.kontingent) + ' <span class="klein">— verfällt am Monatsende</span></td></tr>' +
+    '<tr><th>Aus dem Plan</th><td>' + zahl(s.kontingent_rest) + ' von ' +
+      zahl(s.kontingent) + ' <span class="klein">— verfällt nie</span></td></tr>' +
     '<tr><th>Gekauft</th><td>' + zahl(s.guthaben) +
-      ' <span class="klein">— verfällt nicht</span></td></tr>' +
+      ' <span class="klein">— verfällt nie</span></td></tr>' +
     '<tr><th>Verbraucht</th><td>' + zahl(s.verbraucht) + '</td></tr>' +
     (s.offen > 0
       ? '<tr><th>Vorgemerkt</th><td>' + zahl(s.offen) +
@@ -439,6 +441,10 @@ function tokenKasten(d) {
     balken.innerHTML = '<i style="width:' + anteil + '%"></i>';
     k.appendChild(balken);
   }
+  k.appendChild(PU.el('p', 'klein',
+    'Token verfallen nie. Jede Gutschrift wird für sich gerechnet: Was 365 Tage nach ' +
+    'der Buchung davon noch frei ist, verteilt die Einrichtung in ihrem eigenen ' +
+    'System weiter — 10 % bleiben immer bei der Verwaltung.'));
 
   /* Der Hinweis unter dem Stand — vier Fassungen, weil es vier Lagen gibt.
      Vorher stand hier ein einziger Satz: „Der Verbrauch läuft ins Minus, bis

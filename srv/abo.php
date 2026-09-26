@@ -548,24 +548,33 @@ function pu_abos_verlaengern(): int
 // ---------------------------------------------------------------- Token
 
 /**
- * Das Monatskontingent gutschreiben.
+ * Das Monatskontingent gutschreiben — je Abo und Zeitraum genau einmal.
  *
- * Es **verfällt** zum Monatsende (`verfaellt`), gekaufte Token nicht. Sonst
- * wäre ein ruhiger Monat eine Ansparmöglichkeit, und ein Kontingent, das man
- * ansparen kann, ist kein Kontingent, sondern ein Guthaben.
+ * **Es verfällt nie**, wie gekaufte Token auch (Cockpit-Plan E4, vom User
+ * bestätigt am 26.09.2026). Jede Gutschrift ist ein eigenes Los und wird für
+ * sich gerechnet: Was 365 Tage nach der Buchung davon noch frei ist, bringt
+ * die Einrichtung in Umlauf, 10 % bleiben. Das rechnet maßgeblich der Server;
+ * hier wird nur gebucht und angezeigt.
+ *
+ * Bis 26.09.2026 verfiel das Kontingent am Monatsende, und `verfaellt` trug
+ * das Ende des Zeitraums. Solche älteren Zeilen zählen jetzt voll mit; ihr
+ * Datum dient nur noch dazu, denselben Zeitraum nicht zweimal gutzuschreiben.
+ * Neue Zeilen lassen `verfaellt` leer und tragen den Zeitraum im Text.
  */
 function pu_kontingent_gutschreiben(int $abo, int $person, array $plan, string $ab): void
 {
-    $verfall = pu_monat_weiter($ab);
+    $bis    = pu_monat_weiter($ab);
+    $wofuer = 'Monatskontingent ' . $plan['name'] . ' bis ' . $bis;
 
-    // Nicht zweimal im selben Zeitraum.
+    // Nicht zweimal im selben Zeitraum — alte Zeilen (Datum in `verfaellt`)
+    // und neue (Zeitraum im Text) gleichermassen.
     $st = pu_db()->prepare(
-        "SELECT COUNT(*) FROM token_buchungen WHERE abo = ? AND art = 'kontingent' AND verfaellt = ?");
-    $st->execute([$abo, $verfall]);
+        "SELECT COUNT(*) FROM token_buchungen
+          WHERE abo = ? AND art = 'kontingent' AND (verfaellt = ? OR wofuer = ?)");
+    $st->execute([$abo, $bis, $wofuer]);
     if ((int)$st->fetchColumn() > 0) return;
 
-    pu_token_eintragen($person, $abo, 'kontingent', 'Monatskontingent ' . $plan['name'],
-                       (int)$plan['kontingent'], 0, false, '', $verfall);
+    pu_token_eintragen($person, $abo, 'kontingent', $wofuer, (int)$plan['kontingent']);
 }
 
 /** Eine Zeile ins Journal. Die einzige Stelle, die schreibt. */
@@ -669,13 +678,13 @@ function pu_token_gutschreiben(int $person, int $tokens, string $grund, int $wer
 /**
  * Der Stand eines Kontos.
  *
- * Gerechnet, nicht gespeichert. Verfallenes Kontingent zählt nicht mit —
- * `verfaellt` liegt dann in der Vergangenheit.
+ * Gerechnet, nicht gespeichert. Es verfällt nichts: Jedes Kontingent zählt,
+ * auch ältere Zeilen mit einem Datum in `verfaellt` (siehe
+ * `pu_kontingent_gutschreiben`).
  */
 function pu_token_stand(int $person): array
 {
     $pdo   = pu_db();
-    $heute = pu_heute();
     $abo   = pu_abo_fuer($person);
 
     // Alles, was zu diesem Konto UND zu seinem Abo gehört: bei einem
@@ -707,16 +716,13 @@ function pu_token_stand(int $person): array
     $gekauft    = $summe("AND art IN ('einzahlung', 'probe', 'gutschrift',
                                       'talent_ein', 'talent_aus')
                           AND bestaetigt = 1");
-    $kontingent = (int)(function () use ($pdo, $wo, $werte, $heute) {
-        $st = $pdo->prepare("SELECT COALESCE(SUM(tokens), 0) FROM token_buchungen
-                             WHERE $wo AND art = 'kontingent' AND verfaellt > ?");
-        $st->execute(array_merge($werte, [$heute]));
-        return $st->fetchColumn();
-    })();
+    $kontingent = $summe("AND art = 'kontingent'");
     $verbraucht = -$summe("AND art = 'verbrauch'");
     $offen      = $summe("AND art = 'einzahlung' AND bestaetigt = 0");
 
-    // Verbraucht wird zuerst aus dem Kontingent — es verfällt ja ohnehin.
+    // Angezeigt wird der Verbrauch zuerst gegen das Kontingent. Das ist nur
+    // die Aufteilung für die Anzeige: Welches Los wie viel frei hat und wann
+    // es verteilt wird, rechnet der Server je Gutschrift.
     $ausKontingent = min($verbraucht, $kontingent);
     $ausGuthaben   = max(0, $verbraucht - $kontingent);
 
