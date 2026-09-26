@@ -197,6 +197,44 @@ server(antwortet(403, ['ok' => false, 'grund' => 'etwas_ganz_neues']));
 pruefe('ein unbekannter Grund bekommt trotzdem einen Satz',
     str_contains(pu_relay_stand()['text'], 'etwas_ganz_neues'));
 
+// ───────────────────────────────────────── Modell über den Relay (Runde 2)
+gruppe('Modell über den Relay');
+
+$GLOBALS['ruf_zaehler'] = 0;
+server(antwortet(200, ['ok' => true, 'antwort' => 'Feuer bringt Licht.', 'modell' => 'anthropic/claude-haiku-4.5',
+    'verbrauch' => ['eingabe' => 120, 'ausgabe' => 30, 'gesamt' => 150, 'geschaetzt' => false],
+    'stand' => ['tokens' => 9600, 'heute' => 400, 'tagesdeckel' => 0]]));
+$m = pu_relay_modell([['rolle' => 'user', 'text' => 'Was bringt Prometheus?']], 'anthropic/claude-haiku-4.5', 800, 'LP-7');
+pruefe('geht durch', $m['ok'] === true);
+gleich('liefert die Antwort', 'Feuer bringt Licht.', $m['antwort']);
+gleich('und den Stand laut Server', 9600, $m['stand']['tokens']);
+$rumpf = json_decode($GLOBALS['letzte_anfrage']['rumpf'], true);
+gleich('der Zweck steht im unterschriebenen Rumpf', 'modell', $rumpf['zweck']);
+gleich('die Nachrichten gehen als rolle/text mit',
+    [['rolle' => 'user', 'text' => 'Was bringt Prometheus?']], $rumpf['nutzlast']['nachrichten']);
+gleich('Modell, Deckel und Konto gehen mit', ['anthropic/claude-haiku-4.5', 800, 'LP-7'],
+    [$rumpf['nutzlast']['modell'], $rumpf['nutzlast']['max_tokens'], $rumpf['nutzlast']['konto']]);
+pruefe('kein öffentlicher Schlüssel bei einer bekannten Installation', !isset($GLOBALS['letzte_anfrage']['oeffentlich'])
+    || $GLOBALS['letzte_anfrage']['oeffentlich'] === pu_ident_oeffentlich());
+
+$GLOBALS['ruf_zaehler'] = 0;
+server(antwortet(502, ['ok' => false, 'grund' => 'modell_fehler']));
+$m = pu_relay_modell([['rolle' => 'user', 'text' => 'Noch einmal?']]);
+gleich('bei 502: Grund', 'modell_fehler', $m['grund']);
+gleich('und NICHT wiederholt (der Einmalwert ist verbraucht)', 1, $GLOBALS['ruf_zaehler']);
+pruefe('der Satz sagt, dass nichts abgebucht wurde', str_contains($m['text'], 'nichts abgebucht'));
+
+$GLOBALS['ruf_zaehler'] = 0;
+$GLOBALS['PU_RELAY_SENDER'] = static function (string $json): array {
+    $GLOBALS['ruf_zaehler']++;
+    return ['status' => 0, 'rumpf' => ''];
+};
+gleich('ohne Netz: kein_netz', 'kein_netz', pu_relay_modell([['rolle' => 'user', 'text' => 'Hallo?']])['grund']);
+gleich('… auch hier nur ein Versuch', 1, $GLOBALS['ruf_zaehler']);
+
+server(antwortet(402, ['ok' => false, 'grund' => 'kein_guthaben']));
+pruefe('kein Guthaben: ein Satz', str_contains(pu_relay_modell([['rolle' => 'user', 'text' => 'x']])['text'], 'Guthaben'));
+
 // ─────────────────────────────────────────────────────────── Zustand
 gruppe('Zustand für die Oberfläche');
 
@@ -213,7 +251,9 @@ gruppe('Übersetzung der Gründe');
 $vom_server = ['form', 'nicht_kanonisch', 'zu_gross', 'unbekannt', 'gesperrt',
     'umgezogen', 'mandant_gesperrt', 'notaus', 'zeit', 'wiederholt', 'signatur',
     'code_unbekannt', 'code_verbraucht', 'code_abgelaufen', 'schon_registriert',
-    'iid_passt_nicht', 'schluessel', 'unbekannter_zweck', 'serverfehler', 'nur_post'];
+    'iid_passt_nicht', 'schluessel', 'unbekannter_zweck', 'serverfehler', 'nur_post',
+    'kein_tarif', 'modell_nicht_im_tarif', 'kein_guthaben', 'tagesdeckel', 'zu_viele',
+    'modell_aus', 'modell_fehler'];
 $ohne = array_values(array_diff($vom_server, array_keys(PU_RELAY_GRUENDE)));
 pruefe('jeder Grund des Servers hat einen deutschen Satz', $ohne === [],
     implode(', ', $ohne));

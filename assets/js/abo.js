@@ -280,12 +280,24 @@ function serverMalen(bereich, j) {
           bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(r.meldung || 'Abgewiesen.') + '</b>';
         } else {
           const s = r.stand || {};
+          const lokal = ((PU.cockpitStand || {}).stand || {}).rest;
+          const tarif = s.tarif || null;
           bericht.textContent = 'Stand von ' + datum(r.gezogen_am) + '.';
           stand.innerHTML = '<table class="tabelle"><tbody>' +
-            zeile('Token laut Server', PU.h(zahl(s.tokens || 0)), null) +
+            zeile('Token laut Server', PU.h(zahl(s.tokens || 0)) +
+              ' <span class="klein">— für die ganze Einrichtung</span>', (s.tokens || 0) > 0) +
+            (typeof lokal === 'number'
+              ? zeile('Token hier (lokal)', PU.h(zahl(lokal)) + ' <span class="klein">— nur dieses Konto, dieser Rechner</span>', null)
+              : '') +
             zeile('Heute verbraucht', PU.h(zahl(s.heute || 0)) +
               (s.tagesdeckel ? ' von ' + PU.h(zahl(s.tagesdeckel)) : ''), null) +
             zeile('Plan', PU.h(s.plan || '—'), null) +
+            zeile('Tarif', tarif
+              ? PU.h(tarif.name) + ', ' + PU.h(zahl(tarif.kontingent || 0)) + ' Token im Monat'
+              : 'keiner — Modelle laufen nicht über den Server', tarif ? true : null) +
+            (tarif && (tarif.modelle || []).length
+              ? zeile('Modelle über den Server', tarif.modelle.map(m => '<code>' + PU.h(m) + '</code>').join(', '), null)
+              : '') +
             '</tbody></table>' +
             '<p class="hinweis">Der Server-Stand steht neben dem lokalen, nicht darüber: ' +
             'lokal steht, was hier verbraucht wurde; massgeblich für Relay, Käufe und Talente ist der Server.</p>';
