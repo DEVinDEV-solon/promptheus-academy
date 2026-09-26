@@ -46,11 +46,19 @@ function pu_tutor_bereit(): bool
  *   `openrouter`  ein HTTPS-Aufruf mit dem Schlüssel aus `PU_OPENROUTER_API_KEY`.
  *                 Braucht nichts ausser dem Schlüssel und läuft überall.
  *
- * `auto` (die Vorgabe) nimmt OpenRouter, wenn ein Schlüssel hinterlegt ist,
- * sonst die CLI. Diese Reihenfolge ist Absicht: wer den Schlüssel einträgt,
- * hat sich für ihn entschieden.
+ *   `server`      über den Relay unseres Servers (seit 26.09.2026, Cockpit-Plan
+ *                 K-RELAY-MODELL). Braucht keinen eigenen Schlüssel, nur eine
+ *                 registrierte Installation mit gültiger Bescheinigung.
+ *                 Abgerechnet wird auf dem Server, aus dem Guthaben der
+ *                 Einrichtung — dort ist der Stand maßgeblich (E9).
  *
- * @return string 'cli' | 'openrouter' | '' (nichts eingerichtet)
+ * `auto` (die Vorgabe) nimmt OpenRouter, wenn ein eigener Schlüssel hinterlegt
+ * ist, sonst den Server, wenn die Installation registriert ist, sonst die CLI.
+ * Diese Reihenfolge ist Absicht: wer einen eigenen Schlüssel einträgt, hat
+ * sich für ihn entschieden; wer registriert ist und keinen hat, soll ohne
+ * weiteres Zutun einen Tutor bekommen.
+ *
+ * @return string 'cli' | 'openrouter' | 'server' | '' (nichts eingerichtet)
  */
 function pu_tutor_weg(): string
 {
@@ -58,10 +66,27 @@ function pu_tutor_weg(): string
 
     if ($wunsch === 'cli')        return pu_claude_bin()   !== '' ? 'cli' : '';
     if ($wunsch === 'openrouter') return pu_or_schluessel() !== '' ? 'openrouter' : '';
+    if ($wunsch === 'server')     return pu_server_bereit() ? 'server' : '';
 
     if (pu_or_schluessel() !== '') return 'openrouter';
+    if (pu_server_bereit())        return 'server';
     if (pu_claude_bin()    !== '') return 'cli';
     return '';
+}
+
+/**
+ * Ist der Weg über den Server offen: Adresse eingetragen, registriert,
+ * Bescheinigung gültig?
+ *
+ * Fragt **nicht** beim Server nach — `pu_relay_zustand()` liest nur, was auf
+ * diesem Rechner liegt. Diese Funktion läuft bei jedem Öffnen der Oberfläche;
+ * eine Netzanfrage dort wäre eine, die niemand bestellt hat.
+ */
+function pu_server_bereit(): bool
+{
+    require_once PU_ROOT . '/srv/relay.php';
+    $z = pu_relay_zustand();
+    return $z['adresse'] && $z['registriert'] && $z['gueltig'];
 }
 
 /** Ist dieser eine Agent freigegeben? */
@@ -86,7 +111,11 @@ function pu_agent_frei(string $agent): bool
  */
 function pu_tutor_modell(): string
 {
-    if (pu_tutor_weg() === 'openrouter') return pu_or_modell();
+    $weg = pu_tutor_weg();
+    if ($weg === 'openrouter') return pu_or_modell();
+    // Über den Server wählt der Tarif der Einrichtung das Modell (das erste
+    // seiner Liste). Welches es war, steht in jeder Antwort.
+    if ($weg === 'server')     return 'Vorgabe des Tarifs';
 
     $gesetzt = pu_regel('tutor_modell');
     if ($gesetzt !== '') return $gesetzt;
@@ -339,6 +368,50 @@ function pu_or_lauf(string $prompt, string $systemtext, int $limit = 0, int $max
 }
 
 /**
+ * Fragt ein Modell über den Relay unseres Servers (Weg `server`).
+ *
+ * Dieselbe Rückgabe wie `pu_or_lauf()`, damit alles darüber nichts vom Weg
+ * weiss. Zusätzlich `server => true` und der Stand laut Server: **gebucht hat
+ * der Server**, aus dem Guthaben der Einrichtung. Lokal wird dieser Verbrauch
+ * nicht noch einmal gebucht (siehe `pu_tutor_fragen`) — zwei Orte für dieselbe
+ * Zahl wären der Ort, an dem sie auseinanderlaufen.
+ *
+ * `$konto` ist ein Pseudonym (`L-<Nummer>`), damit das Tokenbuch des Servers
+ * den Verbrauch je Konto zeigen kann. Klarnamen gehen nicht mit: im
+ * Systemtext steht das Pseudonym des Profils (`pu_profil_block`).
+ *
+ * @return array{ok: bool, text: string, fehler: string, dauer: float}
+ */
+function pu_server_lauf(string $prompt, string $systemtext, int $maxTokens = 0, string $konto = ''): array
+{
+    require_once PU_ROOT . '/srv/relay.php';
+    $start = microtime(true);
+    $r = pu_relay_modell(
+        [['rolle' => 'system', 'text' => $systemtext], ['rolle' => 'user', 'text' => $prompt]],
+        '', $maxTokens > 0 ? max(300, min(4000, $maxTokens)) : 1200, $konto);
+    $dauer = round(microtime(true) - $start, 1);
+
+    if (!$r['ok']) {
+        return ['ok' => false, 'text' => '', 'dauer' => $dauer, 'server' => true,
+                'grund' => (string)($r['grund'] ?? ''),
+                'fehler' => 'Server: ' . (string)($r['text'] ?? 'abgewiesen.')];
+    }
+    $text = pu_modell_saeubern((string)$r['antwort']);
+    if ($text === '') {
+        return ['ok' => false, 'text' => '', 'dauer' => $dauer, 'server' => true,
+                'fehler' => 'Das Modell hat über den Server nichts geantwortet.'];
+    }
+    $v = $r['verbrauch'];
+    return ['ok' => true, 'text' => $text, 'fehler' => '', 'dauer' => $dauer,
+            'aus_gedanken' => false, 'server' => true,
+            'modell'     => (string)$r['modell'],
+            'token_ein'  => (int)($v['eingabe'] ?? 0),
+            'token_aus'  => (int)($v['ausgabe'] ?? 0),
+            'token'      => (int)($v['gesamt'] ?? 0),
+            'server_stand' => $r['stand']];
+}
+
+/**
  * Steuertoken aus einer Modellantwort entfernen.
  *
  * Ein Sprachmodell trennt seine Rollen mit Sondertoken. Normalerweise
@@ -383,7 +456,8 @@ function pu_modell_saeubern(string $text): string
  * wird, wohin die Frage geht; ein zweiter Aufrufpfad wäre die Stelle, an der
  * eine Abschaltung später nicht greift.
  */
-function pu_modell_lauf(string $prompt, string $systemtext, int $limit = 0, int $maxTokens = 0): array
+function pu_modell_lauf(string $prompt, string $systemtext, int $limit = 0, int $maxTokens = 0,
+                        string $konto = ''): array
 {
     // PHP bricht eine Anfrage nach 30 Sekunden ab — im eingebauten Server die
     // Vorgabe. Ein Tutor darf laut Einstellung aber bis zu 300 Sekunden
@@ -400,6 +474,7 @@ function pu_modell_lauf(string $prompt, string $systemtext, int $limit = 0, int 
 
     return match (pu_tutor_weg()) {
         'openrouter' => pu_or_lauf($prompt, $systemtext, $limit, $maxTokens),
+        'server'     => pu_server_lauf($prompt, $systemtext, $maxTokens, $konto),
         'cli'        => pu_cli_lauf($prompt, $systemtext, $limit),
         default      => ['ok' => false, 'text' => '', 'dauer' => 0.0,
                          'fehler' => 'Es ist kein Tutor-Modell eingerichtet. '
@@ -607,8 +682,14 @@ function pu_tutor_fragen(int $lernender, string $agent, string $frage, array $ko
     //
     // `stopp` statt `fehler`: die Oberfläche soll kein rotes Fehlerfeld zeigen,
     // sondern das Schild mit den beiden Wegen. Ein leeres Konto ist keine Panne.
+    //
+    // **Über den Server ist der Server das Tor.** Er prüft Guthaben und
+    // Tagesdeckel der Einrichtung vor dem Aufruf (K-RELAY-MODELL) und bucht
+    // dort. Das lokale Tor rechnet mit dem lokalen Journal; es vor einen
+    // Serveraufruf zu stellen, hiesse, mit der falschen Zahl zu sperren.
     require_once PU_ROOT . '/srv/abo.php';
-    $tor = pu_token_tor($lernender);
+    $ueber_server = pu_tutor_weg() === 'server';
+    $tor = $ueber_server ? ['offen' => true] : pu_token_tor($lernender);
     if (!$tor['offen']) {
         return ['ok' => false, 'text' => '', 'stopp' => $tor['meldung'],
                 'fehler' => $tor['meldung']['titel']];
@@ -660,7 +741,8 @@ function pu_tutor_fragen(int $lernender, string $agent, string $frage, array $ko
     $prompt = implode("
 
 ", $teile);
-    $erg    = pu_modell_lauf($prompt, $system);
+    // Das Konto geht nur als Pseudonym mit (für das Tokenbuch des Servers).
+    $erg    = pu_modell_lauf($prompt, $system, 0, 0, 'L-' . $lernender);
 
     pu_protokoll($lernender, 'tutor', $agent,
         sprintf('%s, %.1fs', $erg['ok'] ? 'geantwortet' : 'Fehler', $erg['dauer'] ?? 0));
@@ -673,7 +755,10 @@ function pu_tutor_fragen(int $lernender, string $agent, string $frage, array $ko
     //
     // Nur bei einer Antwort. Ein Fehlschlag kostet kein Guthaben; wer nichts
     // bekommen hat, soll nichts bezahlen.
-    if ($erg['ok']) {
+    //
+    // Über den Server hat der Server schon gebucht, maßgeblich (E9). Hier ein
+    // zweites Mal zu buchen, gäbe zwei Stände für denselben Verbrauch.
+    if ($erg['ok'] && empty($erg['server'])) {
         require_once PU_ROOT . '/srv/abo.php';
         pu_token_verbrauchen($lernender, (string)($zusatz['wofuer'] ?? '') ?: ('Tutor · ' . $agent),
                              ...pu_verbrauch_messen($prompt, $system, $erg));

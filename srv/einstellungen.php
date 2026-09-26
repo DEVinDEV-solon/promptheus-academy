@@ -259,7 +259,7 @@ const PU_EINST_GLOBAL = [
     // bezahlt die Rechnung selbst und baut damit die Academy. Für ihn greift
     // weder der Rahmen noch dieser Schalter.
     'token_sperre'      => ['vorgabe' => 'aus', 'werte' => ['an', 'aus']],
-    'tutor_weg'         => ['vorgabe' => 'auto', 'werte' => ['auto', 'cli', 'openrouter']],
+    'tutor_weg'         => ['vorgabe' => 'auto', 'werte' => ['auto', 'cli', 'openrouter', 'server']],
     'or_modell'         => ['vorgabe' => '',   'text'  => '#^[A-Za-z0-9][A-Za-z0-9._:/-]{0,80}$#'],
     'agent_prometheus'  => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
     'agent_athena'      => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],

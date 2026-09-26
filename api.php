@@ -662,6 +662,8 @@ try {
             if (pu_recht_hat('ki.einstellungen')) {
                 $aus['tutor_stand'] = [
                     'weg'          => pu_tutor_weg(),
+                    // Registriert, Adresse da, Bescheinigung gueltig? Fragt nicht beim Server nach.
+                    'server_bereit' => pu_server_bereit(),
                     'cli_gefunden' => pu_claude_bin() !== '',
                     'cli_name'     => pu_claude_bin() === '' ? '' : basename(pu_claude_bin()),
                     'modell'       => pu_tutor_modell(),

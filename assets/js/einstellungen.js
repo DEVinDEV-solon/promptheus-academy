@@ -695,19 +695,24 @@ function kiZeichnen(ziel) {
   ziel.appendChild(PU.el('h3', '', 'Tutor-KI'));
 
   const stand = PU.el('p', 'merkzettel' + (s.bereit ? ' gut' : ''));
+  const wegName = { openrouter: 'OpenRouter', cli: 'die Claude-CLI', server: 'den Server der Academy' };
   stand.innerHTML = s.bereit
-    ? '<b>Bereit.</b> Die Tutoren antworten über <b>' +
-      (s.weg === 'openrouter' ? 'OpenRouter' : 'die Claude-CLI') + '</b>, Modell <code>' +
-      PU.h(s.modell) + '</code>.'
+    ? '<b>Bereit.</b> Die Tutoren antworten über <b>' + (wegName[s.weg] || s.weg) +
+      '</b>, Modell <code>' + PU.h(s.modell) + '</code>.' +
+      (s.weg === 'server'
+        ? ' Abgerechnet wird auf dem Server, aus dem Guthaben der Einrichtung — den Stand zeigt das Cockpit.'
+        : '')
     : '<b>Kein Modell eingerichtet.</b> Die Tutoren bleiben stumm. Kurse, Aufgaben, ' +
       'Prüfungen und Urkunden laufen davon unberührt weiter — sie brauchen kein Sprachmodell.';
   ziel.appendChild(stand);
 
   zeileWahl(ziel, 'Weg zum Modell',
-    'Automatisch nimmt OpenRouter, sobald ein Schlüssel hinterlegt ist, sonst die Claude-CLI.',
-    ['auto', 'cli', 'openrouter'], g.tutor_weg,
+    'Automatisch nimmt OpenRouter, sobald ein eigener Schlüssel hinterlegt ist, sonst den Server ' +
+    '(wenn diese Academy registriert ist), sonst die Claude-CLI.' +
+    (s.server_bereit ? '' : ' Der Server steht erst nach der Registrierung zur Wahl (Cockpit › Server & Registrierung).'),
+    ['auto', 'cli', 'openrouter', 'server'], g.tutor_weg,
     w => { regelSetzen('tutor_weg', w).then(() => PU.einstellungenOeffnen('ki')); },
-    { auto: 'Automatisch', cli: 'Claude-CLI', openrouter: 'OpenRouter' });
+    { auto: 'Automatisch', cli: 'Claude-CLI', openrouter: 'OpenRouter', server: 'Server' });
 
   // ---------------- OpenRouter
   ziel.appendChild(PU.el('h4', '', 'OpenRouter'));
