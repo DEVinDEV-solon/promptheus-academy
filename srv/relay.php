@@ -225,8 +225,8 @@ function pu_relay_registrieren(string $code): array
     // nur, wenn noch keiner eingetragen ist: sonst könnte ein
     // untergeschobener Server den echten verdrängen.
     if (pu_env('PU_VPS_SCHLUESSEL', '') === '' && isset($aus['vps_schluessel'])
-        && function_exists('pu_env_setzen')) {
-        pu_env_setzen('PU_VPS_SCHLUESSEL', (string)$aus['vps_schluessel']);
+        && !pu_relay_schluessel_merken((string)$aus['vps_schluessel'])) {
+        return pu_relay_nein('schluessel');
     }
 
     if (!pu_ident_bescheinigung_setzen(
@@ -255,6 +255,30 @@ function pu_relay_stand(): array
     }
     return ['ok' => true, 'stand' => $aus['stand'] ?? [],
             'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z')];
+}
+
+/**
+ * Legt den öffentlichen Schlüssel des Servers ab (beim ersten Registrieren).
+ *
+ * Bis 26.09.2026 lief das über `pu_env_setzen()` — das darf aber nur die
+ * Schlüssel aus seiner Liste schreiben (Eingaben aus dem Browser) und warf
+ * hier. Jetzt: eigener, fester Name, geprüfte Form (Ed25519, 32 Byte), und
+ * sofort in die Prozessumgebung, weil `pu_env()` die .env nur einmal liest.
+ */
+function pu_relay_schluessel_merken(string $b64): bool
+{
+    $roh = base64_decode($b64, true);
+    if ($roh === false || strlen($roh) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
+        return false;
+    }
+    require_once __DIR__ . '/einstellungen.php';
+    try {
+        pu_env_datei_setzen('PU_VPS_SCHLUESSEL', $b64);
+    } catch (Throwable) {
+        return false;
+    }
+    putenv('PU_VPS_SCHLUESSEL=' . $b64);
+    return true;
 }
 
 /** windows, macos oder linux — sonst nichts. */

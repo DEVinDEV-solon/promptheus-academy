@@ -220,7 +220,16 @@ const PU_RECHTE = [
     ['name' => 'abo.sehen', 'gruppe' => 'Plan & Token',
      'was' => 'Den eigenen Plan und den Tokenstand sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['cockpit']],
+     'aktionen' => ['cockpit', 'relay_zustand', 'relay_stand']],
+
+    /* Die Installation beim Server registrieren: den Code aus der Zahlung
+       gegen eine Bescheinigung tauschen. Dabei entsteht das Schlüsselpaar der
+       Installation. Wer bezahlt hat, registriert — also Verwaltung und
+       Eltern, nicht Lehrkräfte und nicht Lernende. */
+    ['name' => 'registrierung.verwalten', 'gruppe' => 'Plan & Token',
+     'was' => 'Die Academy mit dem Registrierungscode beim Server anmelden',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
+     'aktionen' => ['relay_registrieren']],
 
     ['name' => 'abo.verwalten', 'gruppe' => 'Plan & Token',
      'was' => 'Pläne buchen und beenden',

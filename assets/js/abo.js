@@ -52,6 +52,7 @@ function cockpitMalen(ziel) {
   gitter.appendChild(tokenKasten(d));
   ziel.appendChild(gitter);
 
+  ziel.appendChild(serverKasten());
   ziel.appendChild(verbrauchKasten(d));
   ziel.appendChild(buchungenKasten(d));
 
@@ -178,6 +179,124 @@ function talentFormular(bereich, j) {
       knopf.disabled = false;
     }
   });
+}
+
+/* ------------------------------------------------ Server & Registrierung
+ *
+ * Die Verbindung zur Serverseite (agent0.de/promptheus/relay/). Ohne sie
+ * läuft die Academy vollständig — Kurse, Aufgaben, Urkunden bleiben lokal.
+ * Mit ihr kommen Tutor und Werkstatt über den Relay, und der Tokenstand, der
+ * zählt, steht auf dem Server.
+ *
+ * **Registriert wird mit dem Code aus der Zahlung.** Dabei entsteht das
+ * Schlüsselpaar dieser Installation; der geheime Teil verlässt den Rechner
+ * nie. Der Kasten fragt beim Öffnen nicht beim Server nach — erst auf Knopfdruck.
+ */
+function serverKasten() {
+  const k = PU.el('section', 'cockpit-block');
+  k.appendChild(PU.el('h2', '', 'Server & Registrierung'));
+  const bereich = PU.el('div', 'server-bereich');
+  bereich.innerHTML = '<p class="leer-hinweis">Lade Stand …</p>';
+  k.appendChild(bereich);
+  PU.ruf('relay_zustand').then(j => serverMalen(bereich, j))
+    .catch(e => { bereich.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; });
+  return k;
+}
+
+function serverMalen(bereich, j) {
+  const z = j.zustand || {};
+  bereich.innerHTML = '';
+
+  const zeile = (name, wert, ok) =>
+    '<tr><th scope="row">' + name + '</th><td>' +
+    (ok === true ? '<span class="gut">✓</span> ' : ok === false ? '<span class="schlecht">✕</span> ' : '') +
+    wert + '</td></tr>';
+  const t = PU.el('table', 'tabelle');
+  t.innerHTML = '<tbody>' +
+    zeile('Serveradresse', z.adresse ? 'eingetragen'
+      : 'fehlt — in der .env eintragen: <code>PU_RELAY_URL=https://agent0.de/promptheus/relay/</code>', !!z.adresse) +
+    zeile('Registriert', z.registriert ? '<code>' + PU.h(z.iid) + '</code>' : 'noch nicht', !!z.registriert) +
+    zeile('Bescheinigung', z.bescheinigt
+      ? (z.gueltig ? 'gültig bis ' + PU.h(datum(z.gueltig_bis)) : 'abgelaufen am ' + PU.h(datum(z.gueltig_bis)))
+      : 'keine', z.bescheinigt ? !!z.gueltig : null) +
+    (z.plan ? zeile('Plan laut Server', PU.h(z.plan), null) : '') +
+    '</tbody>';
+  bereich.appendChild(t);
+
+  const bericht = PU.el('p', 'warum');
+
+  // ---- Registrieren (nur mit Recht, nur solange keine gültige Bescheinigung da ist)
+  if (j.darf_registrieren && !z.gueltig) {
+    const form = PU.el('div', 'talent-zeile');
+    const eingabe = document.createElement('input');
+    eingabe.type = 'text';
+    eingabe.maxLength = 40;
+    eingabe.placeholder = 'XXXXX-XXXXX-XXXXX-XXXXX';
+    eingabe.setAttribute('aria-label', 'Registrierungscode');
+    eingabe.autocomplete = 'off';
+    eingabe.spellcheck = false;
+    const knopf = PU.el('button', 'knopf', 'Registrieren');
+    knopf.type = 'button';
+    form.appendChild(eingabe);
+    form.appendChild(knopf);
+    bereich.appendChild(PU.el('p', 'hinweis',
+      'Den Code gibt es nach der Zahlung (per E-Mail oder von der Academy-Leitung). ' +
+      'Er gilt 48 Stunden und nur einmal. Gross- und Kleinschreibung spielen keine Rolle.'));
+    bereich.appendChild(form);
+
+    knopf.addEventListener('click', async () => {
+      const code = eingabe.value.trim();
+      if (!code) return;
+      knopf.disabled = true;
+      bericht.textContent = 'Registriere …';
+      try {
+        const r = await PU.ruf('relay_registrieren', { code: code });
+        if (r.ok) {
+          PU.melden('Diese Academy ist beim Server registriert.', 'gut');
+          serverMalen(bereich, { zustand: r.zustand, darf_registrieren: j.darf_registrieren });
+          return;
+        }
+        bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(r.meldung || 'Abgewiesen.') + '</b>';
+      } catch (e) {
+        bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(e.message) + '</b>';
+      }
+      knopf.disabled = false;
+    });
+  }
+
+  // ---- Stand holen (fragt den Server, erneuert nebenbei die Bescheinigung)
+  if (z.registriert && z.adresse) {
+    const knopf = PU.el('button', 'knopf still', 'Stand vom Server holen');
+    knopf.type = 'button';
+    bereich.appendChild(knopf);
+    const stand = PU.el('div', 'server-stand');
+    bereich.appendChild(stand);
+    knopf.addEventListener('click', async () => {
+      knopf.disabled = true;
+      bericht.textContent = 'Frage den Server …';
+      try {
+        const r = await PU.ruf('relay_stand');
+        if (!r.ok) {
+          bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(r.meldung || 'Abgewiesen.') + '</b>';
+        } else {
+          const s = r.stand || {};
+          bericht.textContent = 'Stand von ' + datum(r.gezogen_am) + '.';
+          stand.innerHTML = '<table class="tabelle"><tbody>' +
+            zeile('Token laut Server', PU.h(zahl(s.tokens || 0)), null) +
+            zeile('Heute verbraucht', PU.h(zahl(s.heute || 0)) +
+              (s.tagesdeckel ? ' von ' + PU.h(zahl(s.tagesdeckel)) : ''), null) +
+            zeile('Plan', PU.h(s.plan || '—'), null) +
+            '</tbody></table>' +
+            '<p class="hinweis">Der Server-Stand steht neben dem lokalen, nicht darüber: ' +
+            'lokal steht, was hier verbraucht wurde; massgeblich für Relay, Käufe und Talente ist der Server.</p>';
+        }
+      } catch (e) {
+        bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(e.message) + '</b>';
+      }
+      knopf.disabled = false;
+    });
+  }
+  bereich.appendChild(bericht);
 }
 
 /* ---------------------------------------------------------------- Plan */

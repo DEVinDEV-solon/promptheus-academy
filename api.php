@@ -45,6 +45,7 @@ require_once __DIR__ . '/srv/persona.php';
 require_once __DIR__ . '/srv/katalog.php';
 require_once __DIR__ . '/srv/raenge.php';
 require_once __DIR__ . '/srv/coder.php';
+require_once __DIR__ . '/srv/relay.php';
 
 header('X-Content-Type-Options: nosniff');
 
@@ -842,6 +843,32 @@ try {
                                       && pu_talente_empfaenger($ichId) !== [],
                 'alle'             => pu_recht_hat('abo.verwalten') ? pu_abos_alle() : [],
             ]);
+
+        // ------------------------------------------------ Server (Relay)
+        //
+        // Registrierung und Stand beim Server. `relay_zustand` fragt nicht
+        // beim Server nach — ein Reiter darf nicht bei jedem Öffnen eine
+        // Netzanfrage auslösen. `relay_stand` tut es, auf Knopfdruck.
+        case 'relay_zustand':
+            pu_recht_fordern('abo.sehen');
+            pu_json_out(['ok' => true, 'zustand' => pu_relay_zustand(),
+                         'darf_registrieren' => pu_recht_hat('registrierung.verwalten')]);
+
+        case 'relay_stand': {
+            pu_recht_fordern('abo.sehen');
+            $r = pu_relay_stand();
+            pu_json_out($r + ['zustand' => pu_relay_zustand(),
+                              'meldung' => $r['ok'] ? '' : pu_relay_grund_text((string)($r['grund'] ?? ''))]);
+        }
+
+        case 'relay_registrieren': {
+            pu_recht_fordern('registrierung.verwalten');
+            $r = pu_relay_registrieren((string)d('code', ''));
+            // Protokolliert wird, DASS registriert wurde, nie der Code.
+            pu_protokoll($ichId, 'registrierung', $r['ok'] ? 'ok' : (string)($r['grund'] ?? ''), '');
+            pu_json_out(['ok' => $r['ok'], 'zustand' => pu_relay_zustand(),
+                         'meldung' => $r['ok'] ? '' : pu_relay_grund_text((string)($r['grund'] ?? ''))]);
+        }
 
         case 'abo_buchen': {
             pu_recht_fordern('abo.verwalten');
