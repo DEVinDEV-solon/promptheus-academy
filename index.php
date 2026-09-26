@@ -396,8 +396,9 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
       <div class="lp-token">
         <h3>Token nachlegen</h3>
         <p class="hinweis">In jedem Plan steckt ein monatliches Token-Kontingent.
-          Wer mehr braucht, legt nach. <b>Gekaufte Token verfallen nicht</b>, das
-          monatliche Kontingent schon.</p>
+          Wer mehr braucht, legt nach. <b>Token verfallen nie</b>, weder gekaufte
+          noch das Kontingent: Was 365 Tage nach der Buchung noch frei ist, wird
+          innerhalb der eigenen Einrichtung weiterverteilt.</p>
         <?= pu_pakete_html() ?>
 
         <h3>Was ein Token freischaltet</h3>

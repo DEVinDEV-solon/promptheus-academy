@@ -89,13 +89,20 @@ verwendbar.
 
 | Art | Herkunft | Verfall |
 |---|---|---|
-| **Monatskontingent** | im Abo enthalten | verfällt am Monatsende |
+| **Monatskontingent** | im Abo enthalten | verfällt nicht |
 | **Gekaufte Token** | einzeln erworben | verfallen nicht |
 | **Testzugang** | einmalig beim Anlegen eines Kontos | verfällt nicht |
 
-(3) **Verbraucht wird zuerst das Monatskontingent**, danach das Guthaben. Das
-Kontingent verfällt, weil es eine Monatsration ist und keine Ansparmöglichkeit.
-Darauf wird beim Kauf hingewiesen.
+(3) **Token verfallen nicht.** Jede Gutschrift, also jedes Monatskontingent
+und jeder Kauf, wird für sich gerechnet. Was von ihr **365 Tage nach der
+Buchung** noch nicht verbraucht und nicht verteilt ist, wird innerhalb des
+eigenen Systems des Kunden (seiner Einrichtung) nach der Quote in Umlauf
+gebracht. **10 % verbleiben in jedem Fall** bei der Verwaltung des Kunden.
+Bis zu dieser Frist entscheidet der Kunde jederzeit selbst, wie viel er wann
+verteilt. Nichts fällt an uns zurück. Darauf wird beim Kauf hingewiesen.
+
+> *Entwurf vom 26.09.2026 nach Cockpit-Plan E4; Formulierung und Quote vor
+> Veröffentlichung anwaltlich prüfen (Transparenz, § 307 BGB).*
 
 (4) Ein Anspruch auf Auszahlung nicht verbrauchter Token besteht nicht. Bei
 Kündigung durch uns aus einem Grund, den der Kunde nicht zu vertreten hat,

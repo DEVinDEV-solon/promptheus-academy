@@ -8,7 +8,7 @@ declare(strict_types=1);
  *
  *   · die Schule ist je Kopf am günstigsten — das ist die Zusage am Tor
  *   · der Kontostand ist die Summe der Buchungen, sonst nichts
- *   · das Monatskontingent verfällt, gekaufte Token nicht
+ *   · es verfällt nichts, weder Kontingent noch Gekauftes (Cockpit-Plan E4)
  *   · ein Schüler ohne eigenes Abo ist über Klasse oder Schule gedeckt
  *   · Geschätztes bleibt als geschätzt erkennbar
  *
@@ -162,7 +162,7 @@ $stand = pu_token_stand($nele);
 
 gleich('der Verbrauch steht drin',     1200,            $stand['verbraucht']);
 gleich('…und geht vom Rest ab',        $vorher - 1200,  $stand['rest']);
-gleich('Kontingent zuerst — es verfällt ja ohnehin',
+gleich('in der Anzeige geht der Verbrauch zuerst gegen das Kontingent',
        PU_PROBE_TOKEN, $stand['guthaben']);
 
 // Ein Fehlschlag kostet nichts: 0 Token werden nicht gebucht.
@@ -193,17 +193,44 @@ gleich('nach der Bestätigung zählt es',
        PU_TOKENPAKETE['mittel']['tokens'] + PU_PROBE_TOKEN, $stand['gekauft']);
 gleich('…und nichts ist mehr offen', 0, $stand['offen']);
 
-gruppe('Kontingent verfällt, Gekauftes nicht');
+gruppe('Es verfällt nichts — auch das Kontingent nicht');
 
-// Ein Kontingent mit abgelaufenem Verfallsdatum zählt nicht mehr mit.
+// Neue Kontingente tragen kein Verfallsdatum.
+$st = pu_db()->prepare("SELECT COUNT(*) FROM token_buchungen
+                         WHERE abo = ? AND art = 'kontingent' AND verfaellt <> ''");
+$st->execute([$eigenes['id']]);
+gleich('neue Kontingente haben kein Verfallsdatum', 0, (int)$st->fetchColumn());
+
+// Eine ältere Zeile aus der Zeit, als das Kontingent noch verfiel: Ihr Datum
+// liegt in der Vergangenheit, und sie zählt trotzdem voll mit.
+$vorher = pu_token_stand($nele);
 pu_token_eintragen($nele, $eigenes['id'], 'kontingent', 'Alter Monat',
                    999000, 0, false, '', '2020-01-01');
-
 $stand = pu_token_stand($nele);
-pruefe('ein abgelaufenes Kontingent zählt nicht',
-       $stand['kontingent'] < 999000, 'Kontingent: ' . $stand['kontingent']);
+gleich('ein altes Kontingent mit Datum zählt voll mit',
+       $vorher['kontingent'] + 999000, $stand['kontingent']);
+gleich('…und erhöht den Rest', $vorher['rest'] + 999000, $stand['rest']);
 gleich('das Gekaufte bleibt unberührt',
        PU_TOKENPAKETE['mittel']['tokens'] + PU_PROBE_TOKEN, $stand['gekauft']);
+
+// Derselbe Zeitraum wird nicht zweimal gutgeschrieben — auch dann nicht, wenn
+// die vorhandene Zeile noch das alte Format hat (Datum in `verfaellt`).
+$plan = pu_plan((string)$eigenes['plan']);
+$ab = '2031-03-15';
+pu_token_eintragen($nele, $eigenes['id'], 'kontingent', 'Monatskontingent alt',
+                   (int)$plan['kontingent'], 0, false, '', pu_monat_weiter($ab));
+$zeilen = static function () use ($eigenes): int {
+    $st = pu_db()->prepare("SELECT COUNT(*) FROM token_buchungen WHERE abo = ? AND art = 'kontingent'");
+    $st->execute([$eigenes['id']]);
+    return (int)$st->fetchColumn();
+};
+$n = $zeilen();
+pu_kontingent_gutschreiben((int)$eigenes['id'], $nele, $plan, $ab);
+gleich('alter Zeitraum im alten Format: keine zweite Gutschrift', $n, $zeilen());
+pu_kontingent_gutschreiben((int)$eigenes['id'], $nele, $plan, '2031-05-15');
+gleich('neuer Zeitraum: eine Gutschrift', $n + 1, $zeilen());
+pu_kontingent_gutschreiben((int)$eigenes['id'], $nele, $plan, '2031-05-15');
+gleich('derselbe neue Zeitraum noch einmal: keine', $n + 1, $zeilen());
 
 gruppe('Der Gratis-Testzugang');
 
