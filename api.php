@@ -957,6 +957,19 @@ try {
             pu_json_out(pu_gem_ruf('melden', $ich, ['ziel_art' => (string)d('ziel_art', ''),
                 'ziel' => (string)d('ziel', ''), 'grund' => mb_substr((string)d('grund', ''), 0, 300)]));
 
+        case 'gemeinde_talente':
+            // Eigener Stand und die Bestenliste der letzten Woche (mit Synonymen).
+            pu_recht_fordern('gemeinde.ansehen');
+            pu_json_out(pu_gem_talente($ich));
+
+        case 'gemeinde_talente_abholen': {
+            pu_recht_fordern('gemeinde.mitmachen');
+            $m = d('menge', null);
+            $r = pu_gem_talente_abholen($ich, $m === null || $m === '' ? null : max(1, (int)$m));
+            if ($r['ok']) pu_protokoll($ichId, 'talente_abholen', (string)($r['beleg']['talente'] ?? 0), '');
+            pu_json_out($r);
+        }
+
         case 'produkte': {
             pu_recht_fordern('gemeinde.veroeffentlichen');
             if ((bool)d('abgleichen', false)) pu_produkte_abgleichen($ich);

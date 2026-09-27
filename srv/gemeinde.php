@@ -74,6 +74,7 @@ const PU_GEM_GRUENDE = [
     'nicht_gefunden'    => 'Das gibt es (nicht mehr).',
     'eigenes_werk'      => 'Das eigene Werk kann man nicht liken.',
     'form'              => 'Die Angaben sind unvollständig.',
+    'nichts_umwandelbar' => 'Gerade ist nichts umwandelbar: keine Talente oder der Monatsdeckel ist erreicht.',
 ];
 
 function pu_gem_grund_text(string $grund): string
@@ -679,4 +680,24 @@ function pu_gem_bild(array $ich, string $werk): string
     }
     file_put_contents("$ordner/$werk.$typ", $roh);
     return 'data:image/' . ($typ === 'jpg' ? 'jpeg' : $typ) . ';base64,' . base64_encode($roh);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Talente (Runde 3c)
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Talente kommen aus der wöchentlichen Bestenliste der Likes (ganze
+ * Gemeinde) und einmal zum Start. Der Server führt das Talentbuch; hier wird
+ * nur angezeigt und umgewandelt (1:1 in Token, Monatsdeckel je Konto).
+ */
+function pu_gem_talente(array $ich): array
+{
+    return pu_gem_ruf('talente', $ich);
+}
+
+/** Wandelt Talente in Token um; ohne Menge alles, was der Deckel erlaubt. */
+function pu_gem_talente_abholen(array $ich, ?int $menge = null): array
+{
+    return pu_gem_ruf('talente_abholen', $ich, $menge === null ? [] : ['menge' => $menge], true);
 }

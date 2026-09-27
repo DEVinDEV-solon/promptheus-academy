@@ -256,12 +256,13 @@ const PU_RECHTE = [
     ['name' => 'gemeinde.ansehen', 'gruppe' => 'Gemeinde',
      'was' => 'Werke der Gemeinde ansehen und herunterladen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket']],
+     'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket',
+                    'gemeinde_talente']],
 
     ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Gemeinde',
      'was' => 'Liken, kommentieren, melden (unter dem eigenen Synonym)',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['gemeinde_synonym', 'gemeinde_like', 'gemeinde_kommentar', 'gemeinde_melden']],
+     'aktionen' => ['gemeinde_synonym', 'gemeinde_like', 'gemeinde_kommentar', 'gemeinde_melden', 'gemeinde_talente_abholen']],
 
     /* Eigene Produkte (Prompts, Skills, Plugins) freischalten. Minderjährige
        brauchen dafür zusätzlich das Mit-Siegel (nächstes Recht) — das prüft

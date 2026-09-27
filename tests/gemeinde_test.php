@@ -227,6 +227,22 @@ gleich('… aber nur ein Ruf', 1, count($GLOBALS['rufe']));
 gleich('eine krumme Kennung wird nicht gefragt', '', pu_gem_bild($person($kind), '../../etc'));
 
 // ─────────────────────────────────────────────────────────────────────────────
+gruppe('Talente');
+
+$GLOBALS['rufe'] = [];
+$GLOBALS['antworten']['talente'] = static fn() => ['ok' => true, 'talente' => 18500, 'umwandelbar' => 18500,
+    'monat_umgewandelt' => 0, 'deckel_monat' => 150000, 'woche' => '2026-W39', 'bestenliste' => []];
+gleich('Stand vom Server', 18500, pu_gem_talente($person($kind))['talente'] ?? -1);
+gleich('… mit dem Pseudonym gefragt', 'L-' . $kind, $GLOBALS['rufe'][0]['nutzlast']['konto'] ?? '');
+$GLOBALS['antworten']['talente_abholen'] = static fn(array $n) => ['ok' => false, 'grund' => 'nichts_umwandelbar'];
+$r = pu_gem_talente_abholen($person($kind));
+pruefe('nichts umwandelbar: ein Satz dazu', !$r['ok'] && str_contains($r['text'], 'Monatsdeckel'));
+$GLOBALS['rufe'] = [];
+$GLOBALS['antworten']['talente_abholen'] = static fn(array $n) => ['ok' => true, 'beleg' => ['talente' => $n['menge'] ?? 18500]];
+gleich('mit Menge', 500, pu_gem_talente_abholen($person($kind), 500)['beleg']['talente'] ?? 0);
+gleich('… ein einziger Ruf (keine Wiederholung bei Geld)', 1, count($GLOBALS['rufe']));
+
+// ─────────────────────────────────────────────────────────────────────────────
 gruppe('Löschen');
 
 pu_produkt_loeschen((int)$r2['id'], $kind);

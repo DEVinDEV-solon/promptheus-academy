@@ -105,6 +105,7 @@ PU.gemeindeZeichnen = async function () {
   reiter.setAttribute('role', 'tablist');
   const flaeche = PU.el('div', 'gemeinde-flaeche');
   const liste = [['schaufenster', 'Schaufenster']];
+  if (s.registriert) liste.push(['talente', 'Talente']);
   if (s.darf.veroeffentlichen) liste.push(['produkte', 'Meine Produkte']);
   if (s.darf.siegeln) liste.push(['siegeln', 'Gegenzeichnen']);
   liste.forEach(([k, name]) => {
@@ -120,6 +121,7 @@ PU.gemeindeZeichnen = async function () {
 
   if (PU.gem.reiter === 'produkte' && s.darf.veroeffentlichen) PU.produkteZeichnen(flaeche, false);
   else if (PU.gem.reiter === 'siegeln' && s.darf.siegeln) PU.produkteZeichnen(flaeche, true);
+  else if (PU.gem.reiter === 'talente' && s.registriert) PU.talenteZeichnen(flaeche);
   else if (s.registriert) PU.schaufensterZeichnen(flaeche);
 };
 
@@ -546,4 +548,54 @@ PU.produktKarte = function (p, siegeln) {
   }
   rechts.appendChild(knoepfe);
   return k;
+};
+
+/* ---------------------------------------------------------------- Talente (Runde 3c) */
+PU.talenteZeichnen = async function (flaeche) {
+  flaeche.innerHTML = '<p class="leer-hinweis">Lade Talente …</p>';
+  let j;
+  try { j = await PU.ruf('gemeinde_talente'); }
+  catch (e) { flaeche.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; return; }
+  if (!j.ok) { flaeche.innerHTML = '<p class="fehler">' + PU.h(j.text || 'Der Server antwortet nicht.') + '</p>'; return; }
+  const zahl = n => Number(n || 0).toLocaleString('de-DE');
+  flaeche.innerHTML = '';
+  flaeche.appendChild(PU.el('p', 'hinweis',
+    'Talente gibt es jede Woche für die beliebtesten Werke der ganzen Gemeinde — nach Likes, die zählen: ' +
+    'nicht die eigenen, nicht vom selben Rechner, nicht von ganz neuen Konten. Talente kann man nicht kaufen. ' +
+    'Man kann sie 1:1 in Token umwandeln, höchstens ' + PU.h(zahl(j.deckel_monat)) + ' im Monat; der Rest bleibt stehen.'));
+  const kasten = PU.el('div', 'karte talente-kasten');
+  kasten.innerHTML =
+    '<div class="talente-zahlen">' +
+    '<div><span class="talente-wert">' + PU.h(zahl(j.talente)) + '</span><span class="klein">deine Talente</span></div>' +
+    '<div><span class="talente-wert">' + PU.h(zahl(j.umwandelbar)) + '</span><span class="klein">jetzt umwandelbar</span></div>' +
+    '<div><span class="talente-wert">' + PU.h(zahl(j.monat_umgewandelt)) + '</span><span class="klein">diesen Monat umgewandelt</span></div>' +
+    '</div>';
+  if (PU.gem.start.darf.mitmachen) {
+    const knopf = PU.el('button', 'knopf', 'In Token umwandeln');
+    knopf.type = 'button';
+    knopf.disabled = !(Number(j.umwandelbar) > 0);
+    knopf.addEventListener('click', async () => {
+      if (!confirm(zahl(j.umwandelbar) + ' Talente in ' + zahl(j.umwandelbar) + ' Token umwandeln?\n\n' +
+                   'Die Token kommen auf dein eigenes Konto und werden bei dir zuerst verbraucht. Zurück geht es nicht.')) return;
+      knopf.disabled = true;
+      const r = await PU.ruf('gemeinde_talente_abholen', {});
+      if (!r.ok) { PU.melden(PU.h(r.text || 'Nicht umgewandelt.'), 'warnung'); knopf.disabled = false; return; }
+      PU.melden(PU.h(zahl(r.beleg && r.beleg.tokens)) + ' Token gutgeschrieben.', 'gold');
+      PU.talenteZeichnen(flaeche);
+    });
+    kasten.appendChild(knopf);
+  }
+  flaeche.appendChild(kasten);
+
+  flaeche.appendChild(PU.el('h2', '', 'Bestenliste' + (j.woche ? ' der Woche ' + PU.h(j.woche) : '')));
+  if (!(j.bestenliste || []).length) {
+    flaeche.appendChild(PU.el('p', 'leer-hinweis', 'Noch keine Woche ausgewertet.'));
+    return;
+  }
+  const rahmen = PU.el('div', 'tabellenrahmen');
+  rahmen.innerHTML = '<table><tr><th>Platz</th><th>Synonym</th><th>Likes</th><th>Talente</th></tr>' +
+    j.bestenliste.map(z => '<tr' + (z.ich ? ' class="talente-ich"' : '') + '><td>' + Number(z.platz) + '</td><td>' +
+      PU.h(z.rufname) + (z.ich ? ' <span class="klein">(du)</span>' : '') + '</td><td>' + Number(z.likes) +
+      '</td><td>' + PU.h(zahl(z.talente)) + '</td></tr>').join('') + '</table>';
+  flaeche.appendChild(rahmen);
 };

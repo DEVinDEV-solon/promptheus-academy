@@ -73,6 +73,12 @@
 .produkt-abgelehnt { border-color: var(--schlecht); color: var(--schlecht); }
 .produkt-wartet_auf_freigabe { border-color: var(--glut); color: var(--glut); }
 
+.talente-kasten { margin: 0 0 1.4em; }
+.talente-zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1em; margin-bottom: 1em; }
+.talente-zahlen div { display: flex; flex-direction: column; }
+.talente-wert { font: 1.6rem/1.2 var(--mono); color: var(--gold); font-variant-numeric: tabular-nums; }
+.talente-ich td { color: var(--gold); font-weight: bold; }
+
 @media (max-width: 640px) {
   .werk-detail, .produkt-karte { grid-template-columns: 1fr; }
   .produkt-karte .produkt-bild { max-width: 16rem; }
