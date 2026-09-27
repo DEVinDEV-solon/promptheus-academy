@@ -183,7 +183,7 @@ function talentFormular(bereich, j) {
 
 /* ------------------------------------------------ Server & Registrierung
  *
- * Die Verbindung zur Serverseite (example.org/promptheus/relay/). Ohne sie
+ * Die Verbindung zur Serverseite (promptheus-academy.de/relay/). Ohne sie
  * läuft die Academy vollständig — Kurse, Aufgaben, Urkunden bleiben lokal.
  * Mit ihr kommen Tutor und Werkstatt über den Relay, und der Tokenstand, der
  * zählt, steht auf dem Server.
@@ -214,7 +214,7 @@ function serverMalen(bereich, j) {
   const t = PU.el('table', 'tabelle');
   t.innerHTML = '<tbody>' +
     zeile('Serveradresse', z.adresse ? 'eingetragen'
-      : 'fehlt — in der .env eintragen: <code>PU_RELAY_URL=https://example.org/promptheus/relay/</code>', !!z.adresse) +
+      : 'fehlt — in der .env eintragen: <code>PU_RELAY_URL=https://promptheus-academy.de/relay/</code>', !!z.adresse) +
     zeile('Registriert', z.registriert ? '<code>' + PU.h(z.iid) + '</code>' : 'noch nicht', !!z.registriert) +
     zeile('Bescheinigung', z.bescheinigt
       ? (z.gueltig ? 'gültig bis ' + PU.h(datum(z.gueltig_bis)) : 'abgelaufen am ' + PU.h(datum(z.gueltig_bis)))
