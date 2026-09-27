@@ -429,6 +429,9 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .karte.gesperrt.klickbar { cursor: not-allowed; }
 .karte h3 { margin: 0; font-size: 1.08rem; }
 .karte-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+/* Die Zielkarte: Abzeichen in eigener Zeile über der Überschrift. */
+.zielkarte-kopf { display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; }
+.zielkarte-kopf h3 { margin: 0; }
 
 .marke-stufe {
   font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
@@ -1078,10 +1081,12 @@ html[data-thema-effektiv="hell"] .knopf.still:hover {
    Merkmale am <html>. Kein zweites Stylesheet, kein Umhängen von Klassen im
    Baum: eine Einstellung, ein Merkmal, eine Regel.
    ========================================================================= */
-html[data-schrift="klein"]  { font-size: 15px; }
-html[data-schrift="normal"] { font-size: 16px; }
-html[data-schrift="gross"]  { font-size: 18px; }
-html[data-schrift="riesig"] { font-size: 20px; }
+/* Seit 28.09.2026 jede Stufe 2 px grösser (vorher 15/16/18/20): „klein ist
+   zu klein" — gemessen am Testordner, nicht am Entwicklerbildschirm. */
+html[data-schrift="klein"]  { font-size: 17px; }
+html[data-schrift="normal"] { font-size: 18px; }
+html[data-schrift="gross"]  { font-size: 20px; }
+html[data-schrift="riesig"] { font-size: 22px; }
 html[data-schrift] body     { font-size: 1rem; }
 
 /* Fliesstext in der Lektion wahlweise mit Serifen. Überschriften bleiben
@@ -2244,6 +2249,27 @@ body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
   overflow-y: auto;
   padding-right: .35rem;
   align-content: start;
+}
+
+/* Die Tutoransicht füllt die Fensterhöhe — ausgerechnet vom Browser, nicht
+   von uns. Die Rechnung `100vh - 5.8rem` kannte die Pfadleiste nicht: Bei
+   720 px Fensterhöhe endete die Spalte bei 771 px, das Eingabefeld lag unter
+   dem Rand, und wer die Seite scrollte, schob es wieder weg (gemessen
+   28.09.2026). Jetzt ist die Säule so hoch wie das Fenster, der Hauptteil
+   nimmt den Rest unter Kopf und Pfadleiste, und beide Spalten rollen für sich.
+   Die Seite selbst rollt in dieser Ansicht nicht mehr. */
+@media (min-width: 901px) {
+  body[data-ansicht="tutor"] .saeule { display: flex; flex-direction: column; height: 100vh; }
+  body[data-ansicht="tutor"] #haupt {
+    flex: 1; min-height: 0; width: 100%;
+    display: flex; flex-direction: column;
+  }
+  body[data-ansicht="tutor"] #view-tutor { flex: 1; min-height: 0; }
+  body[data-ansicht="tutor"] #view-tutor > .mit-spalte {
+    height: 100%; align-items: stretch; grid-template-rows: minmax(0, 1fr);
+  }
+  body[data-ansicht="tutor"] .tutor-spalte { height: auto; min-height: 0; }
+  body[data-ansicht="tutor"] .mit-spalte > .seitenspalte { height: auto; min-height: 0; }
 }
 
 /* ============================================================ Schmal */

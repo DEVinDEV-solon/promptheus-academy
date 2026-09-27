@@ -106,7 +106,7 @@ gleich('Wörter werden gezählt', 6, $r['woerter']);
 gleich('Zeichen werden in Zeichen gezählt, nicht in Bytes', 32, $r['zeichen']);
 
 gruppe('Modelle');
-gleich('unbekanntes Modell fällt auf das erste zurück', 'gpt-5.5', pu_tok_modell('gibtsnicht')['id']);
+gleich('unbekanntes Modell fällt auf das erste zurück', 'opus-5', pu_tok_modell('gibtsnicht')['id']);
 gleich('Claude ist eine Näherung', false, pu_tok_modell('opus-5')['exakt']);
 gleich('GPT-4 rechnet mit cl100k', 'cl100k_base', pu_tok_modell('gpt-4')['enc']);
 foreach (PU_TOK_MODELLE as $m) {

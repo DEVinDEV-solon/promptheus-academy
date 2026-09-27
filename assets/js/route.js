@@ -193,7 +193,7 @@ PU.routeStart = function () {
 
 PU.ANSICHT_NAMEN = {
   lernen: 'Lernen', fortschritt: 'Fortschritt', tutor: 'Tutor',
-  tokenicer: 'Tokenicer', klasse: 'Klasse', cockpit: 'Cockpit', gemeinde: 'Gemeinde'
+  tokenicer: 'Tokenicer', klasse: 'Klasse', cockpit: 'Cockpit', gemeinde: 'Community'
 };
 
 /**

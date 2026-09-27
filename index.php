@@ -577,7 +577,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <?php endif; ?>
     <?php if ($darfGemeinde): ?>
       <a class="menue-knopf" href="#/gemeinde" data-ansicht="gemeinde"><span
-        class="menue-zeichen" aria-hidden="true">🔥</span><span class="menue-wort">Gemeinde</span></a>
+        class="menue-zeichen" aria-hidden="true">🔥</span><span class="menue-wort">Community</span></a>
     <?php endif; ?>
 
     <!-- Der siebte Kurs steht abgesetzt am Ende: Er ist keine Ansicht, sondern
@@ -636,7 +636,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
              Warum hier und nicht dort: „das Bild ist mir zu stark" merkt man,
              während man auf die Seite schaut. Ein Regler, für den man erst die
              Ansicht wechseln muss, wird nicht benutzt. -->
-        <details class="fein" id="fein">
+        <details class="fein" id="fein" open>
           <summary>Feineinstellung</summary>
 
           <div class="fein-inhalt">

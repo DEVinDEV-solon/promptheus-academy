@@ -708,7 +708,7 @@ function kiZeichnen(ziel) {
 
   zeileWahl(ziel, 'Weg zum Modell',
     'Automatisch nimmt OpenRouter, sobald ein eigener Schlüssel hinterlegt ist, sonst den Server ' +
-    '(wenn diese Academy registriert ist), sonst die Claude-CLI.' +
+    '(wenn diese Academy registriert ist). Die Claude-CLI nur, wenn sie hier ausdrücklich gewählt ist.' +
     (s.server_bereit ? '' : ' Der Server steht erst nach der Registrierung zur Wahl (Cockpit › Server & Registrierung).'),
     ['auto', 'cli', 'openrouter', 'server'], g.tutor_weg,
     w => { regelSetzen('tutor_weg', w).then(() => PU.einstellungenOeffnen('ki')); },
@@ -745,7 +745,7 @@ function kiZeichnen(ziel) {
 
   orSpeichern.addEventListener('click', () => geheimnisSetzen('PU_OPENROUTER_API_KEY', orFeld.value, orFeld));
   orLoeschen.addEventListener('click', () => {
-    if (confirm('Den OpenRouter-Schlüssel löschen? Die Tutoren fallen dann auf die Claude-CLI zurück oder verstummen.')) {
+    if (confirm('Den OpenRouter-Schlüssel löschen? Die Tutoren laufen dann über den Server, wenn diese Academy registriert ist, sonst verstummen sie.')) {
       geheimnisSetzen('PU_OPENROUTER_API_KEY', '', orFeld);
     }
   });

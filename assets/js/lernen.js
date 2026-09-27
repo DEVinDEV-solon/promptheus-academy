@@ -176,9 +176,12 @@ PU.zielKarte = function (geschafft, gesamt) {
   });
 
   k.innerHTML =
-    '<div class="karte-kopf"><h3>🏛 Dein Ziel</h3>' +
-    '<span class="marke-stufe' + (fertig ? ' fertig' : '') + '">' +
-      (fertig ? 'freigeschaltet' : 'nach Stufe ' + gesamt) + '</span></div>' +
+    // Das Abzeichen steht ÜBER der Überschrift, nicht daneben: Bei grosser
+    // Schrift war neben „🏛 Dein Ziel" kein Platz mehr, und die Überschrift
+    // brach mitten im Wort (Testordner 28.09.2026).
+    '<div class="zielkarte-kopf"><span class="marke-stufe' + (fertig ? ' fertig' : '') + '">' +
+      (fertig ? 'freigeschaltet' : 'nach Stufe ' + gesamt) + '</span>' +
+    '<h3>🏛 Dein Ziel</h3></div>' +
     '<p class="klein"><b>Deine eigene Marke, deine eigene Webseite.</b></p>' +
     '<p class="klein">Wer alle sechs Stufen besteht, bekommt den Zusatzkurs ' +
     '<b>Brand-Guideline</b> geschenkt: Farben, Schrift und Ornamente zu einer ' +

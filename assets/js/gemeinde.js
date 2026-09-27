@@ -70,7 +70,7 @@ PU.piiFeld = function (feld, ort) {
 PU.gemeindeZeichnen = async function () {
   const ziel = document.getElementById('view-gemeinde');
   if (!ziel) return;
-  ziel.innerHTML = '<p class="leer-hinweis">Lade Gemeinde …</p>';
+  ziel.innerHTML = '<p class="leer-hinweis">Lade Community …</p>';
   let s;
   try { s = await PU.ruf('gemeinde_start'); }
   catch (e) { ziel.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; return; }
@@ -78,14 +78,14 @@ PU.gemeindeZeichnen = async function () {
   PU.piiLaden();
 
   ziel.innerHTML = '';
-  ziel.appendChild(PU.el('h1', '', 'Gemeinde'));
+  ziel.appendChild(PU.el('h1', '', 'Community'));
   ziel.appendChild(PU.el('p', 'hinweis',
     'Prompts, Skills und Plugins aus vielen Academies — unter Synonymen, ohne Namen. ' +
     'Jedes Werk hat ein Mensch geprüft, bevor du es siehst.'));
 
   if (!s.registriert) {
     ziel.appendChild(PU.el('div', 'karte gemeinde-hinweis',
-      '<p><b>Die Gemeinde gibt es nur für registrierte Academies.</b></p>' +
+      '<p><b>Die Community gibt es nur für registrierte Academies.</b></p>' +
       '<p class="klein">Im Cockpit unter „Server &amp; Registrierung“ mit dem Code aus der Zahlung registrieren. ' +
       'Deine eigenen Produkte kannst du trotzdem schon vorbereiten.</p>'));
   }
@@ -160,7 +160,7 @@ PU.schaufensterZeichnen = async function (flaeche, anhaengen) {
   let j;
   try { j = await PU.ruf('gemeinde_werke', Object.assign({ seite: PU.gem.seite }, PU.gem.filter)); }
   catch (e) { mehr.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; return; }
-  if (!j.ok) { mehr.innerHTML = '<p class="fehler">' + PU.h(j.text || 'Die Gemeinde antwortet nicht.') + '</p>'; return; }
+  if (!j.ok) { mehr.innerHTML = '<p class="fehler">' + PU.h(j.text || 'Die Community antwortet nicht.') + '</p>'; return; }
   mehr.innerHTML = '';
   if (!j.werke.length && !PU.gem.seite) {
     raster.innerHTML = '<p class="leer-hinweis">Noch keine Werke' + (Object.values(PU.gem.filter).some(v => v) ? ' für diese Auswahl' : '') + '.</p>';
@@ -338,7 +338,7 @@ PU.produkteZeichnen = async function (flaeche, nurSiegeln) {
   flaeche.innerHTML = '';
 
   if (nurSiegeln) {
-    flaeche.appendChild(PU.el('p', 'hinweis', 'Werke Minderjähriger gehen erst mit deinem Mit-Siegel in die Gemeinde. ' +
+    flaeche.appendChild(PU.el('p', 'hinweis', 'Werke Minderjähriger gehen erst mit deinem Mit-Siegel in die Community. ' +
       'Sieh dir Titel, Beschreibung, Bild und Dateien an: Stehen dort persönliche Angaben oder etwas, das nicht in eine Schulgemeinde gehört?'));
     if (!j.siegeln.length) { flaeche.appendChild(PU.el('p', 'leer-hinweis', 'Nichts wartet auf dein Mit-Siegel.')); return; }
     j.siegeln.forEach(p => flaeche.appendChild(PU.produktKarte(p, true)));
@@ -346,7 +346,7 @@ PU.produkteZeichnen = async function (flaeche, nurSiegeln) {
   }
 
   flaeche.appendChild(PU.el('p', 'hinweis', 'Produkte kommen per Klick aus der Werkstatt oder dem Dashboard. ' +
-    'Hier kannst du auch Dateien selbst einlegen. In die Gemeinde geht ein Produkt erst, wenn es ein <b>Bild</b> und eine ' +
+    'Hier kannst du auch Dateien selbst einlegen. In die Community geht ein Produkt erst, wenn es ein <b>Bild</b> und eine ' +
     '<b>Kategorie</b> hat und du es freischaltest. Dann prüft der Server vor, und ein Mensch gibt frei.'));
   flaeche.appendChild(PU.produktEinlegen(flaeche));
   if (!j.eigene.length) flaeche.appendChild(PU.el('p', 'leer-hinweis', 'Noch keine Produkte.'));
@@ -403,11 +403,11 @@ PU.produktEinlegen = function (flaeche) {
 
 PU.produktStand = function (p) {
   const st = {
-    '': ['lokal', 'Nur hier. Noch nicht in der Gemeinde.'],
+    '': ['lokal', 'Nur hier. Noch nicht in der Community.'],
     wartet_auf_freigabe: ['wartet', 'Hochgeladen. Ein Mensch prüft es.'],
-    frei: ['frei', 'In der Gemeinde sichtbar.'],
+    frei: ['frei', 'In der Community sichtbar.'],
     abgelehnt: ['abgelehnt', 'Abgelehnt: ' + (p.ablehnung || '')],
-    widerrufen: ['zurückgezogen', 'Aus der Gemeinde genommen.']
+    widerrufen: ['zurückgezogen', 'Aus der Community genommen.']
   }[p.server_status] || [p.server_status, ''];
   return '<span class="produkt-stand produkt-' + PU.h(p.server_status || 'lokal') + '">' + PU.h(st[0]) + '</span> ' +
     '<span class="klein">' + PU.h(st[1]) + '</span>';
@@ -511,11 +511,11 @@ PU.produktKarte = function (p, siegeln) {
     const frei = PU.el('button', 'knopf', 'Freischalten');
     frei.type = 'button';
     frei.disabled = !p.freischaltbar || !s.registriert;
-    frei.title = !s.registriert ? 'Erst registrieren (Cockpit).' : (p.freischaltbar ? 'In die Gemeinde geben'
+    frei.title = !s.registriert ? 'Erst registrieren (Cockpit).' : (p.freischaltbar ? 'In die Community geben'
       : 'Es fehlt noch: ' + p.fehlt.map(f => fehlt[f]).join(', '));
     frei.addEventListener('click', async () => {
       if (!confirm('Freischalten?\n\nDas Produkt geht an den Server. Ein LLM prüft vor, ein Mensch entscheidet. ' +
-                   'In der Gemeinde erscheint es unter deinem Synonym.')) return;
+                   'In der Community erscheint es unter deinem Synonym.')) return;
       frei.disabled = true;
       const r = await PU.ruf('produkt_freischalten', { id: p.id });
       if (!r.ok) {
@@ -539,7 +539,7 @@ PU.produktKarte = function (p, siegeln) {
     const zurueck = PU.el('button', 'knopf still', 'Zurückziehen');
     zurueck.type = 'button';
     zurueck.addEventListener('click', async () => {
-      if (!confirm('Aus der Gemeinde zurückziehen?')) return;
+      if (!confirm('Aus der Community zurückziehen?')) return;
       const r = await PU.ruf('produkt_zurueckziehen', { id: p.id });
       PU.melden(r.ok ? 'Zurückgezogen.' : PU.h(r.text || ''), r.ok ? 'gut' : 'warnung');
       PU.gemeindeZeichnen();
@@ -560,7 +560,7 @@ PU.talenteZeichnen = async function (flaeche) {
   const zahl = n => Number(n || 0).toLocaleString('de-DE');
   flaeche.innerHTML = '';
   flaeche.appendChild(PU.el('p', 'hinweis',
-    'Talente gibt es jede Woche für die beliebtesten Werke der ganzen Gemeinde — nach Likes, die zählen: ' +
+    'Talente gibt es jede Woche für die beliebtesten Werke der ganzen Community — nach Likes, die zählen: ' +
     'nicht die eigenen, nicht vom selben Rechner, nicht von ganz neuen Konten. Talente kann man nicht kaufen. ' +
     'Man kann sie 1:1 in Token umwandeln, höchstens ' + PU.h(zahl(j.deckel_monat)) + ' im Monat; der Rest bleibt stehen.'));
   const kasten = PU.el('div', 'karte talente-kasten');

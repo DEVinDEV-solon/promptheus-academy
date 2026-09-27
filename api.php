@@ -609,7 +609,7 @@ try {
             $roh  = (string)d('text', '');
             $text = mb_strlen($roh) > PU_TOK_MAX ? mb_substr($roh, 0, PU_TOK_MAX) : $roh;
 
-            $m = pu_tok_modell((string)d('modell', 'gpt-5.5'));
+            $m = pu_tok_modell((string)d('modell', 'opus-5'));
             $r = pu_tok_kodieren($text, $m['enc']);
 
             pu_json_out(['ok' => true, 'modell' => $m,

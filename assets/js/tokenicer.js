@@ -17,10 +17,17 @@
  */
 'use strict';
 
+// Drei Sprachen des Zerlegens in einem Feld: Deutsch, Englisch, ein seltenes
+// Wort — und darunter die Erklärung selbst, damit sofort genug zu sehen ist.
 PU.TOK_BEISPIEL = 'Künstliche Intelligenz zerlegt Text in Token.\n' +
-                  'Artificial intelligence splits text into tokens.';
+                  'Artificial intelligence splits text into tokens.\n' +
+                  'Bald auch Superintelligenz?\n' +
+                  '\n' +
+                  'Was du hier siehst\n' +
+                  'Jeder farbige Block ist ein Token — eine Einheit, die das Modell als Ganzes ' +
+                  'verarbeitet. Häufige Wörter sind ein Token, seltene zerfallen in mehrere.';
 
-PU.tokZustand = { modell: 'gpt-5.5', modelle: null, letzterText: null, uhr: null };
+PU.tokZustand = { modell: 'opus-5', modelle: null, letzterText: null, uhr: null };
 
 /* Die Ansicht im Menü. */
 PU.tokenicerZeichnen = async function () {

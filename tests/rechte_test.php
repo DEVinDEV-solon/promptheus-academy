@@ -232,4 +232,18 @@ foreach (array_unique($vorgaben[1]) as $e) {
     pruefe("api.php: Vorgabe-Ebene ist bekannt: $e", isset(PU_EBENEN[$e]));
 }
 
+gruppe('Voreinstellungen (Entscheid 28.09.2026)');
+// Das Mikrofon schalten Erwachsene zu, nicht das Programm.
+gleich('Schüler: Mikrofon ab Werk aus', 0, pu_recht('sprache.nutzen')['vorgabe']['schueler'] ?? null);
+foreach (['admin', 'verwaltung', 'lehrer', 'eltern'] as $e) {
+    gleich("$e: Mikrofon ab Werk an", 1, pu_recht('sprache.nutzen')['vorgabe'][$e] ?? null);
+}
+// Die Automatik nimmt OpenRouter oder den Server, nie die Claude-CLI — die
+// gibt es nur, wenn sie ausdrücklich gewählt ist.
+$tutorQuelle = (string)file_get_contents(__DIR__ . '/../srv/tutor.php');
+preg_match("/if \(\\\$wunsch === 'server'\).*?\n}/s", $tutorQuelle, $auto);
+pruefe('pu_tutor_weg: Automatik gefunden', isset($auto[0]));
+pruefe('pu_tutor_weg: Automatik wählt nie die CLI',
+       isset($auto[0]) && !str_contains(substr($auto[0], (int)strpos($auto[0], "\n")), 'cli'));
+
 bilanz();

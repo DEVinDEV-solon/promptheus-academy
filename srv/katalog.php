@@ -30,7 +30,14 @@ declare(strict_types=1);
  *     ist das keine Nebensache.
  */
 
-const PU_KATALOG_URL = 'https://openrouter.ai/api/v1/models';
+/**
+ * Mit `output_modalities=all`. **Gemessen am 28.09.2026:** Ohne den Zusatz
+ * liefert OpenRouter nur Modelle, die Text ausgeben (rund 600). Die 21 reinen
+ * Sprechmodelle — darunter `x-ai/grok-voice-tts-1.0`, die Stimme von
+ * Prometheus — fehlen dann ganz, obwohl `pu_katalog_kann_ton()` sie richtig
+ * erkennen würde. Die Suche fand sie über den Einzelabruf, die Liste nicht.
+ */
+const PU_KATALOG_URL = 'https://openrouter.ai/api/v1/models?output_modalities=all';
 
 /**
  * Wie lange eine geholte Liste gilt: zwölf Stunden.
@@ -69,7 +76,7 @@ function pu_katalog_datei(): string
 {
     $ordner = PU_DATA . '/tmp';
     if (!is_dir($ordner)) @mkdir($ordner, 0777, true);
-    return $ordner . '/or-modelle.json';
+    return $ordner . '/or-modelle-alle.json';   // -alle: seit output_modalities=all
 }
 
 /**

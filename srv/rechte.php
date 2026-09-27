@@ -261,13 +261,13 @@ const PU_RECHTE = [
     // Runde 3b des Cockpit-Plans. Sichtbar ist die Gemeinde nur, wenn diese
     // Academy registriert ist; hinaus gehen nur Pseudonym und Synonym. Wer
     // moderiert, sitzt im Cockpit des Betreibers — hier gibt es dafür kein Recht.
-    ['name' => 'gemeinde.ansehen', 'gruppe' => 'Gemeinde',
-     'was' => 'Werke der Gemeinde ansehen und herunterladen',
+    ['name' => 'gemeinde.ansehen', 'gruppe' => 'Community',
+     'was' => 'Werke der Community ansehen und herunterladen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket',
                     'gemeinde_talente']],
 
-    ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Gemeinde',
+    ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Community',
      'was' => 'Liken, kommentieren, melden (unter dem eigenen Synonym)',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['gemeinde_synonym', 'gemeinde_like', 'gemeinde_kommentar', 'gemeinde_melden', 'gemeinde_talente_abholen']],
@@ -275,13 +275,13 @@ const PU_RECHTE = [
     /* Eigene Produkte (Prompts, Skills, Plugins) freischalten. Minderjährige
        brauchen dafür zusätzlich das Mit-Siegel (nächstes Recht) — das prüft
        die Academy und der Server, nicht dieser Schalter. */
-    ['name' => 'gemeinde.veroeffentlichen', 'gruppe' => 'Gemeinde',
-     'was' => 'Eigene Produkte in die Gemeinde geben',
+    ['name' => 'gemeinde.veroeffentlichen', 'gruppe' => 'Community',
+     'was' => 'Eigene Produkte in die Community geben',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['produkte', 'produkt_anlegen', 'produkt_aendern', 'produkt_bild', 'produkt_loeschen',
                     'produkt_freischalten', 'produkt_zurueckziehen']],
 
-    ['name' => 'gemeinde.siegel', 'gruppe' => 'Gemeinde',
+    ['name' => 'gemeinde.siegel', 'gruppe' => 'Community',
      'was' => 'Die Veröffentlichung eines Minderjährigen gegenzeichnen (Mit-Siegel)',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['produkt_siegeln']],
@@ -305,7 +305,11 @@ const PU_RECHTE = [
 
     ['name' => 'sprache.nutzen', 'gruppe' => 'Academy-Betrieb',
      'was' => 'Sprachnachrichten diktieren (Erkennung läuft örtlich)',
-     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     // Für Schüler ab Werk AUS (Entscheid des Betreibers 28.09.2026): Ein
+     // offenes Mikrofon bei einem Kind schalten Erwachsene zu, nicht das
+     // Programm. Ohne dieses Recht erscheint das 🎤 weder beim Tutor noch im
+     // Seitenchat (sprache_stand antwortet 403, der Knopf entfällt).
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['sprache_erkennen']],
 
     // Getrennt vom Diktieren, weil es etwas anderes ist: Die Erkennung bleibt

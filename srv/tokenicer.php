@@ -66,18 +66,19 @@ const PU_TOK_MUSTER = [
  *
  * `exakt` ist die wichtigste Spalte und steht deshalb im Fenster als `≈`
  * daneben: gerechnet wird immer mit OpenAIs BPE. Für OpenAI-Modelle ist das
- * die Wahrheit, für Claude, Gemini, Grok, DeepSeek und Llama eine Näherung —
+ * die Wahrheit, für Claude, Gemini und DeepSeek eine Näherung —
  * die benutzen eigene Zerleger, die nicht offen als tiktoken-Datei vorliegen.
  * Eine Näherung als exakte Zahl auszugeben wäre eine falsche Auskunft über
  * Kosten, und Kosten sind in Stufe 2 ein eigener Lerngegenstand.
+ *
+ * GPT-5.5, Grok und Llama sind am 28.09.2026 herausgenommen: Sie rechneten
+ * mit derselben Tabelle wie Claude und zeigten Zahl für Zahl dasselbe. Drei
+ * Knöpfe, die nichts ändern, lehren das Falsche.
  */
 const PU_TOK_MODELLE = [
-    ['id' => 'gpt-5.5',  'name' => 'GPT-5.5',        'haus' => 'OpenAI',    'enc' => 'o200k_base',  'exakt' => true],
     ['id' => 'opus-5',   'name' => 'Claude Opus 5',  'haus' => 'Anthropic', 'enc' => 'o200k_base',  'exakt' => false],
     ['id' => 'gemini',   'name' => 'Gemini',         'haus' => 'Google',    'enc' => 'o200k_base',  'exakt' => false],
-    ['id' => 'grok',     'name' => 'Grok',           'haus' => 'xAI',       'enc' => 'o200k_base',  'exakt' => false],
     ['id' => 'deepseek', 'name' => 'DeepSeek',       'haus' => 'DeepSeek',  'enc' => 'o200k_base',  'exakt' => false],
-    ['id' => 'llama',    'name' => 'Llama',          'haus' => 'Meta',      'enc' => 'o200k_base',  'exakt' => false],
     ['id' => 'gpt-4',    'name' => 'GPT-4 / 3.5',    'haus' => 'OpenAI',    'enc' => 'cl100k_base', 'exakt' => true],
     ['id' => 'gpt-2',    'name' => 'GPT-2 / GPT-3',  'haus' => 'OpenAI',    'enc' => 'r50k_base',   'exakt' => true],
 ];

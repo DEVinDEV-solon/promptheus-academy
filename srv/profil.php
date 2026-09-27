@@ -26,7 +26,7 @@ const PU_PROFIL_FELDER = [
     // Das Pseudonym ist zugleich das Synonym in der Gemeinde (E15): ausgedacht,
     // kein Klarname, keine persönlichen Angaben — geprüft in pu_profil_setzen.
     'pseudonym'   => ['art' => 'text', 'max' => 24,
-                      'was' => 'Dein Synonym: so heisst du in der Academy und in der Gemeinde (kein echter Name)'],
+                      'was' => 'Dein Synonym: so heisst du in der Academy und in der Community (kein echter Name)'],
     'lebensalter' => ['art' => 'zahl', 'min' => 0, 'max' => 120,
                       'was' => 'Alter in Jahren (0 = nicht angeben)'],
     'gruppe'      => ['art' => 'text', 'max' => 40,

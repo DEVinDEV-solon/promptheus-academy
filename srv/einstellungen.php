@@ -159,11 +159,12 @@ const PU_EINST_GLOBAL = [
     'tokenicer'         => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
     'medien'            => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
 
-    // Farbvarianten. Ab Werk AUS: die Academy hat eine Handschrift, und sechs
-    // Paletten zur Wahl schwächen sie. Wer sie braucht — weil eine Klasse
-    // lieber bunt lernt oder ein Bildschirm im Sonnenlicht steht —, schaltet
-    // sie hier zu, und dann erscheint der Wähler im Kopf.
-    'farbvarianten'     => ['vorgabe' => 'aus', 'werte' => ['an', 'aus']],
+    // Farbvarianten. Ab Werk AN (Entscheid des Betreibers 28.09.2026): Der
+    // Wähler mit dem Farbkasten unten im Menü trägt auch die Regler für
+    // Hintergrundbild und Kartenbilder. Ab Werk aus musste man ihn erst in
+    // den Einstellungen suchen, um zu merken, dass es ihn gibt. Wer eine
+    // einheitliche Academy will, schaltet ihn hier ab.
+    'farbvarianten'     => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
 
     // -------- Tutoren
     'tutor_an'          => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],

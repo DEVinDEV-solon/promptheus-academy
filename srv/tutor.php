@@ -53,10 +53,15 @@ function pu_tutor_bereit(): bool
  *                 Einrichtung — dort ist der Stand maßgeblich (E9).
  *
  * `auto` (die Vorgabe) nimmt OpenRouter, wenn ein eigener Schlüssel hinterlegt
- * ist, sonst den Server, wenn die Installation registriert ist, sonst die CLI.
- * Diese Reihenfolge ist Absicht: wer einen eigenen Schlüssel einträgt, hat
- * sich für ihn entschieden; wer registriert ist und keinen hat, soll ohne
- * weiteres Zutun einen Tutor bekommen.
+ * ist, sonst den Server, wenn die Installation registriert ist. Diese
+ * Reihenfolge ist Absicht: wer einen eigenen Schlüssel einträgt, hat sich für
+ * ihn entschieden; wer registriert ist und keinen hat, soll ohne weiteres
+ * Zutun einen Tutor bekommen.
+ *
+ * **Die CLI wählt `auto` nie** (Entscheid des Betreibers 28.09.2026): Auf dem
+ * Rechner des Entwicklers ist sie installiert, und eine frische Academy
+ * antwortete dort still über dessen Claude-Abo statt über OpenRouter. Wer die
+ * CLI will, stellt den Weg ausdrücklich auf `cli`.
  *
  * @return string 'cli' | 'openrouter' | 'server' | '' (nichts eingerichtet)
  */
@@ -70,7 +75,6 @@ function pu_tutor_weg(): string
 
     if (pu_or_schluessel() !== '') return 'openrouter';
     if (pu_server_bereit())        return 'server';
-    if (pu_claude_bin()    !== '') return 'cli';
     return '';
 }
 
@@ -135,12 +139,17 @@ function pu_or_schluessel(): string
     return trim(pu_env('PU_OPENROUTER_API_KEY', ''));
 }
 
-/** Das Modell für den OpenRouter-Weg. */
+/**
+ * Das Modell für den OpenRouter-Weg. Die Vorgabe ist günstig, schnell und am
+ * 28.09.2026 im Katalog geprüft; eine Einstellung oder die .env geht vor.
+ */
+const PU_OR_MODELL_VORGABE = 'deepseek/deepseek-v4-flash-0731';
+
 function pu_or_modell(): string
 {
     $gesetzt = pu_regel('or_modell');
     if ($gesetzt !== '') return $gesetzt;
-    return pu_env('PU_OPENROUTER_MODELL', 'anthropic/claude-sonnet-4.5');
+    return pu_env('PU_OPENROUTER_MODELL', PU_OR_MODELL_VORGABE);
 }
 
 /**
