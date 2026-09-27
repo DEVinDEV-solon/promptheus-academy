@@ -512,6 +512,24 @@ function pu_fehler(string $text, int $code = 400): never
     pu_json_out(['ok' => false, 'fehler' => $text], $code);
 }
 
+/**
+ * Die Fassung dieser Academy, aus der Datei `VERSION` (Form 1.2.3).
+ *
+ * Eine Datei und keine Konstante: das Update tauscht sie mit den übrigen
+ * Programmdateien, und `werkzeuge/paket_bauen.php` liest dieselbe Stelle.
+ * Fehlt sie oder ist sie krumm (ein Arbeitsstand aus Git ohne sie), gilt
+ * 0.0.0 — dann ist jede freigegebene Fassung neuer.
+ */
+function pu_fassung(): string
+{
+    static $f = null;
+    if ($f === null) {
+        $roh = is_file(PU_ROOT . '/VERSION') ? trim((string)file_get_contents(PU_ROOT . '/VERSION', false, null, 0, 32)) : '';
+        $f = preg_match('/^(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})$/', $roh) ? $roh : '0.0.0';
+    }
+    return $f;
+}
+
 /** Cache-Buster für Assets: Zeitstempel der Datei. */
 function pu_v(string $rel): string
 {

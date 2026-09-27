@@ -64,6 +64,7 @@ foreach (explode('/', trim($pfad, '/')) as $teil) {
         || $teil === 'prompts' || $teil === 'setup' || $teil === 'tests'
         || $teil === 'recht' || $teil === 'vps'
         || $teil === 'vocab' || $teil === '.git' || $teil === '.versionen'
+        || $teil === 'werkzeuge' || $teil === 'dist' || $teil === 'manifest.json'
         || $teil === '.env' || str_starts_with($teil, '.env.')) {
         $gesperrt = true;
         break;

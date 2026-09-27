@@ -294,6 +294,13 @@ const PU_EINST_GLOBAL = [
     // ein und kann teurer sein — dafür verlässt die Guideline eines
     // Lernenden das Haus nicht dauerhaft.
     'coder_datenschutz' => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
+
+    // -------- Updates (srv/aktualisierung.php)
+    // An: die Academy fragt beim Öffnen und danach alle `update_stunden`
+    // Stunden, ob es eine neuere Fassung gibt. Hinaus gehen nur Fassung und
+    // Kanal (registriert zusätzlich die pseudonyme IID). Aus: nur per Knopf.
+    'update_pruefen'    => ['vorgabe' => 'an', 'werte' => ['an', 'aus']],
+    'update_stunden'    => ['vorgabe' => '24', 'zahl'  => [1, 168]],
 ];
 
 // ================================================================ Prüfung
@@ -541,6 +548,7 @@ function pu_uni_stand(): array
         'stoff_fehler'=> $index['fehler'],
         'db_bytes'    => is_file(PU_DB) ? (int)filesize(PU_DB) : 0,
         'db_version'  => (int)$pdo->query('PRAGMA user_version')->fetchColumn(),
+        'fassung'     => pu_fassung(),
     ];
 }
 

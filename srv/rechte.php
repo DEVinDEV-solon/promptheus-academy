@@ -202,6 +202,14 @@ const PU_RECHTE = [
      'was' => 'Punkte neu rechnen, Protokolle leeren', 'nur_admin' => true,
      'aktionen' => ['wartung']],
 
+    /* Updates: die Notiz über „Abmelden“ sehen, eine neue Fassung laden,
+       mit Neustart einspielen und zurücknehmen. Nur Ebene 1 — wer das darf,
+       tauscht das Programm aller auf diesem Rechner. */
+    ['name' => 'aktualisierung.verwalten', 'gruppe' => 'Academy-Betrieb',
+     'was' => 'Updates sehen, laden, einspielen und zurücknehmen', 'nur_admin' => true,
+     'aktionen' => ['update_stand', 'update_suchen', 'update_laden', 'update_neustart',
+                    'update_zurueck', 'update_ausblenden', 'update_einstellen']],
+
     ['name' => 'tutor.fragen', 'gruppe' => 'Academy-Betrieb',
      'was' => 'Die Tutor-Agenten fragen (kostet Modell-Aufrufe)',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 0, 'schueler' => 1],

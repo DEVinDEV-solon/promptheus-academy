@@ -47,6 +47,7 @@ require_once __DIR__ . '/srv/raenge.php';
 require_once __DIR__ . '/srv/coder.php';
 require_once __DIR__ . '/srv/relay.php';
 require_once __DIR__ . '/srv/gemeinde.php';
+require_once __DIR__ . '/srv/aktualisierung.php';
 
 header('X-Content-Type-Options: nosniff');
 
@@ -797,6 +798,63 @@ try {
             pu_recht_fordern('wartung.ausfuehren');
             pu_json_out(['ok' => true] + pu_wartung((string)d('was'), $ichId));
         }
+
+        // ------------------------------------------------ Updates (90_Updates)
+        //
+        // Nur Ebene 1. `update_stand` fragt beim Update-Server nur nach, wenn
+        // es fällig ist (Regel update_stunden) — sonst liefert es den
+        // gespeicherten Stand sofort. Getauscht wird nicht hier, sondern beim
+        // Neustart in srv/aktualisieren_cli.php.
+        case 'update_stand':
+            pu_recht_fordern('aktualisierung.verwalten');
+            pu_json_out(['ok' => true] + pu_akt_oberflaeche($ichId));
+
+        case 'update_suchen':
+            pu_recht_fordern('aktualisierung.verwalten');
+            pu_json_out(['ok' => true] + pu_akt_oberflaeche($ichId, true));
+
+        case 'update_laden': {
+            pu_recht_fordern('aktualisierung.verwalten');
+            $r = pu_akt_laden();
+            pu_protokoll($ichId, 'update_laden', $r['ok'] ? 'ok' : 'fehler', '');
+            pu_json_out(['ok' => true, 'geladen' => $r['ok'], 'meldung' => $r['meldung']]
+                        + pu_akt_oberflaeche($ichId));
+        }
+
+        case 'update_neustart':
+            pu_recht_fordern('aktualisierung.verwalten');
+            if (pu_akt_bereit() === null) {
+                pu_fehler('Es ist nichts bereitgelegt. Zuerst laden.');
+            }
+            pu_protokoll($ichId, 'update_neustart', '', '');
+            pu_akt_neustart_antworten(false);
+
+        case 'update_zurueck':
+            pu_recht_fordern('aktualisierung.verwalten');
+            if (pu_akt_sicherungen() === []) {
+                pu_fehler('Es gibt keine Sicherung, zu der zurückgegangen werden könnte.');
+            }
+            pu_protokoll($ichId, 'update_zurueck', '', '');
+            pu_akt_neustart_antworten(true);
+
+        case 'update_ausblenden':
+            pu_recht_fordern('aktualisierung.verwalten');
+            try {
+                pu_akt_ausblenden($ichId, (string)d('fassung', ''));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true]);
+
+        case 'update_einstellen':
+            pu_recht_fordern('aktualisierung.verwalten');
+            try {
+                pu_einst_global_setzen('update_pruefen', (string)d('pruefen', 'an'));
+                pu_einst_global_setzen('update_stunden', (string)d('stunden', '24'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_akt_oberflaeche($ichId));
 
         case 'rolle_setzen': {
             pu_recht_fordern('rollen.manage');

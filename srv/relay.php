@@ -225,7 +225,7 @@ function pu_relay_registrieren(string $code): array
 
     $aus = pu_relay_ruf('registrieren', [
         'code'      => $code,
-        'fassung'   => pu_env('PU_FASSUNG', ''),
+        'fassung'   => pu_fassung(),
         // Nur die Art des Systems, nie der Gerätename. Der Server braucht sie
         // für die Statistik und für das Einrichtungsskript der Werkstatt —
         // mehr sagt sie nicht, und mehr soll sie nicht sagen.

@@ -2298,7 +2298,8 @@ function wartungZeichnen(ziel) {
   ziel.appendChild(kacheln);
 
   const info = PU.el('p', 'hinweis');
-  info.innerHTML = 'Datenbank: ' + (u.db_bytes / 1024).toFixed(0) + ' kB, Schema v' + u.db_version +
+  info.innerHTML = (u.fassung ? 'Fassung ' + PU.h(u.fassung) + ' · ' : '') +
+    'Datenbank: ' + (u.db_bytes / 1024).toFixed(0) + ' kB, Schema v' + u.db_version +
     (u.letzter_tag ? ' · zuletzt geübt am ' + PU.h(u.letzter_tag) : ' · noch kein Versuch');
   info.style.marginTop = '1rem';
   ziel.appendChild(info);
@@ -2351,6 +2352,13 @@ function wartungZeichnen(ziel) {
 
   ziel.appendChild(reihe);
   ziel.appendChild(ergebnis);
+
+  // Updates (assets/js/aktualisierung.js, nur geladen mit dem Recht dazu).
+  if (PU.aktWartung) {
+    const akt = PU.el('div', 'akt-wartung');
+    ziel.appendChild(akt);
+    PU.aktWartung(akt);
+  }
 }
 
 function protokollHtml(zeilen) {

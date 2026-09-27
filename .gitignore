@@ -191,3 +191,7 @@ desktop.ini
 
 # ── 9. Lokale Downloads
 GitHub-Download/
+
+# Update-Pakete (werkzeuge/paket_bauen.php) — gehören ins Release, nicht ins Repo
+/dist/
+/manifest.json

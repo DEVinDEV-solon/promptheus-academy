@@ -90,6 +90,8 @@ $darfCockpit = !$offen && pu_recht_hat('abo.sehen', $wer);
 // Die Gemeinde (Runde 3b): der Menüpunkt steht, auch vor der Registrierung —
 // eigene Produkte lassen sich vorbereiten, und die Ansicht sagt, was fehlt.
 $darfGemeinde = !$offen && pu_recht_hat('gemeinde.ansehen', $wer);
+// Updates: die Notiz über „Abmelden“ sieht nur, wer sie auch einspielen darf (Ebene 1).
+$darfUpdate = !$offen && pu_recht_hat('aktualisierung.verwalten', $wer);
 
 // Der Monatswechsel läuft beim ersten Aufruf nach dem Stichtag, nicht über
 // eine geplante Aufgabe: auf einem Rechner, der abends aus ist, feuert ein
@@ -714,6 +716,13 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <button class="kopf-symbol" id="knopf-einstellungen" type="button"
             title="Einstellungen" aria-label="Einstellungen öffnen">⚙</button>
 
+    <?php if ($darfUpdate): ?>
+    <!-- Die Update-Notiz liegt AUF dem Abmeldeknopf und ragt nach oben, wie bei
+         Claude Code. Leer und versteckt, bis assets/js/aktualisierung.js eine
+         neuere, gültig unterschriebene Fassung meldet. × blendet sie aus. -->
+    <div class="akt-notiz" id="akt-notiz" role="status" aria-live="polite" hidden></div>
+    <?php endif; ?>
+
     <button class="menue-knopf schmal" id="knopf-abmelden"
             title="<?= pu_h($wer['anzeigename']) ?> abmelden">Abmelden</button>
   </div>
@@ -869,6 +878,9 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <?php if ($variantenAn): ?>
   <script src="<?= pu_v('assets/js/varianten.js') ?>"></script>
 <?php endif; ?>
+<?php if ($darfUpdate): ?>
+  <script src="<?= pu_v('assets/js/aktualisierung.js') ?>"></script>
+<?php endif; ?>
 <!-- Zuletzt: er beobachtet, was die anderen zeichnen, und packt freistehende
      Texte in eine Fläche. Vor ihnen geladen hätte er nichts zu tun. -->
 <script src="<?= pu_v('assets/js/glossar.js') ?>"></script>
@@ -877,7 +889,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <!-- Nur für Ebene 1: Ohne den Knopf im Kopf hätte die Datei nichts zu tun. -->
 <script src="<?= pu_v('assets/js/persona.js') ?>"></script>
 <?php endif; ?>
-<script>PU.start(); if (PU.personaStart) PU.personaStart();</script>
+<script>PU.start(); if (PU.personaStart) PU.personaStart(); if (PU.aktStart) PU.aktStart();</script>
 <?php endif; ?>
 
 </body>

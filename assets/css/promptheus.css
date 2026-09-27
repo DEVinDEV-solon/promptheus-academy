@@ -247,6 +247,56 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
    deren Kante hinaus statt sich hineinzuquetschen. */
 .leiste-fuss .variantenliste { top: auto; bottom: calc(100% + .5rem); right: auto; left: 0; }
 
+/* ============================================================ Update-Notiz
+   Liegt AUF dem Abmeldeknopf und ragt nach oben (wie bei Claude Code): unten
+   an der Kante des Fusses verankert, so breit wie die Leiste. Solange sie
+   steht, ist „Abmelden“ verdeckt — mit × ist er wieder frei. Gold, weil hier
+   etwas Neues ankommt; kein Rot, denn es ist kein Fehler. */
+.leiste-fuss { position: relative; }
+.akt-notiz {
+  position: absolute; left: .5rem; right: .5rem; bottom: .45rem; z-index: 5;
+  padding: .7rem .75rem .75rem; font-size: .86rem; line-height: 1.45;
+  background: var(--grund-2); color: var(--schrift);
+  border: 1px solid var(--gold); border-left-width: 3px; border-radius: var(--radius-klein);
+  box-shadow: 0 6px 22px rgb(0 0 0 / .35);
+}
+.akt-notiz[hidden] { display: none; }
+.akt-kopf { display: flex; align-items: flex-start; gap: .5rem; }
+.akt-kopf b { flex: 1; font-family: var(--serif); font-weight: 600; font-size: .98rem; }
+.akt-zu {
+  flex: 0 0 auto; width: 1.6rem; height: 1.6rem; margin: -.25rem -.3rem 0 0; padding: 0;
+  font: 1.15rem/1 var(--sans); color: var(--schrift-2); background: transparent;
+  border: 0; border-radius: var(--radius-klein); cursor: pointer;
+}
+.akt-zu:hover { color: var(--schrift); background: var(--grund-3); }
+.akt-klein { margin: .15rem 0 .4rem; color: var(--schrift-3); font-size: .8rem; }
+.akt-wichtig { margin: .25rem 0 .2rem; color: var(--gold); font-size: .82rem; }
+.akt-neu { margin: 0 0 .55rem; }
+.akt-neu summary { cursor: pointer; color: var(--schrift-2); }
+.akt-neu > div { white-space: pre-wrap; max-height: 11rem; overflow: auto; margin-top: .35rem;
+  color: var(--schrift-2); font-size: .8rem; }
+.akt-notiz .akt-los { width: 100%; padding: .45rem .7rem; }
+
+/* Ist die Leiste zugeklappt, zeigt ein goldener Punkt am Leistenknopf, dass
+   drinnen eine Notiz wartet. Punkt plus Titel, nicht Farbe allein. */
+#knopf-leiste.akt-punkt { position: relative; }
+#knopf-leiste.akt-punkt::after {
+  content: ''; position: absolute; top: 3px; right: 3px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--grund);
+}
+
+.akt-schleier {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1rem;
+  background: rgb(var(--karte-schleier) / .88); backdrop-filter: blur(4px);
+}
+.akt-schleier > div {
+  max-width: 28rem; padding: 1.2rem 1.4rem; text-align: center;
+  background: var(--grund-2); border: 1px solid var(--gold); border-radius: var(--radius);
+}
+.akt-schleier b { font-family: var(--serif); font-size: 1.2rem; }
+.akt-wartung { margin-top: 1.6rem; }
+.akt-stunden { width: 5rem; display: inline-block; }
+
 /* ============================================================ Ziehgriff
    Der Griff sitzt AUF der Kante, nicht daneben. Eine eigene Spalte zwischen
    Menü und Stoff wäre ein Streifen, den man erst trifft, wenn man ihn sucht;
