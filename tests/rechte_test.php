@@ -218,4 +218,18 @@ foreach (array_unique($gefordert[1]) as $recht) {
     pruefe("Gefordertes Recht $recht steht in der Matrix", pu_recht($recht) !== null);
 }
 
+// Jede Ebene, die api.php beim Anlegen fest nennt, muss es geben. Die
+// Ersteinrichtung nannte bis zum 27.09.2026 die alte Rolle 'tutor' — jede
+// frische Installation scheiterte, bestehende merkten es nie.
+preg_match_all("/pu_lernenden_anlegen\([^;]*?,\s*'([a-z]+)'\s*\)\s*;/s", $api, $ebenen);
+pruefe('api.php: Ersteinrichtung nennt eine Ebene', in_array('admin', $ebenen[1], true));
+foreach (array_unique($ebenen[1]) as $e) {
+    pruefe("api.php legt Konten mit bekannter Ebene an: $e", isset(PU_EBENEN[$e]));
+}
+preg_match_all("/d\('rolle',\s*'([a-z]+)'\)/", $api, $vorgaben);
+pruefe('api.php: konto_anlegen hat eine Vorgabe-Ebene', $vorgaben[1] !== []);
+foreach (array_unique($vorgaben[1]) as $e) {
+    pruefe("api.php: Vorgabe-Ebene ist bekannt: $e", isset(PU_EBENEN[$e]));
+}
+
 bilanz();

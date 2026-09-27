@@ -90,10 +90,13 @@ try {
             ]]);
 
         case 'einrichten':
-            // Nur solange es kein Konto gibt. Danach legt ein Tutor Konten an.
+            // Nur solange es kein Konto gibt. Das erste Konto ist Ebene 1
+            // (admin); danach legt es die weiteren an. Hier stand bis zum
+            // 27.09.2026 noch die alte Rolle 'tutor' — jede frische
+            // Installation scheiterte mit "Unbekannte Ebene: tutor".
             if (!pu_leer()) pu_fehler('Die Academy ist bereits eingerichtet.', 403);
             $id = pu_lernenden_anlegen(
-                (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'), 'tutor'
+                (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'), 'admin'
             );
             pu_anmelden((string)d('kennung'), (string)d('kennwort'));
             pu_json_out(['ok' => true, 'id' => $id]);
@@ -1388,7 +1391,7 @@ try {
             pu_recht_fordern('lernende.manage');
             pu_json_out(['ok' => true, 'id' => pu_lernenden_anlegen(
                 (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'),
-                (string)d('rolle', 'lernender'), (string)d('gruppe', '')
+                (string)d('rolle', 'schueler'), (string)d('gruppe', '')
             )]);
 
         case 'kennwort_zuruecksetzen':
