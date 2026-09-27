@@ -75,6 +75,8 @@ const PU_RELAY_GRUENDE = [
     'zu_viele'          => 'Zu viele Anfragen in kurzer Zeit. Bitte etwas warten.',
     'modell_aus'        => 'Der Server nimmt gerade keine Modellanfragen an.',
     'modell_fehler'     => 'Das Modell hat nicht geantwortet. Es wurde nichts abgebucht.',
+    // Konten und Verteilung (Runde 3a)
+    'zu_viele_konten'   => 'Für diese Einrichtung sind schon zu viele Konten gemeldet (höchstens 5.000).',
 ];
 
 function pu_relay_grund_text(string $grund): string
@@ -306,6 +308,69 @@ function pu_relay_modell(array $nachrichten, string $modell = '', int $max_token
         'stand'      => (array)($aus['stand'] ?? []),
         'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z'),
     ];
+}
+
+/** Die Rolle, wie der Server sie kennt. Admin ist bei der Schule die Verwaltung. */
+const PU_RELAY_ROLLEN = ['admin' => 'verwaltung', 'verwaltung' => 'verwaltung', 'lehrer' => 'lehrer',
+                         'eltern' => 'eltern', 'schueler' => 'schueler'];
+const PU_RELAY_KONTEN_JE_RUF = 500;
+
+/**
+ * Meldet die Konten dieser Academy an den Server (K-KONTEN, Runde 3a).
+ *
+ * Je Person geht **nur** das Pseudonym `L-<Nummer>` und die Rolle mit — kein
+ * Name, keine Kennung, keine Gruppe. Die Rolle entscheidet, wer bei der
+ * Verteilung der Schule etwas bekommt (Eltern, Lehrkräfte, Gemeinde).
+ * Personen, die hier gelöscht wurden, meldet der zweite Ruf als `weg`.
+ *
+ * Zurück: der eigene Stand je Konto laut Server (verteilte Token) und der
+ * Topf der Einrichtung.
+ *
+ * @return array{ok:bool, grund?:string, konten?:array<string,int>, topf?:int}
+ */
+function pu_relay_konten(): array
+{
+    $liste = [];
+    foreach (pu_db()->query('SELECT id, rolle FROM lernende ORDER BY id') as $z) {
+        $liste['L-' . (int)$z['id']] = PU_RELAY_ROLLEN[(string)$z['rolle']] ?? 'schueler';
+    }
+    $konten = [];
+    $topf = 0;
+    $senden = static function (array $teil) use (&$konten, &$topf): ?array {
+        $nutzlast = [];
+        foreach ($teil as $konto => $rolle) {
+            $nutzlast[] = ['konto' => (string)$konto, 'rolle' => $rolle];
+        }
+        $aus = pu_relay_ruf('konten', ['konten' => $nutzlast]);
+        if (!$aus['ok']) {
+            return $aus;
+        }
+        foreach ((array)($aus['konten'] ?? []) as $k) {
+            if (is_array($k) && is_string($k['konto'] ?? null)) {
+                $konten[$k['konto']] = ['tokens' => (int)($k['tokens'] ?? 0), 'aktiv' => (bool)($k['aktiv'] ?? false)];
+            }
+        }
+        $topf = (int)($aus['topf'] ?? 0);
+        return null;
+    };
+    foreach (array_chunk($liste, PU_RELAY_KONTEN_JE_RUF, true) ?: [[]] as $teil) {
+        if (($fehler = $senden($teil)) !== null) {
+            return $fehler;
+        }
+    }
+    // Wer beim Server noch aktiv ist, hier aber nicht mehr: als „weg“ melden.
+    $weg = [];
+    foreach ($konten as $konto => $k) {
+        if ($k['aktiv'] && !isset($liste[$konto])) {
+            $weg[$konto] = 'weg';
+        }
+    }
+    foreach (array_chunk($weg, PU_RELAY_KONTEN_JE_RUF, true) as $teil) {
+        if (($fehler = $senden($teil)) !== null) {
+            return $fehler;
+        }
+    }
+    return ['ok' => true, 'konten' => array_map(static fn($k) => $k['tokens'], $konten), 'topf' => $topf];
 }
 
 /**

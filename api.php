@@ -859,6 +859,15 @@ try {
         case 'relay_stand': {
             pu_recht_fordern('abo.sehen');
             $r = pu_relay_stand();
+            // Nebenbei die Konten melden (Pseudonym + Rolle) und das eigene
+            // Guthaben holen — scheitert das, bleibt der Stand trotzdem gültig.
+            if ($r['ok']) {
+                $k = pu_relay_konten();
+                $r['eigen'] = $k['ok'] ? (int)($k['konten']['L-' . $ichId] ?? 0) : null;
+                $r['topf'] = $k['ok'] ? (int)$k['topf'] : null;
+                $r['konten_gemeldet'] = $k['ok'] ? count($k['konten']) : 0;
+                $r['konten_meldung'] = $k['ok'] ? '' : pu_relay_grund_text((string)($k['grund'] ?? ''));
+            }
             pu_json_out($r + ['zustand' => pu_relay_zustand(),
                               'meldung' => $r['ok'] ? '' : pu_relay_grund_text((string)($r['grund'] ?? ''))]);
         }

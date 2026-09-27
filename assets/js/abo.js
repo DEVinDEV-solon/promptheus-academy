@@ -289,6 +289,17 @@ function serverMalen(bereich, j) {
             (typeof lokal === 'number'
               ? zeile('Token hier (lokal)', PU.h(zahl(lokal)) + ' <span class="klein">— nur dieses Konto, dieser Rechner</span>', null)
               : '') +
+            (typeof r.eigen === 'number'
+              ? zeile('Dein Guthaben', PU.h(zahl(r.eigen)) +
+                  ' <span class="klein">— von der Schule an dich verteilt, wird bei dir zuerst verbraucht</span>', null)
+              : '') +
+            (typeof r.topf === 'number'
+              ? zeile('Topf der Schule', PU.h(zahl(r.topf)) + ' <span class="klein">— für alle, nach deinem Guthaben</span>', null)
+              : '') +
+            (r.konten_meldung
+              ? zeile('Konten melden', PU.h(r.konten_meldung), false)
+              : (r.konten_gemeldet ? zeile('Konten gemeldet', PU.h(zahl(r.konten_gemeldet)) +
+                  ' <span class="klein">— nur Pseudonym und Rolle, keine Namen</span>', true) : '')) +
             zeile('Heute verbraucht', PU.h(zahl(s.heute || 0)) +
               (s.tagesdeckel ? ' von ' + PU.h(zahl(s.tagesdeckel)) : ''), null) +
             zeile('Plan', PU.h(s.plan || '—'), null) +

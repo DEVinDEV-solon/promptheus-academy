@@ -235,6 +235,50 @@ gleich('… auch hier nur ein Versuch', 1, $GLOBALS['ruf_zaehler']);
 server(antwortet(402, ['ok' => false, 'grund' => 'kein_guthaben']));
 pruefe('kein Guthaben: ein Satz', str_contains(pu_relay_modell([['rolle' => 'user', 'text' => 'x']])['text'], 'Guthaben'));
 
+// ───────────────────────────────────────── Konten melden (Runde 3a)
+gruppe('Konten melden');
+
+// Testpersonen direkt in die Wegwerf-Datenbank (die Spalte für den
+// Kennwort-Hash bekommt einen Platzhalter, hier meldet sich niemand an).
+$spalte_hash = 'kennwort' . '_hash';
+$jetzt = gmdate('Y-m-d\TH:i:s\Z');
+$neu = pu_db()->prepare("INSERT INTO lernende (kennung, anzeigename, rolle, $spalte_hash, gruppe, angelegt)
+                         VALUES (?, ?, ?, '-', '5b', ?)");
+foreach ([['leitung', 'Frau Leitung', 'admin'], ['nele', 'Nele Beispiel', 'schueler'],
+          ['papa', 'Herr Beispiel', 'eltern'], ['lk', 'Frau Lehrerin', 'lehrer']] as [$k, $n, $r]) {
+    $neu->execute([$k, $n, $r, $jetzt]);
+}
+$ids = pu_db()->query('SELECT kennung, id FROM lernende')->fetchAll(PDO::FETCH_KEY_PAIR);
+$gesendet = [];
+$GLOBALS['ruf_zaehler'] = 0;
+// Der Server kennt noch L-99 (hier längst gelöscht) als aktiv.
+server(static function (array $a) use (&$gesendet, $ids): array {
+    $rumpf = json_decode($a['rumpf'], true);
+    $gesendet[] = $rumpf['nutzlast']['konten'];
+    $zurueck = [['konto' => 'L-99', 'rolle' => 'schueler', 'aktiv' => true, 'tokens' => 0]];
+    foreach ($rumpf['nutzlast']['konten'] as $k) {
+        $zurueck[] = ['konto' => $k['konto'], 'rolle' => $k['rolle'], 'aktiv' => $k['rolle'] !== 'weg',
+                      'tokens' => $k['konto'] === 'L-' . $ids['papa'] ? 100000 : 0];
+    }
+    return ['status' => 200, 'rumpf' => (string)json_encode(['ok' => true, 'konten' => $zurueck, 'topf' => 9700000])];
+});
+$k = pu_relay_konten();
+pruefe('gemeldet', $k['ok'] === true, (string)($k['grund'] ?? ''));
+gleich('Pseudonym und Rolle, Admin als Verwaltung', [
+    ['konto' => 'L-' . $ids['leitung'], 'rolle' => 'verwaltung'], ['konto' => 'L-' . $ids['nele'], 'rolle' => 'schueler'],
+    ['konto' => 'L-' . $ids['papa'], 'rolle' => 'eltern'], ['konto' => 'L-' . $ids['lk'], 'rolle' => 'lehrer']], $gesendet[0] ?? []);
+$alles = json_encode($gesendet, JSON_UNESCAPED_UNICODE);
+pruefe('kein Name, keine Kennung, keine Gruppe geht mit',
+    !preg_match('/Nele|Beispiel|Leitung|Lehrerin|nele|papa|"5b"/', $alles));
+gleich('wer hier gelöscht ist, geht als „weg“ hinterher', [['konto' => 'L-99', 'rolle' => 'weg']], $gesendet[1] ?? []);
+gleich('zwei Rufe', 2, $GLOBALS['ruf_zaehler']);
+gleich('das eigene Guthaben laut Server', 100000, $k['konten']['L-' . $ids['papa']] ?? -1);
+gleich('der Topf der Einrichtung', 9700000, $k['topf']);
+
+server(antwortet(409, ['ok' => false, 'grund' => 'zu_viele_konten']));
+$k = pu_relay_konten();
+pruefe('zu viele Konten: abgewiesen, mit einem Satz', !$k['ok'] && str_contains(pu_relay_grund_text((string)$k['grund']), '5.000'));
+
 // ─────────────────────────────────────────────────────────── Zustand
 gruppe('Zustand für die Oberfläche');
 
@@ -253,7 +297,7 @@ $vom_server = ['form', 'nicht_kanonisch', 'zu_gross', 'unbekannt', 'gesperrt',
     'code_unbekannt', 'code_verbraucht', 'code_abgelaufen', 'schon_registriert',
     'iid_passt_nicht', 'schluessel', 'unbekannter_zweck', 'serverfehler', 'nur_post',
     'kein_tarif', 'modell_nicht_im_tarif', 'kein_guthaben', 'tagesdeckel', 'zu_viele',
-    'modell_aus', 'modell_fehler'];
+    'modell_aus', 'modell_fehler', 'zu_viele_konten'];
 $ohne = array_values(array_diff($vom_server, array_keys(PU_RELAY_GRUENDE)));
 pruefe('jeder Grund des Servers hat einen deutschen Satz', $ohne === [],
     implode(', ', $ohne));
