@@ -248,6 +248,35 @@ const PU_RECHTE = [
      'was' => 'Zahlungseingang bestätigen', 'nur_admin' => true,
      'aktionen' => ['abo_bestaetigen']],
 
+    // ------------------------------------------------------ Gemeinde
+    //
+    // Runde 3b des Cockpit-Plans. Sichtbar ist die Gemeinde nur, wenn diese
+    // Academy registriert ist; hinaus gehen nur Pseudonym und Synonym. Wer
+    // moderiert, sitzt im Cockpit des Betreibers — hier gibt es dafür kein Recht.
+    ['name' => 'gemeinde.ansehen', 'gruppe' => 'Gemeinde',
+     'was' => 'Werke der Gemeinde ansehen und herunterladen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket']],
+
+    ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Gemeinde',
+     'was' => 'Liken, kommentieren, melden (unter dem eigenen Synonym)',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     'aktionen' => ['gemeinde_synonym', 'gemeinde_like', 'gemeinde_kommentar', 'gemeinde_melden']],
+
+    /* Eigene Produkte (Prompts, Skills, Plugins) freischalten. Minderjährige
+       brauchen dafür zusätzlich das Mit-Siegel (nächstes Recht) — das prüft
+       die Academy und der Server, nicht dieser Schalter. */
+    ['name' => 'gemeinde.veroeffentlichen', 'gruppe' => 'Gemeinde',
+     'was' => 'Eigene Produkte in die Gemeinde geben',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     'aktionen' => ['produkte', 'produkt_anlegen', 'produkt_aendern', 'produkt_bild', 'produkt_loeschen',
+                    'produkt_freischalten', 'produkt_zurueckziehen']],
+
+    ['name' => 'gemeinde.siegel', 'gruppe' => 'Gemeinde',
+     'was' => 'Die Veröffentlichung eines Minderjährigen gegenzeichnen (Mit-Siegel)',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 0],
+     'aktionen' => ['produkt_siegeln']],
+
     /* Talente an die eigene Kette weitergeben.
      *
      * Ab Werk für die vier oberen Ebenen an, für Schüler aus — ein Schüler

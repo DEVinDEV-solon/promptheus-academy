@@ -23,7 +23,7 @@
 window.PU = window.PU || {};
 
 /** Die Ansichten, die eine eigene Adresse haben. */
-PU.ROUTE_ANSICHTEN = ['lernen', 'fortschritt', 'tutor', 'tokenicer', 'klasse', 'cockpit'];
+PU.ROUTE_ANSICHTEN = ['lernen', 'fortschritt', 'tutor', 'tokenicer', 'klasse', 'cockpit', 'gemeinde'];
 
 /** Die drei Orte innerhalb von „Lernen", die tiefer liegen als die Liste. */
 PU.ROUTE_LERNORTE = { kurs: 'kurs', lektion: 'lektion', pruefung: 'pruefung' };
@@ -193,7 +193,7 @@ PU.routeStart = function () {
 
 PU.ANSICHT_NAMEN = {
   lernen: 'Lernen', fortschritt: 'Fortschritt', tutor: 'Tutor',
-  tokenicer: 'Tokenicer', klasse: 'Klasse', cockpit: 'Cockpit'
+  tokenicer: 'Tokenicer', klasse: 'Klasse', cockpit: 'Cockpit', gemeinde: 'Gemeinde'
 };
 
 /**

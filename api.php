@@ -46,6 +46,7 @@ require_once __DIR__ . '/srv/katalog.php';
 require_once __DIR__ . '/srv/raenge.php';
 require_once __DIR__ . '/srv/coder.php';
 require_once __DIR__ . '/srv/relay.php';
+require_once __DIR__ . '/srv/gemeinde.php';
 
 header('X-Content-Type-Options: nosniff');
 
@@ -880,6 +881,147 @@ try {
             pu_json_out(['ok' => $r['ok'], 'zustand' => pu_relay_zustand(),
                          'meldung' => $r['ok'] ? '' : pu_relay_grund_text((string)($r['grund'] ?? ''))]);
         }
+
+        // ------------------------------------------------ Gemeinde (Runde 3b)
+        //
+        // Die Gemeinde gibt es nur über den Server; ohne Registrierung zeigt
+        // die Oberfläche, warum nicht. Hinaus geht nur das Pseudonym `L-<id>`
+        // und das Synonym — nie Name, Kennung, Klasse oder Schule.
+        case 'gemeinde_start': {
+            pu_recht_fordern('gemeinde.ansehen');
+            $z = pu_relay_zustand();
+            $st = pu_db()->prepare('SELECT pseudonym, anzeigename, kennung FROM lernende WHERE id = ?');
+            $st->execute([$ichId]);
+            $p = $st->fetch() ?: [];
+            $syn = (string)($p['pseudonym'] ?? '');
+            $fehler = $syn === '' ? 'kein_rufname' : pu_synonym_fehler($syn, $p);
+            pu_json_out(['ok' => true,
+                'registriert' => (bool)($z['registriert'] ?? false) && (bool)($z['gueltig'] ?? false),
+                'synonym' => $syn, 'synonym_fehler' => $fehler === null ? '' : pu_gem_grund_text($fehler),
+                'darf' => ['mitmachen' => pu_recht_hat('gemeinde.mitmachen'),
+                           'veroeffentlichen' => pu_recht_hat('gemeinde.veroeffentlichen'),
+                           'siegeln' => pu_recht_hat('gemeinde.siegel')],
+                'kategorien' => ['hauptfeld' => PU_GEM_HAUPTFELDER, 'art' => PU_GEM_ARTEN,
+                                 'zielgruppe' => PU_GEM_ZIELGRUPPEN, 'medium' => PU_GEM_MEDIEN, 'lizenz' => PU_GEM_LIZENZEN],
+            ]);
+        }
+
+        case 'pii_regeln':
+            // Das Regelwerk für die Prüfung beim Tippen (assets/js/pii.js).
+            pu_recht_fordern('gemeinde.ansehen');
+            pu_json_out(['ok' => true, 'regeln' => json_decode((string)file_get_contents(PU_PII_DATEI), true)]);
+
+        case 'gemeinde_werke': {
+            pu_recht_fordern('gemeinde.ansehen');
+            $filter = [];
+            foreach (['hauptfeld', 'art', 'zielgruppe', 'medium', 'rufname'] as $f) {
+                if ((string)d($f, '') !== '') $filter[$f] = mb_substr((string)d($f, ''), 0, 40);
+            }
+            $filter['seite'] = max(0, (int)d('seite', 0));
+            pu_json_out(pu_gem_ruf('werke', $ich, $filter));
+        }
+
+        case 'gemeinde_werk':
+            pu_recht_fordern('gemeinde.ansehen');
+            pu_json_out(pu_gem_ruf('werk', $ich, ['id' => (string)d('id', '')]));
+
+        case 'gemeinde_bild':
+            pu_recht_fordern('gemeinde.ansehen');
+            pu_json_out(['ok' => true, 'bild' => pu_gem_bild($ich, (string)d('id', ''))]);
+
+        case 'gemeinde_paket': {
+            pu_recht_fordern('gemeinde.ansehen');
+            $r = pu_gem_ruf('werk_datei', $ich, ['id' => (string)d('id', ''), 'was' => 'paket']);
+            pu_json_out($r['ok'] ? ['ok' => true, 'inhalt' => (string)($r['inhalt'] ?? '')] : $r);
+        }
+
+        case 'gemeinde_synonym': {
+            pu_recht_fordern('gemeinde.mitmachen');
+            $r = pu_gem_synonym_melden($ich);
+            pu_json_out(['ok' => $r['ok'], 'text' => $r['ok'] ? '' : pu_gem_grund_text((string)($r['grund'] ?? ''))]);
+        }
+
+        case 'gemeinde_like':
+            pu_recht_fordern('gemeinde.mitmachen');
+            pu_json_out(pu_gem_ruf('like', $ich, ['id' => (string)d('id', ''), 'an' => (bool)d('an', true)]));
+
+        case 'gemeinde_kommentar': {
+            pu_recht_fordern('gemeinde.mitmachen');
+            $a = d('antwort_auf', null);
+            pu_json_out(pu_gem_kommentar($ich, (string)d('id', ''), (string)d('text', ''),
+                                         $a === null || $a === '' ? null : (int)$a));
+        }
+
+        case 'gemeinde_melden':
+            pu_recht_fordern('gemeinde.mitmachen');
+            pu_json_out(pu_gem_ruf('melden', $ich, ['ziel_art' => (string)d('ziel_art', ''),
+                'ziel' => (string)d('ziel', ''), 'grund' => mb_substr((string)d('grund', ''), 0, 300)]));
+
+        case 'produkte': {
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            if ((bool)d('abgleichen', false)) pu_produkte_abgleichen($ich);
+            $liste = pu_produkte(pu_gem_person($ichId), pu_recht_hat('gemeinde.siegel'));
+            foreach (['eigene', 'siegeln'] as $teil) {
+                foreach ($liste[$teil] as &$p) {
+                    $p['bild'] = pu_produkt_bild_daten((int)$p['id']);
+                    $p['dateien'] = pu_produkt_dateien((int)$p['id']);
+                }
+                unset($p);
+            }
+            pu_json_out(['ok' => true] + $liste);
+        }
+
+        case 'produkt_anlegen': {
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            // Dateien kommen als Liste {pfad, inhalt(base64)} oder als ein ZIP.
+            $dateien = [];
+            if ((string)d('zip', '') !== '') {
+                $z = pu_gem_zip_lesen((string)base64_decode((string)d('zip', ''), true));
+                if (!$z['ok']) pu_json_out(['ok' => false, 'text' => pu_gem_grund_text($z['grund'])]);
+                $dateien = $z['dateien'];
+            } else {
+                foreach ((array)d('dateien', []) as $f) {
+                    if (!is_array($f)) continue;
+                    $dateien[(string)($f['pfad'] ?? '')] = (string)base64_decode((string)($f['inhalt'] ?? ''), true);
+                }
+            }
+            $r = pu_produkt_anlegen($ichId, (string)d('titel', ''), (string)d('beschreibung', ''), $dateien,
+                                    (string)d('herkunft', 'eingelegt'));
+            if (!$r['ok']) $r['text'] = pu_gem_grund_text($r['grund']) . (isset($r['datei']) ? ' (' . $r['datei'] . ')' : '');
+            pu_json_out($r);
+        }
+
+        case 'produkt_aendern':
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            pu_json_out(['ok' => true] + pu_produkt_aendern((int)d('id', 0), $ichId, [
+                'titel' => (string)d('titel', ''), 'beschreibung' => (string)d('beschreibung', ''),
+                'hauptfeld' => (string)d('hauptfeld', ''), 'art' => (string)d('art', ''),
+                'zielgruppe' => (string)d('zielgruppe', ''), 'medium' => (string)d('medium', ''),
+                'lizenz' => (string)d('lizenz', 'CC-BY-4.0')]));
+
+        case 'produkt_bild':
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            pu_produkt_bild((int)d('id', 0), $ichId, (string)base64_decode((string)d('bild', ''), true));
+            pu_json_out(['ok' => true, 'bild' => pu_produkt_bild_daten((int)d('id', 0))]);
+
+        case 'produkt_loeschen':
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            pu_produkt_loeschen((int)d('id', 0), $ichId);
+            pu_json_out(['ok' => true]);
+
+        case 'produkt_siegeln':
+            pu_recht_fordern('gemeinde.siegel');
+            pu_produkt_siegeln((int)d('id', 0), pu_gem_person($ichId));
+            pu_protokoll($ichId, 'mit_siegel', 'Produkt ' . (int)d('id', 0), '');
+            pu_json_out(['ok' => true]);
+
+        case 'produkt_freischalten':
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            pu_json_out(pu_produkt_freischalten((int)d('id', 0), pu_gem_person($ichId)));
+
+        case 'produkt_zurueckziehen':
+            pu_recht_fordern('gemeinde.veroeffentlichen');
+            pu_json_out(pu_produkt_zurueckziehen((int)d('id', 0), pu_gem_person($ichId)));
 
         case 'abo_buchen': {
             pu_recht_fordern('abo.verwalten');

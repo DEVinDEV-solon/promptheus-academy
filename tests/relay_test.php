@@ -290,6 +290,13 @@ gleich('nennt die IID', $iid, $z['iid']);
 gleich('und den Plan', 'schule-klein', $z['plan']);
 pruefe('gültig', $z['gueltig'] === true);
 
+// Die kanonische Form muss Zeichen für Zeichen der des Servers gleichen
+// (tests/relay_test.php dort erwartet dieselbe Zeichenkette). Listen bleiben
+// Listen, auch ab elf Einträgen (27.09.2026).
+gruppe('Kanonische Form');
+gleich('eine Liste mit zwölf Einträgen bleibt eine Liste', '{"a":[0,1,2,3,4,5,6,7,8,9,10,11],"b":1}',
+    pu_ident_kanonisch(['b' => 1, 'a' => range(0, 11)]));
+
 // Alle Gründe, die der Server kennt, haben einen Satz.
 gruppe('Übersetzung der Gründe');
 $vom_server = ['form', 'nicht_kanonisch', 'zu_gross', 'unbekannt', 'gesperrt',

@@ -87,6 +87,9 @@ $tokenicerAn = !$offen && pu_regel_an('tokenicer') && pu_recht_hat('tokenicer.nu
 $darfKlasse  = !$offen && pu_recht_hat('klassen.view', $wer);
 $darfTutor   = !$offen && pu_regel_an('tutor_an') && pu_recht_hat('tutor.fragen', $wer);
 $darfCockpit = !$offen && pu_recht_hat('abo.sehen', $wer);
+// Die Gemeinde (Runde 3b): der Menüpunkt steht, auch vor der Registrierung —
+// eigene Produkte lassen sich vorbereiten, und die Ansicht sagt, was fehlt.
+$darfGemeinde = !$offen && pu_recht_hat('gemeinde.ansehen', $wer);
 
 // Der Monatswechsel läuft beim ersten Aufruf nach dem Stichtag, nicht über
 // eine geplante Aufgabe: auf einem Rechner, der abends aus ist, feuert ein
@@ -123,6 +126,9 @@ $kennzahlen = $offen ? [] : pu_kennzahlen($wer);
      das Hintergrundbild. Zuerst die Bausteine, dann die Marke — die
      Reihenfolge ist die Regel, nicht der Zufall. -->
 <link rel="stylesheet" href="<?= pu_v('assets/css/marke.css') ?>">
+<?php if ($darfGemeinde): ?>
+<link rel="stylesheet" href="<?= pu_v('assets/css/gemeinde.css') ?>">
+<?php endif; ?>
 <?php if ($offen): ?>
 <!-- Die Landingpage: die oeffentliche Startseite mit Login-Schirm und Preisen.
      Nur vor der Anmeldung geladen, damit die Academy nichts Ueberfluessiges traegt. -->
@@ -567,6 +573,10 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
       <a class="menue-knopf" href="#/cockpit" data-ansicht="cockpit"><span
         class="menue-zeichen" aria-hidden="true">📊</span><span class="menue-wort">Cockpit</span></a>
     <?php endif; ?>
+    <?php if ($darfGemeinde): ?>
+      <a class="menue-knopf" href="#/gemeinde" data-ansicht="gemeinde"><span
+        class="menue-zeichen" aria-hidden="true">🔥</span><span class="menue-wort">Gemeinde</span></a>
+    <?php endif; ?>
 
     <!-- Der siebte Kurs steht abgesetzt am Ende: Er ist keine Ansicht, sondern
          ein Fenster über der Seite — und er ist auch kein Ort, an dem man
@@ -788,6 +798,9 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
   <?php if ($darfCockpit): ?>
     <section class="view hidden" id="view-cockpit"></section>
   <?php endif; ?>
+  <?php if ($darfGemeinde): ?>
+    <section class="view hidden" id="view-gemeinde"></section>
+  <?php endif; ?>
 </main>
 
 </div><!-- .saeule -->
@@ -848,6 +861,10 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <?php endif; ?>
 <?php if ($darfCockpit): ?>
   <script src="<?= pu_v('assets/js/abo.js') ?>"></script>
+<?php endif; ?>
+<?php if ($darfGemeinde): ?>
+  <script src="<?= pu_v('assets/js/pii.js') ?>"></script>
+  <script src="<?= pu_v('assets/js/gemeinde.js') ?>"></script>
 <?php endif; ?>
 <?php if ($variantenAn): ?>
   <script src="<?= pu_v('assets/js/varianten.js') ?>"></script>

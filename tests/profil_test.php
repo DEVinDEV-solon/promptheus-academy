@@ -33,12 +33,15 @@ gruppe('Profilfelder setzen');
 
 $id = pu_lernenden_anlegen('kind', 'Marie Musterfrau', 'probe1234', 'schueler');
 
-gleich('Pseudonym wird gesetzt', 'Nele', pu_profil_setzen($id, 'pseudonym', 'Nele'));
+gleich('Pseudonym wird gesetzt', 'Funkenflug', pu_profil_setzen($id, 'pseudonym', 'Funkenflug'));
+// Das Pseudonym ist das Synonym der Gemeinde: kein echter Name (Runde 3b, E15).
+wirft('ein Vorname ist kein Pseudonym', fn() => pu_profil_setzen($id, 'pseudonym', 'Nele'), 'echter Name');
+wirft('der eigene Name auch nicht', fn() => pu_profil_setzen($id, 'pseudonym', 'Musterfrau'), 'echter Name');
 gleich('Alter wird gesetzt',     '11',   pu_profil_setzen($id, 'lebensalter', '11'));
 gleich('Klasse wird gesetzt',    '6a',   pu_profil_setzen($id, 'gruppe', '6a'));
 
 $p = pu_profil($id);
-gleich('…und kommt so zurück', 'Nele', $p['pseudonym']);
+gleich('…und kommt so zurück', 'Funkenflug', $p['pseudonym']);
 gleich('Alter als Zahl',        11,     $p['lebensalter']);
 
 // Ohne Pseudonym tritt man unter dem Anzeigenamen auf — das ist eine
@@ -106,7 +109,7 @@ foreach (['einfach', 'normal', 'fachlich'] as $stil) {
 gruppe('Der Block für das Modell');
 
 $block = pu_profil_block(pu_profil($id));
-pruefe('nennt das Pseudonym',        str_contains($block, 'Nele'));
+pruefe('nennt das Pseudonym',        str_contains($block, 'Funkenflug'));
 pruefe('nennt Alter und Klasse',     str_contains($block, '11 Jahre') && str_contains($block, '6a'));
 pruefe('trägt die Sprachregel',      str_contains($block, 'Kurze Sätze'));
 pruefe('nennt NICHT den Klarnamen',  !str_contains($block, 'Musterfrau'));

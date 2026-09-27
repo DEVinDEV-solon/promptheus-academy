@@ -1,0 +1,79 @@
+/* PROMPTHEUS — die Gemeinde (Runde 3b). Nur Tokens aus promptheus.css/marke.css.
+ *
+ * Das Raster ist bewusst bunt: Jedes Werk trägt sein Bild (E17). Die
+ * Verbotsregel ist rot umrandet (E16) — sie soll auffallen, nicht schimpfen.
+ */
+
+.gemeinde-hinweis { margin: 0 0 1.2em; }
+.gemeinde-synonym { margin: 0 0 1.2em; padding: .6em .9em; border-left: 3px solid var(--glut);
+  background: var(--grund-2); border-radius: var(--radius-klein); }
+.gemeinde-synonym-fehlt { border-left-color: var(--warn); }
+
+.gemeinde-reiter { display: flex; gap: .5em; flex-wrap: wrap; margin: 0 0 1.2em; }
+.gemeinde-reiter .knopf.aktiv { border-color: var(--glut); color: var(--schrift); }
+
+.gemeinde-filter { display: flex; gap: .6em; flex-wrap: wrap; margin: 0 0 1em; }
+.gemeinde-filter select { width: auto; flex: 1 1 11rem; max-width: 20rem; min-width: 0; }
+
+.gemeinde-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); gap: 1em; }
+.werk-karte { display: flex; flex-direction: column; padding: 0; overflow: hidden; text-align: left; cursor: pointer;
+  background: var(--grund-2); color: var(--schrift); border: 1px solid var(--rand); border-radius: var(--radius);
+  font: inherit; transition: border-color .15s, transform .15s; }
+.werk-karte:hover, .werk-karte:focus-visible { border-color: var(--glut); transform: translateY(-2px); }
+.werk-karte img, .werk-karte .werk-ohne-bild { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover;
+  background: var(--grund-3); }
+.werk-ohne-bild { display: grid; place-items: center; font-size: 2.4rem; }
+.werk-karte-text { display: flex; flex-direction: column; gap: .2em; padding: .7em .8em .8em; min-width: 0; }
+.werk-karte-text b { overflow-wrap: anywhere; }
+.werk-zahlen { display: flex; gap: 1em; color: var(--schrift-2); font-size: .9em; }
+.gemeinde-mehr { margin: 1.2em 0; text-align: center; }
+
+.werk-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2em; align-items: start; }
+.werk-detail-bild img { display: block; max-width: 100%; border-radius: var(--radius); border: 1px solid var(--rand); }
+.werk-detail-text h2 { margin-top: 0; overflow-wrap: anywhere; }
+.werk-dateien { margin: .4em 0 1em; padding-left: 1.2em; }
+.werk-knoepfe { display: flex; gap: .6em; flex-wrap: wrap; align-items: center; margin: .8em 0; }
+
+.verweis { background: none; border: 0; padding: 0; color: var(--glut); font: inherit; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px; }
+.verweis:disabled { color: var(--schrift-3); cursor: default; text-decoration: none; }
+
+.werk-kommentare { margin-top: 1.6em; border-top: 1px solid var(--rand); padding-top: 1em; }
+.kommentar { padding: .6em 0; border-bottom: 1px solid var(--rand); }
+.kommentar p { margin: .2em 0; overflow-wrap: anywhere; }
+.kommentar-antwort { margin-left: 1.6em; padding-left: .8em; border-left: 2px solid var(--rand-hell); border-bottom: 0; }
+.kommentar-wartet { opacity: .7; }
+.kommentar-leiste { display: flex; gap: 1em; font-size: .9em; }
+.kommentar-feld { display: flex; flex-direction: column; gap: .5em; margin-top: .8em; }
+.kommentar-feld textarea, .produkt-felder input, .produkt-felder textarea,
+.produkt-einlegen-felder input, .produkt-einlegen-felder textarea { width: 100%; box-sizing: border-box; }
+.kommentar-feld .knopf { align-self: flex-start; }
+
+/* Die Verbotsregel: rot umrandet, gut lesbar, ohne Geschrei. */
+.verbotsregel { border: 2px solid var(--schlecht); background: var(--schlecht-grund); color: var(--schrift);
+  border-radius: var(--radius-klein); padding: .6em .9em; margin: .4em 0; }
+.verbotsregel p { margin: .2em 0; }
+.verbotsregel-kopf { font-weight: bold; color: var(--schlecht); }
+
+.produkt-einlegen summary { cursor: pointer; font-weight: bold; }
+.produkt-einlegen-felder { display: flex; flex-direction: column; gap: .6em; margin-top: .8em; }
+.produkt-karte { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); gap: 1em; align-items: start; margin: 1em 0; }
+.produkt-bild img { display: block; width: 100%; border-radius: var(--radius-klein); border: 1px solid var(--rand); }
+.produkt-bild-fehlt { display: grid; place-items: center; aspect-ratio: 3 / 2; border: 2px dashed var(--warn);
+  border-radius: var(--radius-klein); color: var(--warn); font-size: .9em; }
+.produkt-felder { display: flex; flex-direction: column; gap: .5em; }
+.produkt-kategorie { display: flex; flex-wrap: wrap; gap: .5em; }
+.produkt-kategorie select { flex: 1 1 9rem; min-width: 0; }
+.produkt-liste { list-style: none; display: flex; flex-wrap: wrap; gap: .4em 1em; padding: 0; margin: .4em 0; font-size: .92em; }
+.produkt-liste .da { color: var(--gut); }
+.produkt-liste .fehlt { color: var(--warn); }
+.produkt-stand { display: inline-block; padding: .1em .5em; border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+  font-size: .85em; }
+.produkt-frei { border-color: var(--gut); color: var(--gut); }
+.produkt-abgelehnt { border-color: var(--schlecht); color: var(--schlecht); }
+.produkt-wartet_auf_freigabe { border-color: var(--glut); color: var(--glut); }
+
+@media (max-width: 640px) {
+  .werk-detail, .produkt-karte { grid-template-columns: 1fr; }
+  .produkt-karte .produkt-bild { max-width: 16rem; }
+}

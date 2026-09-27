@@ -429,7 +429,8 @@ PU.ANSICHTEN = {
   tutor:       { zeichnen: () => PU.tutorZeichnen && PU.tutorZeichnen() },
   tokenicer:   { zeichnen: () => PU.tokenicerZeichnen && PU.tokenicerZeichnen() },
   klasse:      { zeichnen: () => PU.klasseZeichnen && PU.klasseZeichnen() },
-  cockpit:     { zeichnen: () => PU.cockpitZeichnen && PU.cockpitZeichnen() }
+  cockpit:     { zeichnen: () => PU.cockpitZeichnen && PU.cockpitZeichnen() },
+  gemeinde:    { zeichnen: () => PU.gemeindeZeichnen && PU.gemeindeZeichnen() }
 };
 
 PU.aktuell = 'lernen';

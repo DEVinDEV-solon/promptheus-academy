@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 8;
+const PU_DB_VERSION = 9;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -27,6 +27,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 6) pu_db_v6($pdo);
     if ($ist < 7) pu_db_v7($pdo);
     if ($ist < 8) pu_db_v8($pdo);
+    if ($ist < 9) pu_db_v9($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -476,6 +477,46 @@ function pu_db_v8(PDO $pdo): void
     if ($da === false) return;
 
     $pdo->exec("UPDATE abos SET traeger_name = '' WHERE traeger_art = 'person' AND traeger_name <> ''");
+}
+
+/**
+ * v9 — Produkte für die Gemeinde (Runde 3b des Cockpit-Plans, E17).
+ *
+ * Ein Produkt ist ein Prompt, Skill oder Plugin, das aus der Werkstatt oder
+ * dem Dashboard kommt (oder von Hand eingelegt wird). Es bleibt lokal, bis
+ * sein Urheber es freischaltet — und das geht erst mit Bild und Kategorie.
+ * Die Dateien liegen unter `data/produkte/<id>/`, nicht in der Datenbank.
+ *
+ * `siegel_von`: wer die Veröffentlichung eines Minderjährigen gegengezeichnet
+ * hat (Lehrkraft, Eltern des Kindes, Verwaltung). `werk_id`: die Kennung auf
+ * dem Server nach dem Hochladen; `server_status` spiegelt, was der Server sagt.
+ */
+function pu_db_v9(PDO $pdo): void
+{
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS produkte (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            lernender     INTEGER NOT NULL,
+            titel         TEXT NOT NULL DEFAULT '',
+            beschreibung  TEXT NOT NULL DEFAULT '',
+            hauptfeld     TEXT NOT NULL DEFAULT '',
+            art           TEXT NOT NULL DEFAULT '',
+            zielgruppe    TEXT NOT NULL DEFAULT '',
+            medium        TEXT NOT NULL DEFAULT '',
+            lizenz        TEXT NOT NULL DEFAULT 'CC-BY-4.0',
+            bild_typ      TEXT NOT NULL DEFAULT '',
+            herkunft      TEXT NOT NULL DEFAULT 'eingelegt',
+            siegel_von    INTEGER NOT NULL DEFAULT 0,
+            siegel_am     TEXT NOT NULL DEFAULT '',
+            werk_id       TEXT NOT NULL DEFAULT '',
+            hochgeladen   TEXT NOT NULL DEFAULT '',
+            server_status TEXT NOT NULL DEFAULT '',
+            ablehnung     TEXT NOT NULL DEFAULT '',
+            angelegt      TEXT NOT NULL,
+            geaendert     TEXT NOT NULL
+        )
+    ");
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_produkte_lernender ON produkte(lernender, id)');
 }
 
 // ---------------------------------------------------------------- Einstellungen

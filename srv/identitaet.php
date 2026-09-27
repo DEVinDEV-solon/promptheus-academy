@@ -251,7 +251,12 @@ function pu_ident_pruefen(string $rumpf, string $signatur, string $pk_b64): bool
 function pu_ident_kanonisch(array $daten): string
 {
     $sortieren = static function (array $a) use (&$sortieren): array {
-        ksort($a, SORT_STRING);
+        // Nur Objekte sortieren, Listen nie: `SORT_STRING` stellte ab elf
+        // Einträgen „10“ vor „2“, und json_encode machte aus der Liste ein
+        // Objekt (27.09.2026). Bis zehn Einträge ist die Form unverändert.
+        if (!array_is_list($a)) {
+            ksort($a, SORT_STRING);
+        }
         foreach ($a as $k => $v) {
             if (is_array($v)) {
                 $a[$k] = $sortieren($v);

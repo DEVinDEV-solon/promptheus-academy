@@ -1986,7 +1986,7 @@ function profilMalen(rahmen, j) {
   profilZeile(rahmen, 'Pseudonym', p.pseudonym,
     'So sprechen dich die Tutoren an. Für Minderjährige ist das der Name, der die Academy ' +
     'verlässt — der Klarname bleibt in der Klassenliste.',
-    (w, el) => speichern('pseudonym', w, el), 40);
+    (w, el) => speichern('pseudonym', w, el), 24);
 
   // -------- Alter
   const alterZeile = PU.el('div', 'einst-zeile');
