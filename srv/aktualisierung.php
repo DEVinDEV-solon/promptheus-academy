@@ -193,10 +193,7 @@ function pu_akt_http(string $url, ?string $post = null, ?string $ziel = null, in
         $opt[CURLOPT_RETURNTRANSFER] = true;
     }
     curl_setopt_array($c, $opt);
-    $bundle = function_exists('pu_ca_bundle') ? pu_ca_bundle() : '';
-    if ($bundle !== '') {
-        curl_setopt($c, CURLOPT_CAINFO, $bundle);
-    }
+    pu_curl_vertrauen($c);
     $rumpf = curl_exec($c);
     $status = (int)curl_getinfo($c, CURLINFO_RESPONSE_CODE);
     curl_close($c);

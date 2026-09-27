@@ -135,11 +135,8 @@ function pu_katalog_eintrag(array $roh): ?array
  */
 function pu_katalog_holen(): array
 {
-    require_once PU_ROOT . '/srv/tutor.php';   // pu_ca_bundle()
-
     $ch = curl_init(PU_KATALOG_URL);
-    $ca = pu_ca_bundle();
-    if ($ca !== '') curl_setopt($ch, CURLOPT_CAINFO, $ca);
+    pu_curl_vertrauen($ch);
 
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -246,8 +243,7 @@ function pu_katalog_einzeln(string $id): ?array
     if (!preg_match('#^[A-Za-z0-9~][A-Za-z0-9._:/-]{0,80}$#', $id)) return null;
 
     $ch = curl_init('https://openrouter.ai/api/v1/models/' . $id . '/endpoints');
-    $ca = pu_ca_bundle();
-    if ($ca !== '') curl_setopt($ch, CURLOPT_CAINFO, $ca);
+    pu_curl_vertrauen($ch);
 
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,

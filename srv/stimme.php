@@ -827,8 +827,7 @@ function pu_stimme_chat(string $text, string $modell, string $name,
     $rumpf = pu_stimme_rumpf($text, $modell, $name, $format);
 
     $ch = curl_init('https://openrouter.ai/api/v1/chat/completions');
-    $ca = pu_ca_bundle();
-    if ($ca !== '') curl_setopt($ch, CURLOPT_CAINFO, $ca);
+    pu_curl_vertrauen($ch);
 
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
@@ -927,8 +926,7 @@ function pu_stimme_tts(string $text, string $modell, string $name,
     $start  = microtime(true);
 
     $ch = curl_init('https://openrouter.ai/api/v1/audio/speech');
-    $ca = pu_ca_bundle();
-    if ($ca !== '') curl_setopt($ch, CURLOPT_CAINFO, $ca);
+    pu_curl_vertrauen($ch);
 
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,

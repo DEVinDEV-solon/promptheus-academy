@@ -144,48 +144,6 @@ function pu_or_modell(): string
 }
 
 /**
- * Sucht eine Wurzelzertifikatsliste.
- *
- * Der Grund, warum diese Funktion existiert: die PHP-Installation aus dem
- * Windows-Paketverwalter bringt KEINE mit. `curl.cainfo` ist leer, und jeder
- * HTTPS-Aufruf endet mit "unable to get local issuer certificate". Gemessen,
- * nicht vermutet — der erste Aufruf gegen OpenRouter scheiterte genau daran.
- *
- * Die naheliegende Abkürzung wäre, die Prüfung abzuschalten. Das kommt nicht
- * in Frage: über diese Verbindung geht ein API-Schlüssel, und eine
- * ungeprüfte TLS-Verbindung kann jeder im selben Netz mitlesen. Stattdessen
- * wird eine Liste gesucht, die auf diesem Rechner ohnehin liegt.
- *
- * Reihenfolge: erst die .env (wer es genau wissen will), dann die
- * PHP-Einstellungen, dann die üblichen Orte. Findet sich nichts, wird nichts
- * gesetzt — dann entscheidet curl wie bisher, und die Fehlermeldung sagt,
- * was fehlt.
- */
-function pu_ca_bundle(): string
-{
-    static $pfad = null;
-    if ($pfad !== null) return $pfad;
-
-    $kandidaten = array_filter([
-        pu_env('PU_CA_BUNDLE', ''),
-        (string)ini_get('curl.cainfo'),
-        (string)ini_get('openssl.cafile'),
-        'D:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt',
-        'D:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt',
-        'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt',
-        'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt',
-        'C:/Windows/System32/curl-ca-bundle.crt',
-        '/etc/ssl/certs/ca-certificates.crt',
-        '/etc/pki/tls/certs/ca-bundle.crt',
-    ]);
-
-    foreach ($kandidaten as $k) {
-        if ($k !== '' && is_file($k)) return $pfad = $k;
-    }
-    return $pfad = '';
-}
-
-/**
  * Fragt ein Modell über OpenRouter.
  *
  * Bewusst schmal gehalten: eine Nachricht, eine Antwort, kein Verlauf, keine
@@ -234,10 +192,9 @@ function pu_or_lauf(string $prompt, string $systemtext, int $limit = 0, int $max
 
     $ch = curl_init('https://openrouter.ai/api/v1/chat/completions');
 
-    // Die Zertifikatsliste wird gesetzt, wenn eine gefunden wurde. Ohne sie
-    // bleibt es bei der Vorgabe von curl — geprüft wird in jedem Fall.
-    $ca = pu_ca_bundle();
-    if ($ca !== '') curl_setopt($ch, CURLOPT_CAINFO, $ca);
+    // Woher die Liste der Aussteller kommt, entscheidet pu_curl_vertrauen()
+    // (lib.php) — geprüft wird in jedem Fall.
+    pu_curl_vertrauen($ch);
 
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
@@ -274,9 +231,12 @@ function pu_or_lauf(string $prompt, string $systemtext, int $limit = 0, int $max
         if (stripos($fehler, 'certificate') !== false || stripos($fehler, 'SSL') !== false) {
             $ca = pu_ca_bundle();
             $zusatz = $ca === ''
-                ? ' — Auf diesem Rechner wurde keine Liste vertrauenswürdiger Zertifikate'
-                  . ' gefunden. Trage den Pfad zu einer ca-bundle.crt als PU_CA_BUNDLE in'
-                  . ' die .env ein (Git bringt eine mit).'
+                ? (PHP_OS_FAMILY === 'Windows'
+                    ? ' — Benutzt wurde der Zertifikatsspeicher von Windows. Passt er nicht,'
+                      . ' trage den Pfad zu einer ca-bundle.crt als PU_CA_BUNDLE in die .env ein.'
+                    : ' — Auf diesem Rechner wurde keine Liste vertrauenswürdiger Zertifikate'
+                      . ' gefunden. Trage den Pfad zu einer ca-bundle.crt als PU_CA_BUNDLE in'
+                      . ' die .env ein.')
                 : ' — Benutzt wurde ' . $ca . '. Passt die Liste nicht, setze PU_CA_BUNDLE'
                   . ' in der .env auf eine andere.';
         }

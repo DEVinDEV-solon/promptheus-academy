@@ -340,4 +340,18 @@ foreach (['update_stand', 'update_suchen', 'update_laden', 'update_neustart', 'u
 pruefe('router.php sperrt werkzeuge/ und dist/',
        str_contains((string)file_get_contents(__DIR__ . '/../router.php'), "\$teil === 'werkzeuge'"));
 
+gruppe('Vertrauen für HTTPS');
+// Probelauf 27.09.2026: Das PHP von php.net bringt keine CA-Liste mit. Ohne
+// Git fand pu_ca_bundle() keine, und jeder Abruf scheiterte still.
+pruefe('pu_curl_vertrauen() kommt mit lib.php', function_exists('pu_curl_vertrauen'));
+$ch = curl_init('https://127.0.0.1/');
+pu_curl_vertrauen($ch);
+curl_close($ch);
+pruefe('pu_curl_vertrauen() setzt ohne Fehler', true);
+foreach (['srv/aktualisierung.php', 'srv/relay.php', 'srv/tutor.php', 'srv/katalog.php', 'srv/stimme.php'] as $f) {
+    $t = (string)file_get_contents(__DIR__ . '/../' . $f);
+    pruefe("$f: jeder curl-Aufruf geht über pu_curl_vertrauen()",
+           substr_count($t, 'curl_init(') === substr_count($t, 'pu_curl_vertrauen($'));
+}
+
 bilanz();

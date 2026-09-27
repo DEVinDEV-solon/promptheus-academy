@@ -126,10 +126,7 @@ function pu_relay_transport(string $json, int $zeit = PU_RELAY_ZEIT_GESAMT): arr
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
     ]);
-    $bundle = function_exists('pu_ca_bundle') ? pu_ca_bundle() : '';
-    if ($bundle !== '') {
-        curl_setopt($ch, CURLOPT_CAINFO, $bundle);
-    }
+    pu_curl_vertrauen($ch);
     $rumpf  = curl_exec($ch);
     $status = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     curl_close($ch);
