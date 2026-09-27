@@ -96,6 +96,24 @@ pruefe('darf weiter Stoff pflegen', pu_recht_hat('lektionen.manage'));
 pruefe('darf weiter Rechte setzen', pu_recht_hat('rechte.matrix'));
 pruefe('darf die Persona wieder ablegen', pu_persona_darf());
 
+// ================================================================ Die Sicht
+// Seit 28.09.2026 zeigt die Oberfläche, was die Persona SÄHE — geprüft wird
+// weiter mit dem echten Konto (oben). Beides zugleich muss stimmen.
+gruppe('Die Sicht folgt der Persona, die Prüfung nicht');
+$sicht = pu_sicht_wer();
+gleich('Sicht ist eltern', 'eltern', pu_ebene($sicht));
+gleich('Sicht behält die Kennung', $chef, (int)$sicht['id']);
+pruefe('Sicht zeigt keine Tutor-KI', !in_array('ki.einstellungen', pu_recht_meine($sicht), true));
+pruefe('echt bleibt Tutor-KI erlaubt', pu_recht_hat('ki.einstellungen'));
+gleich('Stil automatisch: Erwachsene klar', 'klar', pu_stil_wirksam(['stil' => 'auto'], $sicht));
+pu_persona_setzen('schueler', '6a');
+gleich('Stil automatisch: Lernende academy', 'academy', pu_stil_wirksam(['stil' => 'auto'], pu_sicht_wer()));
+gleich('gewählter Stil geht vor', 'klar', pu_stil_wirksam(['stil' => 'klar'], pu_sicht_wer()));
+pruefe('Sicht als Schüler: keine Klassenansicht', !pu_recht_hat('klassen.view', pu_sicht_wer()));
+pu_persona_setzen('eltern');
+$alsKindSicht = pu_sicht_wer($alsKind);
+gleich('ohne Persona-Recht: Sicht = eigenes Konto', 'schueler', pu_ebene($alsKindSicht));
+
 // ================================================================ Klassen
 gruppe('Beim Schüler entscheidet die Klasse das Alter');
 

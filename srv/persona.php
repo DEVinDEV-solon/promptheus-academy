@@ -194,3 +194,41 @@ function pu_persona_liste(): array
     }
     return ['personen' => $aus, 'jetzt' => pu_persona(), 'darf' => pu_persona_darf()];
 }
+
+/**
+ * Mit wessen Augen die OBERFLÄCHE gebaut wird (Entscheid 28.09.2026).
+ *
+ * Die Persona ändert weiterhin keine Rechte — geprüft wird jede Aktion mit
+ * dem echten Konto, und der Rückweg bleibt offen. Aber die Oberfläche zeigt
+ * jetzt, was die gewählte Ebene SÄHE: Menüpunkte, Reiter, Knöpfe. Vorher
+ * blieb im Schülerblick jeder Admin-Schalter stehen, und man hielt ihn für
+ * etwas, das ein Kind bedienen kann.
+ *
+ * Zurück kommt dieses Konto mit derselben Rolle, aber der Ebene der Persona.
+ * Wer es bekommt, darf damit nur ANZEIGEN, nie prüfen.
+ */
+function pu_sicht_wer(?array $wer = null): ?array
+{
+    if ($wer === null) $wer = pu_wer();
+    if ($wer === null) return null;
+    $p = pu_persona($wer);
+    if ($p === null) return $wer;
+    return array_merge($wer, ['rolle' => $p['rolle'], 'gruppe' => $p['gruppe']]);
+}
+
+/**
+ * Der Stil der Oberfläche: `academy` (Schmiede, Bilder, Erzählung) oder
+ * `klar` (schlicht, sachlich, ohne Bilder).
+ *
+ * `auto` (die Vorgabe) gibt Lernenden die Academy und allen Erwachsenen die
+ * klare Ansicht. Erwachsene arbeiten mit dem Programm, sie werden nicht von
+ * ihm unterhalten — so sehen es auch die Plattformen, die sie kennen
+ * (Moodle, itslearning, IServ; vps/Pläne/80_Recherche).
+ */
+function pu_stil_wirksam(array $einst, ?array $sicht): string
+{
+    $w = (string)($einst['stil'] ?? 'auto');
+    if ($w === 'academy' || $w === 'klar') return $w;
+    if ($sicht === null) return 'academy';
+    return pu_ebene($sicht) === 'schueler' ? 'academy' : 'klar';
+}

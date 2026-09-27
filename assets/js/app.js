@@ -537,6 +537,28 @@ PU.darf = function (recht) {
   return (PU.rechte || []).indexOf(recht) >= 0;
 };
 
+/* Was die Sicht nicht sähe, wird ausgeblendet (28.09.2026).
+ *
+ * Der Server liefert jeden Menüpunkt, den das echte Konto darf, und markiert
+ * ihn mit `data-recht`. Hier wird nur umgeschaltet: fehlt das Recht in der
+ * Sicht (PU.rechte), bekommt er `data-sicht-aus`. So wechselt das „P" die
+ * Ansicht ohne Neuladen — und zurück, ohne dass etwas verloren ist. */
+PU.stilAufloesen = function (wunsch) {
+  if (wunsch === 'academy' || wunsch === 'klar') return wunsch;
+  return (PU.wer && PU.wer.sicht_ebene === 'schueler') ? 'academy' : 'klar';
+};
+
+PU.sichtAnwenden = function () {
+  document.querySelectorAll('[data-recht]').forEach(el => {
+    if (PU.darf(el.dataset.recht)) el.removeAttribute('data-sicht-aus');
+    else el.setAttribute('data-sicht-aus', '');
+  });
+  // Steht man gerade in einer Ansicht, die die Sicht nicht hat, geht es
+  // zurück zum Lernen — sonst bliebe eine Seite offen, deren Menüpunkt fehlt.
+  const aktiv = document.querySelector('.menue-knopf[data-ansicht="' + PU.aktuell + '"]');
+  if (aktiv && aktiv.hasAttribute('data-sicht-aus')) location.hash = '#/lernen';
+};
+
 /* ---------------------------------------------------------------- Fenster
  * Ein Fenster für alles, was über der Seite liegt: die Einstellungen bauen
  * sich ihr Gerüst selbst, alles andere bekommt es hier.

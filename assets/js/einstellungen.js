@@ -321,6 +321,17 @@ function darstellungZeichnen(ziel) {
   ziel.appendChild(PU.el('p', 'hinweis',
     'Diese Einstellungen gelten nur für dich und ändern nie eine Punktzahl.'));
 
+  // Stil (28.09.2026): Erwachsene arbeiten lieber in einer schlichten Ansicht
+  // ohne Bilder und Erzählung. Automatisch: Lernende Academy, alle anderen Klar.
+  zeileWahl(ziel, 'Stil',
+    'Academy: Schmiede, Bilder, Prometheus. Klar: schlicht und sachlich, ohne Bilder. ' +
+    'Automatisch gibt Lernenden die Academy und Erwachsenen die klare Ansicht.',
+    ['auto', 'academy', 'klar'], p.stil || 'auto',
+    w => personSetzen('stil', w).then(() => {
+      document.documentElement.dataset.stil = PU.stilAufloesen(w);
+    }),
+    { auto: 'Automatisch', academy: '🔥 Academy', klar: '▫ Klar' });
+
   zeileWahl(ziel, 'Thema',
     'Automatisch folgt der Einstellung deines Rechners. Der Knopf oben in der Kopfzeile schaltet zwischen hell und dunkel um.',
     ['auto', 'hell', 'dunkel'], p.thema,

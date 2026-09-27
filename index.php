@@ -28,10 +28,16 @@ require_once __DIR__ . '/srv/einstellungen.php';
 require_once __DIR__ . '/srv/varianten.php';
 require_once __DIR__ . '/srv/tutor.php';
 require_once __DIR__ . '/srv/kennzahlen.php';
+require_once __DIR__ . '/srv/persona.php';
 
 $leer  = pu_leer();
 $wer   = pu_wer();
 $offen = $wer === null;
+
+// Die Sicht: wie die Oberfläche aussieht. Mit einer Persona (nur Ebene 1)
+// die der gewählten Ebene, sonst die eigene. Sie entscheidet nur, was
+// ANGEZEIGT wird; geprüft wird jede Aktion mit $wer (srv/persona.php).
+$sicht = $offen ? null : pu_sicht_wer($wer);
 
 // Vor der Anmeldung gibt es keine persönlichen Einstellungen — das Tor
 // erscheint in der Vorgabe. Danach gelten die des Kontos.
@@ -93,6 +99,12 @@ $darfGemeinde = !$offen && pu_recht_hat('gemeinde.ansehen', $wer);
 // Updates: die Notiz über „Abmelden“ sieht nur, wer sie auch einspielen darf (Ebene 1).
 $darfUpdate = !$offen && pu_recht_hat('aktualisierung.verwalten', $wer);
 
+// Gerendert wird, was das echte Konto darf; ausgeblendet, was die Sicht nicht
+// sähe. So schaltet das „P" ohne Neuladen hin und zurück (assets/js/persona.js).
+$sichtAttr = fn(string $recht): string => ' data-recht="' . pu_h($recht) . '"'
+    . ($sicht !== null && !pu_recht_hat($recht, $sicht) ? ' data-sicht-aus' : '');
+$stil = pu_stil_wirksam($einst, $sicht);
+
 // Der Monatswechsel läuft beim ersten Aufruf nach dem Stichtag, nicht über
 // eine geplante Aufgabe: auf einem Rechner, der abends aus ist, feuert ein
 // Zeitplan nicht, und dann fehlt das Kontingent bis zum nächsten Start.
@@ -101,7 +113,7 @@ if (!$offen) pu_abos_verlaengern();
 // Was oben in der Kopfzeile steht. Serverseitig, damit die Leiste beim
 // ersten Anblick nicht leer ist — und damit ein Test nachsehen kann, was
 // eine Ebene dort zu sehen bekommt.
-$kennzahlen = $offen ? [] : pu_kennzahlen($wer);
+$kennzahlen = $offen ? [] : pu_kennzahlen($sicht);
 
 // Urkunde prüfen geht ohne Anmeldung — deshalb hat die Anmeldeseite einen
 // eigenen kleinen Bereich dafür. Ein Arbeitgeber soll eine Urkunde prüfen
@@ -114,7 +126,8 @@ $kennzahlen = $offen ? [] : pu_kennzahlen($wer);
       data-kontrast="<?= pu_h($einst['kontrast'] ?? 'normal') ?>"
       data-bewegung="<?= pu_h($einst['bewegung'] ?? 'normal') ?>"
       data-breite="<?= pu_h($einst['breite'] ?? 'normal') ?>"
-      data-variante="<?= pu_h($variante) ?>"<?php
+      data-variante="<?= pu_h($variante) ?>"
+      data-stil="<?= pu_h($stil) ?>"<?php
       if ($feinstil !== ''): ?>
       style="<?= pu_h($feinstil) ?>"<?php endif; ?>>
 <head>
@@ -560,23 +573,23 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <a class="menue-knopf" href="#/fortschritt" data-ansicht="fortschritt"><span
       class="menue-zeichen" aria-hidden="true">📈</span><span class="menue-wort">Fortschritt</span></a>
     <?php if ($darfTutor): ?>
-      <a class="menue-knopf" href="#/tutor" data-ansicht="tutor"><span
+      <a class="menue-knopf" href="#/tutor" data-ansicht="tutor"<?= $sichtAttr('tutor.fragen') ?>><span
         class="menue-zeichen" aria-hidden="true">💬</span><span class="menue-wort">Tutor</span></a>
     <?php endif; ?>
     <?php if ($tokenicerAn): ?>
-      <a class="menue-knopf" href="#/tokenicer" data-ansicht="tokenicer"><span
+      <a class="menue-knopf" href="#/tokenicer" data-ansicht="tokenicer"<?= $sichtAttr('tokenicer.nutzen') ?>><span
         class="menue-zeichen" aria-hidden="true">🧮</span><span class="menue-wort">Tokenicer</span></a>
     <?php endif; ?>
     <?php if ($darfKlasse): ?>
-      <a class="menue-knopf" href="#/klasse" data-ansicht="klasse"><span
+      <a class="menue-knopf" href="#/klasse" data-ansicht="klasse"<?= $sichtAttr('klassen.view') ?>><span
         class="menue-zeichen" aria-hidden="true">🎓</span><span class="menue-wort">Klasse</span></a>
     <?php endif; ?>
     <?php if ($darfCockpit): ?>
-      <a class="menue-knopf" href="#/cockpit" data-ansicht="cockpit"><span
+      <a class="menue-knopf" href="#/cockpit" data-ansicht="cockpit"<?= $sichtAttr('abo.sehen') ?>><span
         class="menue-zeichen" aria-hidden="true">📊</span><span class="menue-wort">Cockpit</span></a>
     <?php endif; ?>
     <?php if ($darfGemeinde): ?>
-      <a class="menue-knopf" href="#/gemeinde" data-ansicht="gemeinde"><span
+      <a class="menue-knopf" href="#/gemeinde" data-ansicht="gemeinde"<?= $sichtAttr('gemeinde.ansehen') ?>><span
         class="menue-zeichen" aria-hidden="true">🔥</span><span class="menue-wort">Community</span></a>
     <?php endif; ?>
 
@@ -720,7 +733,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <!-- Die Update-Notiz liegt AUF dem Abmeldeknopf und ragt nach oben, wie bei
          Claude Code. Leer und versteckt, bis assets/js/aktualisierung.js eine
          neuere, gültig unterschriebene Fassung meldet. × blendet sie aus. -->
-    <div class="akt-notiz" id="akt-notiz" role="status" aria-live="polite" hidden></div>
+    <div class="akt-notiz" id="akt-notiz" role="status" aria-live="polite" hidden<?= $sichtAttr('aktualisierung.verwalten') ?>></div>
     <?php endif; ?>
 
     <button class="menue-knopf schmal" id="knopf-abmelden"
@@ -779,7 +792,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <button class="kopf-symbol gross" id="knopf-glossar" type="button"
             title="Glossar — alle Fachwörter der Academy"
             aria-label="Glossar öffnen">📖</button>
-    <button class="kopf-symbol gross" id="knopf-tutor" type="button"
+    <button class="kopf-symbol gross" id="knopf-tutor" type="button"<?= $sichtAttr('tutor.fragen') ?>
             title="Tutor öffnen — er erscheint rechts neben dem Stoff"
             aria-label="Tutor als Seitenmenü öffnen">💬</button>
   </div>
@@ -831,12 +844,15 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     wer:   <?= json_encode(['id' => (int)$wer['id'], 'name' => $wer['anzeigename'],
                             'kennung' => $wer['kennung'], 'rolle' => $wer['rolle'],
                             'ebene' => pu_ebene($wer),
+                            'sicht_ebene' => pu_ebene($sicht),
                             'ebene_anzeige' => PU_EBENEN[pu_ebene($wer)]['anzeige']],
                             JSON_UNESCAPED_UNICODE) ?>,
     // Die Rechte kommen mit der Seite, damit die Oberflaeche nichts anbietet,
     // was hinterher 403 gibt. Sie sind eine Anzeige-Hilfe, keine Sicherung:
     // geprueft wird jede Aktion noch einmal in api.php.
-    rechte: <?= json_encode(pu_recht_meine($wer), JSON_UNESCAPED_UNICODE) ?>,
+    // Die Rechte der SICHT: mit einer Persona die der gewählten Ebene. Die
+    // Oberfläche blendet danach aus; api.php prüft weiter das echte Konto.
+    rechte: <?= json_encode(pu_recht_meine($sicht), JSON_UNESCAPED_UNICODE) ?>,
     stufen: <?= json_encode(PU_STUFEN, JSON_UNESCAPED_UNICODE) ?>,
     einst:  <?= json_encode($einst, JSON_UNESCAPED_UNICODE) ?>,
     tutorBereit: <?= pu_tutor_bereit() ? 'true' : 'false' ?>

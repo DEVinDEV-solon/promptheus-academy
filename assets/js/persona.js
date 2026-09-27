@@ -56,8 +56,9 @@ async function personaMenueAuf(knopf) {
   menue.appendChild(PU.el('div', 'persona-kopf',
     'Kurs mit fremden Augen ansehen'));
   const hinweis = PU.el('p', 'persona-warum');
-  hinweis.textContent = 'Ändert, wie die Tutoren antworten und welche Aufnahmen '
-                      + 'du hörst. Deine Rechte bleiben, wie sie sind.';
+  hinweis.textContent = 'Ändert, wie die Tutoren antworten, welche Aufnahmen du hörst, '
+                      + 'wie die Seite aussieht und welche Menüs und Knöpfe erscheinen — '
+                      + 'wie bei dieser Ebene. Ausführen kannst du weiter alles.';
   menue.appendChild(hinweis);
 
   j.personen.forEach(p => {
@@ -134,6 +135,11 @@ async function personaWaehlen(schluessel, klasse) {
   try {
     const j = await PU.ruf('persona_setzen', { persona: schluessel, klasse: klasse });
     PU.persona = j.jetzt || null;
+    // Die Oberfläche folgt der Sicht: Rechte, Ebene, Stil (srv/persona.php).
+    if (Array.isArray(j.rechte)) PU.rechte = j.rechte;
+    if (j.sicht_ebene && PU.wer) PU.wer.sicht_ebene = j.sicht_ebene;
+    if (j.stil) document.documentElement.dataset.stil = j.stil;
+    PU.sichtAnwenden();
   } catch (e) {
     PU.melden(PU.h(e.message), 'schlecht');
     return;

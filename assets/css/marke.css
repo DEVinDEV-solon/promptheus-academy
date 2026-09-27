@@ -769,3 +769,29 @@ html[data-bewegung="wenig"] .zierband { opacity: .14; }
   body.uni::before, body.landing::before, .orn::before, .tor-flaeche::after, .kopf::after { display: none; }
   .zierband { opacity: .3; }
 }
+
+/* ============================================================ Stil „Klar“
+   Für Erwachsene (28.09.2026, Recherche in vps/Pläne/80_Recherche): Sie
+   arbeiten mit dem Programm, sie werden nicht von ihm unterhalten. Moodle,
+   itslearning und IServ zeigen Kurse, Aufgaben und Fortschritt — ohne Bild
+   hinter dem Text, ohne Titel und Serien in der Kopfzeile.
+
+   Klar heisst hier: kein Prometheus hinter der Seite, keine Bilder auf den
+   Karten, keine Ornamente, Überschriften ohne Serifen. Palette, Hell/Dunkel
+   und Schriftgrösse bleiben — die gehören der Person, nicht dem Stil.
+
+   `!important` an den Variablen, weil die persönliche Feineinstellung sie als
+   Inline-Stil am <html> setzt; der Stil soll sie überstimmen, solange er gilt. */
+html[data-stil="klar"] {
+  --bild-faktor:      0 !important;
+  --karten-faktor:    0 !important;
+  --ornament-staerke: 0 !important;
+  --ornament-fein:    0 !important;
+  --serif: var(--sans);
+}
+/* Titel und Serie sind Spielelemente. Punkte bleiben: Sie sind die Note. */
+html[data-stil="klar"] .kennzahl:has(#kz-titel),
+html[data-stil="klar"] .kennzahl:has(#kz-serie) { display: none; }
+
+/* Was die Sicht nicht sähe (Persona-Vorschau „P“, srv/persona.php). */
+[data-sicht-aus] { display: none !important; }

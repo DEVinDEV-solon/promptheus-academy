@@ -42,6 +42,9 @@ const PU_EINST_PERSON = [
     // "farbvarianten" an ist — sonst gilt überall die Vorgabe. Die Paletten
     // stehen in srv/varianten.php; die Namen hier sind die Wache dagegen,
     // dass über die Schnittstelle eine erfundene Variante gesetzt wird.
+    // Stil der Oberfläche (28.09.2026): auto = Lernende Academy, Erwachsene
+    // klar. Aufgelöst in pu_stil_wirksam() (srv/persona.php).
+    'stil'           => ['vorgabe' => 'auto', 'werte' => ['auto', 'academy', 'klar']],
     'variante'       => ['vorgabe' => 'schmiede',
                          'werte'  => ['schmiede','pergament','olymp','marmor','terrakotta','funkenflug']],
 

@@ -635,7 +635,9 @@ try {
             // "gesetzt: ja/nein" hinaus, nie als Wert.
             $aus['ebene']         = $ebene;
             $aus['ebene_anzeige'] = PU_EBENEN[$ebene]['anzeige'] ?? $ebene;
-            $aus['rechte']        = pu_recht_meine($ich);
+            // Die Rechte der SICHT (Persona-Vorschau): Reiter erscheinen wie bei
+            // der gewählten Ebene. Geprüft wird trotzdem jede Aktion mit $ich.
+            $aus['rechte']        = pu_recht_meine(pu_sicht_wer($ich));
 
             /* Was der Reiter „Sprache & Stimme" braucht — und zwar für JEDEN,
                nicht nur für die Verwaltung. Dort stellt sich jeder seine
@@ -1237,7 +1239,13 @@ try {
         case 'persona_setzen': {
             pu_recht_fordern('persona.nutzen');
             $jetzt = pu_persona_setzen((string)d('persona', ''), (string)d('klasse', ''));
-            pu_json_out(['ok' => true, 'jetzt' => $jetzt]);
+            // Die Oberfläche baut sich ohne Neuladen um: Rechte und Stil der
+            // Sicht kommen gleich mit (pu_sicht_wer). Geprüft wird weiter echt.
+            $sicht = pu_sicht_wer();
+            pu_json_out(['ok' => true, 'jetzt' => $jetzt,
+                         'rechte' => pu_recht_meine($sicht),
+                         'sicht_ebene' => pu_ebene($sicht),
+                         'stil' => pu_stil_wirksam(pu_einst_person($ichId), $sicht)]);
         }
 
         // ------------------------------------------------ Vorlesen
