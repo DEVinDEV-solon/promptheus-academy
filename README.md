@@ -12,11 +12,11 @@ deterministisch aus deinen Versuchen, nicht von einem Modell — eine Urkunde, d
 heute anders zustande käme als gestern, wäre wertlos.
 
 <p align="center">
-  <a href="https://example.org/promptheus/"><b>Webseite</b></a> ·
-  <a href="https://example.org/promptheus/stufen.php">Stufen</a> ·
-  <a href="https://example.org/promptheus/werkstatt.php">Werkstatt und Community</a> ·
-  <a href="https://example.org/promptheus/3d-game.php">3D-Game</a> ·
-  <a href="https://example.org/promptheus/preise.php">Preise</a>
+  <a href="https://promptheus-academy.de/"><b>Webseite</b></a> ·
+  <a href="https://promptheus-academy.de/stufen.php">Stufen</a> ·
+  <a href="https://promptheus-academy.de/werkstatt.php">Werkstatt und Community</a> ·
+  <a href="https://promptheus-academy.de/3d-game.php">3D-Game</a> ·
+  <a href="https://promptheus-academy.de/preise.php">Preise</a>
 </p>
 
 ---
@@ -114,7 +114,7 @@ ohne Antrag und ohne Warten.
 
 Jede Stufe endet mit einer Prüfung. Bewertet wird aus deinen Versuchen, nach
 festen Regeln. Mehr dazu auf der Webseite unter
-[Stufen](https://example.org/promptheus/stufen.php).
+[Stufen](https://promptheus-academy.de/stufen.php).
 
 ### Zehn Fachkurse
 
@@ -178,7 +178,7 @@ spezialisierten Köpfen.
   schon beim Tippen zu „xxx“. Die Gemeinde ist nur in registrierten Academies
   sichtbar und kommt mit der nächsten Fassung. Wie ein Werk aus der Werkstatt in
   die Community kommt, steht auf der Webseite unter
-  [Werkstatt und Community](https://example.org/promptheus/werkstatt.php).
+  [Werkstatt und Community](https://promptheus-academy.de/werkstatt.php).
 - **Steuer:** Rollen und Rechte, Token und Buchhaltung an einer Stelle, für
   Lehrkräfte und Verwaltung.
 
@@ -193,7 +193,7 @@ Dingen, die man anfasst und ausprobiert, mit echter Physik und kleinen
 Versuchen. Neue Kammern öffnen sich nur mit verdienten Funken, und der Stand
 bleibt über jeden Neustart erhalten. Das Spiel soll ein ganzes Schuljahr tragen,
 nicht nur einen Nachmittag. Mehr auf der Webseite unter
-[3D-Game](https://example.org/promptheus/3d-game.php).
+[3D-Game](https://promptheus-academy.de/3d-game.php).
 
 ---
 
