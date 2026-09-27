@@ -280,7 +280,8 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 /* Ist die Leiste zugeklappt, zeigt ein goldener Punkt am Leistenknopf, dass
    drinnen eine Notiz wartet. Punkt plus Titel, nicht Farbe allein. */
 #knopf-leiste.akt-punkt { position: relative; }
-#knopf-leiste.akt-punkt::after {
+/* Nur bei zugeklappter Leiste; offen steht die Notiz selbst da. */
+:root:has(#leiste.zu) #knopf-leiste.akt-punkt::after {
   content: ''; position: absolute; top: 3px; right: 3px; width: 8px; height: 8px;
   border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--grund);
 }

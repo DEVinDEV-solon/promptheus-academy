@@ -410,6 +410,11 @@ function pu_akt_ausblenden(int $lernender, string $fassung): void
 function pu_akt_oberflaeche(int $lernender, bool $jetzt = false): array
 {
     $s = pu_akt_pruefen($jetzt);
+    // Nach dem Einspielen ist das gespeicherte Angebot die eigene Fassung —
+    // bis zur nächsten Nachfrage. Dann ist es keins mehr (Probelauf 27.09.2026).
+    if (is_array($s['angebot']) && pu_akt_rang($s['angebot']['fassung']) <= pu_akt_rang(pu_fassung())) {
+        $s['angebot'] = null;
+    }
     $bereit = pu_akt_bereit();
     return [
         'fassung'     => pu_fassung(),
@@ -451,8 +456,20 @@ function pu_akt_entpacken(string $zip_datei, string $ziel, string $fassung, stri
     if (!class_exists('ZipArchive')) {
         return $nein('Die PHP-Erweiterung zip fehlt (php.ini: extension=zip).');
     }
+    // libzip öffnet unter Windows nur Pfade bis 260 Zeichen; die Academy liegt
+    // oft tiefer. Dann über eine Kopie unter kurzem Pfad (Probelauf 27.09.2026).
+    $kurz = null;
+    if (strlen($zip_datei) > 200) {
+        $kurz = tempnam(sys_get_temp_dir(), 'pup');
+        if ($kurz === false || !@copy($zip_datei, $kurz)) {
+            return $nein('Das Paket liess sich nicht zum Prüfen öffnen.');
+        }
+    }
     $zip = new ZipArchive();
-    if ($zip->open($zip_datei, ZipArchive::RDONLY) !== true) {
+    if ($zip->open($kurz ?? $zip_datei, ZipArchive::RDONLY) !== true) {
+        if ($kurz !== null) {
+            @unlink($kurz);
+        }
         return $nein('Das Paket ist kein lesbares ZIP.');
     }
     try {
@@ -527,6 +544,9 @@ function pu_akt_entpacken(string $zip_datei, string $ziel, string $fassung, stri
         return ['ok' => true, 'grund' => '', 'manifest' => $m];
     } finally {
         $zip->close();
+        if ($kurz !== null) {
+            @unlink($kurz);
+        }
     }
 }
 

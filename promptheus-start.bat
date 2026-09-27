@@ -112,8 +112,12 @@ set "AKT=%~dp0data\aktualisierung"
 
 :lauf
 rem --- Update einspielen oder zuruecknehmen (falls angefordert) ----
-if exist "%AKT%\bereit.json" "%RUN%" "%~dp0srv\aktualisieren_cli.php"
-if exist "%AKT%\zurueck" "%RUN%" "%~dp0srv\aktualisieren_cli.php"
+rem   Ueber -r und require, nicht als Hauptskript: Windows sperrt die
+rem   Hauptdatei eines laufenden PHP-Prozesses, und genau diese Datei kann
+rem   das Update ersetzen wollen (Probelauf 27.09.2026). Eingebundene
+rem   Dateien sperrt PHP nicht.
+if exist "%AKT%\bereit.json" "%RUN%" -r "require 'srv/aktualisieren_cli.php';"
+if exist "%AKT%\zurueck" "%RUN%" -r "require 'srv/aktualisieren_cli.php';"
 if exist "%AKT%\neustart" del "%AKT%\neustart" >nul 2>&1
 
 rem --- Neue Startdatei? Dann sie weitermachen lassen ---------------

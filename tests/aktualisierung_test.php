@@ -297,6 +297,25 @@ pruefe('Rückweg mit Schemaänderung', $z['ok'] && str_contains($z['meldung'], '
 gleich('Schema wieder 5', 5, pu_akt_db_version($db));
 pruefe('die neuere Datenbank bleibt als .nach-1.1.0 liegen', is_file($db . '.nach-1.1.0'));
 
+// Eine Datei lässt sich nicht ersetzen (unter Windows: gesperrt; hier: ein
+// Ordner steht im Weg). Der Tausch bricht ab, alles andere wird
+// zurückgelegt, VERSION bleibt alt.
+@unlink($w . '/promptheus-start.bat.neu');
+file_put_contents($w . '/promptheus-start.bat', "@echo alt\r\n");
+@mkdir($w . '/srv/zz_gesperrt.php', 0775, true);
+file_put_contents($w . '/srv/zz_gesperrt.php/drin', 'x');
+$gesperrt = $neu_dateien + ['srv/zz_gesperrt.php' => "<?php // neu\n"];
+pu_akt_entpacken(paket($tmp . '/g.zip', '1.1.0', $gesperrt), $tmp . '/akt/1.1.0/neu', '1.1.0', '1.0.0');
+file_put_contents($tmp . '/akt/bereit.json', json_encode(['fassung' => '1.1.0']));
+$t = pu_akt_tausch($w, $tmp . '/akt', $db);
+pruefe('gesperrte Datei: Tausch bricht ab und legt zurück', !$t['ok'] && str_contains($t['meldung'], 'zurückgelegt'), $t['meldung']);
+gleich('… index.php wieder alt', "<?php echo 'alt';\n", file_get_contents($w . '/index.php'));
+gleich('… VERSION bleibt 1.0.0', "1.0.0\n", file_get_contents($w . '/VERSION'));
+pruefe('… srv/neu.php wieder weg', !is_file($w . '/srv/neu.php'));
+pruefe('… keine neue bat daneben', !is_file($w . '/promptheus-start.bat.neu'));
+@unlink($w . '/srv/zz_gesperrt.php/drin');
+@rmdir($w . '/srv/zz_gesperrt.php');
+
 // Ein verändertes Bereitgelegtes wird nicht eingespielt.
 pu_akt_entpacken(paket($tmp . '/n.zip', '1.1.0', $neu_dateien), $tmp . '/akt/1.1.0/neu', '1.1.0', '1.0.0');
 file_put_contents($tmp . '/akt/1.1.0/neu/index.php', "<?php system('boese');\n");

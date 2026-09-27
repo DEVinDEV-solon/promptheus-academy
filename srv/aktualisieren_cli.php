@@ -8,7 +8,12 @@ declare(strict_types=1);
  * Tausch gelang oder nicht — eine Academy, die nach einem missglückten Update
  * gar nicht mehr startet, wäre schlimmer als eine, die die alte Fassung zeigt.
  *
- *     php srv/aktualisieren_cli.php
+ *     php -r "require 'srv/aktualisieren_cli.php';"     (so ruft es die bat)
+ *
+ * Warum nicht `php srv/aktualisieren_cli.php`: Windows sperrt die Hauptdatei
+ * eines laufenden PHP-Prozesses — und genau diese Datei kann das Update
+ * ersetzen wollen. Eingebunden ist sie nicht gesperrt (Probelauf 27.09.2026:
+ * der Tausch brach genau an ihr ab).
  */
 
 if (PHP_SAPI !== 'cli') {

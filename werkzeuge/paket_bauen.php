@@ -89,13 +89,36 @@ if ($zip->open($ziel, ZipArchive::CREATE) !== true) {
 }
 $zip->addFromString('manifest.json', json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 foreach (array_keys($manifest['dateien']) as $p) {
+    $voll = $wurzel . '/' . $p;
     if ($p === 'VERSION') {
         $zip->addFromString('VERSION', $fassung . "\n");
+    } elseif (strlen($voll) > 240) {
+        // libzip öffnet Dateien erst beim Schliessen und scheitert unter
+        // Windows an Pfaden über 260 Zeichen — PHP selbst nicht. Lange Pfade
+        // deshalb über PHP lesen (Probelauf 27.09.2026).
+        $zip->addFromString($p, (string)file_get_contents($voll));
     } else {
-        $zip->addFile($wurzel . '/' . $p, $p);
+        $zip->addFile($voll, $p);
     }
 }
-$zip->close();
+if (!$zip->close()) {
+    fwrite(STDERR, "Das Paket liess sich nicht schreiben: " . $zip->getStatusString() . "\n");
+    @unlink($ziel);
+    exit(1);
+}
+// Gegenprobe: jede Datei des Manifests steht im Paket, mit ihrer Prüfsumme.
+$probe = new ZipArchive();
+$probe->open($ziel, ZipArchive::RDONLY);
+foreach ($manifest['dateien'] as $p => $sha) {
+    $inhalt = $probe->getFromName($p);
+    if ($inhalt === false || !hash_equals($sha, hash('sha256', $inhalt))) {
+        fwrite(STDERR, "Gegenprobe: $p fehlt im Paket oder stimmt nicht.\n");
+        $probe->close();
+        @unlink($ziel);
+        exit(1);
+    }
+}
+$probe->close();
 
 printf("Paket: dist/promptheus-academy-%s.zip\n  %d Dateien, %s MB, SHA-256 %s\n",
     $fassung, count($manifest['dateien']), number_format(filesize($ziel) / 1048576, 1, ',', '.'), hash_file('sha256', $ziel));

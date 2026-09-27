@@ -31,6 +31,32 @@ function pu_akt_log(string $ordner, string $zeile): void
     @file_put_contents($ordner . '/protokoll.log', gmdate('Y-m-d\TH:i:s\Z') . ' ' . $zeile . "\n", FILE_APPEND | LOCK_EX);
 }
 
+/**
+ * Eine neue, leere Datei unter einem kurzen Pfad (Systemtemp). Für libzip
+ * und SQLite, die unter Windows nur bis 260 Zeichen arbeiten.
+ */
+function pu_akt_kurz_neu(string $vorsilbe): string
+{
+    $d = tempnam(sys_get_temp_dir(), $vorsilbe);
+    if ($d === false) {
+        throw new RuntimeException('Keine Temp-Datei.');
+    }
+    return $d;
+}
+
+/** Verschiebt (auch über Laufwerksgrenzen); PHP selbst kennt lange Pfade. */
+function pu_akt_verschieben(string $von, string $nach): bool
+{
+    if (@rename($von, $nach)) {
+        return true;
+    }
+    if (@copy($von, $nach)) {
+        @unlink($von);
+        return true;
+    }
+    return false;
+}
+
 /** Liest ein Manifest (Datei) oder gibt ein leeres zurück. */
 function pu_akt_manifest_lesen(string $datei): array
 {
@@ -90,27 +116,45 @@ function pu_akt_sichern(string $wurzel, string $ordner, string $db_datei, array 
     if (!@mkdir($s, 0775, true)) {
         throw new RuntimeException('Der Sicherungsordner lässt sich nicht anlegen.');
     }
+    // libzip und VACUUM INTO arbeiten unter Windows nur bis 260 Zeichen; die
+    // Academy liegt oft tiefer (Probelauf 27.09.2026). Beide schreiben deshalb
+    // in einen kurzen Temp-Pfad, PHP verschiebt danach an den Platz.
+    $zip_tmp = pu_akt_kurz_neu('pus');
     $zip = new ZipArchive();
-    if ($zip->open($s . '/programm.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+    if ($zip->open($zip_tmp, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
         throw new RuntimeException('Die Programmsicherung lässt sich nicht anlegen.');
     }
     $gesichert = [];
     foreach (array_unique($pfade) as $p) {
-        if (pu_akt_pfad_ok($p) && is_file($wurzel . '/' . $p)) {
-            $zip->addFile($wurzel . '/' . $p, $p);
+        $voll = $wurzel . '/' . $p;
+        if (pu_akt_pfad_ok($p) && is_file($voll)) {
+            // libzip scheitert unter Windows an Pfaden über 260 Zeichen, PHP
+            // nicht: lange Pfade deshalb über PHP lesen (Probelauf 27.09.2026).
+            if (strlen($voll) > 240) {
+                $zip->addFromString($p, (string)file_get_contents($voll));
+            } else {
+                $zip->addFile($voll, $p);
+            }
             $gesichert[] = $p;
         }
     }
     if (is_file($wurzel . '/manifest.json')) {
         $zip->addFile($wurzel . '/manifest.json', 'manifest.json');
     }
-    if (!$zip->close()) {
+    if (!$zip->close() || !pu_akt_verschieben($zip_tmp, $s . '/programm.zip')) {
+        @unlink($zip_tmp);
         throw new RuntimeException('Die Programmsicherung liess sich nicht schreiben.');
     }
     $dbv = -1;
     if (is_file($db_datei)) {
+        $db_tmp = pu_akt_kurz_neu('pud');
+        @unlink($db_tmp);   // VACUUM INTO schreibt nie über eine vorhandene Datei
         $pdo = new PDO('sqlite:' . $db_datei);
-        $pdo->exec('VACUUM INTO ' . $pdo->quote($s . '/promptheus.db'));
+        $pdo->exec('VACUUM INTO ' . $pdo->quote($db_tmp));
+        $pdo = null;
+        if (!pu_akt_verschieben($db_tmp, $s . '/promptheus.db')) {
+            throw new RuntimeException('Die Datenbanksicherung liess sich nicht ablegen.');
+        }
         $dbv = pu_akt_db_version($db_datei);
     }
     file_put_contents($s . '/info.json', json_encode([
@@ -128,10 +172,16 @@ function pu_akt_zuruecklegen(string $wurzel, string $sicherung, array $dazu): vo
 {
     $info = json_decode((string)file_get_contents($sicherung . '/info.json'), true) ?: [];
     $vorher = array_flip((array)($info['dateien'] ?? []));
+    $zip_kurz = pu_akt_kurz_neu('pur');
     $zip = new ZipArchive();
-    if ($zip->open($sicherung . '/programm.zip', ZipArchive::RDONLY) !== true) {
+    if (!@copy($sicherung . '/programm.zip', $zip_kurz) || $zip->open($zip_kurz, ZipArchive::RDONLY) !== true) {
+        @unlink($zip_kurz);
         throw new RuntimeException('Die Programmsicherung ist nicht lesbar.');
     }
+    register_shutdown_function(static function () use ($zip_kurz) { @unlink($zip_kurz); });
+    // Nicht beim ersten Fehler aufhören: jede Datei, die sich zurücklegen
+    // lässt, wird zurückgelegt; gemeldet wird am Ende, was nicht ging.
+    $gescheitert = [];
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $name = (string)$zip->getNameIndex($i);
         if ($name !== 'manifest.json' && !pu_akt_pfad_ok($name)) {
@@ -148,15 +198,21 @@ function pu_akt_zuruecklegen(string $wurzel, string $sicherung, array $dazu): vo
             }
             $ziel .= '.neu';
         }
+        if ($name !== PU_AKT_BAT && is_file($ziel) && hash_equals(hash_file('sha256', $ziel), hash('sha256', $inhalt))) {
+            continue;   // schon so: nicht anfassen
+        }
         @mkdir(dirname($ziel), 0775, true);
         $tmp = $ziel . '.pu-alt';
         if (file_put_contents($tmp, $inhalt) === false || !@rename($tmp, $ziel)) {
             @unlink($tmp);
-            $zip->close();
-            throw new RuntimeException("Datei lässt sich nicht zurücklegen: $name");
+            $gescheitert[] = $name;
         }
     }
     $zip->close();
+    if ($gescheitert !== []) {
+        throw new RuntimeException('Nicht zurückgelegt: ' . implode(', ', array_slice($gescheitert, 0, 5))
+            . (count($gescheitert) > 5 ? ' und ' . (count($gescheitert) - 5) . ' weitere' : ''));
+    }
     foreach ($dazu as $p) {
         if ($p !== PU_AKT_BAT && pu_akt_pfad_ok($p) && !isset($vorher[$p]) && is_file($wurzel . '/' . $p)) {
             @unlink($wurzel . '/' . $p);
@@ -209,11 +265,16 @@ function pu_akt_tausch(string $wurzel, string $ordner, string $db_datei): array
 
     // 3.–5. Tauschen
     try {
-        foreach ($m_neu['dateien'] as $p => $_) {
+        // VERSION zuletzt: bricht der Tausch ab, meldet die Academy nie eine
+        // Fassung, deren Dateien sie nicht vollständig hat.
+        $reihe = array_keys($m_neu['dateien']);
+        usort($reihe, static fn ($a, $b) => ($a === 'VERSION') <=> ($b === 'VERSION') ?: strcmp($a, $b));
+        foreach ($reihe as $p) {
             $ziel = $p === PU_AKT_BAT ? $wurzel . '/' . PU_AKT_BAT . '.neu' : $wurzel . '/' . $p;
-            if ($p === PU_AKT_BAT && is_file($wurzel . '/' . $p)
-                && hash_file('sha256', $wurzel . '/' . $p) === $m_neu['dateien'][$p]) {
-                continue;   // unverändert: nichts neben die laufende bat legen
+            // Unverändert: nicht anfassen — weniger Schreiben, weniger, was
+            // gesperrt sein kann (und nichts neben die laufende bat legen).
+            if (is_file($wurzel . '/' . $p) && hash_equals($m_neu['dateien'][$p], hash_file('sha256', $wurzel . '/' . $p))) {
+                continue;
             }
             pu_akt_ablegen_datei($neu . '/' . $p, $ziel);
         }
