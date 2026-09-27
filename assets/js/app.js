@@ -516,7 +516,7 @@ PU.EINST_VORGABE = {
   kontrast: 'normal', bewegung: 'normal', breite: 'normal',
   medienspalte: 'ja', hinweis_fragen: 'ja', zeit_anzeigen: 'nein',
   athena_auto: 'ja', infos_woerter: '160', tagesziel: '100',
-  lob_popup: 'ja', lob_dauer: '6'
+  lob_popup: 'auto', lob_dauer: '6'
 };
 
 PU.e = function (schluessel) {
@@ -546,6 +546,24 @@ PU.darf = function (recht) {
 PU.stilAufloesen = function (wunsch) {
   if (wunsch === 'academy' || wunsch === 'klar') return wunsch;
   return (PU.wer && PU.wer.sicht_ebene === 'schueler') ? 'academy' : 'klar';
+};
+
+/* Die Wörter des Stils (Stufe A). `academy` ist das Wort der Academy; im Stil
+ * „Klar" gilt, was PU.worteKlar dafür hat — sonst bleibt es. Nie Lehrstoff. */
+PU.wort = function (schluessel, academy) {
+  if (document.documentElement.dataset.stil !== 'klar') return academy;
+  return (PU.worteKlar || {})[schluessel] || academy;
+};
+
+/** Den Stil setzen und alles umschreiben, was ein Wort des Stils trägt. */
+PU.stilSetzen = function (stil) {
+  document.documentElement.dataset.stil = stil;
+  document.querySelectorAll('[data-wort]').forEach(el => {
+    el.textContent = PU.wort(el.dataset.wort, el.dataset.wortAcademy);
+  });
+  // Die grobe Krume nur ausserhalb von „Lernen" neu setzen: dort trägt sie
+  // Kurs- und Lektionstitel, die die Adresse allein nicht kennt.
+  if (PU.routeLesen && PU.routeLesen().ansicht !== 'lernen') PU.pfadAusRoute();
 };
 
 PU.sichtAnwenden = function () {
@@ -786,7 +804,10 @@ PU.modalSchliessen = function () {
  * es wegklickt. Beides ist gewollt: manche lesen den Satz, andere sind schon
  * bei der nächsten Aufgabe. */
 PU.lobZeigen = function (spruch, punkte) {
-  if (!PU.eJa('lob_popup') || !spruch) return;
+  // "auto": an in der Academy, aus im Stil „Klar" — Erwachsene brauchen kein Feuer.
+  const lob = PU.e('lob_popup');
+  const an  = lob === 'auto' ? document.documentElement.dataset.stil !== 'klar' : lob === 'ja';
+  if (!an || !spruch) return;
 
   const kasten = document.getElementById('lob');
   if (!kasten) return;

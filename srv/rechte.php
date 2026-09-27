@@ -179,6 +179,17 @@ const PU_RECHTE = [
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['stand', 'kurs_stand']],
 
+    // Tagesziel und Rückfrage vor einem Hinweis. Beides dreht an den Punkten:
+    // Das Ziel legt fest, wofür man sich anstrengt, die Rückfrage schützt vor
+    // dem versehentlichen Hinweis, der Punkte kostet. Für Schüler ab Werk AUS
+    // (Entscheid des Betreibers 28.09.2026) — sie lernen mit der Vorgabe, bis
+    // ein Erwachsener den Schalter hier umlegt. Keine Aktion: geprüft wird in
+    // `einst_setzen` für die Schlüssel aus PU_EINST_PUNKTE.
+    ['name' => 'lernen.selbst_regeln', 'gruppe' => 'Lernen, Prüfung & Fortschritt',
+     'was' => 'Tagesziel und Rückfrage vor Hinweisen selbst einstellen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 0],
+     'aktionen' => []],
+
     ['name' => 'auswertung.lehrersehen', 'gruppe' => 'Lernen, Prüfung & Fortschritt',
      'was' => 'Auswertung über alle Lernenden sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 0, 'schueler' => 0],

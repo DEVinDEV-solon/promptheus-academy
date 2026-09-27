@@ -114,6 +114,16 @@ pu_persona_setzen('eltern');
 $alsKindSicht = pu_sicht_wer($alsKind);
 gleich('ohne Persona-Recht: Sicht = eigenes Konto', 'schueler', pu_ebene($alsKindSicht));
 
+// Stufe A: die Wörter des Stils. Nur, was in der Liste steht, ändert sich.
+gleich('Klar: Lernen heisst Kurse',        'Kurse',        pu_wort('lernen', 'Lernen', 'klar'));
+gleich('Klar: Tutor heisst KI-Assistent',  'KI-Assistent', pu_wort('tutor', 'Tutor', 'klar'));
+gleich('Academy: Wörter bleiben',          'Tutor',        pu_wort('tutor', 'Tutor', 'academy'));
+gleich('Klar: Unbekanntes bleibt',         'Tokenicer',    pu_wort('tokenicer', 'Tokenicer', 'klar'));
+$html = pu_wort_html('ziel', 'Der 7. Kurs', 'klar');
+pruefe('HTML trägt beide Fassungen',
+       str_contains($html, 'data-wort="ziel"') && str_contains($html, 'data-wort-academy="Der 7. Kurs"')
+       && str_ends_with($html, '>Zusatzkurs'));
+
 // ================================================================ Klassen
 gruppe('Beim Schüler entscheidet die Klasse das Alter');
 

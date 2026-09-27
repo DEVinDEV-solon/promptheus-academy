@@ -702,6 +702,9 @@ try {
         }
 
         case 'einst_setzen': {
+            if (in_array((string)d('schluessel'), PU_EINST_PUNKTE, true)) {
+                pu_recht_fordern('lernen.selbst_regeln');
+            }
             $wert = pu_einst_person_setzen($ichId, (string)d('schluessel'), (string)d('wert'));
             pu_json_out(['ok' => true, 'wert' => $wert]);
         }

@@ -134,7 +134,7 @@ $kennzahlen = $offen ? [] : pu_kennzahlen($sicht);
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>PROMPTHEUS ACADEMY — KI-Feuer für junge Köpfe</title>
+<title<?= pu_wort_html('fenster', 'PROMPTHEUS ACADEMY — KI-Feuer für junge Köpfe', $stil) ?></title>
 <link rel="icon" href="<?= pu_v('assets/img/promptheus.svg') ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= pu_v('assets/css/promptheus.css') ?>">
 <!-- Die Markenebene liegt darüber: Ornamente, Lapis, durchscheinende Flächen,
@@ -569,12 +569,12 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
        Browser, und assets/js/route.js macht daraus wieder eine Ansicht. -->
   <div class="leiste-liste" id="menue">
     <a class="menue-knopf" href="#/lernen" data-ansicht="lernen"><span
-      class="menue-zeichen" aria-hidden="true">📚</span><span class="menue-wort">Lernen</span></a>
+      class="menue-zeichen" aria-hidden="true">📚</span><span class="menue-wort"<?= pu_wort_html('lernen', 'Lernen', $stil) ?></span></a>
     <a class="menue-knopf" href="#/fortschritt" data-ansicht="fortschritt"><span
       class="menue-zeichen" aria-hidden="true">📈</span><span class="menue-wort">Fortschritt</span></a>
     <?php if ($darfTutor): ?>
       <a class="menue-knopf" href="#/tutor" data-ansicht="tutor"<?= $sichtAttr('tutor.fragen') ?>><span
-        class="menue-zeichen" aria-hidden="true">💬</span><span class="menue-wort">Tutor</span></a>
+        class="menue-zeichen" aria-hidden="true">💬</span><span class="menue-wort"<?= pu_wort_html('tutor', 'Tutor', $stil) ?></span></a>
     <?php endif; ?>
     <?php if ($tokenicerAn): ?>
       <a class="menue-knopf" href="#/tokenicer" data-ansicht="tokenicer"<?= $sichtAttr('tokenicer.nutzen') ?>><span
@@ -599,7 +599,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
          eigene Adresse hat er trotzdem (`#/ziel`), damit er sich verhält wie
          alles andere im Menü: teilbar, neu ladbar, mit Zurück-Knopf. -->
     <a class="menue-knopf menue-geschenk" href="#/ziel" data-ansicht="ziel"><span
-      class="menue-zeichen" aria-hidden="true">🎁</span><span class="menue-wort">Der 7. Kurs</span></a>
+      class="menue-zeichen" aria-hidden="true">🎁</span><span class="menue-wort"<?= pu_wort_html('ziel', 'Der 7. Kurs', $stil) ?></span></a>
   </div>
 
   <!-- Der Fuss: was die Seite aussehen lässt, plus der Ausgang. Die Farbliste
@@ -854,6 +854,8 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     // Oberfläche blendet danach aus; api.php prüft weiter das echte Konto.
     rechte: <?= json_encode(pu_recht_meine($sicht), JSON_UNESCAPED_UNICODE) ?>,
     stufen: <?= json_encode(PU_STUFEN, JSON_UNESCAPED_UNICODE) ?>,
+    // Die Wörter des Stils „Klar" (Stufe A). Gepflegt in srv/persona.php.
+    worteKlar: <?= json_encode(PU_WORTE_KLAR, JSON_UNESCAPED_UNICODE) ?>,
     einst:  <?= json_encode($einst, JSON_UNESCAPED_UNICODE) ?>,
     tutorBereit: <?= pu_tutor_bereit() ? 'true' : 'false' ?>
   };

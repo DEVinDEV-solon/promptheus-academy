@@ -117,7 +117,10 @@ PU.tutorZeichnen = function () {
   const gitter = PU.el('div', 'mit-spalte');
   const links  = PU.el('div', 'tutor-spalte');
   const kopfkarte = PU.el('div', 'textkarte titelkarte');
-  kopfkarte.appendChild(PU.el('h1', '', 'Frag einen Tutor'));
+  const titel = PU.el('h1', '', PU.wort('tutor_titel', 'Frag einen Tutor'));
+  titel.dataset.wort = 'tutor_titel';
+  titel.dataset.wortAcademy = 'Frag einen Tutor';
+  kopfkarte.appendChild(titel);
   // Ein Satz, kein Absatz: wie die Anrede funktioniert, steht rechts neben
   // den Tutoren. Hier steht nur, was jemanden zum Fragen bringt — nämlich
   // dass Fragen nichts kostet.

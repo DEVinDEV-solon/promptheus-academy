@@ -328,7 +328,7 @@ function darstellungZeichnen(ziel) {
     'Automatisch gibt Lernenden die Academy und Erwachsenen die klare Ansicht.',
     ['auto', 'academy', 'klar'], p.stil || 'auto',
     w => personSetzen('stil', w).then(() => {
-      document.documentElement.dataset.stil = PU.stilAufloesen(w);
+      PU.stilSetzen(PU.stilAufloesen(w));
     }),
     { auto: 'Automatisch', academy: '🔥 Academy', klar: '▫ Klar' });
 
@@ -379,7 +379,11 @@ function lernenZeichnen(ziel) {
     'Video und Hörfolge rechts neben dem Stoff. Aus, wenn du lieber nur liest.',
     ['ja', 'nein'], p.medienspalte, w => personSetzen('medienspalte', w), JA_NEIN);
 
-  zeileWahl(ziel, 'Vor einem Hinweis nachfragen',
+  // Tagesziel und Rückfrage drehen an den Punkten. Schüler sehen sie ab Werk
+  // nicht (Recht `lernen.selbst_regeln`); der Server prüft dasselbe.
+  const punkteSelbst = PU.darf('lernen.selbst_regeln');
+
+  if (punkteSelbst) zeileWahl(ziel, 'Vor einem Hinweis nachfragen',
     'Hinweise kosten Punkte. Die Rückfrage verhindert den versehentlichen Klick.',
     ['ja', 'nein'], p.hinweis_fragen, w => personSetzen('hinweis_fragen', w), JA_NEIN);
 
@@ -391,7 +395,7 @@ function lernenZeichnen(ziel) {
     'Bei Freitextaufgaben schreibt Athena nach der Bewertung, was beim nächsten Mal besser geht. Die Punkte sind da längst gerechnet.',
     ['ja', 'nein'], p.athena_auto, w => personSetzen('athena_auto', w), JA_NEIN);
 
-  zeileZahl(ziel, 'Tagesziel',
+  if (punkteSelbst) zeileZahl(ziel, 'Tagesziel',
     'Punkte, die du dir für heute vornimmst. Erscheint als Balken im Fortschritt. 0 schaltet das Ziel ab.',
     p.tagesziel, 0, 2000, w => personSetzen('tagesziel', w), 'Punkte');
 }
@@ -404,7 +408,8 @@ function lobZeichnen(ziel) {
 
   zeileWahl(ziel, 'Lob-Fenster nach einer richtigen Antwort',
     'Ein Spruch, ein Feuer, deine Punkte. Die Sprüche stehen im Wissensspeicher unter 00_Fundament/motivation.md — ein Tutor kann sie ändern.',
-    ['ja', 'nein'], p.lob_popup, w => personSetzen('lob_popup', w), JA_NEIN);
+    ['auto', 'ja', 'nein'], p.lob_popup || 'auto', w => personSetzen('lob_popup', w),
+    { auto: 'Automatisch (Academy an, Klar aus)', ja: 'Ja', nein: 'Nein' });
 
   zeileZahl(ziel, 'Fenster schliesst sich nach',
     'Sekunden. Bei 0 bleibt es stehen, bis du das × drückst.',

@@ -138,7 +138,7 @@ async function personaWaehlen(schluessel, klasse) {
     // Die Oberfläche folgt der Sicht: Rechte, Ebene, Stil (srv/persona.php).
     if (Array.isArray(j.rechte)) PU.rechte = j.rechte;
     if (j.sicht_ebene && PU.wer) PU.wer.sicht_ebene = j.sicht_ebene;
-    if (j.stil) document.documentElement.dataset.stil = j.stil;
+    if (j.stil) PU.stilSetzen(j.stil);
     PU.sichtAnwenden();
   } catch (e) {
     PU.melden(PU.h(e.message), 'schlecht');

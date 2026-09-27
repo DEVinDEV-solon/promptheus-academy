@@ -96,7 +96,8 @@ const PU_EINST_PERSON = [
     'tagesziel'      => ['vorgabe' => '100',    'zahl'  => [0, 2000]],
 
     // -------- Lob
-    'lob_popup'      => ['vorgabe' => 'ja',     'werte' => ['ja', 'nein']],
+    // auto: an in der Academy, aus im Stil „Klar" (Stufe A, 28.09.2026).
+    'lob_popup'      => ['vorgabe' => 'auto',   'werte' => ['auto', 'ja', 'nein']],
     'lob_dauer'      => ['vorgabe' => '6',      'zahl'  => [0, 60]],
 
     // -------- Die eigene Tutorstimme
@@ -382,6 +383,13 @@ function pu_einst(int $lernender, string $schluessel): string
 {
     return pu_einst_person($lernender)[$schluessel] ?? '';
 }
+
+/**
+ * Persönliche Schlüssel, die an den Punkten drehen. Wer sie setzt, braucht
+ * das Recht `lernen.selbst_regeln` — für Schüler ab Werk aus. Die Prüfung
+ * steht in api.php (`einst_setzen`), weil sie das angemeldete Konto braucht.
+ */
+const PU_EINST_PUNKTE = ['tagesziel', 'hinweis_fragen'];
 
 function pu_einst_person_setzen(int $lernender, string $schluessel, string $wert): string
 {

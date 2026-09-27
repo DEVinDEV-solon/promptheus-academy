@@ -232,3 +232,35 @@ function pu_stil_wirksam(array $einst, ?array $sicht): string
     if ($sicht === null) return 'academy';
     return pu_ebene($sicht) === 'schueler' ? 'academy' : 'klar';
 }
+
+/**
+ * Stufe A (Recherche §4): die Wörter des Stils „Klar".
+ *
+ * Nur Menü, Pfadleiste, Fenstertitel und Überschriften — **nie der Lehrstoff**.
+ * Was hier fehlt, heisst in beiden Stilen gleich. Die Oberfläche bekommt die
+ * Liste als PU.worteKlar und schaltet beim Stilwechsel ohne Neuladen um;
+ * gepflegt wird sie nur hier.
+ */
+const PU_WORTE_KLAR = [
+    'lernen'      => 'Kurse',
+    'tutor'       => 'KI-Assistent',
+    'tutor_titel' => 'KI-Assistent fragen',
+    'ziel'        => 'Zusatzkurs',
+    'fenster'     => 'PROMPTHEUS Academy',
+];
+
+/** Das Wort für einen Stil; `$academy` ist das Wort der Academy. */
+function pu_wort(string $schluessel, string $academy, string $stil): string
+{
+    return $stil === 'klar' ? (PU_WORTE_KLAR[$schluessel] ?? $academy) : $academy;
+}
+
+/**
+ * Ein umschaltbares Wort als HTML: der Text des Stils plus beide Fassungen als
+ * Merkmal, damit PU.worteAnwenden() beim Wechsel ohne Rückfrage tauschen kann.
+ */
+function pu_wort_html(string $schluessel, string $academy, string $stil): string
+{
+    return ' data-wort="' . pu_h($schluessel) . '" data-wort-academy="' . pu_h($academy) . '">'
+         . pu_h(pu_wort($schluessel, $academy, $stil));
+}

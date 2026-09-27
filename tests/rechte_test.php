@@ -246,4 +246,15 @@ pruefe('pu_tutor_weg: Automatik gefunden', isset($auto[0]));
 pruefe('pu_tutor_weg: Automatik wählt nie die CLI',
        isset($auto[0]) && !str_contains(substr($auto[0], (int)strpos($auto[0], "\n")), 'cli'));
 
+// Tagesziel und Hinweis-Rückfrage drehen an den Punkten: Erwachsene stellen
+// sie ein, Schüler lernen mit der Vorgabe.
+gleich('Schüler: Punkte-Einstellungen ab Werk aus', 0,
+       pu_recht('lernen.selbst_regeln')['vorgabe']['schueler'] ?? null);
+foreach (['admin', 'verwaltung', 'lehrer', 'eltern'] as $e) {
+    gleich("$e: Punkte-Einstellungen ab Werk an", 1, pu_recht('lernen.selbst_regeln')['vorgabe'][$e] ?? null);
+}
+$apiQuelle = (string)file_get_contents(__DIR__ . '/../api.php');
+pruefe('api.php: einst_setzen prüft das Recht für PU_EINST_PUNKTE',
+       (bool)preg_match("/case 'einst_setzen'.{0,200}PU_EINST_PUNKTE.{0,80}pu_recht_fordern\('lernen\.selbst_regeln'\)/s", $apiQuelle));
+
 bilanz();

@@ -248,7 +248,8 @@ PU.pfadAusRoute = function () {
   const r = PU.routeLesen();
 
   if (r.ansicht !== 'lernen') {
-    return PU.pfadSetzen([['Home', '#/lernen'], [PU.ANSICHT_NAMEN[r.ansicht] || r.ansicht, null]]);
+    const name = PU.ANSICHT_NAMEN[r.ansicht] || r.ansicht;
+    return PU.pfadSetzen([['Home', '#/lernen'], [PU.wort ? PU.wort(r.ansicht, name) : name, null]]);
   }
   if (r.wo === 'liste') return PU.pfadSetzen([['Home', null]]);
 
