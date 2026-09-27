@@ -56,6 +56,28 @@ die Tutoren sprechen lassen will, kopiert `.env.example` nach `.env` und trägt
 einen OpenRouter-Schlüssel ein — oder setzt ihn in den Einstellungen unter
 „Tutor-KI". Der Schlüssel wird nie angezeigt, auch nicht teilweise.
 
+## Updates
+
+Die Fassung steht in `VERSION`. Die Academy fragt beim Öffnen und danach
+höchstens einmal am Tag bei `promptheus-academy.de` nach, ob es eine neuere
+gibt, und nimmt nur Antworten an, die mit dem eingebauten Schlüssel
+unterschrieben sind (`srv/aktualisierung.php`). Administratoren sehen dann
+unten links über „Abmelden“ eine Notiz; *Installieren* lädt, prüft, sichert
+und startet über `promptheus-start.bat` neu. `data/`, `.env` und `php/`
+bleiben unberührt. Zurück geht es unter Einstellungen → Wartung.
+
+Ein Release (Entwickler-PC), danach im Cockpit unter Updates holen, prüfen,
+freigeben:
+
+```
+VERSION anheben → git commit → git tag v1.3.0 → git push && git push --tags
+php werkzeuge/paket_bauen.php
+gh release create v1.3.0 dist/promptheus-academy-1.3.0.zip --title "1.3.0" --notes-file HINWEISE.md
+```
+
+Probelauf mit einem Testordner: dort in `.env` `PU_UPDATE_KANAL=probe`.
+Plan und Hintergrund: `vps/Pläne/90_Updates/UPDATE-PLAN.md`.
+
 ## Lizenz
 
 **PolyForm Shield 1.0.0** — benutzen, ändern und weitergeben ist erlaubt, auch
