@@ -75,7 +75,9 @@ php werkzeuge/paket_bauen.php
 gh release create v1.3.0 dist/promptheus-academy-1.3.0.zip --title "1.3.0" --notes-file HINWEISE.md
 ```
 
-Probelauf mit einem Testordner: dort in `.env` `PU_UPDATE_KANAL=probe`.
+Probelauf mit einem Testordner: dort in `.env` `PU_UPDATE_KANAL=probe` und,
+damit er neben der eigentlichen Academy läuft, `PU_PORT=8802`. Das Startskript
+beendet sonst, was auf 8801 lauscht.
 Plan und Hintergrund: `vps/Pläne/90_Updates/UPDATE-PLAN.md`.
 
 ## Lizenz

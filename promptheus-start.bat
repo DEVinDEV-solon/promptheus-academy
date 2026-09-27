@@ -16,6 +16,14 @@ cd /d "%~dp0"
 title PROMPTHEUS
 set "PORT=8801"
 
+rem --- Anderer Port? Eine Zeile PU_PORT=8802 in der .env genuegt ---
+rem   Etwa fuer einen Testordner neben der eigentlichen Academy: beide laufen
+rem   dann nebeneinander. Wichtig, weil weiter unten alles beendet wird, was
+rem   auf dem Port lauscht. Nur Ziffern werden angenommen, sonst bleibt 8801.
+if exist ".env" for /f "tokens=1,* delims==" %%A in ('findstr /b /i /c:"PU_PORT=" ".env"') do set "PORT=%%B"
+for /f "delims=0123456789" %%X in ("%PORT%") do set "PORT=8801"
+if "%PORT%"=="" set "PORT=8801"
+
 rem --- PHP bestimmen ------------------------------------------------
 set "PHP_DIR=%~dp0PHP\php8.2"
 if not exist "%PHP_DIR%\php.exe" set "PHP_DIR=%~dp0php\php8.2"
