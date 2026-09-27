@@ -40,7 +40,7 @@ require_once __DIR__ . '/relay.php';
  * Mehrere Einträge erlauben einen Wechsel ohne Stichtag.
  */
 const PU_AKT_SCHLUESSEL = [
-    // 'rel-1' => '<öffentlicher Schlüssel, base64>',
+    'rel-1' => 'dMan56vgDR7Mel1DitnpdK1Bdrx8+4ggHRMvG4C0mIM=',
 ];
 const PU_AKT_URL_VORGABE  = 'https://promptheus-academy.de/aktualisierung/';
 const PU_AKT_ZEIT         = 5;                    // Sekunden für die Nachfrage
