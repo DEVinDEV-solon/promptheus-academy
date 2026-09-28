@@ -91,6 +91,9 @@ pruefe('api.php: rollen_erklaert ohne Recht lesbar',
 
 // ================================================================ Schlüssel
 gruppe('Der Server-Schlüssel steht im Programm');
+$roh = base64_decode((string)(PU_VPS_SCHLUESSEL['vps-1'] ?? ''), true);
+pruefe('vps-1 ist eingetragen und ein Ed25519-Schlüssel (32 Byte)',
+       $roh !== false && strlen($roh) === SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES);
 putenv('PU_VPS_SCHLUESSEL=' . base64_encode(random_bytes(32)));
 $GLOBALS['PU_TEST_MODUS'] = false;
 gleich('außerhalb des Testlaufs zählt die Umgebung nicht',

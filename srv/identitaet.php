@@ -63,7 +63,7 @@ define('PU_IDENT_ORDNER', ($p = getenv('PU_TEST_IDENT')) !== false && $p !== ''
  * noch nicht eingetragen — dann wird keine Bescheinigung angenommen.
  */
 const PU_VPS_SCHLUESSEL = [
-    'vps-1' => '',
+    'vps-1' => 'imqU74QGnf0PsO7Hlmj5vPPWe0pfKt1FVeiDlzS+Co4=',
 ];
 
 const PU_IDENT_SAAT    = 'saat.bin';
