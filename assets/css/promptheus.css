@@ -1528,28 +1528,83 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
 .stand-kachel .zahl { font-size: 1.3rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
 .stand-kachel .was  { font-size: .8rem; color: var(--schrift-3); }
 
-/* ============================================================ Lob-Fenster */
+/* ============================================================ Lob-Fenster
+   Nach einer richtigen Antwort: eine kleine Urkunde, kein beiläufiger Streifen.
+   Der dunkle Rand (Backdrop) legt sich über die ganze Seite und hält die
+   Lektion dahinter fest. Gold trägt hier zu Recht — es ist etwas geschafft —,
+   und die Palmette (`.orn-palmette` am Kasten) erscheint nur auf solchen
+   Feierflächen. */
 .lob {
-  position: fixed; z-index: 130; left: 50%; top: 12vh; transform: translateX(-50%);
-  width: min(460px, calc(100vw - 2rem));
-  background: var(--grund-2); border: 1px solid var(--gold);
-  border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.4);
-  padding: 1.3rem 1.5rem 1.1rem; text-align: center;
+  position: fixed; inset: 0; z-index: 130;
+  display: flex; align-items: center; justify-content: center;
+  padding: 3vh 1rem;
+  background: rgba(0, 0, 0, .55);
+  animation: lob-schleier .18s ease-out;
+}
+.lob .lob-karte {
+  position: relative; width: min(440px, 100%);
+  background: var(--grund-2); border: 2px solid var(--gold);
+  border-radius: 14px; box-shadow: var(--schatten);
+  padding: 2rem 1.6rem 1.5rem; text-align: center;
   animation: lob-rein .22s ease-out;
 }
 .lob .lob-zu {
   position: absolute; top: .4rem; right: .5rem;
-  font: inherit; font-size: 1.15rem; line-height: 1; cursor: pointer;
-  background: transparent; border: 0; color: var(--schrift-3); padding: .2rem .45rem;
+  font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer;
+  background: transparent; border: 0; color: var(--schrift-3); padding: .2rem .5rem;
   border-radius: var(--radius-klein);
 }
 .lob .lob-zu:hover { color: var(--schrift); background: var(--grund-3); }
-.lob .lob-zeichen { font-size: 2rem; line-height: 1; }
-.lob .lob-spruch { font-family: var(--serif); font-size: 1.12rem; margin: .5rem 0 .3rem; }
-.lob .lob-punkte { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
-.lob .lob-balken { height: 3px; background: var(--rand); border-radius: 2px; margin-top: .9rem; overflow: hidden; }
+.lob .lob-siegel {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 3.2rem; height: 3.2rem; border-radius: 50%;
+  border: 1px solid var(--gold); color: var(--gold);
+}
+.lob .lob-flamme { width: 1.7rem; height: 1.7rem; fill: currentColor; }
+.lob .lob-haken { font: 700 1.5rem/1 var(--sans); }
+.lob .lob-auge {
+  margin: .5rem 0 .5rem; color: var(--gold);
+  font-family: var(--sans); font-size: .74rem; font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase;
+}
+.lob .lob-spruch {
+  font-family: var(--serif); font-size: 1.18rem; line-height: 1.4;
+  color: var(--schrift); margin: 0 auto .5rem; max-width: 30ch;
+}
+.lob .lob-punkte { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+.lob .lob-balken { height: 3px; background: var(--rand); border-radius: 2px; margin-top: 1.1rem; overflow: hidden; }
 .lob .lob-balken i { display: block; height: 100%; background: var(--gold); width: 100%; }
-@keyframes lob-rein { from { opacity: 0; transform: translate(-50%, -8px); } }
+@keyframes lob-schleier { from { opacity: 0; } }
+@keyframes lob-rein { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+
+/* Die Flamme lodert leicht, Funken steigen auf — die Schmiede in Bewegung.
+   Beides ist Zierde, nie Information: bei „wenig Bewegung" und
+   prefers-reduced-motion steht es still, die Funken verschwinden ganz. */
+.lob .lob-siegel { position: relative; }
+.lob .lob-flamme { transform-origin: 50% 90%; animation: lob-lodern 1.6s ease-in-out infinite alternate; }
+.lob .lob-funke {
+  position: absolute; left: 50%; top: 16%;
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--gold); opacity: 0; pointer-events: none;
+  animation: lob-funke 1.9s ease-out infinite;
+}
+.lob .lob-funke:nth-of-type(1) { margin-left: -6px; animation-delay: 0s; }
+.lob .lob-funke:nth-of-type(2) { margin-left:  5px; animation-delay: .65s; }
+.lob .lob-funke:nth-of-type(3) { margin-left: -1px; animation-delay: 1.2s; }
+@keyframes lob-lodern {
+  from { transform: scaleY(1)    skewX(0deg);  opacity: .9; }
+  to   { transform: scaleY(1.07) skewX(-2deg); opacity: 1; }
+}
+@keyframes lob-funke {
+  0%   { transform: translateY(0)     scale(1);  opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(-24px) scale(.4); opacity: 0; }
+}
+html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .lob, .lob .lob-karte, .lob .lob-flamme { animation: none; }
+  .lob .lob-funke { display: none; }
+}
 
 /* ============================================================ Medienspalte */
 .mit-spalte { display: grid; grid-template-columns: minmax(0, 1fr) var(--spalte-breite); gap: 1.8rem; align-items: start; }

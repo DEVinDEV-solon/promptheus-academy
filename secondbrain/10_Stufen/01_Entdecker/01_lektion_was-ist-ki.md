@@ -66,6 +66,8 @@ typ: denkaufgabe
 titel: "Was tut ein Sprachmodell?"
 punkte: 20
 frage: "Ein LLM bekommt einen Text. Was macht es damit?"
+frage_einfach: "Ein Sprachmodell bekommt einen Text. Was macht es damit?"
+frage_fachlich: "Ein LLM erhält eine Eingabesequenz. Welche Operation beschreibt sein Vorgehen am genauesten?"
 optionen:
   - "Es schlägt die Antwort in einer Datenbank nach."
   - "Es berechnet, welches Textstück am wahrscheinlichsten als nächstes kommt."
@@ -80,6 +82,14 @@ erklaerung: |
   Ein Sprachmodell sagt das nächste Textstück voraus, sonst nichts.
   Nachschlagen und Suchen sind Zusatzwerkzeuge, die manche Programme
   drumherum bauen - das Modell selbst tut es nicht.
+erklaerung_einfach: |
+  Ein Sprachmodell rät immer nur das nächste Stück Text - Stück für Stück.
+  Es schlägt nichts in einem Buch nach und sucht nicht im Internet. Es
+  schreibt nur weiter, was gut passt.
+erklaerung_fachlich: |
+  Das Modell schätzt die Wahrscheinlichkeit des nächsten Tokens aus der
+  Eingabe und dekodiert autoregressiv. Kein Retrieval, keine Datenbankabfrage:
+  Nachschlagen und Suche sind vorgelagerte Werkzeuge, nicht das Modell selbst.
 quelle: "[[90_Quellen/wasserzeichen/llm-grundlagen-tokens-und-vokabular]]"
 ```
 

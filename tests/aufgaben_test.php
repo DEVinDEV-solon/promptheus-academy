@@ -201,4 +201,55 @@ gleich('zweimal dieselbe Reihenfolge', $m1, $m2);
 pruefe('gemischt, nicht in Lösungsreihenfolge', $m1 !== ['c', 'a', 'b'] || count($m1) < 3);
 gleich('kein Baustein verloren', ['a', 'b', 'c'], (function ($x) { sort($x); return $x; })($m1));
 
+// ================================================================ Niveau-Varianten
+gruppe('Niveau-Varianten einer Aufgabe');
+$roh = "```aufgabe\nid: N1\ntyp: denkaufgabe\ntitel: \"T\"\npunkte: 10\n"
+     . "frage: \"Basis?\"\nfrage_einfach: \"Leicht?\"\nfrage_fachlich: \"Fachlich?\"\n"
+     . "optionen:\n  - A\n  - B\nloesung: \"A\"\n"
+     . "erklaerung: |\n  Basis-Erklaerung.\nerklaerung_einfach: |\n  Leichte Erklaerung.\n```";
+$n = pu_aufgaben_aus_text($roh, 'test.md')[0];
+
+$ein = pu_aufgabe_fuer_niveau($n, 'einfach');
+gleich('einfach: Frage ueberlagert', 'Leicht?', $ein['frage']);
+pruefe('einfach: Erklaerung ueberlagert', str_contains((string)$ein['erklaerung'], 'Leichte'));
+$fach = pu_aufgabe_fuer_niveau($n, 'fachlich');
+gleich('fachlich: Frage ueberlagert', 'Fachlich?', $fach['frage']);
+pruefe('fachlich ohne eigene Erklaerung faellt auf Basis zurueck',
+       str_contains((string)$fach['erklaerung'], 'Basis'));
+gleich('normal: kanonische Frage', 'Basis?', pu_aufgabe_fuer_niveau($n, 'normal')['frage']);
+gleich('Loesung bleibt in jedem Niveau kanonisch', 'A', $ein['loesung']);
+
+// Kein Varianten-Schluessel darf ueberleben — sonst laege er offen in der
+// oeffentlichen Fassung, die der Browser sieht.
+foreach (['einfach', 'normal', 'fachlich'] as $niv) {
+    $r     = pu_aufgabe_fuer_niveau($n, $niv);
+    $oeff  = pu_aufgabe_oeffentlich($r);
+    $leck  = array_filter(array_keys($oeff), fn($k) => (bool)preg_match('/_(einfach|normal|fachlich)$/', $k));
+    pruefe("$niv: oeffentlich ohne Varianten-Schluessel", $leck === []);
+}
+
+gruppe('Motivation je Altersband');
+require_once __DIR__ . '/../srv/motivation.php';
+$pools = pu_motivation_pools();
+foreach (['grundschule', 'unterstufe', 'mittelstufe', 'oberstufe', 'erwachsen'] as $b) {
+    pruefe("Pool $b ist gefuellt", ($pools[$b] ?? []) !== []);
+    $zulang = array_filter($pools[$b] ?? [], fn($s) => mb_strlen($s) > 160);
+    pruefe("$b: kein Spruch ueber 160 Zeichen", $zulang === []);
+}
+pruefe('Grundschule und Erwachsen haben verschiedene Poole',
+       $pools['grundschule'] !== $pools['erwachsen']);
+
+// Bei jeder Antwort ein frischer Satz: über viele Ziehungen kommt mehr als einer.
+$gesehen = [];
+for ($i = 0; $i < 40; $i++) $gesehen[pu_motivation('grundschule')] = true;
+pruefe('viele Ziehungen ergeben mehrere verschiedene Sätze', count($gesehen) > 1);
+
+// Der zuletzt gezeigte Satz wird übersprungen.
+$eins = pu_motivation('erwachsen');
+$zwei = pu_motivation('erwachsen', $eins);
+pruefe('der zuletzt gezeigte Satz wird vermieden', $zwei !== $eins);
+
+// Ein unbekanntes Band fällt sauber zurück, statt leer zu bleiben.
+pruefe('unbekanntes Band liefert trotzdem einen Satz', pu_motivation('gibtsnicht') !== '');
+
 bilanz();

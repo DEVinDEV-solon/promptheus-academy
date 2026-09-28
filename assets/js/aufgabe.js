@@ -480,7 +480,10 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
           id: a.id, antwort: antwort, hinweise: hinweise,
           loesung_gesehen: loesungGesehen,
           anmerkung: PU.eJa('athena_auto'),
-          dauer_s: Math.round((Date.now() - start) / 1000)
+          dauer_s: Math.round((Date.now() - start) / 1000),
+          // Damit sich das Lob nicht sofort wiederholt: der zuletzt gezeigte
+          // Satz geht mit, der Server vermeidet ihn.
+          letzte_motivation: PU._letzteMotivation || ''
         });
         ergebnis.innerHTML = ergebnisHtml(j);
         // Die gewählte Antwort zeigt ✓ oder ✕ — dort, wo man geklickt hat.

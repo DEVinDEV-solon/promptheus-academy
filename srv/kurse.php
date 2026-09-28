@@ -498,6 +498,66 @@ function pu_aufgabe_oeffentlich(array $a): array
 }
 
 /**
+ * Die zum Niveau passende Fassung einer Aufgabe.
+ *
+ * Ein Feld `frage_einfach`, `erklaerung_fachlich` oder `hinweise_einfach` legt
+ * sich über sein kanonisches Gegenstück — danach verschwinden **alle**
+ * Varianten-Schlüssel, damit über pu_aufgabe_oeffentlich() nie eine fremde
+ * Fassung durchsickert.
+ *
+ * **Angepasst wird nur die Ansprache, nie die richtige Antwort.** `loesung` und
+ * `optionen` bleiben kanonisch — sonst passte die Lösung nicht mehr zur Frage,
+ * und dieselbe Aufgabe wäre je nach Niveau richtig oder falsch. Wer die Optionen
+ * mit-anpassen will, braucht eine eigene, geprüfte Lösung dazu; das ist bewusst
+ * noch nicht möglich.
+ */
+function pu_aufgabe_fuer_niveau(array $a, string $niveau): array
+{
+    $niveau    = in_array($niveau, ['einfach', 'normal', 'fachlich'], true) ? $niveau : '';
+    $anpassbar = ['frage', 'erklaerung', 'hinweise'];
+
+    if ($niveau !== '') {
+        foreach ($anpassbar as $feld) {
+            $var = $feld . '_' . $niveau;
+            if (isset($a[$var]) && $a[$var] !== '' && $a[$var] !== []) {
+                $a[$feld] = $a[$var];
+            }
+        }
+    }
+    foreach ($anpassbar as $feld) {
+        foreach (['einfach', 'normal', 'fachlich'] as $n) {
+            unset($a[$feld . '_' . $n]);
+        }
+    }
+    return $a;
+}
+
+/**
+ * Der Lektionsrumpf zum Niveau: liegt neben `x.md` eine Datei `x.einfach.md`
+ * oder `x.fachlich.md`, wird deren Prosa genommen, sonst die kanonische.
+ *
+ * Die Aufgaben bleiben immer die der kanonischen Lektion (nur über
+ * pu_aufgabe_fuer_niveau angepasst) — eine Variantendatei trägt die Prosa und
+ * darf dieselben ```aufgabe-Zäune zur Platzierung enthalten; ihr Inhalt zählt
+ * dort nicht. „normal" ist die kanonische Fassung und hat nie eine eigene Datei.
+ */
+function pu_lektion_rumpf(array $lek, string $niveau): string
+{
+    $basis = (string)($lek['rumpf'] ?? '');
+    $pfad  = (string)($lek['pfad'] ?? '');
+    if (($niveau === 'einfach' || $niveau === 'fachlich') && $pfad !== '') {
+        $rel = preg_replace('/\.md$/', '', $pfad) . '.' . $niveau . '.md';
+        $abs = pu_brain_pfad($rel);
+        if ($abs !== null && is_file($abs)) {
+            $fm    = pu_frontmatter((string)file_get_contents($abs));
+            $rumpf = trim($fm['rumpf'] !== '' ? $fm['rumpf'] : (string)file_get_contents($abs));
+            if ($rumpf !== '') return $rumpf;
+        }
+    }
+    return $basis;
+}
+
+/**
  * Eine öffentliche Aufgabe als lesbarer Text — für den Tutor.
  *
  * Erwartet die **gesiebte** Fassung aus pu_aufgabe_oeffentlich(). Was hier
@@ -726,6 +786,10 @@ function pu_kurs_lesen(string $rel, array &$fehler): ?array
     sort($dateien, SORT_NATURAL);
     foreach ($dateien as $datei) {
         if (!preg_match('/^\d+_.*\.md$/', $datei)) continue;
+        // Niveau-Prosafassungen (`…einfach.md`, `…fachlich.md`) gehören zu ihrer
+        // Lektion und sind keine eigene: `pu_lektion_rumpf()` holt sie bei
+        // Bedarf. Hier übersprungen, sonst gäbe es die Aufgaben doppelt.
+        if (preg_match('/\.(einfach|normal|fachlich)\.md$/', $datei)) continue;
         $lek = pu_lektion_lesen($rel . '/' . $datei, $fehler);
         if ($lek !== null) $lektionen[] = $lek;
     }

@@ -167,16 +167,20 @@ pu_einst_global_setzen('medien', 'an');
 // ================================================================ Motivation
 gruppe('Motivationssprüche');
 
-$liste = pu_motivation_liste();
+$liste = pu_motivation_liste('mittelstufe');
 pruefe('es gibt Sprüche', count($liste) >= 8);
 pruefe('keiner ist zu lang für das Fenster',
        count(array_filter($liste, fn($s) => mb_strlen($s) > 160)) === 0);
 
-$eins = pu_motivation('E1-01');
+$eins = pu_motivation('mittelstufe');
 pruefe('ein Spruch kommt heraus', $eins !== '');
-gleich('derselbe Keim am selben Tag: derselbe Spruch', $eins, pu_motivation('E1-01'));
-pruefe('ein anderer Keim darf einen anderen Spruch geben',
-       count(array_unique(array_map('pu_motivation', ['A', 'B', 'C', 'D', 'E', 'F']))) > 1);
+
+// Neu: bei jeder Antwort wird frisch gezogen (früher pro Tag festgelegt).
+$viele = [];
+for ($i = 0; $i < 40; $i++) $viele[pu_motivation('mittelstufe')] = true;
+pruefe('bei jeder Antwort ein frischer Spruch', count($viele) > 1);
+pruefe('der zuletzt gezeigte Satz wird vermieden',
+       pu_motivation('mittelstufe', $eins) !== $eins);
 
 // ================================================================ .env
 gruppe('.env schreiben');
