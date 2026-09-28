@@ -87,7 +87,12 @@ gleich('ohne Eintrag: die Vorgabe', PU_RELAY_URL_VORGABE, pu_relay_url());
 putenv('PU_RELAY_URL=http://server.example.test/relay/');
 gleich('unverschlüsselt nach draussen: nein, die Vorgabe', PU_RELAY_URL_VORGABE, pu_relay_url());
 putenv('PU_RELAY_URL=http://127.0.0.1:8870/relay/');
-gleich('unverschlüsselt auf diesen Rechner: ja (Probelauf)', 'http://127.0.0.1:8870/relay', pu_relay_url());
+gleich('unverschlüsselt auf diesen Rechner: ja (Probelauf)', 'http://127.0.0.1:8870/relay/', pu_relay_url());
+// Ohne Schrägstrich leitet der Webserver um (301, HTML) — und Umleitungen
+// folgt die Academy nicht. Deshalb wird er immer ergänzt.
+putenv('PU_RELAY_URL=https://relay.example.test/relay');
+gleich('der Schrägstrich am Ende wird ergänzt', 'https://relay.example.test/relay/', pu_relay_url());
+gleich('die Vorgabe hat ihn auch', '/', substr(PU_RELAY_URL_VORGABE, -1));
 
 putenv('PU_RELAY_URL=https://relay.example.test/relay/');
 gleich('ohne Identität: klare Ansage', 'keine_identitaet', pu_relay_ruf('stand')['grund']);

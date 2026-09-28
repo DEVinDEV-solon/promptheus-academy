@@ -93,13 +93,19 @@ function pu_relay_grund_text(string $grund): string
  * geht, trägt keine Rolle ein: Bescheinigungen prüft die Academy gegen den
  * eingebauten Schlüssel (srv/identitaet.php).
  */
-const PU_RELAY_URL_VORGABE = 'https://promptheus-academy.de/relay';
+const PU_RELAY_URL_VORGABE = 'https://promptheus-academy.de/relay/';
 
+/**
+ * Immer MIT Schrägstrich am Ende: `/relay` ohne ihn beantwortet der Webserver
+ * mit einer Umleitung (301, HTML) auf `/relay/`, und Umleitungen folgt die
+ * Academy absichtlich nicht (siehe pu_relay_transport). Die Registrierung
+ * endete so mit „Die Antwort des Servers war unlesbar“ (Probelauf 28.09.2026).
+ */
 function pu_relay_url(): string
 {
-    $u = rtrim(pu_env('PU_RELAY_URL', PU_RELAY_URL_VORGABE), '/');
+    $u = rtrim(pu_env('PU_RELAY_URL', PU_RELAY_URL_VORGABE), '/') . '/';
     if (str_starts_with($u, 'https://')
-        || preg_match('#^http://(127\.0\.0\.1|localhost)(:\d{1,5})?(/|$)#', $u)) {
+        || preg_match('#^http://(127\.0\.0\.1|localhost)(:\d{1,5})?/#', $u)) {
         return $u;
     }
     return PU_RELAY_URL_VORGABE;
