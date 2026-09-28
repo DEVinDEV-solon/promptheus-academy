@@ -102,6 +102,49 @@ foreach (['einfach', 'normal', 'fachlich'] as $stil) {
     pruefe("Zu $stil gibt es eine Regel", trim(pu_sprachstil_regel($stil)) !== '');
 }
 
+// -------------------------------------------------- Die Klasse treibt das Niveau
+gruppe('Das Niveau folgt der Klasse, wenn kein Alter eingetragen ist');
+
+gleich('„5"  → 5',        5,  pu_schuljahr('5'));
+gleich('„5a" → 5',        5,  pu_schuljahr('5a'));
+gleich('„10a" → 10',      10, pu_schuljahr('10a'));
+gleich('„Q2" → 13',       13, pu_schuljahr('Q2'));
+gleich('„EF" → 11',       11, pu_schuljahr('EF'));
+gleich('leer → 0',         0, pu_schuljahr(''));
+gleich('„AG Robotik" → 0', 0, pu_schuljahr('AG Robotik'));
+
+/** Profil mit Klasse, aber ohne Alter und ohne eigene Wahl. */
+function profk(string $gruppe): array {
+    return ['rolle' => 'schueler', 'lebensalter' => 0, 'sprachstil' => '',
+            'pseudonym' => 'X', 'gruppe' => $gruppe, 'schule' => '', 'notiz' => ''];
+}
+
+// Das war der eigentliche Befund: 5a und 10a sahen alles gleich, weil die
+// Ableitung nur am Alter hing und das Alter leer war.
+gleich('Klasse 5a  → einfach',  'einfach',  pu_sprachstil(profk('5a')));
+gleich('Klasse 10a → normal',   'normal',   pu_sprachstil(profk('10a')));
+gleich('Klasse 12  → fachlich', 'fachlich', pu_sprachstil(profk('12')));
+gleich('pu_niveau == pu_sprachstil', pu_sprachstil(profk('5a')), pu_niveau(profk('5a')));
+
+// Ein eingetragenes Alter schlägt die Klasse — sonst bekäme ein Sechzehnjähriger
+// in einer Förder-AG „3b" die Ansprache eines Neunjährigen.
+gleich('Alter schlägt Klasse', 'normal',
+       pu_sprachstil(['rolle'=>'schueler','lebensalter'=>16,'sprachstil'=>'',
+                      'pseudonym'=>'X','gruppe'=>'3b','schule'=>'','notiz'=>'']));
+
+// -------------------------------------------------- Das Altersband der Motivation
+gruppe('Das Altersband der Motivation (feiner als das Niveau)');
+
+gleich('Klasse 2a → grundschule', 'grundschule', pu_altersband(profk('2a')));
+gleich('Klasse 6a → unterstufe',  'unterstufe',  pu_altersband(profk('6a')));
+gleich('Klasse 9a → mittelstufe', 'mittelstufe', pu_altersband(profk('9a')));
+gleich('Klasse 12 → oberstufe',   'oberstufe',   pu_altersband(profk('12')));
+gleich('Alter 8   → grundschule', 'grundschule', pu_altersband(prof('schueler', 8)));
+gleich('Alter 17  → oberstufe',   'oberstufe',   pu_altersband(prof('schueler', 17)));
+gleich('Erwachsener Schüler (40) → erwachsen', 'erwachsen', pu_altersband(prof('schueler', 40)));
+gleich('Lehrkraft → erwachsen',   'erwachsen',   pu_altersband(prof('lehrer', 38)));
+gleich('nichts bekannt → mittelstufe', 'mittelstufe', pu_altersband(prof('schueler', 0)));
+
 // ================================================================ Profilblock
 gruppe('Der Block für das Modell');
 

@@ -21,6 +21,9 @@ declare(strict_types=1);
 /** Wo die Kursbilder liegen — einmal, damit der Pfad nicht wandert. */
 const PU_KURSBILD_ORDNER = 'assets/img/kurse';
 
+/** Unterordner, in dieser Reihenfolge gesucht; '' = direkt im Ordner. */
+const PU_KURSBILD_UNTERORDNER = ['6-stufen', 'eltern', ''];
+
 /**
  * Der Dateiname zu einem Kurspfad, oder '' wenn es keinen gibt.
  *
@@ -58,8 +61,16 @@ function pu_kursbild_datei(string $slug): string
         return '';
     }
 
-    $rel = PU_KURSBILD_ORDNER . '/' . $slug . '.jpg';
-    if (!is_file(PU_ROOT . '/' . $rel)) return '';
+    // Die Bilder liegen nach Art des Kurses in Unterordnern, wie auf der
+    // Webseite: die sechs Stufen in `6-stufen/`, die zehn Fachkurse in
+    // `eltern/` (sie werden dort den Eltern angeboten). Was keinem Kurs
+    // gehoert, etwa `challenge.jpg`, liegt weiter direkt im Ordner.
+    $rel = '';
+    foreach (PU_KURSBILD_UNTERORDNER as $unter) {
+        $kand = PU_KURSBILD_ORDNER . '/' . ($unter === '' ? '' : $unter . '/') . $slug . '.jpg';
+        if (is_file(PU_ROOT . '/' . $kand)) { $rel = $kand; break; }
+    }
+    if ($rel === '') return '';
 
     // Mit führendem Schrägstrich. Die Oberfläche setzt den Pfad in eine
     // CSS-Variable, und eine relative URL darin wird gegen das Stylesheet

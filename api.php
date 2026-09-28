@@ -205,19 +205,25 @@ try {
             foreach ($kurs['lektionen'] as $l) if ($l['pfad'] === $rel) $lek = $l;
             if ($lek === null) pu_fehler('Diese Lektion gibt es nicht.', 404);
 
-            $stand = pu_geloest($ichId);
+            $stand  = pu_geloest($ichId);
+
+            // Das Niveau des Lernenden (einfach|normal|fachlich) bestimmt, welche
+            // Fassung von Prosa und Aufgaben er bekommt — dieselbe Wahrheit,
+            // seine Ansprache.
+            $niveau = pu_niveau(pu_profil($ichId));
 
             // Der Rumpf wird OHNE die Aufgabenblöcke gerendert — die Aufgaben
             // kommen getrennt und gesiebt. Stuende der Block im Text, gaebe der
             // Server die Lösung im Klartext mit heraus.
+            $rumpfquelle = pu_lektion_rumpf($lek, $niveau);
             $rumpf = preg_replace_callback(
                 '/^```aufgabe[ \t]*\r?\n(.*?)^```[ \t]*$/ms',
                 function (array $m): string {
                     preg_match('/^id:\s*(\S+)/m', $m[1], $t);
                     return "\n<<<AUFGABE:" . ($t[1] ?? '') . ">>>\n";
                 },
-                $lek['rumpf']
-            ) ?? $lek['rumpf'];
+                $rumpfquelle
+            ) ?? $rumpfquelle;
 
             // Fachbegriffe werden anklickbar. Erst rendern, dann verlinken:
             // im Markdown stünde der Begriff auch in Codeblöcken.
@@ -227,7 +233,7 @@ try {
 
             $aufgaben = [];
             foreach ($lek['aufgaben'] as $a) {
-                $oeff = pu_aufgabe_oeffentlich($a);
+                $oeff = pu_aufgabe_oeffentlich(pu_aufgabe_fuer_niveau($a, $niveau));
                 $oeff['stand'] = $stand[$a['id']] ?? null;
                 $aufgaben[] = $oeff;
             }
@@ -262,6 +268,7 @@ try {
             if (!pu_regel_an('hinweise_erlaubt')) pu_fehler('Hinweise sind abgeschaltet.', 403);
             $a = pu_aufgabe((string)d('id'));
             if ($a === null) pu_fehler('Diese Aufgabe gibt es nicht.', 404);
+            $a = pu_aufgabe_fuer_niveau($a, pu_niveau(pu_profil($ichId)));
             $nr = max(0, (int)d('nr', 0));
             $liste = array_values((array)($a['hinweise'] ?? []));
             if (!isset($liste[$nr])) pu_fehler('Mehr Hinweise gibt es nicht.', 404);
@@ -275,6 +282,7 @@ try {
             if (!pu_regel_an('loesung_erlaubt')) pu_fehler('Die Musterlösung ist abgeschaltet.', 403);
             $a = pu_aufgabe((string)d('id'));
             if ($a === null) pu_fehler('Diese Aufgabe gibt es nicht.', 404);
+            $a = pu_aufgabe_fuer_niveau($a, pu_niveau(pu_profil($ichId)));
             pu_protokoll($ichId, 'loesung_gezeigt', (string)$a['id'], '');
             pu_json_out(['ok' => true,
                 'loesung'    => $a['loesung'] ?? null,
@@ -287,6 +295,13 @@ try {
             pu_recht_fordern('lernen.ausfuehren');
             $a = pu_aufgabe((string)d('id'));
             if ($a === null) pu_fehler('Diese Aufgabe gibt es nicht.', 404);
+            // Niveau des Lernenden: passt Erklärung und Lob an — die Bewertung
+            // rechnet weiter gegen die kanonische Lösung, die unberührt bleibt.
+            // Das Altersband ist feiner als das Niveau und wählt den Ton des Lobs.
+            $prof   = pu_profil($ichId);
+            $niveau = pu_niveau($prof);
+            $band   = pu_altersband($prof);
+            $a = pu_aufgabe_fuer_niveau($a, $niveau);
 
             $antwort  = d('antwort', null);
             $hinweise = max(0, (int)d('hinweise', 0));
@@ -321,8 +336,11 @@ try {
                 'tagesbonus'   => $erg['tagesbonus'],
 
                 // Der Spruch kommt aus dem Vault und ohne Sprachmodell — ein
-                // Lob, das erst nach zwei Sekunden erscheint, ist keins.
-                'motivation'   => $bew['richtig'] ? pu_motivation((string)$a['id']) : '',
+                // Lob, das erst nach zwei Sekunden erscheint, ist keins. Bei
+                // jeder Antwort ein frischer, altersgerechter Satz; der zuletzt
+                // gezeigte (vom Browser mitgeschickt) wird vermieden.
+                'motivation'   => $bew['richtig']
+                    ? pu_motivation($band, (string)d('letzte_motivation', '')) : '',
 
                 // Ob "Weitere Infos" angeboten wird, entscheidet der Server:
                 // die Vertiefung braucht die CLI, und der Knopf soll nicht

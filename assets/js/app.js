@@ -758,24 +758,45 @@ PU.modalSchliessen = function () {
 };
 
 /* ---------------------------------------------------------------- Lob-Fenster
- * Erscheint nach einer richtigen Antwort. Es schliesst sich über das × oder
- * nach der eingestellten Zeit; steht dort 0, bleibt es stehen, bis jemand
- * es wegklickt. Beides ist gewollt: manche lesen den Satz, andere sind schon
- * bei der nächsten Aufgabe. */
+ * Erscheint nach einer richtigen Antwort — als kleine Urkunde, nicht als
+ * beiläufiger Streifen: Gold heisst „das hast du geschafft", die Palmette
+ * erscheint nur auf Feierflächen. Der dunkle Rand hält die Lektion dahinter
+ * fest, bis der Lernende weiterklickt; steht die Dauer auf 0, bleibt es
+ * stehen, bei einem Wert schliesst es sich von selbst. Beides ist gewollt:
+ * manche lesen den Satz, andere sind schon bei der nächsten Aufgabe. */
 PU.lobZeigen = function (spruch, punkte) {
   if (!PU.eJa('lob_popup') || !spruch) return;
 
   const kasten = document.getElementById('lob');
   if (!kasten) return;
 
-  const dauer = parseInt(PU.e('lob_dauer'), 10) || 0;
+  const dauer  = parseInt(PU.e('lob_dauer'), 10) || 0;
+  const vorher = document.activeElement;   // dorthin kehrt der Fokus zurück
+
+  // Zuletzt gezeigter Satz — die nächste Abgabe schickt ihn mit, damit der
+  // Server nicht denselben noch einmal zieht.
+  PU._letzteMotivation = spruch;
+
+  // Die Flamme als Siegel: eine SVG-Maske statt Emoji, damit sie sich an die
+  // Palette hält (Gold) und in jeder Variante gleich aussieht.
+  const flamme =
+    '<svg class="lob-flamme" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<path d="M12 2c1.6 3.3.6 5.2-.9 6.8-1.5 1.6-3.1 3-3.1 5.4a4 4 0 0 0 8 .2' +
+      'c0-1.2-.5-2.3-1.1-3.1.2 1-.4 1.9-1.2 2.2.9-1.8.2-3.7-1.1-5.1.3 1.6-.6 ' +
+      '2.7-1.5 3.5-.6-1.8.2-3.7 1.1-5.2C13.5 5.3 13.3 3.4 12 2Z"/>' +
+    '</svg>';
 
   kasten.innerHTML =
-    '<button class="lob-zu" type="button" aria-label="Schliessen">×</button>' +
-    '<div class="lob-zeichen" aria-hidden="true">🔥</div>' +
-    '<p class="lob-spruch">' + PU.h(spruch) + '</p>' +
-    (punkte ? '<p class="lob-punkte">+' + punkte + ' Punkte</p>' : '') +
-    (dauer > 0 ? '<div class="lob-balken"><i></i></div>' : '');
+    '<div class="lob-karte orn orn-palmette" role="document">' +
+      '<button class="lob-zu" type="button" aria-label="Schliessen">×</button>' +
+      '<span class="lob-siegel" aria-hidden="true">' + flamme +
+        '<i class="lob-funke"></i><i class="lob-funke"></i><i class="lob-funke"></i>' +
+      '</span>' +
+      '<p class="lob-auge">Motivation</p>' +
+      '<p class="lob-spruch">' + PU.h(spruch) + '</p>' +
+      (punkte ? '<p class="lob-punkte">+' + punkte + ' Punkte</p>' : '') +
+      (dauer > 0 ? '<div class="lob-balken" aria-hidden="true"><i></i></div>' : '') +
+    '</div>';
 
   kasten.classList.remove('hidden');
   kasten.setAttribute('aria-hidden', 'false');
@@ -787,12 +808,34 @@ PU.lobZeigen = function (spruch, punkte) {
     kasten.setAttribute('aria-hidden', 'true');
     kasten.innerHTML = '';
     if (PU._lobUhr) { clearTimeout(PU._lobUhr); PU._lobUhr = null; }
-    document.removeEventListener('keydown', aufEsc);
+    document.removeEventListener('keydown', aufTaste);
+    kasten.removeEventListener('click', aufRand);
+    // Fokus zurück, wo er war — sonst springt er an den Seitenanfang.
+    if (vorher && typeof vorher.focus === 'function') vorher.focus();
   };
-  const aufEsc = (e) => { if (e.key === 'Escape') zu(); };
+
+  // Esc schliesst; Tab bleibt im Fenster. Ein Modal, das man vertabben kann,
+  // ist keins — dahinter läge die halb beantwortete Aufgabe offen.
+  const aufTaste = (e) => {
+    if (e.key === 'Escape') { zu(); return; }
+    if (e.key !== 'Tab') return;
+    const ziele = kasten.querySelectorAll(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])');
+    if (!ziele.length) return;
+    const erste = ziele[0], letzte = ziele[ziele.length - 1];
+    if (e.shiftKey && document.activeElement === erste) { e.preventDefault(); letzte.focus(); }
+    else if (!e.shiftKey && document.activeElement === letzte) { e.preventDefault(); erste.focus(); }
+  };
+  // Klick auf den dunklen Rand schliesst, Klick auf die Urkunde nicht.
+  const aufRand = (e) => { if (e.target === kasten) zu(); };
 
   kasten.querySelector('.lob-zu').addEventListener('click', zu);
-  document.addEventListener('keydown', aufEsc);
+  kasten.addEventListener('click', aufRand);
+  document.addEventListener('keydown', aufTaste);
+
+  // Fokus ins Fenster, damit der alertdialog vorgelesen wird und Tab greift.
+  const schliessKnopf = kasten.querySelector('.lob-zu');
+  if (schliessKnopf) schliessKnopf.focus();
 
   if (dauer > 0) {
     const balken = kasten.querySelector('.lob-balken i');

@@ -145,6 +145,34 @@ function pu_profil_kind_setzen(int $eltern, int $kind): void
  * Bei allen anderen entscheidet die Ebene: wer unterrichtet oder die Academy
  * betreibt, arbeitet mit dem Stoff. Eltern tun das nicht.
  */
+/**
+ * Das Schuljahr aus der Klasse/Gruppe — „10a" → 10, „5" → 5.
+ *
+ * Die Klasse ist das, was in einer Schule wirklich eingetragen wird; ein
+ * Geburtsjahr fragt niemand ab. Ohne diese Zeile unterschied die Academy 5a
+ * nicht von 10a, weil die Anpassung allein am Alter hing — und das Alter blieb
+ * leer. 1–13 gelten als Schuljahr; die gymnasiale Oberstufe ohne Zahl (EF, Q1,
+ * Q2) wird auf 11–13 abgebildet. Was sich nicht deuten lässt, ergibt 0.
+ */
+function pu_schuljahr(string $gruppe): int
+{
+    $g = mb_strtolower(trim($gruppe));
+    if ($g === '') return 0;
+
+    if (preg_match('/^\s*(\d{1,2})/', $g, $m)) {
+        $j = (int)$m[1];
+        return ($j >= 1 && $j <= 13) ? $j : 0;
+    }
+
+    return match (true) {
+        str_starts_with($g, 'ef')                            => 11,
+        str_starts_with($g, 'q1'), str_starts_with($g, 'j1') => 12,
+        str_starts_with($g, 'q2'), str_starts_with($g, 'j2') => 13,
+        str_starts_with($g, 'e')                             => 11,
+        default                                              => 0,
+    };
+}
+
 function pu_sprachstil(array $profil): string
 {
     if ($profil['sprachstil'] !== '') return $profil['sprachstil'];
@@ -152,7 +180,14 @@ function pu_sprachstil(array $profil): string
     $ebene = pu_ebene($profil);
 
     if ($ebene === 'schueler' || $ebene === '') {
+        // Das Alter zählt zuerst. Fehlt es, tritt die Klasse an seine Stelle:
+        // Schuljahr + 6 ≈ Alter. So trennt die Academy 5a von 10a auch dann,
+        // wenn niemand ein Geburtsjahr eingetragen hat — der häufige Fall.
         $alter = (int)$profil['lebensalter'];
+        if ($alter === 0) {
+            $jahr = pu_schuljahr((string)($profil['gruppe'] ?? ''));
+            if ($jahr > 0) $alter = $jahr + 6;
+        }
         if ($alter === 0)  return 'normal';
         if ($alter <= 12)  return 'einfach';
         if ($alter <= 17)  return 'normal';
@@ -161,6 +196,56 @@ function pu_sprachstil(array $profil): string
 
     // Eltern sind erwachsen, aber Laien — das ist „normal", nicht „fachlich".
     return $ebene === 'eltern' ? 'normal' : 'fachlich';
+}
+
+/**
+ * Das Niveau, nach dem Inhalte ausgewählt werden — dieselbe Achse wie der
+ * Sprachstil (einfach | normal | fachlich).
+ *
+ * **Eine einzige Achse, mit Absicht.** Tutor, Motivation und Lektion sollen nie
+ * auseinanderlaufen: Was der Tutor „einfach" nennt, ist auch die Fassung der
+ * Lektion, die der Lernende liest, und der Ton des Lobs. Zwei getrennte Regler
+ * hätten früher oder später zwei verschiedene Wahrheiten erzeugt.
+ */
+function pu_niveau(array $profil): string
+{
+    return pu_sprachstil($profil);
+}
+
+/**
+ * Das Altersband für die Motivation — feiner als das Niveau (drei Stufen).
+ *
+ * Ein Lob wirkt sehr verschieden, je nachdem, wer es liest: ein Achtjähriger
+ * braucht ein Bild und ein warmes Wort, ein Oberstufenschüler eine Anerkennung
+ * seiner Urteilskraft, ein Erwachsener den Bezug zur eigenen Arbeit. Für den
+ * Lehrstoff genügen drei Register (pu_niveau), für den Ton des Lobs lohnt die
+ * feinere Skala — sie kostet nur Sprüche, keine Komplexität im Kern.
+ *
+ * Wie beim Sprachstil zählt zuerst das Alter, dann die Klasse (Schuljahr + 6 ≈
+ * Alter). Wer nicht Schüler ist und trotzdem eine Aufgabe löst, bekommt den
+ * erwachsenen Ton. Ist gar nichts bekannt, gilt die neutrale Mitte.
+ *
+ * @return 'grundschule'|'unterstufe'|'mittelstufe'|'oberstufe'|'erwachsen'
+ */
+function pu_altersband(array $profil): string
+{
+    $rolle = (string)($profil['rolle'] ?? '');
+    if ($rolle !== '' && $rolle !== 'schueler') return 'erwachsen';
+
+    $alter = (int)($profil['lebensalter'] ?? 0);
+    if ($alter === 0) {
+        $jahr = pu_schuljahr((string)($profil['gruppe'] ?? ''));
+        if ($jahr > 0) $alter = $jahr + 6;
+    }
+
+    return match (true) {
+        $alter === 0  => 'mittelstufe',   // nichts bekannt: die neutrale Mitte
+        $alter <= 10  => 'grundschule',
+        $alter <= 13  => 'unterstufe',
+        $alter <= 16  => 'mittelstufe',
+        $alter <= 19  => 'oberstufe',
+        default       => 'erwachsen',
+    };
 }
 
 /** Der Satz, der dem Modell sagt, wie es sprechen soll. */
