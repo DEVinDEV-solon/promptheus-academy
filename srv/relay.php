@@ -84,9 +84,25 @@ function pu_relay_grund_text(string $grund): string
     return PU_RELAY_GRUENDE[$grund] ?? 'Der Server hat die Anfrage abgewiesen (' . $grund . ').';
 }
 
+/**
+ * Die Adresse des Servers. Seit 28.09.2026 mit Vorgabe: Die Rolle kommt nur
+ * noch aus der Registrierung, und eine frische Installation ohne Adresse
+ * hätte sich nie registrieren können — der Knopf „Registrieren“ wäre eine
+ * Sackgasse gewesen. `PU_RELAY_URL` in der .env darf sie umlegen (Testserver),
+ * aber nur auf https oder auf diesen Rechner. Was an einen anderen Server
+ * geht, trägt keine Rolle ein: Bescheinigungen prüft die Academy gegen den
+ * eingebauten Schlüssel (srv/identitaet.php).
+ */
+const PU_RELAY_URL_VORGABE = 'https://promptheus-academy.de/relay';
+
 function pu_relay_url(): string
 {
-    return rtrim(pu_env('PU_RELAY_URL', ''), '/');
+    $u = rtrim(pu_env('PU_RELAY_URL', PU_RELAY_URL_VORGABE), '/');
+    if (str_starts_with($u, 'https://')
+        || preg_match('#^http://(127\.0\.0\.1|localhost)(:\d{1,5})?(/|$)#', $u)) {
+        return $u;
+    }
+    return PU_RELAY_URL_VORGABE;
 }
 
 function pu_relay_nein(string $grund): array

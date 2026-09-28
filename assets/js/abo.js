@@ -213,8 +213,8 @@ function serverMalen(bereich, j) {
     wert + '</td></tr>';
   const t = PU.el('table', 'tabelle');
   t.innerHTML = '<tbody>' +
-    zeile('Serveradresse', z.adresse ? 'eingetragen'
-      : 'fehlt — in der .env eintragen: <code>PU_RELAY_URL=https://promptheus-academy.de/relay/</code>', !!z.adresse) +
+    // Seit 28.09.2026 mit Vorgabe (promptheus-academy.de); leer wird sie nicht mehr.
+    zeile('Serveradresse', z.adresse ? 'vorhanden' : 'fehlt', !!z.adresse) +
     zeile('Registriert', z.registriert ? '<code>' + PU.h(z.iid) + '</code>' : 'noch nicht', !!z.registriert) +
     zeile('Bescheinigung', z.bescheinigt
       ? (z.gueltig ? 'gültig bis ' + PU.h(datum(z.gueltig_bis)) : 'abgelaufen am ' + PU.h(datum(z.gueltig_bis)))

@@ -80,10 +80,14 @@ function bescheinigung(string $iid, string $sk, string $plan = 'schule-klein',
 // ───────────────────────────────────────────────────── Ohne Voraussetzungen
 gruppe('Ohne Adresse und ohne Identität');
 
+// Seit 28.09.2026 gibt es eine Vorgabe: Ohne sie könnte sich eine frische
+// Installation nie registrieren — und ohne Registrierung ist jeder Schüler.
 putenv('PU_RELAY_URL=');
-gleich('ohne Serveradresse: klare Ansage', 'keine_adresse', pu_relay_ruf('stand')['grund']);
-gleich('und mit einem Satz dazu', true,
-    str_contains(pu_relay_ruf('stand')['text'], 'Serveradresse'));
+gleich('ohne Eintrag: die Vorgabe', PU_RELAY_URL_VORGABE, pu_relay_url());
+putenv('PU_RELAY_URL=http://server.example.test/relay/');
+gleich('unverschlüsselt nach draussen: nein, die Vorgabe', PU_RELAY_URL_VORGABE, pu_relay_url());
+putenv('PU_RELAY_URL=http://127.0.0.1:8870/relay/');
+gleich('unverschlüsselt auf diesen Rechner: ja (Probelauf)', 'http://127.0.0.1:8870/relay', pu_relay_url());
 
 putenv('PU_RELAY_URL=https://relay.example.test/relay/');
 gleich('ohne Identität: klare Ansage', 'keine_identitaet', pu_relay_ruf('stand')['grund']);
