@@ -63,7 +63,11 @@ define('PU_IDENT_ORDNER', ($p = getenv('PU_TEST_IDENT')) !== false && $p !== ''
  * noch nicht eingetragen — dann wird keine Bescheinigung angenommen.
  */
 const PU_VPS_SCHLUESSEL = [
-    'vps-1' => 'imqU74QGnf0PsO7Hlmj5vPPWe0pfKt1FVeiDlzS+Co4=',
+    // Die Kennung ist die, die in der Bescheinigung steht (`kid`). Der
+    // Live-Server unterschreibt mit `web-1` (PU_KID), nicht mit der Vorgabe
+    // `vps-1` — unter dem falschen Namen eingetragen, wurde jede Bescheinigung
+    // verworfen (Probelauf 28.09.2026).
+    'web-1' => 'imqU74QGnf0PsO7Hlmj5vPPWe0pfKt1FVeiDlzS+Co4=',
 ];
 
 const PU_IDENT_SAAT    = 'saat.bin';
@@ -371,7 +375,7 @@ function pu_ident_vps_schluessel(string $kid): string
 /** Stimmt die Unterschrift des Servers unter dieser Bescheinigung? */
 function pu_ident_bescheinigung_echt(array $bescheinigung, string $signatur): bool
 {
-    $pk = pu_ident_vps_schluessel((string)($bescheinigung['kid'] ?? 'vps-1'));
+    $pk = pu_ident_vps_schluessel((string)($bescheinigung['kid'] ?? ''));
     return $pk !== '' && pu_ident_pruefen(pu_ident_kanonisch($bescheinigung), $signatur, $pk);
 }
 

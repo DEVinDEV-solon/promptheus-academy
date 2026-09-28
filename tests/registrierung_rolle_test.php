@@ -86,18 +86,22 @@ pruefe('api.php: einrichten legt einen Schüler an',
        (bool)preg_match("/case 'einrichten'.{0,900}'schueler'\s*\)/s", $api));
 pruefe('api.php: registrieren setzt den Inhaber',
        (bool)preg_match("/case 'relay_registrieren'.{0,900}pu_art_inhaber/s", $api));
+// Kam die Bescheinigung beim Registrieren nicht an (28.09.2026: falsche
+// Schlüsselkennung), holt „Stand vom Server holen“ den Inhaber nach.
+pruefe('api.php: relay_stand holt den Inhaber nach, wenn vorher keine Art da war',
+       (bool)preg_match("/case 'relay_stand'.{0,200}\\\$artVorher = pu_art\(\).{0,900}\\\$artVorher === ''.{0,120}pu_art_inhaber/s", $api));
 pruefe('api.php: rollen_erklaert ohne Recht lesbar',
        (bool)preg_match("/case 'rollen_erklaert':\s*\n?\s*pu_json_out/s", str_replace("\r", '', $api)));
 
 // ================================================================ Schlüssel
 gruppe('Der Server-Schlüssel steht im Programm');
-$roh = base64_decode((string)(PU_VPS_SCHLUESSEL['vps-1'] ?? ''), true);
-pruefe('vps-1 ist eingetragen und ein Ed25519-Schlüssel (32 Byte)',
+$roh = base64_decode((string)(PU_VPS_SCHLUESSEL['web-1'] ?? ''), true);
+pruefe('web-1 (Kennung des Live-Servers) ist eingetragen und ein Ed25519-Schlüssel (32 Byte)',
        $roh !== false && strlen($roh) === SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES);
 putenv('PU_VPS_SCHLUESSEL=' . base64_encode(random_bytes(32)));
 $GLOBALS['PU_TEST_MODUS'] = false;
 gleich('außerhalb des Testlaufs zählt die Umgebung nicht',
-       (string)(PU_VPS_SCHLUESSEL['vps-1'] ?? ''), pu_ident_vps_schluessel('vps-1'));
+       (string)(PU_VPS_SCHLUESSEL['web-1'] ?? ''), pu_ident_vps_schluessel('web-1'));
 gleich('…und eine fremde Kennung gibt es nicht', '', pu_ident_vps_schluessel('boese-1'));
 $GLOBALS['PU_TEST_MODUS'] = true;
 putenv('PU_VPS_SCHLUESSEL=');

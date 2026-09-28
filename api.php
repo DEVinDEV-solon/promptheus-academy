@@ -926,7 +926,20 @@ try {
 
         case 'relay_stand': {
             pu_recht_fordern('abo.sehen');
+            $artVorher = pu_art();
             $r = pu_relay_stand();
+            // Kommt hier die ERSTE gültige Bescheinigung an, war die
+            // Registrierung am Server erfolgreich, aber lokal nicht
+            // angenommen (Probelauf 28.09.2026: falsche Schlüsselkennung).
+            // Dann wird wie beim Registrieren nachgeholt, was fehlt: Wer hier
+            // klickt, wird Inhaber. Vorher gab es auf diesem Rechner nur
+            // Schüler — dieselbe Lage wie vor einer Registrierung.
+            if ($r['ok'] && $artVorher === '' && ($inhaber = pu_art_inhaber(pu_art(true))) !== '') {
+                pu_db()->prepare('UPDATE lernende SET rolle = ? WHERE id = ?')
+                       ->execute([$inhaber, $ichId]);
+                pu_protokoll($ichId, 'registrierung', 'nachgeholt', '');
+                $r['neu_laden'] = true;
+            }
             // Nebenbei die Konten melden (Pseudonym + Rolle) und das eigene
             // Guthaben holen — scheitert das, bleibt der Stand trotzdem gültig.
             if ($r['ok']) {

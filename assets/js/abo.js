@@ -276,6 +276,13 @@ function serverMalen(bereich, j) {
       bericht.textContent = 'Frage den Server …';
       try {
         const r = await PU.ruf('relay_stand');
+        // Die Registrierung wurde nachgeholt (erste gültige Bescheinigung):
+        // Menü, Rechte und Stil stehen im HTML — also neu laden.
+        if (r.ok && r.neu_laden) {
+          bericht.textContent = 'Registrierung übernommen. Die Seite lädt neu — mit deiner neuen Rolle.';
+          setTimeout(() => location.reload(), 900);
+          return;
+        }
         if (!r.ok) {
           bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(r.meldung || 'Abgewiesen.') + '</b>';
         } else {
