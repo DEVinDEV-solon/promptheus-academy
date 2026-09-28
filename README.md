@@ -66,8 +66,10 @@ Windows 10/11 nicht selbst — dann öffnet sich der Desktop mit der markierten
 Verknüpfung, und ein Rechtsklick → „An Taskleiste anheften“ erledigt den Rest.
 Gefragt wird einmal (Merker `data\verknuepfung.txt`; löschen, um neu zu fragen).
 
-- **Download:** rund 19 MB Academy und 34 MB PHP. Danach geht beim Lernen nichts
-  mehr hinaus, ausser du schaltest die KI-Tutoren ein (siehe unten).
+- **Download:** rund 19 MB Academy und 34 MB PHP. Beim ersten Start holt das
+  Startskript einmalig die Kursmedien (Hörstücke, rund 30 MB, signiert) vom
+  Server der Academy. Danach geht beim Lernen nichts mehr hinaus, ausser du
+  schaltest die KI-Tutoren ein (siehe unten).
 - **Ordner:** Die Befehle legen `promptheus-academy-main` dort an, wo PowerShell
   gerade steht, meist in deinem Benutzerordner. Windows verkraftet nur Pfade bis
   260 Zeichen; ein tief verschachtelter Ordner ist deshalb ein schlechter Ort.
