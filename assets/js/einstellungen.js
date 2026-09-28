@@ -2151,7 +2151,7 @@ PU.rechteStand = { ebene: 'schueler', daten: null };
 PU.rechteZeichnen = rechteZeichnen;
 
 function rechteZeichnen(ziel) {
-  ziel.appendChild(PU.el('h4', '', 'Rechte verteilen'));
+  ziel.appendChild(PU.el('h4', '', 'Rechte je Ebene'));
   ziel.appendChild(PU.el('p', 'hinweis',
     'Was hier aus steht, endet im Programm mit einer abschlägigen Antwort — nicht mit einem ' +
     'versteckten Knopf. Weitergeben lässt sich nur, was du selbst hast; die eigene Spalte bleibt fest.'));
@@ -2175,30 +2175,40 @@ function rechteMalen(rahmen) {
 
   rahmen.innerHTML = '';
 
-  // -------- Kopfzeile: welche Ebene hervorgehoben wird
-  const chips = PU.el('div', 'rechte-chips');
-  ebenen.forEach(e => {
-    const k = PU.el('button', 'rechte-chip' + (e === PU.rechteStand.ebene ? ' aktiv' : ''),
-                    PU.h(d.ebenen[e].anzeige));
-    k.type  = 'button';
-    k.title = d.ebenen[e].hinweis;
-    k.addEventListener('click', () => { PU.rechteStand.ebene = e; rechteMalen(rahmen); });
-    chips.appendChild(k);
-  });
-  rahmen.appendChild(chips);
+  // Nur eine Ebene auf diesem Rechner (Einzelperson): Zu verteilen gibt es
+  // nichts — das steht dann da, statt einer Spalte voller fester Schalter.
+  if (ebenen.length < 2) {
+    rahmen.appendChild(PU.el('p', 'hinweis',
+      'Auf diesem Rechner gibt es nur dein Konto (' + PU.h(d.ebenen[d.meine_ebene]
+        ? d.ebenen[d.meine_ebene].anzeige : d.meine_ebene) + '). Zu verteilen gibt es deshalb nichts; ' +
+      'die Tabelle zeigt, was du darfst. Wie es bei Schulen und Familien aussieht, steht unter ' +
+      '„Rollen &amp; Rechte ausführlich“.'));
+  }
 
-  const gewaehlt = PU.rechteStand.ebene;
-  rahmen.appendChild(PU.el('p', 'warum',
-    'Hervorgehoben: <b>' + PU.h(d.ebenen[gewaehlt].anzeige) + '</b> — ' +
-    PU.h(d.ebenen[gewaehlt].hinweis) + '. ' + rechteZaehlung(d, gewaehlt)));
-
-  // -------- Die Gruppen
+  // -------- Die Tabelle: eine Zeile je Recht, eine Spalte je Ebene.
+  // Scrollt bei schmaler Breite in sich, nicht die ganze Seite.
+  const huelle = PU.el('div', 'rechte-huelle');
+  const tabelle = PU.el('table', 'rechte-tabelle');
+  const kopf = '<thead><tr><th scope="col" class="rechte-recht">Recht</th>' +
+    ebenen.map(e => '<th scope="col" title="' + PU.h(d.ebenen[e].hinweis) + '"' +
+      (e === d.meine_ebene ? ' class="rechte-du"' : '') + '>' + PU.h(d.ebenen[e].anzeige) +
+      (e === d.meine_ebene ? ' <span class="recht-marke">du</span>' : '') +
+      '<small>' + PU.h(rechteZaehlung(d, e)) + '</small></th>').join('') + '</tr></thead>';
+  tabelle.innerHTML = kopf;
+  const koerper = document.createElement('tbody');
   Object.keys(d.gruppen).forEach(gruppe => {
-    const block = PU.el('section', 'rechte-gruppe');
-    block.appendChild(PU.el('h4', '', PU.h(gruppe)));
-    d.gruppen[gruppe].forEach(r => block.appendChild(rechteZeile(r, ebenen, gewaehlt, rahmen)));
-    rahmen.appendChild(block);
+    const g = document.createElement('tr');
+    g.className = 'rechte-gruppenzeile';
+    g.innerHTML = '<th scope="rowgroup" colspan="' + (ebenen.length + 1) + '">' + PU.h(gruppe) + '</th>';
+    koerper.appendChild(g);
+    d.gruppen[gruppe].forEach(r => koerper.appendChild(rechteZeile(r, ebenen, rahmen)));
   });
+  tabelle.appendChild(koerper);
+  huelle.appendChild(tabelle);
+  rahmen.appendChild(huelle);
+  rahmen.appendChild(PU.el('p', 'klein rechte-legende',
+    'Blass: fest — die Admin-Spalte, Plattformrechte, die eigene Spalte und was du selbst nicht hast. ' +
+    'Goldener Rand: weicht von der Vorgabe ab.'));
 
   // -------- Zurücksetzen
   const fuss = PU.el('div', 'rechte-fuss');
@@ -2247,31 +2257,38 @@ function rechteMalen(rahmen) {
   rahmen.appendChild(liste);
 }
 
-/** „Darf 18 von 31 Rechten." — die Vorschau in einem Satz. */
+/** „18 von 31" — wie viel eine Ebene darf, für den Spaltenkopf. */
 function rechteZaehlung(d, ebene) {
   let hat = 0, alle = 0;
   Object.keys(d.gruppen).forEach(g => d.gruppen[g].forEach(r => {
     alle++;
     if (r.stand[ebene]) hat++;
   }));
-  return 'Darf ' + hat + ' von ' + alle + ' Rechten.';
+  return hat + ' von ' + alle;
 }
 
-function rechteZeile(r, ebenen, gewaehlt, rahmen) {
-  const zeile = PU.el('div', 'rechte-zeile');
+function rechteZeile(r, ebenen, rahmen) {
+  const zeile = document.createElement('tr');
+  const meine = PU.rechteStand.daten.meine_ebene;
 
-  const name = PU.el('div', 'recht-name');
-  name.innerHTML = '<code>' + PU.h(r.name) + '</code>' +
+  // Zuerst, was das Recht erlaubt (in Worten), darunter der Name im Programm.
+  const name = document.createElement('th');
+  name.scope = 'row';
+  name.className = 'rechte-recht';
+  name.innerHTML = '<span class="recht-was">' + PU.h(r.was) + '</span>' +
     (r.nur_admin ? ' <span class="recht-marke">nur Admin</span>' : '') +
     (r.wirkt ? '' : ' <span class="recht-marke still">noch nicht in Betrieb</span>') +
-    '<div class="desc">' + PU.h(r.was) + '</div>';
+    '<code>' + PU.h(r.name) + '</code>';
   zeile.appendChild(name);
 
-  const zellen = PU.el('div', 'recht-zellen');
   ebenen.forEach(e => {
-    const zelle = PU.el('label', 'recht-zelle' + (e === gewaehlt ? ' hell' : ''));
+    const zelle = document.createElement('td');
+    zelle.className = 'recht-zelle' + (e === meine ? ' rechte-du' : '');
     const schalter = document.createElement('input');
     schalter.type    = 'checkbox';
+    schalter.className = 'schalter';
+    schalter.setAttribute('role', 'switch');
+    schalter.setAttribute('aria-label', r.was + ' — ' + (PU.rechteStand.daten.ebenen[e] || {}).anzeige);
     schalter.checked = !!r.stand[e];
 
     // Festgenagelt ist, was der Server nicht umlegen liesse (pu_recht_setzen_darf):
@@ -2284,8 +2301,9 @@ function rechteZeile(r, ebenen, gewaehlt, rahmen) {
       zelle.title = e === 'admin'
         ? 'Ebene 1 hat immer alles — sonst käme niemand mehr an die Matrix.'
         : r.nur_admin ? 'Dieses Recht gehört Ebene 1 allein und lässt sich nicht weitergeben.'
-        : e === PU.rechteStand.daten.meine_ebene ? 'Die eigene Spalte bleibt fest.'
+        : e === meine ? 'Die eigene Spalte bleibt fest.'
         : 'Weitergeben lässt sich nur, was du selbst hast.';
+      schalter.title = zelle.title;
     } else {
       if (r.stand[e] !== r.vorgabe[e]) zelle.classList.add('abweichend');
       schalter.addEventListener('change', async () => {
@@ -2301,10 +2319,8 @@ function rechteZeile(r, ebenen, gewaehlt, rahmen) {
     }
 
     zelle.appendChild(schalter);
-    zelle.appendChild(PU.el('small', '', PU.h(PU.ebenenKurz(e))));
-    zellen.appendChild(zelle);
+    zeile.appendChild(zelle);
   });
-  zeile.appendChild(zellen);
   return zeile;
 }
 

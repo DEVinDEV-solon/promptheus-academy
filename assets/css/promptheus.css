@@ -1598,63 +1598,84 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
 .tok-ruf:hover { color: var(--gold); border-color: var(--rand-hell); }
 
 /* ============================================================ Rechte-Matrix
-   Fünf Ebenen nebeneinander, eine Zeile je Recht. Der Name steht oben und
-   die fünf Schalter darunter, nicht daneben: in der Modalseite ist die
-   Breite knapp, und ein Rechtename wie `auswertung.lehrersehen` bricht
-   sonst mitten im Wort um.
+   Eine echte Tabelle (28.09.2026): eine Zeile je Recht, eine Spalte je Ebene,
+   in jeder Zelle ein Kippschalter. Vorher standen Name und Kästchen
+   untereinander — mit nur einer Ebene auf dem Rechner sah das aus wie Text.
 
-   Drei Zustände sind zu sehen, und jeder hat sein eigenes Zeichen:
-     · festgenagelt  — blass und ohne Zeiger (Admin-Spalte, Ebene-1-Rechte)
-     · abweichend    — goldener Rahmen: hier hat jemand die Vorgabe verlassen
-     · hervorgehoben — die Spalte der gewählten Ebene, für die Vorschau       */
+   Die Tabelle scrollt bei schmaler Breite in ihrer Hülle, nicht die Seite.
 
-.rechte-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 .6rem; }
-.rechte-chip {
-  font: inherit; font-size: .84rem; cursor: pointer;
-  padding: .3rem .8rem; border-radius: 999px;
-  background: var(--grund-3); border: 1px solid var(--rand);
-  color: var(--schrift-2);
+   Drei Zustände, jeder mit eigenem Zeichen:
+     · fest        — blass, ohne Zeiger (Admin-Spalte, Plattformrechte,
+                     eigene Spalte, was man selbst nicht hat)
+     · abweichend  — goldener Rand: hier hat jemand die Vorgabe verlassen
+     · eigene Spalte — leicht hinterlegt, im Kopf „du“                     */
+
+.rechte-huelle { overflow-x: auto; margin: .6rem 0 .4rem; border: 1px solid var(--rand); border-radius: var(--radius-klein); }
+.rechte-tabelle { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.rechte-tabelle thead th {
+  background: var(--grund-3); color: var(--schrift);
+  font-weight: 600; text-align: center; vertical-align: bottom;
+  padding: .55rem .6rem; border-bottom: 1px solid var(--rand-hell); white-space: nowrap;
 }
-.rechte-chip:hover  { border-color: var(--rand-hell); color: var(--schrift); }
-.rechte-chip.aktiv  { background: var(--grund-2); border-color: var(--gold); color: var(--gold); }
-
-.rechte-gruppe { margin: 1.4rem 0 0; }
-.rechte-gruppe h4 {
-  margin: 0 0 .5rem; padding-bottom: .3rem;
-  border-bottom: 1px solid var(--rand); color: var(--schrift-2);
+.rechte-tabelle thead th small { display: block; font-weight: 400; font-size: .72rem; color: var(--schrift-3); margin-top: .1rem; }
+.rechte-tabelle thead th.rechte-recht { text-align: left; }
+/* Die Zeilenköpfe sind Sätze, keine Spaltentitel: ohne die Grossbuchstaben
+   der allgemeinen th-Regel. */
+.rechte-tabelle tbody th.rechte-recht {
+  text-align: left; font-weight: 400; min-width: 16rem;
+  text-transform: none; letter-spacing: normal; font-size: .9rem; color: var(--schrift);
 }
-
-.rechte-zeile {
-  padding: .55rem 0;
-  border-bottom: 1px solid var(--rand);
+/* Beim seitlichen Scrollen bleibt die Spalte mit den Rechten stehen. */
+.rechte-tabelle th.rechte-recht { position: sticky; left: 0; z-index: 1; background: var(--grund-2); }
+.rechte-tabelle thead th.rechte-recht { background: var(--grund-3); }
+@media (max-width: 600px) {
+  .rechte-tabelle tbody th.rechte-recht { min-width: 10.5rem; }
 }
-.rechte-zeile:last-child { border-bottom: 0; }
-
-.recht-name code { font-size: .82rem; color: var(--gold); background: none; padding: 0; }
-.recht-name .desc { font-size: .84rem; color: var(--schrift-3); margin-top: .1rem; }
+.rechte-tabelle tbody th, .rechte-tabelle tbody td { padding: .5rem .6rem; border-bottom: 1px solid var(--rand); }
+.rechte-tabelle tbody tr:last-child th, .rechte-tabelle tbody tr:last-child td { border-bottom: 0; }
+.rechte-tabelle tbody tr:not(.rechte-gruppenzeile):hover { background: var(--grund-3); }
+.rechte-gruppenzeile th {
+  text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--gold); background: var(--grund); padding: .7rem .6rem .35rem;
+}
+.recht-was { color: var(--schrift); }
+.rechte-recht code { display: block; font-size: .74rem; color: var(--schrift-3); background: none; border: 0; padding: 0; margin-top: .1rem; }
 
 .recht-marke {
-  font-size: .7rem; text-transform: uppercase; letter-spacing: .04em;
-  padding: .05rem .4rem; border-radius: 3px; margin-left: .4rem;
-  border: 1px solid var(--rand-hell); color: var(--schrift-3);
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .04em;
+  padding: .05rem .4rem; border-radius: 3px; margin-left: .3rem;
+  border: 1px solid var(--rand-hell); color: var(--schrift-3); font-weight: 400;
 }
 .recht-marke.still { border-style: dashed; }
 
-.recht-zellen {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: .3rem; margin-top: .45rem;
+.recht-zelle { text-align: center; width: 6.5rem; }
+.recht-zelle.rechte-du, .rechte-tabelle thead th.rechte-du { background: var(--grund-2); }
+.recht-zelle.abweichend .schalter { box-shadow: 0 0 0 2px var(--gold); }
+.recht-zelle.fest .schalter { opacity: .4; cursor: not-allowed; }
+
+/* Der Kippschalter: ein Kontrollkästchen mit role="switch". Aus = dunkle
+   Fläche, An = Glut. Die Stellung steht nicht nur in der Farbe, sondern
+   auch in der Lage des Knopfs. Der Wähler trägt `input[type="checkbox"]`,
+   weil die allgemeine Regel für Ankreuzfelder (oben) sonst die Breite
+   auf „auto“ setzt — dann bleiben vom Schalter zwei Pixel. */
+input[type="checkbox"].schalter {
+  appearance: none; -webkit-appearance: none; margin: 0;
+  position: relative; display: inline-block; vertical-align: middle;
+  width: 38px; height: 22px; border-radius: 999px; cursor: pointer;
+  background: var(--grund); border: 1px solid var(--rand-hell);
+  transition: background .15s, border-color .15s;
 }
-.recht-zelle {
-  display: flex; flex-direction: column; align-items: center; gap: .15rem;
-  padding: .35rem .2rem; border-radius: var(--radius-klein);
-  border: 1px solid transparent; cursor: pointer;
+input[type="checkbox"].schalter::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--schrift-3); transition: transform .15s, background .15s;
 }
-.recht-zelle small { font-size: .7rem; color: var(--schrift-3); }
-.recht-zelle:hover      { background: var(--grund-3); }
-.recht-zelle.hell       { background: var(--grund-3); border-color: var(--rand); }
-.recht-zelle.abweichend { border-color: var(--gold); }
-.recht-zelle.fest       { opacity: .45; cursor: default; }
-.recht-zelle.fest:hover { background: none; }
+input[type="checkbox"].schalter:checked { background: var(--glut); border-color: var(--glut); }
+input[type="checkbox"].schalter:checked::after { transform: translateX(16px); background: var(--grund); }
+input[type="checkbox"].schalter:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::after { transition: none; }
+
+.rechte-legende { color: var(--schrift-3); margin: .3rem 0 0; }
 
 .rechte-fuss {
   display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
@@ -2043,7 +2064,6 @@ html[data-bewegung="wenig"] .mikro-knopf.aktiv {
   .seitenspalte { position: static; }
   .modal-koerper { grid-template-columns: 1fr; }
   .modal-reiter { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--rand); }
-  .recht-zellen { grid-template-columns: repeat(3, 1fr); }
   .seitenmenue { width: 100%; max-width: 100%; }
   .verbrauch-zeile { grid-template-columns: 1fr auto auto; }
   .verbrauch-zeile .v-balken { display: none; }
