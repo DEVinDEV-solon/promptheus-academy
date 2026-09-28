@@ -181,3 +181,42 @@ function pu_med_laden(string $wurzel = PU_ROOT): array
     }
     return ['ok' => $e['ok'], 'meldung' => $e['meldung']];
 }
+
+/**
+ * Beim Start der Academy (srv/kursmedien_cli.php, vor dem Server): neue
+ * Kursmedien holen, ohne dass jemand einen Knopf drückt.
+ *
+ *   · automatische Update-Prüfung aus (Regel update_pruefen): nichts
+ *   · noch keine Kursmedien da (erster Start): Feed sofort prüfen
+ *   · sonst: nur wenn die Prüfung ohnehin fällig ist
+ *
+ * `$melden` bekommt jede Zeile sofort — „Lade …“ soll dastehen, BEVOR der
+ * Download beginnt, nicht danach.
+ *
+ * @return list<string> dieselben Zeilen (leer: nichts zu tun)
+ */
+function pu_med_beim_start(string $wurzel = PU_ROOT, ?callable $melden = null): array
+{
+    $zeilen = [];
+    $sag = static function (string $t) use (&$zeilen, $melden): void {
+        $zeilen[] = $t;
+        if ($melden !== null) $melden($t);
+    };
+    if (!pu_regel_an('update_pruefen')) {
+        return [];
+    }
+    $erstmals = pu_med_installiert()['stand'] === '';
+    $s = pu_akt_pruefen($erstmals);
+    $a = $s['medien'] ?? null;
+    if (!is_array($a)) {
+        if ($erstmals && $s['fehler'] !== '') {
+            $sag('Kursmedien: ' . pu_akt_grund_text((string)$s['fehler']) . ' Nächster Versuch beim nächsten Start.');
+        }
+        return $zeilen;
+    }
+    $mb = number_format(((int)$a['groesse']) / 1048576, 0, ',', '.');
+    $sag("Lade die Kursmedien {$a['stand']} ($mb MB) — einmalig, bitte warten …");
+    $r = pu_med_laden($wurzel);
+    $sag(($r['ok'] ? 'OK: ' : 'FEHLER: ') . $r['meldung']);
+    return $zeilen;
+}

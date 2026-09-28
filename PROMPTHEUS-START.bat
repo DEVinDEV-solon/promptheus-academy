@@ -149,6 +149,13 @@ if exist "%~f0.neu" (
     "%~f0"
 )
 
+rem --- Kursmedien holen (Aufnahmen der Kurse) ----------------------
+rem   Beim ersten Start immer, danach nur, wenn der unterschriebene Feed einen
+rem   neueren Stand nennt. Vor dem Server, weil der eingebaute PHP-Server
+rem   waehrend eines Downloads sonst niemanden bedient. Ohne Netz geht es
+rem   einfach weiter (srv\kursmedien_cli.php endet immer mit 0).
+if exist "srv\kursmedien_cli.php" "%RUN%" -r "require 'srv/kursmedien_cli.php';"
+
 rem --- Port freimachen (alten/defekten Server beenden) -----------
 powershell.exe -NoProfile -Command "$x=Get-NetTCPConnection -LocalPort %PORT% -State Listen -ErrorAction SilentlyContinue; if($x){$x.OwningProcess | Select -Unique | ForEach-Object { Stop-Process -Id $_ -Force } }" >nul 2>&1
 

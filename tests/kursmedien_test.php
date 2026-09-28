@@ -154,7 +154,56 @@ $r = pu_med_laden($w);
 pruefe('Download passt nicht zur Unterschrift: verworfen', !$r['ok'] && str_contains($r['meldung'], 'Unterschrift'), $r['meldung']);
 pruefe('… nichts abgelegt', !is_file($w . '/medien/kurs/5-teil.mp3'));
 
+// ─────────────────────────────────────────────────────────────────────────────
+gruppe('Beim Start (vor dem Server)');
+$rufe = [];
+$roh = (string)file_get_contents(medienpaket($tmp . '/s.zip', '1.3.0', ['medien/kurs/6-teil.mp3' => 'SECHS']));
+// Kein Netz für den Feed; nur das Paket ist zu haben.
+$GLOBALS['PU_AKT_SENDER'] = static function (string $url, ?string $post, ?string $ziel) use (&$roh, &$rufe): array {
+    $rufe[] = $url;
+    if (str_contains($url, 'paket.php?m=1.3.0')) {
+        if ($ziel !== null) file_put_contents($ziel, $roh);
+        return ['status' => 200, 'rumpf' => ''];
+    }
+    return ['status' => 0, 'rumpf' => ''];
+};
+
+pu_einst_global_setzen('update_pruefen', 'aus');
+gleich('Update-Prüfung abgeschaltet: nichts, kein Netz', [[], []], [pu_med_beim_start($w), $rufe]);
+pu_einst_global_setzen('update_pruefen', 'an');
+
+$s = pu_akt_stand();
+$s['medien'] = null;
+$s['naechste'] = time() + 3600;
+pu_akt_stand_setzen($s);
+gleich('schon Kursmedien da, Prüfung nicht fällig: nichts, kein Netz', [[], []], [pu_med_beim_start($w), $rufe]);
+
+@unlink(pu_akt_ordner() . '/medien.json');
+$z = pu_med_beim_start($w);
+pruefe('erster Start ohne Netz: fragt trotzdem sofort nach', $rufe !== []);
+pruefe('… und sagt, dass es beim nächsten Start wieder versucht', count($z) === 1 && str_contains($z[0], 'nächsten Start'), $z[0] ?? '');
+
+// Erster Start mit einem Angebot aus einem früher angenommenen Feed.
+$rufe = [];
+$s = pu_akt_stand();
+$s['medien'] = ['stand' => '1.3.0', 'sha256' => hash('sha256', $roh), 'groesse' => strlen($roh)];
+pu_akt_stand_setzen($s);
+$gesagt = [];
+$z = pu_med_beim_start($w, static function (string $t) use (&$gesagt): void { $gesagt[] = $t; });
+pruefe('erster Start: lädt', count($z) === 2 && str_starts_with($z[0], 'Lade die Kursmedien 1.3.0') && str_starts_with($z[1], 'OK'),
+       implode(' | ', $z));
+gleich('… die Zeilen kommen auch einzeln beim Aufrufer an', $z, $gesagt);
+gleich('… die Datei liegt da', 'SECHS', (string)@file_get_contents($w . '/medien/kurs/6-teil.mp3'));
+gleich('… und der Stand ist vermerkt', '1.3.0', pu_med_installiert()['stand']);
+
 gruppe('Werkzeug und Oberfläche');
+$bat = (string)file_get_contents(__DIR__ . '/../PROMPTHEUS-START.bat');
+$vorServer = strpos($bat, "srv/kursmedien_cli.php");
+pruefe('Startdatei holt die Kursmedien — vor dem Serverstart',
+       $vorServer !== false && $vorServer < (int)strpos($bat, ' -S 127.0.0.1:'));
+$cli = (string)file_get_contents(__DIR__ . '/../srv/kursmedien_cli.php');
+pruefe('das Startprogramm endet immer mit 0 und nur auf der Kommandozeile',
+       str_contains($cli, "PHP_SAPI !== 'cli'") && str_ends_with(rtrim($cli), 'exit(0);'));
 pruefe('Werkzeug nimmt dieselbe Pfadregel', str_contains((string)file_get_contents(__DIR__ . '/../werkzeuge/medien_paket_bauen.php'), 'pu_med_pfad_ok($p)'));
 $api = (string)file_get_contents(__DIR__ . '/../api.php');
 pruefe('api.php: update_medien fordert aktualisierung.verwalten',
