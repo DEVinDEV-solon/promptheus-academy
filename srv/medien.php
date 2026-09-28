@@ -181,9 +181,15 @@ function pu_medien(string $kurspfad, string $unter): array
                weiterläuft.** Ein Kurs, der in fünf Teilen erzählt wird, soll
                durchlaufen wie eine Folge; ein Lied dazwischen soll das nicht.
                Erkannt wird es an der Quelle: Was aus einer `.pcm16` entstanden
-               ist, wurde für diesen Kurs gesprochen. */
-            $ausPcm  = is_file($ort['pfad'] . '/' . $rumpf . '.pcm16');
+               ist, wurde für diesen Kurs gesprochen.
+
+               Oder an `titel.md` (28.09.2026): Das Kursmedien-Paket liefert
+               die Rohdatei nicht mit — sie ist gross und kein Browser spielt
+               sie. Beim Kunden liegt nur die .wav; ihr Eintrag in der
+               Titelliste sagt dasselbe, denn Titel bekommen dort genau die
+               gesprochenen Teile. */
             $eigener = $titel[mb_strtolower($rumpf)] ?? '';
+            $ausPcm  = is_file($ort['pfad'] . '/' . $rumpf . '.pcm16') || $eigener !== '';
 
             $audio[] = [
                 'url'     => $url,
