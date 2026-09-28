@@ -413,7 +413,7 @@ function lobZeichnen(ziel) {
   zeileWahl(ziel, 'Lob-Fenster nach einer richtigen Antwort',
     'Ein Spruch, ein Feuer, deine Punkte. Die Sprüche stehen im Wissensspeicher unter 00_Fundament/motivation.md — ein Tutor kann sie ändern.',
     ['auto', 'ja', 'nein'], p.lob_popup || 'auto', w => personSetzen('lob_popup', w),
-    { auto: 'Automatisch (Academy an, Klar aus)', ja: 'Ja', nein: 'Nein' });
+    { auto: 'Automatisch (an; in „Klar“ mit Haken statt Feuer)', ja: 'Ja', nein: 'Nein' });
 
   zeileZahl(ziel, 'Fenster schliesst sich nach',
     'Sekunden. Bei 0 bleibt es stehen, bis du das × drückst.',

@@ -804,10 +804,11 @@ PU.modalSchliessen = function () {
  * es wegklickt. Beides ist gewollt: manche lesen den Satz, andere sind schon
  * bei der nächsten Aufgabe. */
 PU.lobZeigen = function (spruch, punkte) {
-  // "auto": an in der Academy, aus im Stil „Klar" — Erwachsene brauchen kein Feuer.
-  const lob = PU.e('lob_popup');
-  const an  = lob === 'auto' ? document.documentElement.dataset.stil !== 'klar' : lob === 'ja';
-  if (!an || !spruch) return;
+  // "auto" heisst an — in beiden Stilen (28.09.2026, Wunsch des Betreibers:
+  // eine richtige Antwort verdient ihren Moment, auch bei Erwachsenen). Im
+  // Stil „Klar" nur sachlicher: ein Haken statt des Feuers.
+  if (PU.e('lob_popup') === 'nein' || !spruch) return;
+  const klar = document.documentElement.dataset.stil === 'klar';
 
   const kasten = document.getElementById('lob');
   if (!kasten) return;
@@ -816,7 +817,7 @@ PU.lobZeigen = function (spruch, punkte) {
 
   kasten.innerHTML =
     '<button class="lob-zu" type="button" aria-label="Schliessen">×</button>' +
-    '<div class="lob-zeichen" aria-hidden="true">🔥</div>' +
+    '<div class="lob-zeichen" aria-hidden="true">' + (klar ? '✓' : '🔥') + '</div>' +
     '<p class="lob-spruch">' + PU.h(spruch) + '</p>' +
     (punkte ? '<p class="lob-punkte">+' + punkte + ' Punkte</p>' : '') +
     (dauer > 0 ? '<div class="lob-balken"><i></i></div>' : '');
