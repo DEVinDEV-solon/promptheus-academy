@@ -935,6 +935,11 @@ try {
                 'darf_buchen'      => pu_recht_hat('abo.verwalten'),
                 'darf_einzahlen'   => pu_recht_hat('token.einzahlen'),
                 'darf_bestaetigen' => pu_recht_hat('abo.bestaetigen'),
+                // Bestätigt wird sonst vom Server — das geht nur registriert.
+                'registriert'      => (function () {
+                    require_once __DIR__ . '/srv/relay.php';
+                    return pu_relay_zustand()['registriert'];
+                })(),
 
                 // Recht UND jemand darunter. Das Recht allein genügt nicht:
                 // Ein Kasten „Talente weitergeben" ohne einen einzigen
@@ -1166,7 +1171,15 @@ try {
                 $ichId,
                 (string)d('notiz', '')
             );
-            pu_json_out(['ok' => true, 'abo' => $abo]);
+            // Gleich beim Server melden, damit der Betreiber die Zahlung
+            // bestätigen kann. Scheitert das (offline, nicht registriert),
+            // holt es der nächste Abgleich nach — die Buchung steht trotzdem.
+            $gemeldet = false;
+            require_once __DIR__ . '/srv/relay.php';
+            if (pu_relay_zustand()['registriert']) {
+                $gemeldet = pu_relay_stand()['ok'] ?? false;
+            }
+            pu_json_out(['ok' => true, 'abo' => $abo, 'gemeldet' => $gemeldet]);
         }
 
         // ------------------------------------------------ Talente weiterreichen

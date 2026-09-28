@@ -276,15 +276,59 @@ function pu_relay_registrieren(string $code): array
  */
 function pu_relay_stand(): array
 {
-    $aus = pu_relay_ruf('stand');
+    // Offene Plan-Buchungen gehen mit: Bestätigen kann sie nur der Betreiber
+    // im Cockpit (Ebene 1 gibt es vor Ort nicht). Was er bestätigt hat, kommt
+    // mit derselben Antwort zurück.
+    $aus = pu_relay_ruf('stand', ['abos' => pu_relay_abos_offen()]);
     if (!$aus['ok']) {
         return $aus;
     }
     if (isset($aus['bescheinigung'], $aus['signatur'])) {
         pu_ident_bescheinigung_setzen((array)$aus['bescheinigung'], (string)$aus['signatur']);
     }
+    if (is_array($aus['stand']['abos_bestaetigt'] ?? null)) {
+        pu_relay_abos_bestaetigen($aus['stand']['abos_bestaetigt']);
+    }
     return ['ok' => true, 'stand' => $aus['stand'] ?? [],
             'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z')];
+}
+
+/**
+ * Die Plan-Buchungen, deren Zahlung noch offen ist — so, wie der Server sie
+ * braucht. Ohne Namen von Personen: Ein Personenplan nennt keinen Träger, und
+ * `traeger_name` ist dort ohnehin leer (pu_abo_buchen verwirft ihn).
+ */
+function pu_relay_abos_offen(): array
+{
+    $st = pu_db()->query(
+        "SELECT id, plan, traeger_art, traeger_name, start, laeuft
+           FROM abos WHERE bestaetigt = 0 ORDER BY id DESC LIMIT 50");
+    $aus = [];
+    foreach ($st->fetchAll() as $a) {
+        $aus[] = ['id' => (int)$a['id'], 'plan' => (string)$a['plan'],
+                  'traeger_art' => (string)$a['traeger_art'],
+                  'traeger_name' => $a['traeger_art'] === 'person' ? '' : (string)$a['traeger_name'],
+                  'start' => (string)$a['start'], 'laeuft' => (int)$a['laeuft']];
+    }
+    return $aus;
+}
+
+/** Übernimmt die Bestätigungen des Servers: Abo und seine Kontingent-Buchungen. */
+function pu_relay_abos_bestaetigen(array $nummern): int
+{
+    require_once PU_ROOT . '/srv/abo.php';
+    $n = 0;
+    foreach ($nummern as $nr) {
+        $id = filter_var($nr, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($id === false) continue;
+        $st = pu_db()->prepare('SELECT bestaetigt FROM abos WHERE id = ?');
+        $st->execute([$id]);
+        $b = $st->fetchColumn();
+        if ($b === false || (int)$b === 1) continue;
+        pu_abo_bestaetigen($id, 0);
+        $n++;
+    }
+    return $n;
 }
 
 /**

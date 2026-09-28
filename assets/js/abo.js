@@ -731,8 +731,10 @@ function verwaltungKasten(d) {
                  'Es wird nichts abgebucht. Die Buchung wartet auf Bestätigung.')) return;
 
     try {
-      await PU.ruf('abo_buchen', { plan: plan, traeger_art: art, traeger_name: name });
-      PU.melden('Gebucht. Wartet auf Bestätigung.', 'gut');
+      const r = await PU.ruf('abo_buchen', { plan: plan, traeger_art: art, traeger_name: name });
+      PU.melden(r.gemeldet
+        ? 'Gebucht und an PROMPTHEUS gemeldet. Die Token sind schon da; die Zahlung wird dort bestätigt.'
+        : 'Gebucht. Die Token sind schon da; die Zahlung ist noch offen.', 'gut');
       PU.cockpitZeichnen();
     } catch (err) { PU.melden(PU.h(err.message), 'schlecht'); }
   });
@@ -757,13 +759,43 @@ function verwaltungKasten(d) {
         '<td>' +
           (!a.bestaetigt && d.darf_bestaetigen
             ? '<button class="knopf still" data-ok="' + a.id + '">Bestätigen</button> '
-            : (a.bestaetigt ? '<span class="klein">bestätigt</span> ' : '<span class="klein">offen</span> ')) +
+            : (a.bestaetigt ? '<span class="klein">✓ bezahlt</span> '
+                            : '<span class="klein" title="Die Zahlung bestätigt PROMPTHEUS">⏳ Zahlung offen</span> ')) +
           (a.laeuft ? '<button class="knopf still" data-weg="' + a.id + '">Beenden</button>' : '') +
         '</td></tr>';
     });
 
     rahmen.innerHTML = html + '</tbody></table>';
     k.appendChild(rahmen);
+
+    /* Wer bestätigt eine offene Zahlung? Vor Ort niemand — Ebene 1 ist nur der
+       Betreiber. Er bestätigt im Online-Cockpit, und der nächste Abgleich
+       bringt den Haken hierher. Ohne Registrierung gibt es diesen Weg nicht,
+       und das steht dann auch so da. */
+    if (!d.darf_bestaetigen && d.alle.some(a => !a.bestaetigt)) {
+      const hinweis = PU.el('div', 'abo-offen-hinweis');
+      if (d.registriert) {
+        hinweis.innerHTML = '<p class="warum">„Zahlung offen“ heißt: Die Token sind schon da, der ' +
+          'Zahlungseingang ist noch nicht bestätigt. Das macht PROMPTHEUS, sobald die Zahlung ' +
+          'da ist. Danach genügt ein Abgleich:</p>';
+        const knopf = PU.el('button', 'knopf still', 'Stand abrufen');
+        knopf.type = 'button';
+        knopf.addEventListener('click', async () => {
+          knopf.disabled = true;
+          try {
+            await PU.ruf('relay_stand', {});
+            PU.melden('Stand abgerufen.', 'gut');
+            PU.cockpitZeichnen();
+          } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); knopf.disabled = false; }
+        });
+        hinweis.appendChild(knopf);
+      } else {
+        hinweis.innerHTML = '<p class="warum">„Zahlung offen“ bleibt stehen, solange diese Academy ' +
+          'nicht registriert ist: Bestätigt wird die Zahlung von PROMPTHEUS, und dorthin führt ' +
+          'erst die Registrierung (Block „Server &amp; Registrierung“ auf dieser Seite).</p>';
+      }
+      k.appendChild(hinweis);
+    }
 
     rahmen.querySelectorAll('[data-ok]').forEach(b => b.addEventListener('click', async () => {
       try {
