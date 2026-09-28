@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * PROMPTHEUS — der Tausch der Programmdateien und der Rückweg.
  *
- * Läuft nur aus `srv/aktualisieren_cli.php`, das `promptheus-start.bat` vor
+ * Läuft nur aus `srv/aktualisieren_cli.php`, das `PROMPTHEUS-START.bat` vor
  * dem Serverstart aufruft. Solange der Server läuft, sind seine Dateien in
  * Benutzung; deshalb wird hier und nicht in api.php getauscht.
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   1. Bereitgelegtes noch einmal gegen sein Manifest prüfen.
  *   2. Sichern: Datenbank (VACUUM INTO) und jede Programmdatei, die berührt
  *      wird, als ZIP nach data/aktualisierung/sicherung/<Zeit>-<alt>-<neu>/.
- *   3. Neue Dateien an ihren Platz; `promptheus-start.bat` nur als `.neu`
+ *   3. Neue Dateien an ihren Platz; `PROMPTHEUS-START.bat` nur als `.neu`
  *      daneben (die laufende bat liest sich zeilenweise selbst nach).
  *   4. Dateien löschen, die im alten Manifest standen und im neuen fehlen.
  *   5. `manifest.json` der neuen Fassung in die Wurzel.
@@ -24,7 +24,38 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/aktualisierung.php';
 
-const PU_AKT_BAT = 'promptheus-start.bat';
+/**
+ * Die Startdatei. Bis 28.09.2026 hiess sie `promptheus-start.bat`; seitdem in
+ * Grossbuchstaben. Windows unterscheidet die Schreibweise nicht — beide Namen
+ * sind DIESELBE Datei. Deshalb wird sie überall ohne Rücksicht auf die
+ * Schreibweise erkannt (pu_akt_ist_bat), und nichts wird gelöscht, nur weil
+ * es im neuen Manifest anders geschrieben steht (pu_akt_entfallen). Sonst
+ * löschte das Update die neue Startdatei gleich nach dem Ablegen wieder.
+ */
+const PU_AKT_BAT = 'PROMPTHEUS-START.bat';
+
+/** Ist das die Startdatei — in jeder Schreibweise? */
+function pu_akt_ist_bat(string $p): bool
+{
+    return strcasecmp($p, PU_AKT_BAT) === 0;
+}
+
+/** Pfade ohne Doppelte, die sich nur in der Schreibweise unterscheiden. */
+function pu_akt_ohne_schreibweise(array $pfade): array
+{
+    $aus = [];
+    foreach ($pfade as $p) {
+        $aus[strtolower((string)$p)] ??= (string)$p;
+    }
+    return array_values($aus);
+}
+
+/** Was im alten Manifest steht und im neuen fehlt — ohne auf die Schreibweise zu achten. */
+function pu_akt_entfallen(array $alt, array $neu): array
+{
+    $da = array_flip(array_map('strtolower', $neu));
+    return array_values(array_filter($alt, static fn($p) => !isset($da[strtolower((string)$p)])));
+}
 
 function pu_akt_log(string $ordner, string $zeile): void
 {
@@ -125,7 +156,7 @@ function pu_akt_sichern(string $wurzel, string $ordner, string $db_datei, array 
         throw new RuntimeException('Die Programmsicherung lässt sich nicht anlegen.');
     }
     $gesichert = [];
-    foreach (array_unique($pfade) as $p) {
+    foreach (pu_akt_ohne_schreibweise($pfade) as $p) {
         $voll = $wurzel . '/' . $p;
         if (pu_akt_pfad_ok($p) && is_file($voll)) {
             // libzip scheitert unter Windows an Pfaden über 260 Zeichen, PHP
@@ -171,7 +202,7 @@ function pu_akt_sichern(string $wurzel, string $ordner, string $db_datei, array 
 function pu_akt_zuruecklegen(string $wurzel, string $sicherung, array $dazu): void
 {
     $info = json_decode((string)file_get_contents($sicherung . '/info.json'), true) ?: [];
-    $vorher = array_flip((array)($info['dateien'] ?? []));
+    $vorher = array_flip(array_map('strtolower', (array)($info['dateien'] ?? [])));
     $zip_kurz = pu_akt_kurz_neu('pur');
     $zip = new ZipArchive();
     if (!@copy($sicherung . '/programm.zip', $zip_kurz) || $zip->open($zip_kurz, ZipArchive::RDONLY) !== true) {
@@ -189,16 +220,16 @@ function pu_akt_zuruecklegen(string $wurzel, string $sicherung, array $dazu): vo
         }
         $inhalt = (string)$zip->getFromIndex($i);
         $ziel = $wurzel . '/' . $name;
-        if ($name === PU_AKT_BAT) {
+        if (pu_akt_ist_bat($name)) {
             // Die laufende bat nie überschreiben (siehe Kopf): daneben legen,
             // die bat verschiebt sie selbst. Gleich? Dann nichts tun.
             @unlink($wurzel . '/' . PU_AKT_BAT . '.neu');
             if (is_file($ziel) && hash_equals(hash_file('sha256', $ziel), hash('sha256', $inhalt))) {
                 continue;
             }
-            $ziel .= '.neu';
+            $ziel = $wurzel . '/' . PU_AKT_BAT . '.neu';
         }
-        if ($name !== PU_AKT_BAT && is_file($ziel) && hash_equals(hash_file('sha256', $ziel), hash('sha256', $inhalt))) {
+        if (!pu_akt_ist_bat($name) && is_file($ziel) && hash_equals(hash_file('sha256', $ziel), hash('sha256', $inhalt))) {
             continue;   // schon so: nicht anfassen
         }
         @mkdir(dirname($ziel), 0775, true);
@@ -214,7 +245,7 @@ function pu_akt_zuruecklegen(string $wurzel, string $sicherung, array $dazu): vo
             . (count($gescheitert) > 5 ? ' und ' . (count($gescheitert) - 5) . ' weitere' : ''));
     }
     foreach ($dazu as $p) {
-        if ($p !== PU_AKT_BAT && pu_akt_pfad_ok($p) && !isset($vorher[$p]) && is_file($wurzel . '/' . $p)) {
+        if (!pu_akt_ist_bat($p) && pu_akt_pfad_ok($p) && !isset($vorher[strtolower($p)]) && is_file($wurzel . '/' . $p)) {
             @unlink($wurzel . '/' . $p);
         }
     }
@@ -253,7 +284,7 @@ function pu_akt_tausch(string $wurzel, string $ordner, string $db_datei): array
     }
     $m_alt = pu_akt_manifest_lesen($wurzel . '/manifest.json');
     $von = pu_akt_fassung_ok(trim((string)@file_get_contents($wurzel . '/VERSION'))) ? trim((string)file_get_contents($wurzel . '/VERSION')) : '';
-    $entfallen = array_diff(array_keys($m_alt['dateien']), array_keys($m_neu['dateien']));
+    $entfallen = pu_akt_entfallen(array_keys($m_alt['dateien']), array_keys($m_neu['dateien']));
 
     // 2. Sichern
     try {
@@ -270,7 +301,7 @@ function pu_akt_tausch(string $wurzel, string $ordner, string $db_datei): array
         $reihe = array_keys($m_neu['dateien']);
         usort($reihe, static fn ($a, $b) => ($a === 'VERSION') <=> ($b === 'VERSION') ?: strcmp($a, $b));
         foreach ($reihe as $p) {
-            $ziel = $p === PU_AKT_BAT ? $wurzel . '/' . PU_AKT_BAT . '.neu' : $wurzel . '/' . $p;
+            $ziel = pu_akt_ist_bat($p) ? $wurzel . '/' . PU_AKT_BAT . '.neu' : $wurzel . '/' . $p;
             // Unverändert: nicht anfassen — weniger Schreiben, weniger, was
             // gesperrt sein kann (und nichts neben die laufende bat legen).
             if (is_file($wurzel . '/' . $p) && hash_equals($m_neu['dateien'][$p], hash_file('sha256', $wurzel . '/' . $p))) {
@@ -279,7 +310,7 @@ function pu_akt_tausch(string $wurzel, string $ordner, string $db_datei): array
             pu_akt_ablegen_datei($neu . '/' . $p, $ziel);
         }
         foreach ($entfallen as $p) {
-            if ($p !== PU_AKT_BAT && is_file($wurzel . '/' . $p)) {
+            if (!pu_akt_ist_bat($p) && is_file($wurzel . '/' . $p)) {
                 @unlink($wurzel . '/' . $p);
             }
         }

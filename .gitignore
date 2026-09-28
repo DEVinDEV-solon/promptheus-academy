@@ -81,7 +81,7 @@ data/
 # Dateien, fremd, gebaut, und sie aendert sich immer als Ganzes. Ein Repo mit
 # eingebackenem Interpreter laedt niemand gern herunter, und in der Historie
 # waere jede neue Fassung noch einmal 111 MB. Wer das Programm baut, holt
-# PHP selbst; `promptheus-start.bat` sagt, welche Erweiterungen es braucht.
+# PHP selbst; `PROMPTHEUS-START.bat` sagt, welche Erweiterungen es braucht.
 php/
 
 

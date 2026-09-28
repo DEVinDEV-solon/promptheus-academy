@@ -6,6 +6,8 @@ rem  - Legt dort eine fertige php.ini an (pdo_sqlite + sqlite3), damit
 rem    die PHP die Erweiterungen selbststaendig laedt.
 rem  - Raemt vorher den Port frei, damit kein alter Server stoert.
 rem  - Das Fenster bleibt offen (pause); jeder Fehler wird gezeigt.
+rem  - Beim ersten Start: Verknuepfung mit Logo auf dem Desktop, auf Wunsch
+rem    auch an der Taskleiste (srv\verknuepfung.ps1).
 rem  - Updates: Liegt ein geprueftes Update bereit (data\aktualisierung\),
 rem    wird es VOR dem Serverstart eingespielt (srv\aktualisieren_cli.php).
 rem    Beendet die Academy sich fuer ein Update selbst, startet dieses
@@ -111,6 +113,13 @@ if errorlevel 1 (
 )
 echo   mbstring OK.
 
+rem --- Beim ersten Start: Verknuepfung auf dem Desktop ------------
+rem   Mit Flammen-Logo, damit niemand diesen Ordner suchen muss. Danach die
+rem   Frage nach der Taskleiste (20 Sekunden, ohne Antwort: nein - so bleibt
+rem   ein Start durch einen Agenten nicht haengen). Gefragt wird einmal; der
+rem   Merker liegt in data\ und uebersteht jedes Update.
+if not exist "%~dp0data\verknuepfung.txt" call :verknuepfung
+
 rem --- Merker: diese Academy laeuft unter der bat -----------------
 rem   Nur dann darf sie sich fuer ein Update selbst beenden; die Schleife
 rem   unten startet sie wieder. Der Browser oeffnet sich nur beim ersten Lauf.
@@ -133,8 +142,10 @@ rem   Eine laufende Batchdatei darf man nicht ueberschreiben: cmd liest sie
 rem   zeilenweise nach. Deshalb liegt die neue als .neu daneben und wird hier,
 rem   in EINEM Klammerblock, verschoben und aufgerufen (ohne CALL: die neue
 rem   uebernimmt, diese hier liest keine Zeile mehr).
-if exist "%~dp0promptheus-start.bat.neu" (
-    move /y "%~dp0promptheus-start.bat.neu" "%~f0" >nul
+rem   Der Name kommt aus %~f0: bis 28.09.2026 hiess diese Datei klein
+rem   geschrieben, Windows unterscheidet das nicht.
+if exist "%~f0.neu" (
+    move /y "%~f0.neu" "%~f0" >nul
     "%~f0"
 )
 
@@ -162,4 +173,23 @@ if exist "%AKT%\neustart" (
 echo.
 echo   Server wurde beendet. Fenster kann geschlossen werden.
 pause
+exit /b 0
+
+rem ===============================================================
+rem  Unterprogramm: Desktop-Verknuepfung, auf Wunsch Taskleiste
+rem ===============================================================
+:verknuepfung
+if not exist "%~dp0data" mkdir "%~dp0data" >nul 2>&1
+echo.
+echo   Lege eine Verknuepfung "PROMPTHEUS Academy" auf dem Desktop an ...
+set "PIN=N"
+choice /c JN /t 20 /d N /m "  Soll PROMPTHEUS auch an die Taskleiste angeheftet werden"
+if errorlevel 2 (set "PIN=N") else (set "PIN=J")
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0srv\verknuepfung.ps1" -Start "%~f0" -Anheften %PIN%
+rem   Nicht "if errorlevel 1": PowerShell meldet manche Fehler NEGATIV.
+if not "%errorlevel%"=="0" (
+    echo   Die Verknuepfung liess sich nicht anlegen. Die Academy startet trotzdem.
+) else (
+    > "%~dp0data\verknuepfung.txt" echo angelegt, Taskleiste: %PIN%
+)
 exit /b 0

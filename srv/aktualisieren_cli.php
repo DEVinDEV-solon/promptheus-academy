@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * PROMPTHEUS — spielt ein bereitgelegtes Update ein (oder nimmt es zurück).
  *
- * Wird von `promptheus-start.bat` **vor** dem Serverstart aufgerufen, nie
+ * Wird von `PROMPTHEUS-START.bat` **vor** dem Serverstart aufgerufen, nie
  * über das Netz. Endet immer mit 0: die bat startet danach den Server, ob der
  * Tausch gelang oder nicht — eine Academy, die nach einem missglückten Update
  * gar nicht mehr startet, wäre schlimmer als eine, die die alte Fassung zeigt.

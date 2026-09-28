@@ -9,7 +9,7 @@ declare(strict_types=1);
  * wenn sie mit dem eingebauten öffentlichen Schlüssel unterschrieben ist.
  *
  * Getauscht wird hier nichts. Das tut `srv/aktualisieren_cli.php`, das
- * `promptheus-start.bat` beim Neustart **vor** dem Server aufruft — solange
+ * `PROMPTHEUS-START.bat` beim Neustart **vor** dem Server aufruft — solange
  * der Server läuft, liegen seine eigenen Dateien in Benutzung.
  *
  * ──────────────────────────────────────────────────────────────────────────
@@ -650,7 +650,7 @@ function pu_akt_neustart_antworten(bool $zurueck): never
             file_put_contents(pu_akt_ordner() . '/zurueck', gmdate('c'));
         }
         pu_json_out(['ok' => true, 'neustart' => false,
-            'meldung' => 'Bitte die Academy beenden und mit promptheus-start.bat neu starten. Beim Start wird '
+            'meldung' => 'Bitte die Academy beenden und mit PROMPTHEUS-START.bat neu starten. Beim Start wird '
                        . ($zurueck ? 'die vorige Fassung wiederhergestellt.' : 'das Update eingespielt.')]);
     }
     pu_akt_neustart_merken($zurueck);

@@ -178,7 +178,7 @@ window.PU = window.PU || {};
     ziel.appendChild(reihe);
 
     if (!s.neustart) {
-      ziel.appendChild(PU.el('p', 'hinweis', 'Diese Academy wurde nicht über promptheus-start.bat gestartet. ' +
+      ziel.appendChild(PU.el('p', 'hinweis', 'Diese Academy wurde nicht über PROMPTHEUS-START.bat gestartet. ' +
         'Das Einspielen geschieht dann beim nächsten Start über die bat.'));
     }
 

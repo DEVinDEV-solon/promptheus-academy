@@ -225,6 +225,17 @@ $e = pu_akt_entpacken(paket($tmp . '/d.zip', '9.2.0', ['index.php' => 'x'], '9.0
 pruefe('„mindestens“ nicht erfüllt: abgewiesen', !$e['ok'], $e['grund']);
 
 // ─────────────────────────────────────────────────────────────────────────────
+gruppe('Schreibweise zählt nicht (Windows)');
+pruefe('Startdatei klein erkannt', pu_akt_ist_bat('promptheus-start.bat'));
+pruefe('Startdatei gross erkannt', pu_akt_ist_bat('PROMPTHEUS-START.bat'));
+pruefe('eine andere Datei nicht', !pu_akt_ist_bat('srv/promptheus-start.bat'));
+gleich('nur umbenannt ist nicht entfallen', [],
+       pu_akt_entfallen(['promptheus-start.bat', 'Index.php'], ['PROMPTHEUS-START.bat', 'index.php']));
+gleich('wirklich entfallen bleibt entfallen', ['alt.php'],
+       pu_akt_entfallen(['alt.php', 'index.php'], ['index.php']));
+gleich('Sicherung ohne Doppelte der Schreibweise', ['promptheus-start.bat', 'a.php'],
+       pu_akt_ohne_schreibweise(['promptheus-start.bat', 'a.php', 'PROMPTHEUS-START.bat']));
+
 gruppe('Tausch im Wegwerfordner');
 
 $w = $tmp . '/wurzel';
@@ -246,8 +257,11 @@ $db_vorher = hash_file('sha256', $db);
 $env_vorher = hash_file('sha256', $w . '/.env');
 
 // Bereitlegen wie pu_akt_laden, aber für 1.1.0
+// Das neue Paket schreibt die Startdatei gross (seit 28.09.2026), die alte
+// Installation hat sie noch klein. Unter Windows ist das DIESELBE Datei: Sie
+// darf weder überschrieben noch als „entfallen“ gelöscht werden.
 $neu_dateien = ['index.php' => "<?php echo 'neu';\n", 'srv/neu.php' => "<?php // neu\n", 'VERSION' => "1.1.0\n",
-                'promptheus-start.bat' => "@echo neu\r\n"];
+                'PROMPTHEUS-START.bat' => "@echo neu\r\n"];
 $e = pu_akt_entpacken(paket($tmp . '/n.zip', '1.1.0', $neu_dateien), $tmp . '/akt/1.1.0/neu', '1.1.0', '1.0.0');
 pruefe('neues Paket entpackt', $e['ok'], $e['grund']);
 file_put_contents($tmp . '/akt/bereit.json', json_encode(['fassung' => '1.1.0']));
@@ -261,7 +275,8 @@ gleich('VERSION ist 1.1.0', "1.1.0\n", file_get_contents($w . '/VERSION'));
 gleich('.env unberührt', $env_vorher, hash_file('sha256', $w . '/.env'));
 gleich('Datenbank unberührt', $db_vorher, hash_file('sha256', $db));
 gleich('die laufende bat unberührt', "@echo alt\r\n", file_get_contents($w . '/promptheus-start.bat'));
-gleich('die neue bat liegt als .neu daneben', "@echo neu\r\n", (string)@file_get_contents($w . '/promptheus-start.bat.neu'));
+gleich('die neue bat liegt als .neu daneben', "@echo neu\r\n", (string)@file_get_contents($w . '/PROMPTHEUS-START.bat.neu'));
+pruefe('die Startdatei wurde nicht als „entfallen“ gelöscht', is_file($w . '/promptheus-start.bat'));
 pruefe('bereit.json ist weg', !is_file($tmp . '/akt/bereit.json'));
 pruefe('das Entpackte ist aufgeräumt', !is_dir($tmp . '/akt/1.1.0'));
 $sich = pu_akt_sicherungen();

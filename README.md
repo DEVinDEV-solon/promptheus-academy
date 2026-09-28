@@ -12,10 +12,17 @@ heute anders zustande käme als gestern, wäre wertlos.
 ## Starten
 
 ```bat
-promptheus-start.bat
+PROMPTHEUS-START.bat
 ```
 
 Danach im Browser: <http://127.0.0.1:8801/>
+
+Beim ersten Start legt das Skript die Verknüpfung **„PROMPTHEUS Academy“** mit
+dem Flammen-Logo auf den Desktop und fragt, ob sie auch an die Taskleiste soll
+(20 Sekunden, ohne Antwort: nein). Anheften dürfen Programme sich unter
+Windows 10/11 nicht selbst — dann öffnet sich der Desktop mit der markierten
+Verknüpfung, und ein Rechtsklick → „An Taskleiste anheften“ erledigt den Rest.
+Gefragt wird einmal (Merker `data\verknuepfung.txt`; löschen, um neu zu fragen).
 
 Das Startskript benutzt das mitgelieferte PHP unter `php\php8.2\`. Wer ein
 eigenes PHP hat:
@@ -63,7 +70,7 @@ höchstens einmal am Tag bei `promptheus-academy.de` nach, ob es eine neuere
 gibt, und nimmt nur Antworten an, die mit dem eingebauten Schlüssel
 unterschrieben sind (`srv/aktualisierung.php`). Administratoren sehen dann
 unten links über „Abmelden“ eine Notiz; *Installieren* lädt, prüft, sichert
-und startet über `promptheus-start.bat` neu. `data/`, `.env` und `php/`
+und startet über `PROMPTHEUS-START.bat` neu. `data/`, `.env` und `php/`
 bleiben unberührt. Zurück geht es unter Einstellungen → Wartung.
 
 Ein Release (Entwickler-PC), danach im Cockpit unter Updates holen, prüfen,

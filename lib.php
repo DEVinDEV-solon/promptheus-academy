@@ -201,7 +201,7 @@ function pu_db(): PDO
     if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
         throw new RuntimeException(
             'Die PHP-Erweiterung pdo_sqlite ist nicht geladen. '
-            . 'PROMPTHEUS bitte ueber promptheus-start.bat starten (schaltet sie zu) '
+            . 'PROMPTHEUS bitte ueber PROMPTHEUS-START.bat starten (schaltet sie zu) '
             . 'oder in der php.ini die Zeile ";extension=pdo_sqlite" entkommentieren.'
         );
     }
