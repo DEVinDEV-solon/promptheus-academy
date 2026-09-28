@@ -445,8 +445,90 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .balken > i { display: block; height: 100%; background: linear-gradient(90deg, var(--glut-tief), var(--gold)); }
 .klein { font-size: .82rem; color: var(--schrift-3); }
 
-/* ============================================================ Lektion */
-.lektion { max-width: 760px; }
+/* ============================================================ Lektion
+   Satzbild für langen Lehrtext (28.09.2026). Drei Regeln:
+
+   1. **Eine Lesefläche.** Die Lektion stand frei auf dem Hintergrundbild —
+      gegen BRAND.md §7 („kein Text steht frei auf dem Grund"). Sie bekommt
+      die Fläche einer Textkarte: deckend genug, dass der Text steht, ohne
+      Rahmen und Schatten, damit Aufgaben und Kästen darin noch Karten sind.
+   2. **Zeilen, die man zu Ende liest.** Höchstens 68 Zeichen je Zeile,
+      Zeilenhöhe 1.7. Längere Zeilen lassen das Auge beim Zurückspringen die
+      nächste Zeile verfehlen; das ist der Hauptgrund, warum Text „zäh" wirkt.
+   3. **Abschnitte sieht man, bevor man sie liest.** Jede Zwischenüberschrift
+      bekommt Luft darüber, eine feine Linie und eine Glutraute — beim
+      Scrollen erkennt man, wo ein neuer Gedanke beginnt. */
+.lektion {
+  max-width: 820px;
+  background: rgb(var(--karte-schleier) / .86);
+  border-radius: var(--radius);
+  padding: clamp(1.1rem, 3vw, 2rem) clamp(1rem, 3.6vw, 2.4rem) clamp(1rem, 2.6vw, 1.6rem);
+  backdrop-filter: blur(3px);
+}
+.lektion > h1 { margin: 0 0 .5rem; line-height: 1.2; }
+.lektion > p, .lektion > ul, .lektion > ol,
+.lektion > .kasten, .lektion > blockquote { max-width: 68ch; }
+.lektion p, .lektion li { line-height: 1.7; }
+.lektion > p { margin: 0 0 1em; }
+.lektion li + li { margin-top: .35rem; }
+.lektion strong { color: var(--schrift); font-weight: 700; }
+
+/* Der erste Absatz unter dem Titel führt hinein — etwas grösser, ruhiger. */
+html[data-textschrift] .lektion > h1 + p { font-size: 1.14rem; color: var(--schrift-2); margin-bottom: 1.4rem; }
+
+.lektion > h2 {
+  margin: 2.4rem 0 .8rem; padding-top: 1.4rem;
+  border-top: 1px solid var(--rand);
+  font-size: 1.4rem; line-height: 1.25;
+}
+.lektion > h1 + h2 { margin-top: 1.2rem; padding-top: 0; border-top: 0; }
+.lektion > h2::before {
+  content: ""; display: inline-block; width: .5rem; height: .5rem;
+  margin: 0 .7rem .2rem 0; vertical-align: middle;
+  background: var(--glut); border-radius: 2px; transform: rotate(45deg);
+}
+.lektion > h3 { margin: 1.8rem 0 .5rem; font-size: 1.12rem; color: var(--schrift); }
+
+/* Ein Zitat im Lehrtext ist fast immer der Kernsatz des Abschnitts. Es wird
+   wie ein Wissenskasten gesetzt (BRAND.md §7: Lapis links, Lapis-Flor) und
+   etwas grösser — der eine Satz, den man behalten soll. */
+.lektion blockquote {
+  margin: 1.4rem 0 1.5rem; padding: .9rem 1.2rem;
+  border-left: 3px solid var(--lapis); border-radius: 0 var(--radius-klein) var(--radius-klein) 0;
+  background: var(--lapis-flor); color: var(--schrift);
+}
+html[data-textschrift] .lektion blockquote p { font-size: 1.12rem; line-height: 1.55; margin: 0; }
+.lektion blockquote p + p { margin-top: .6rem; }
+
+.lektion .tabellenrahmen {
+  margin: 1.2rem 0 1.5rem; border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  background: var(--grund-2);
+}
+.lektion table { font-size: .93rem; }
+.lektion th { background: var(--grund-3); }
+.lektion tr:last-child td { border-bottom: 0; }
+
+/* Hinweiskästen im Lehrstoff: `> [!merke] Titel` (srv/brain.php). Vier
+   Farben, jede mit einer Bedeutung — und immer mit Titel als Wort, denn
+   Farbe trägt nie allein eine Aussage. */
+.kasten {
+  --k: var(--lapis);
+  margin: 1.4rem 0 1.5rem; padding: .85rem 1.15rem .9rem;
+  border-left: 3px solid var(--k); border-radius: 0 var(--radius-klein) var(--radius-klein) 0;
+  background: color-mix(in srgb, var(--k) 11%, transparent);
+}
+.kasten-titel {
+  font-family: var(--sans); font-size: .74rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .09em; color: var(--k);
+  margin-bottom: .35rem;
+}
+.kasten p { margin: 0; }
+.kasten p + p { margin-top: .55rem; }
+.kasten-merke    { --k: var(--lapis-hell); }
+.kasten-tipp     { --k: var(--gut); }
+.kasten-achtung  { --k: var(--warn); }
+.kasten-frage    { --k: var(--glut); }
+.kasten-beispiel { --k: var(--schrift-3); background: var(--grund-3); }
 /* ============================================================ Übernahme-Band
    Sichtbar, solange Ebene 1 unter fremdem Namen handelt. Warnfarbe, ganz oben,
    nicht wegklickbar — wer das vergisst, schreibt in fremde Lernstände. */
@@ -501,30 +583,86 @@ a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
 /* Der Ort, an dem man steht, ist kein Link und sieht auch nicht so aus. */
 .pfad-glied.jetzt { color: var(--schrift); font-weight: 600; }
 
-/* ============================================================ Aufgabe */
-.aufgabe {
-  background: var(--grund-2); border: 1px solid var(--rand-hell);
-  border-left: 3px solid var(--glut); border-radius: var(--radius);
-  padding: 1.2rem 1.3rem; margin: 1.8rem 0;
-}
-.aufgabe.gelöst { border-left-color: var(--gut); }
-.aufgabe-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; margin-bottom: .3rem; }
-.aufgabe-kopf h4 { margin: 0; font-size: 1.05rem; font-family: var(--serif); }
-.aufgabe-marke {
-  font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--schrift-3); white-space: nowrap;
-}
-.aufgabe-punkte { color: var(--gold); font-weight: 600; font-size: .85rem; white-space: nowrap; }
+/* ============================================================ Aufgabe
+   Aufbau (28.09.2026): Kopf (Art · Titel · Punkte), Kennzeilen (Richtzeit,
+   Hinweise, Stand), die Frage gross in der Serife, die Werkzeuge darunter,
+   die Antworten als Karten mit Buchstaben, das Ergebnis direkt unter den
+   Antworten — und die Knöpfe in einem eigenen Fuss. Vorher stand alles in
+   gleicher Grösse untereinander; man musste lesen, um zu sehen, wo die Frage
+   ist.
 
-.optionen { display: grid; gap: .5rem; margin: 1rem 0; }
-.option {
-  display: flex; align-items: flex-start; gap: .65rem; cursor: pointer;
-  background: var(--grund-3); border: 1px solid var(--rand);
-  border-radius: var(--radius-klein); padding: .6rem .8rem;
+   Gold steht erst nach der Lösung am Punkteschild (BRAND.md: Gold nur, wo
+   etwas geschafft wurde). Davor sind die Punkte ein Angebot, kein Erfolg. */
+.aufgabe {
+  position: relative;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius); box-shadow: var(--schatten);
+  padding: 1.15rem 1.35rem 1.2rem; margin: 2rem 0;
+  font-family: var(--sans);
 }
-.option:hover  { border-color: var(--rand-hell); }
-.option.gewaehlt { border-color: var(--glut); background: rgba(255,122,28,.10); }
-.option input { width: auto; margin: .25rem 0 0; flex: none; }
+.aufgabe::before {
+  content: ""; position: absolute; left: -1px; top: 1rem; bottom: 1rem; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--glut);
+}
+.aufgabe.gelöst::before { background: var(--gut); }
+
+.aufgabe-kopf { display: flex; align-items: flex-start; justify-content: space-between; gap: .9rem; }
+.aufgabe-titelblock { min-width: 0; }
+.aufgabe-art {
+  display: inline-block; margin-bottom: .3rem;
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--glut);
+}
+.aufgabe-kopf h4 { margin: 0; font-size: 1.2rem; line-height: 1.3; font-family: var(--serif); color: var(--schrift); }
+.aufgabe-punkte {
+  flex: none; white-space: nowrap; font-size: .8rem; font-weight: 700;
+  padding: .22rem .65rem; border-radius: 999px;
+  color: var(--schrift-2); border: 1px solid var(--rand-hell); background: var(--grund-3);
+}
+.aufgabe.gelöst .aufgabe-punkte {
+  color: var(--gold); border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+}
+
+.aufgabe-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem .9rem; margin: .55rem 0 0;
+  font-size: .8rem; color: var(--schrift-3);
+}
+.aufgabe-meta .erledigt { color: var(--gut); font-weight: 600; }
+
+html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
+  margin: 1rem 0 .2rem; font-family: var(--serif);
+  font-size: 1.17rem; line-height: 1.5; color: var(--schrift);
+}
+.aufgabe-werkzeuge { display: flex; flex-wrap: wrap; gap: .4rem; margin: .55rem 0 0; }
+
+.optionen { display: grid; gap: .55rem; margin: 1.1rem 0 .4rem; counter-reset: option; }
+.option {
+  position: relative; display: flex; align-items: center; gap: .8rem; cursor: pointer;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .7rem .9rem;
+  line-height: 1.45; transition: border-color .12s, background .12s;
+}
+.option:hover  { border-color: var(--rand-hell); background: color-mix(in srgb, var(--grund-3) 70%, var(--rand)); }
+/* Das Auswahlfeld bleibt für Tastatur und Vorlesehilfe da, nur unsichtbar —
+   sichtbar ist der Buchstabe. */
+.option input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+/* Nur bei Tastaturbedienung — nach einem Mausklick stünde sonst ein oranger
+   Rahmen um die grüne Antwort. */
+.option:has(input:focus-visible) { outline: 2px solid var(--glut); outline-offset: 2px; }
+.option-buchstabe {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.85rem; height: 1.85rem; border-radius: 50%;
+  border: 1px solid var(--rand-hell); color: var(--schrift-2);
+  font-size: .82rem; font-weight: 700; background: var(--grund-2);
+}
+.option.gewaehlt { border-color: var(--glut); background: color-mix(in srgb, var(--glut) 10%, var(--grund-3)); }
+.option.gewaehlt .option-buchstabe { background: var(--glut); border-color: var(--glut); color: var(--grund); }
+/* Nach dem Abgeben: Zeichen UND Farbe an der gewählten Antwort. */
+.option.richtig { border-color: var(--gut); background: var(--gut-grund); }
+.option.richtig .option-buchstabe { background: var(--gut); border-color: var(--gut); color: var(--grund); }
+.option.falsch  { border-color: var(--schlecht); background: var(--schlecht-grund); }
+.option.falsch .option-buchstabe { background: var(--schlecht); border-color: var(--schlecht); color: var(--grund); }
 
 /* Schiebe- und Plug&Play-Aufgaben */
 .bausteine { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
@@ -573,8 +711,14 @@ a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
   padding: .8rem; max-height: 20rem; overflow: auto; margin: 1rem 0; white-space: pre;
 }
 
-.aufgabe-fuss { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: 1.1rem; }
-.aufgabe-fuss .rechts { margin-left: auto; display: flex; gap: .5rem; }
+.aufgabe-fuss {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+  margin: 1.2rem -1.35rem -1.2rem; padding: .8rem 1.35rem;
+  border-top: 1px solid var(--rand); background: color-mix(in srgb, var(--grund-3) 55%, transparent);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.aufgabe-fuss .rechts { margin-left: auto; display: flex; flex-wrap: wrap; gap: .5rem; }
+.aufgabe-fuss .knopf.still { font-weight: 500; font-size: .9rem; }
 
 .hinweis-kasten {
   background: rgba(229,179,74,.09); border: 1px solid rgba(229,179,74,.35);
@@ -589,6 +733,21 @@ a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
 .ergebnis-kopf { display: flex; align-items: center; gap: .5rem; font-weight: 600; margin-bottom: .4rem; }
 .ergebnis-kopf .zeichen { font-size: 1.15rem; }
 .ergebnis p:last-child { margin-bottom: 0; }
+.ergebnis-kopf .zeichen {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.6rem; height: 1.6rem; border-radius: 50%; font-size: .95rem;
+  color: var(--grund); background: var(--gut);
+}
+.ergebnis.falsch .ergebnis-kopf .zeichen { background: var(--schlecht); }
+/* „Warum“ ist der Teil, der bleibt — abgesetzt, mit eigenem Etikett. */
+.ergebnis-warum {
+  margin: .8rem 0 0; padding-top: .7rem;
+  border-top: 1px solid color-mix(in srgb, var(--schrift) 14%, transparent);
+}
+.ergebnis-warum .etikett, .anmerkung .etikett {
+  display: block; margin-bottom: .2rem;
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--schrift-2);
+}
 
 .teilliste { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; gap: .35rem; font-size: .89rem; }
 .teilliste li { display: flex; gap: .5rem; align-items: baseline; }

@@ -16,15 +16,26 @@ PU.TYPEN = {};
 /** Optionen als anklickbare Kästen. Mehrfach- oder Einfachauswahl. */
 function auswahlZeichnen(feld, a, mehrfach) {
   const liste = PU.el('div', 'optionen');
+  if (!mehrfach) liste.setAttribute('role', 'radiogroup');
   (a.optionen || []).forEach((opt, i) => {
     const kennung = 'o_' + a.id + '_' + i;
     const label = PU.el('label', 'option');
+    // Ein Buchstabe je Antwort: Man kann über „B“ reden, statt die ganze
+    // Antwort vorzulesen — am Beamer und mit dem Tutor.
     label.innerHTML =
       '<input type="' + (mehrfach ? 'checkbox' : 'radio') + '" name="' + PU.h(a.id) +
       '" id="' + kennung + '" value="' + PU.h(opt) + '">' +
-      '<span>' + PU.h(opt) + '</span>';
+      '<span class="option-buchstabe" aria-hidden="true">' + String.fromCharCode(65 + i) + '</span>' +
+      '<span class="option-text">' + PU.h(opt) + '</span>';
     label.querySelector('input').addEventListener('change', () => {
-      if (!mehrfach) liste.querySelectorAll('.option').forEach(o => o.classList.remove('gewaehlt'));
+      // Wer neu wählt, fängt neu an: ✓/✕ vom letzten Abgeben gehen weg,
+      // die Buchstaben kommen zurück.
+      liste.querySelectorAll('.option').forEach((o, j) => {
+        o.classList.remove('richtig', 'falsch');
+        if (!mehrfach) o.classList.remove('gewaehlt');
+        const b = o.querySelector('.option-buchstabe');
+        if (b) b.textContent = String.fromCharCode(65 + j);
+      });
       label.classList.toggle('gewaehlt', label.querySelector('input').checked);
     });
     liste.appendChild(label);
@@ -287,24 +298,54 @@ function tokenicerText(a) {
   return teile.filter(t => t && String(t).trim() !== '').join('\n');
 }
 
+/** Was über der Aufgabe steht — ein Wort für Menschen, nicht die Kennung. */
+PU.AUFGABE_ART = {
+  denkaufgabe: 'Denkaufgabe', raeumlich: 'Räumlich denken', schiebe: 'Reihenfolge',
+  plugplay: 'Bausteine', uebereinstimmung: 'Zuordnen', mathe: 'Rechnen',
+  technisch: 'Technik', krypto: 'Verschlüsselung', planung: 'Eigene Antwort',
+  secret: 'Spurensuche', sicherheit: 'Sicherheit', multitask: 'Mehrteilig'
+};
+
+/** Das Punkteschild: ein Angebot, bis die Aufgabe gelöst ist — dann Gold mit ✓. */
+function punkteText(a, geloest) {
+  return (geloest ? '✓ ' : '') + a.punkte + ' Punkte';
+}
+
 PU.aufgabeZeichnen = function (ziel, a, opt) {
   opt = opt || {};
   const bau = PU.TYPEN[a.typ];
+  const geloest = !!(a.stand && a.stand.richtig);
 
   const kasten = PU.el('div', 'aufgabe');
   kasten.dataset.aufgabe = a.id;
-  if (a.stand && a.stand.richtig) kasten.classList.add('gelöst');
+  if (geloest) kasten.classList.add('gelöst');
 
   const kopf = PU.el('div', 'aufgabe-kopf');
   kopf.innerHTML =
-    '<h4>' + PU.h(a.titel) + '</h4>' +
-    '<span class="aufgabe-punkte">' + a.punkte + ' Punkte</span>';
+    '<div class="aufgabe-titelblock">' +
+      '<span class="aufgabe-art">' + PU.h(PU.AUFGABE_ART[a.typ] || a.typ) + '</span>' +
+      '<h4>' + PU.h(a.titel) + '</h4>' +
+    '</div>' +
+    '<span class="aufgabe-punkte">' + punkteText(a, geloest) + '</span>';
   kasten.appendChild(kopf);
-  kasten.appendChild(PU.el('div', 'aufgabe-marke', PU.h(a.typ) +
-    (a.stand && a.stand.richtig ? ' · bereits gelöst' : '')));
+
+  // Kennzeilen: was man vorher wissen will, klein und in einer Reihe.
+  const meta = [];
+  if (geloest) meta.push('<span class="erledigt">✓ Bereits gelöst</span>');
+  if (a.richtzeit_s > 0 && !opt.pruefung) {
+    meta.push('⏱ etwa ' + (a.richtzeit_s < 90 ? a.richtzeit_s + ' Sekunden'
+                                               : Math.round(a.richtzeit_s / 60) + ' Minuten'));
+  }
+  if (a.hinweis_anzahl > 0 && !opt.pruefung) {
+    meta.push(a.hinweis_anzahl + (a.hinweis_anzahl === 1 ? ' Hinweis' : ' Hinweise') + ' verfügbar');
+  }
+  if (meta.length) kasten.appendChild(PU.el('div', 'aufgabe-meta', meta.map(m => '<span>' + m + '</span>').join('')));
 
   if (a.frage) {
     const frage = PU.el('p', 'aufgabe-frage', PU.h(a.frage));
+    // Die Werkzeuge stehen UNTER der Frage, nicht in ihr: sonst liest man
+    // „… Was macht es damit? 🔤 Tokenicer 💬 Vertiefen" als einen Satz.
+    const werkzeuge = PU.el('div', 'aufgabe-werkzeuge');
 
     // Der Tokenicer steht an der Frage, nicht nur im Menü. Wer hier wissen
     // will, in wie viele Stücke ein Wort zerfällt, würde sonst die Ansicht
@@ -316,8 +357,7 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
       k.type  = 'button';
       k.title = 'Diesen Text zerlegen lassen — das Fenster legt sich über die Aufgabe.';
       k.addEventListener('click', () => PU.tokenicerModal(tokenicerText(a)));
-      frage.appendChild(document.createTextNode(' '));
-      frage.appendChild(k);
+      werkzeuge.appendChild(k);
     }
 
     // Der Tutor zur Aufgabe. **Er nennt die Lösung nicht** — sie steht gar
@@ -326,7 +366,6 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
     // ausschliesst. Nach der richtigen Antwort fällt die Sperre weg, dann
     // ist es Vertiefung statt Verrat.
     if (PU.tutorPanelOeffnen && PU.tutorBereit && PU.darf('tutor.fragen') && !opt.pruefung) {
-      const geloest = !!(a.stand && a.stand.richtig);
       const t = PU.el('button', 'tok-ruf tutor-ruf',
                       geloest ? '💬 Vertiefen' : '💬 Lösungsweg');
       t.type  = 'button';
@@ -337,11 +376,11 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
         aufgabe: a.id, aufgabeTitel: a.titel,
         lektion: opt.lektion || '', agent: 'athena'
       }));
-      frage.appendChild(document.createTextNode(' '));
-      frage.appendChild(t);
+      werkzeuge.appendChild(t);
     }
 
     kasten.appendChild(frage);
+    if (werkzeuge.children.length) kasten.appendChild(werkzeuge);
   }
 
   const feld = PU.el('div', 'aufgabe-feld');
@@ -388,14 +427,16 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
     let hinweisKnopf = null;
     if (a.hinweis_anzahl > 0) {
       hinweisKnopf = PU.el('button', 'knopf still',
-        'Hinweis (−' + (a.hinweis_kosten[0] || 0) + ')');
+        'Hinweis · −' + (a.hinweis_kosten[0] || 0) + ' Punkte');
       rechts.appendChild(hinweisKnopf);
     }
     const loesungKnopf = PU.el('button', 'knopf still', 'Lösung zeigen');
     rechts.appendChild(loesungKnopf);
     fuss.appendChild(rechts);
-    kasten.appendChild(fuss);
+    // Das Ergebnis direkt unter den Antworten, die Knöpfe darunter im Fuss:
+    // Man liest „Richtig“ dort, wo man eben geklickt hat.
     kasten.appendChild(ergebnis);
+    kasten.appendChild(fuss);
 
     if (hinweisKnopf) hinweisKnopf.addEventListener('click', async () => {
       // Die Rückfrage lässt sich abschalten (Einstellungen › Lernen). Wer sie
@@ -413,7 +454,7 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
           ' <span class="klein">(−' + j.kostet + ' Punkte)</span>');
         feld.parentElement.insertBefore(k, feld.nextSibling);
         if (hinweise >= a.hinweis_anzahl) hinweisKnopf.disabled = true;
-        else hinweisKnopf.textContent = 'Hinweis (−' + (a.hinweis_kosten[hinweise] || 0) + ')';
+        else hinweisKnopf.textContent = 'Hinweis · −' + (a.hinweis_kosten[hinweise] || 0) + ' Punkte';
       } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
     });
 
@@ -442,7 +483,17 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
           dauer_s: Math.round((Date.now() - start) / 1000)
         });
         ergebnis.innerHTML = ergebnisHtml(j);
-        kasten.classList.toggle('gelöst', j.richtig);
+        // Die gewählte Antwort zeigt ✓ oder ✕ — dort, wo man geklickt hat.
+        feld.querySelectorAll('.option').forEach(o => o.classList.remove('richtig', 'falsch'));
+        feld.querySelectorAll('.option.gewaehlt').forEach(o => {
+          o.classList.add(j.richtig ? 'richtig' : 'falsch');
+          const b = o.querySelector('.option-buchstabe');
+          if (b) b.textContent = j.richtig ? '✓' : '✕';
+        });
+        if (j.richtig) {
+          kasten.classList.add('gelöst');
+          kopf.querySelector('.aufgabe-punkte').firstChild.textContent = punkteText(a, true);
+        }
         PU.ertragMelden(j);
 
         if (j.richtig) {
@@ -547,8 +598,8 @@ function ergebnisHtml(j) {
     html += '</ul>';
   }
 
-  if (j.erklaerung) html += '<p class="anmerkung"><b>Warum:</b> ' + PU.h(j.erklaerung) + '</p>';
-  if (j.anmerkung)  html += '<div class="anmerkung"><b>Athena:</b> ' + PU.h(j.anmerkung) + '</div>';
+  if (j.erklaerung) html += '<div class="ergebnis-warum"><span class="etikett">Warum</span>' + PU.h(j.erklaerung) + '</div>';
+  if (j.anmerkung)  html += '<div class="anmerkung"><span class="etikett">Athena</span>' + PU.h(j.anmerkung) + '</div>';
 
   return html + '</div>';
 }
