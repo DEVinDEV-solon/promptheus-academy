@@ -48,6 +48,24 @@ define('PU_IDENT_ORDNER', ($p = getenv('PU_TEST_IDENT')) !== false && $p !== ''
     ? $p
     : PU_DATA . '/identitaet');
 
+/**
+ * Die öffentlichen Schlüssel des Servers, mit denen er Bescheinigungen
+ * unterschreibt — **fest im Programm** (Entscheid 28.09.2026).
+ *
+ * Bis dahin stand der Schlüssel in der `.env` und wurde bei der ersten
+ * Registrierung aus der Antwort des Servers übernommen. Wer die Relay-Adresse
+ * auf einen eigenen Server umbog, bekam so seinen eigenen Schlüssel eingetragen
+ * und konnte sich jede Bescheinigung selbst ausstellen — und seit die Rolle an
+ * der Bescheinigung hängt, damit jede Rolle. Jetzt zählt nur, was hier steht.
+ *
+ * Der Wert kommt aus dem Cockpit (Betrieb → Schlüssel). Öffentlich, darf in
+ * Git. Mehrere Einträge erlauben einen Wechsel ohne Stichtag. Leer heisst:
+ * noch nicht eingetragen — dann wird keine Bescheinigung angenommen.
+ */
+const PU_VPS_SCHLUESSEL = [
+    'vps-1' => '',
+];
+
 const PU_IDENT_SAAT    = 'saat.bin';
 const PU_IDENT_BESCH   = 'bescheinigung.json';
 const PU_IDENT_KDF_LP  = 'pu-lp---';     // genau acht Zeichen, so will es libsodium
@@ -333,19 +351,39 @@ function pu_ident_lp(string $lernender): string
 // ── Die Bescheinigung des VPS ────────────────────────────────────────────────
 
 /**
+ * Der öffentliche Schlüssel des Servers zu einer Kennung — leer, wenn es ihn
+ * nicht gibt.
+ *
+ * Nur im Testlauf (`$GLOBALS['PU_TEST_MODUS']`, gesetzt von tests/hilfe.php)
+ * zählt zusätzlich die Prozessumgebung `PU_VPS_SCHLUESSEL`, für jede Kennung.
+ * Eine Umgebungsvariable oder `.env` allein schaltet das nicht frei: den
+ * Schalter kann nur PHP-Code setzen, nicht eine Startdatei.
+ */
+function pu_ident_vps_schluessel(string $kid): string
+{
+    if (!empty($GLOBALS['PU_TEST_MODUS'])) {
+        $t = getenv('PU_VPS_SCHLUESSEL');
+        if (is_string($t) && $t !== '') return $t;
+    }
+    return (string)(PU_VPS_SCHLUESSEL[$kid] ?? '');
+}
+
+/** Stimmt die Unterschrift des Servers unter dieser Bescheinigung? */
+function pu_ident_bescheinigung_echt(array $bescheinigung, string $signatur): bool
+{
+    $pk = pu_ident_vps_schluessel((string)($bescheinigung['kid'] ?? 'vps-1'));
+    return $pk !== '' && pu_ident_pruefen(pu_ident_kanonisch($bescheinigung), $signatur, $pk);
+}
+
+/**
  * Legt die Bescheinigung ab — aber nur, wenn ihre Unterschrift stimmt.
  *
- * Der öffentliche Schlüssel des VPS kommt mit dem Programm und steht in
- * `PU_VPS_SCHLUESSEL`. Ohne ihn wird nichts angenommen: eine Bescheinigung,
- * die niemand prüft, ist eine Behauptung.
+ * Geprüft wird gegen die Schlüssel aus PU_VPS_SCHLUESSEL. Ohne sie wird nichts
+ * angenommen: eine Bescheinigung, die niemand prüft, ist eine Behauptung.
  */
 function pu_ident_bescheinigung_setzen(array $bescheinigung, string $signatur): bool
 {
-    $pk = pu_env('PU_VPS_SCHLUESSEL', '');
-    if ($pk === '') {
-        return false;
-    }
-    if (!pu_ident_pruefen(pu_ident_kanonisch($bescheinigung), $signatur, $pk)) {
+    if (!pu_ident_bescheinigung_echt($bescheinigung, $signatur)) {
         return false;
     }
     if (($bescheinigung['iid'] ?? '') !== pu_ident_iid()) {
@@ -379,10 +417,18 @@ function pu_ident_bescheinigung(): ?array
     if (!is_array($roh) || !isset($roh['bescheinigung'], $roh['signatur'])) {
         return null;
     }
-    $pk = pu_env('PU_VPS_SCHLUESSEL', '');
-    if ($pk === '' || !pu_ident_pruefen(
-            pu_ident_kanonisch($roh['bescheinigung']), (string)$roh['signatur'], $pk)) {
+    if (!is_array($roh['bescheinigung'])
+        || !pu_ident_bescheinigung_echt($roh['bescheinigung'], (string)$roh['signatur'])) {
         return null;
+    }
+    // Eine Bescheinigung gilt nur für die Installation, für die sie
+    // ausgestellt ist. Sonst liesse sich eine fremde hineinkopieren.
+    try {
+        if (($roh['bescheinigung']['iid'] ?? '') !== pu_ident_iid()) {
+            return null;
+        }
+    } catch (Throwable) {
+        return null;    // keine Saat, also auch keine eigene Bescheinigung
     }
     return $roh['bescheinigung'];
 }

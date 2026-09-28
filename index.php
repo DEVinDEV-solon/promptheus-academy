@@ -866,6 +866,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <script src="<?= pu_v('assets/js/route.js') ?>"></script>
 <script src="<?= pu_v('assets/js/app.js') ?>"></script>
 <script src="<?= pu_v('assets/js/einstellungen.js') ?>"></script>
+<script src="<?= pu_v('assets/js/rollen.js') ?>"></script>
 <script src="<?= pu_v('assets/js/medien.js') ?>"></script>
 <script src="<?= pu_v('assets/js/aufgabe.js') ?>"></script>
 <script src="<?= pu_v('assets/js/lernen.js') ?>"></script>

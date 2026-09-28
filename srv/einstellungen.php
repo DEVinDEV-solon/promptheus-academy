@@ -483,8 +483,8 @@ function pu_env_setzen(string $name, string $wert): void
 /**
  * Schreibt eine Zeile in die .env — **ohne** die Liste oben.
  *
- * Nur für Aufrufer im Programm, die ihren Namen selbst festlegen (z. B. der
- * Relay mit `PU_VPS_SCHLUESSEL`), nie für einen Namen aus dem Browser; dafür
+ * Nur für Aufrufer im Programm, die ihren Namen selbst festlegen
+ * — nie für einen Namen aus dem Browser; dafür
  * ist `pu_env_setzen()` mit seiner Liste da.
  */
 function pu_env_datei_setzen(string $name, string $wert): void

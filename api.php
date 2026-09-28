@@ -90,13 +90,14 @@ try {
             ]]);
 
         case 'einrichten':
-            // Nur solange es kein Konto gibt. Das erste Konto ist Ebene 1
-            // (admin); danach legt es die weiteren an. Hier stand bis zum
-            // 27.09.2026 noch die alte Rolle 'tutor' — jede frische
-            // Installation scheiterte mit "Unbekannte Ebene: tutor".
+            // Nur solange es kein Konto gibt. Das erste Konto ist Schüler
+            // (Entscheid 28.09.2026): Die Adminrolle des Kunden entsteht nur
+            // durch die Registrierung (relay_registrieren), nie hier. Vorher
+            // stand hier 'admin' — jede Installation hatte damit eine
+            // Plattform-Rolle, ohne dass jemand bezahlt hatte.
             if (!pu_leer()) pu_fehler('Die Academy ist bereits eingerichtet.', 403);
             $id = pu_lernenden_anlegen(
-                (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'), 'admin'
+                (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'), 'schueler'
             );
             pu_anmelden((string)d('kennung'), (string)d('kennwort'));
             pu_json_out(['ok' => true, 'id' => $id]);
@@ -921,7 +922,7 @@ try {
         case 'relay_zustand':
             pu_recht_fordern('abo.sehen');
             pu_json_out(['ok' => true, 'zustand' => pu_relay_zustand(),
-                         'darf_registrieren' => pu_recht_hat('registrierung.verwalten')]);
+                         'darf_registrieren' => pu_art() === '' || pu_recht_hat('registrierung.verwalten')]);
 
         case 'relay_stand': {
             pu_recht_fordern('abo.sehen');
@@ -940,8 +941,17 @@ try {
         }
 
         case 'relay_registrieren': {
-            pu_recht_fordern('registrierung.verwalten');
+            // Solange der Rechner nicht registriert ist, darf es jeder — es
+            // gibt dann nur Schüler, und irgendwer muss den Code eingeben.
+            // Danach nur, wer das Recht hat.
+            if (pu_art() !== '') pu_recht_fordern('registrierung.verwalten');
             $r = pu_relay_registrieren((string)d('code', ''));
+            // Wer registriert, wird Inhaber: die Adminrolle des Kunden, die
+            // die Art der Registrierung festlegt (PU_ARTEN).
+            if ($r['ok'] && ($inhaber = pu_art_inhaber(pu_art(true))) !== '') {
+                pu_db()->prepare('UPDATE lernende SET rolle = ? WHERE id = ?')
+                       ->execute([$inhaber, $ichId]);
+            }
             // Protokolliert wird, DASS registriert wurde, nie der Code.
             pu_protokoll($ichId, 'registrierung', $r['ok'] ? 'ok' : (string)($r['grund'] ?? ''), '');
             pu_json_out(['ok' => $r['ok'], 'zustand' => pu_relay_zustand(),
@@ -1364,6 +1374,11 @@ try {
             pu_recht_fordern('rechte.einstellungen');
             pu_json_out(['ok' => true] + pu_rechte_ausgabe());
 
+        // Rollen & Rechte zum Nachlesen — für jeden Angemeldeten, auch
+        // unregistriert (Entscheid 28.09.2026). Nur lesen, ohne Protokoll.
+        case 'rollen_erklaert':
+            pu_json_out(['ok' => true] + pu_rechte_ausgabe(false));
+
         case 'recht_setzen':
             pu_recht_fordern('rechte.einstellungen');
             pu_recht_setzen((string)d('ebene'), (string)d('recht'),
@@ -1400,6 +1415,13 @@ try {
 
         case 'konto_anlegen':
             pu_recht_fordern('lernende.manage');
+            // Nie höher als die eigene Ebene (PU_ANLEGEN), und nur, was es
+            // auf diesem Rechner geben kann (PU_ARTEN).
+            $neueRolle = (string)d('rolle', 'schueler');
+            if (!in_array($neueRolle, PU_ANLEGEN[$ebene] ?? [], true)
+                || pu_ebene_gedeckelt($neueRolle) !== $neueRolle) {
+                pu_fehler('Diese Ebene kannst du hier nicht anlegen: ' . $neueRolle, 403);
+            }
             pu_json_out(['ok' => true, 'id' => pu_lernenden_anlegen(
                 (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'),
                 (string)d('rolle', 'schueler'), (string)d('gruppe', '')

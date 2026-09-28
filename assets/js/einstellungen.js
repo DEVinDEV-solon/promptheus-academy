@@ -111,6 +111,9 @@ function einstZeichnen() {
     ['sprache',     'Sprache & Stimme'],
     ['lernen',      'Lernen'],
     ['lob',         'Lob & Vertiefung'],
+    // Für jeden, auch unregistriert (28.09.2026): welche Rolle man hat, woher
+    // sie kommt, was die anderen dürfen. Die Matrix darunter nur mit Recht.
+    ['rollen',      'Rollen & Rechte'],
     ['konto',       'Konto']
   ];
 
@@ -189,6 +192,7 @@ function inhaltZeichnen() {
     case 'lernen':      lernenZeichnen(ziel);      break;
     case 'lob':         lobZeichnen(ziel);         break;
     case 'konto':       kontoZeichnen(ziel);       break;
+    case 'rollen':      PU.rollenZeichnen(ziel);   break;
     case 'coder':       coderZeichnen(ziel);       break;
     case 'sprache':     spracheZeichnen(ziel);     break;
     case 'profil':      profilZeichnen(ziel);      break;
@@ -2137,14 +2141,20 @@ function profilZeile(ziel, titel, wert, warum, beiWahl, max) {
  * Konten für Lehrkräfte und Schüler führt, wird die Trennung wieder
  * gebraucht — und dann fehlt nur die Zeile in `tutorReiter`, nicht die
  * Mechanik. Deshalb bleiben die Zeichenfunktionen hier stehen.
+ *
+ * Seit 28.09.2026 steht die Matrix wieder da: im Reiter „Rollen & Rechte"
+ * (assets/js/rollen.js), für Verwaltung und Eltern — sie betreiben ihre
+ * Academy selbst. Welche Zelle umlegbar ist, sagt der Server (`aenderbar`).
  * ────────────────────────────────────────────────────────────────────── */
-PU.rechteStand = { ebene: 'lehrer', daten: null };
+PU.rechteStand = { ebene: 'schueler', daten: null };
+
+PU.rechteZeichnen = rechteZeichnen;
 
 function rechteZeichnen(ziel) {
-  ziel.appendChild(PU.el('h3', '', 'Login & Rechte'));
+  ziel.appendChild(PU.el('h4', '', 'Rechte verteilen'));
   ziel.appendChild(PU.el('p', 'hinweis',
-    'Fünf Ebenen, eine Matrix. Was hier aus steht, endet im Programm mit einer ' +
-    'abschlägigen Antwort — nicht mit einem versteckten Knopf.'));
+    'Was hier aus steht, endet im Programm mit einer abschlägigen Antwort — nicht mit einem ' +
+    'versteckten Knopf. Weitergeben lässt sich nur, was du selbst hast; die eigene Spalte bleibt fest.'));
 
   const rahmen = PU.el('div');
   rahmen.innerHTML = '<p class="leer-hinweis">Lade Rechte …</p>';
@@ -2157,7 +2167,11 @@ function rechteZeichnen(ziel) {
 
 function rechteMalen(rahmen) {
   const d      = PU.rechteStand.daten;
-  const ebenen = Object.keys(d.ebenen);
+  // Nur die Ebenen, die es auf diesem Rechner geben kann — eine Familie hat
+  // keine Lehrer-Spalte. Ebene 1 sieht alle.
+  const ebenen = Object.keys(d.ebenen).filter(e =>
+    d.meine_ebene === 'admin' || (d.ebenen_hier || []).indexOf(e) >= 0);
+  if (ebenen.indexOf(PU.rechteStand.ebene) < 0) PU.rechteStand.ebene = ebenen[ebenen.length - 1];
 
   rahmen.innerHTML = '';
 
@@ -2260,16 +2274,18 @@ function rechteZeile(r, ebenen, gewaehlt, rahmen) {
     schalter.type    = 'checkbox';
     schalter.checked = !!r.stand[e];
 
-    // Festgenagelt: die Admin-Spalte immer, und die Ebene-1-Rechte überall
-    // sonst. Beides steht so im Plan — und beides verhindert, dass sich die
-    // Academy mit einem Klick selbst aussperrt.
-    const fest = (e === 'admin') || r.nur_admin;
+    // Festgenagelt ist, was der Server nicht umlegen liesse (pu_recht_setzen_darf):
+    // die Admin-Spalte, die Ebene-1-Rechte, die eigene Spalte, und was man
+    // selbst nicht hat.
+    const fest = !(r.aenderbar && r.aenderbar[e]);
     if (fest) {
       schalter.disabled = true;
       zelle.classList.add('fest');
       zelle.title = e === 'admin'
         ? 'Ebene 1 hat immer alles — sonst käme niemand mehr an die Matrix.'
-        : 'Dieses Recht gehört Ebene 1 allein und lässt sich nicht weitergeben.';
+        : r.nur_admin ? 'Dieses Recht gehört Ebene 1 allein und lässt sich nicht weitergeben.'
+        : e === PU.rechteStand.daten.meine_ebene ? 'Die eigene Spalte bleibt fest.'
+        : 'Weitergeben lässt sich nur, was du selbst hast.';
     } else {
       if (r.stand[e] !== r.vorgabe[e]) zelle.classList.add('abweichend');
       schalter.addEventListener('change', async () => {

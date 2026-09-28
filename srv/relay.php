@@ -232,13 +232,10 @@ function pu_relay_registrieren(string $code): array
         return $aus;
     }
 
-    // Der Server nennt seinen öffentlichen Schlüssel mit. Übernommen wird er
-    // nur, wenn noch keiner eingetragen ist: sonst könnte ein
-    // untergeschobener Server den echten verdrängen.
-    if (pu_env('PU_VPS_SCHLUESSEL', '') === '' && isset($aus['vps_schluessel'])
-        && !pu_relay_schluessel_merken((string)$aus['vps_schluessel'])) {
-        return pu_relay_nein('schluessel');
-    }
+    // Der Server nennt seinen öffentlichen Schlüssel mit (`vps_schluessel`).
+    // Er wird NICHT übernommen (28.09.2026): geprüft wird nur gegen die
+    // Schlüssel im Programm (PU_VPS_SCHLUESSEL in srv/identitaet.php). Sonst
+    // stellte ein untergeschobener Server sich seine Bescheinigung selbst aus.
 
     if (!pu_ident_bescheinigung_setzen(
             (array)$aus['bescheinigung'], (string)$aus['signatur'])) {
@@ -368,30 +365,6 @@ function pu_relay_konten(): array
         }
     }
     return ['ok' => true, 'konten' => array_map(static fn($k) => $k['tokens'], $konten), 'topf' => $topf];
-}
-
-/**
- * Legt den öffentlichen Schlüssel des Servers ab (beim ersten Registrieren).
- *
- * Bis 26.09.2026 lief das über `pu_env_setzen()` — das darf aber nur die
- * Schlüssel aus seiner Liste schreiben (Eingaben aus dem Browser) und warf
- * hier. Jetzt: eigener, fester Name, geprüfte Form (Ed25519, 32 Byte), und
- * sofort in die Prozessumgebung, weil `pu_env()` die .env nur einmal liest.
- */
-function pu_relay_schluessel_merken(string $b64): bool
-{
-    $roh = base64_decode($b64, true);
-    if ($roh === false || strlen($roh) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
-        return false;
-    }
-    require_once __DIR__ . '/einstellungen.php';
-    try {
-        pu_env_datei_setzen('PU_VPS_SCHLUESSEL', $b64);
-    } catch (Throwable) {
-        return false;
-    }
-    putenv('PU_VPS_SCHLUESSEL=' . $b64);
-    return true;
 }
 
 /** windows, macos oder linux — sonst nichts. */

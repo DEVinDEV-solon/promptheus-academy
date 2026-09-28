@@ -13,6 +13,14 @@ declare(strict_types=1);
 
 $GLOBALS['pu_test'] = ['ok' => 0, 'fehler' => [], 'gruppe' => ''];
 
+// Der Testlauf. Nur PHP-Code kann ihn einschalten, keine Umgebung und keine
+// .env. Er erlaubt zwei Dinge: einen Server-Schlüssel aus der Prozessumgebung
+// (Testserver) und `PU_TEST_ART` — die Art der Registrierung ohne echten
+// Server. Vorgabe `betreiber`: Ältere Tests legen Konten jeder Ebene an und
+// erwarten deren Rechte. Wer den Deckel prüft, setzt die Art selbst.
+$GLOBALS['PU_TEST_MODUS'] = true;
+$GLOBALS['PU_TEST_ART']   = 'betreiber';
+
 function gruppe(string $name): void
 {
     $GLOBALS['pu_test']['gruppe'] = $name;

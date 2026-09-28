@@ -330,7 +330,12 @@ gruppe('Rechte');
 
 $recht = pu_recht('aktualisierung.verwalten');
 pruefe('Recht aktualisierung.verwalten gibt es', $recht !== null);
-pruefe('… nur für Ebene 1', !empty($recht['nur_admin']));
+// Seit 28.09.2026 gehört das Recht dem Inhaber der Academy (Verwaltung,
+// Eltern) — nie Lehrern oder Schülern.
+pruefe('… für den Inhaber, nicht für Lehrer und Schüler',
+       empty($recht['nur_admin']) && ($recht['vorgabe']['verwaltung'] ?? 0) === 1
+       && ($recht['vorgabe']['eltern'] ?? 0) === 1 && ($recht['vorgabe']['lehrer'] ?? 1) === 0
+       && ($recht['vorgabe']['schueler'] ?? 1) === 0);
 $api = (string)file_get_contents(__DIR__ . '/../api.php');
 foreach (['update_stand', 'update_suchen', 'update_laden', 'update_neustart', 'update_zurueck',
           'update_ausblenden', 'update_einstellen'] as $a) {

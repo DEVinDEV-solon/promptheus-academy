@@ -18,8 +18,10 @@ declare(strict_types=1);
  * gibt kein Erben von oben nach unten: die Ebene Verwaltung bekommt genau
  * das, was in ihrer Spalte steht. Und die Rechte mit `nur_admin` lassen sich
  * für keine andere Ebene einschalten — auch nicht versehentlich, auch nicht
- * über die API. Wer den API-Schlüssel setzen darf, gibt Geld aus; wer die
- * Rechte-Matrix ändern darf, kann sich jedes andere Recht selbst geben.
+ * über die API. Seit 28.09.2026 betreiben Verwaltung und Eltern ihre Academy
+ * selbst: Tutor-Schlüssel, Updates, Wartung und die Matrix gehören ihnen —
+ * mit der Grenze, dass sie nur weitergeben, was sie selbst haben, und nie
+ * an die eigene Spalte (pu_recht_setzen_darf).
  *
  * **Die Admin-Spalte ist festgenagelt.** Sie liesse sich sonst abschalten —
  * und danach käme niemand mehr an die Matrix heran. Dieselbe Überlegung wie
@@ -43,6 +45,114 @@ const PU_EBENEN = [
 ];
 
 /**
+ * Die Rolle kommt aus der Registrierung (Entscheid des Betreibers 28.09.2026).
+ *
+ * Die Ebene eines Kontos steht in der Datenbank — aber sie wirkt nur, soweit
+ * die Bescheinigung des Servers sie deckt. Die Bescheinigung ist vom Server
+ * unterschrieben (srv/identitaet.php) und nennt die **Art** der Registrierung.
+ * Die Art legt fest, welche Ebenen es auf diesem Rechner geben kann und
+ * welche das zahlende Konto bekommt (`inhaber` — die Adminrolle des Kunden,
+ * nicht die des Betreibers).
+ *
+ *   ohne Bescheinigung   jeder ist Schüler. Die Academy lässt sich ansehen,
+ *                        aber niemand kann einen Schlüssel eintragen, Rechte
+ *                        verteilen oder Konten anlegen.
+ *   betreiber            DEVinDEV selbst — nur auf eigenen Rechnern.
+ *
+ * Wer die Datenbank ändert und sich `verwaltung` einträgt, bleibt damit ohne
+ * Bescheinigung trotzdem Schüler. Wer den Code ändert, kann alles — das ist
+ * auf dem eigenen Rechner nicht zu verhindern. Was Geld kostet (Token,
+ * Server-Tutor, Community, Updates), prüft deshalb der Server selbst.
+ *
+ * Die Arten entsprechen `mandanten.art` auf dem Server.
+ */
+const PU_ARTEN = [
+    'betreiber'    => ['inhaber' => 'admin',
+                       'ebenen'  => ['admin', 'verwaltung', 'lehrer', 'eltern', 'schueler']],
+    'schule'       => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung', 'lehrer', 'eltern', 'schueler']],
+    'hochschule'   => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung', 'lehrer', 'eltern', 'schueler']],
+    'privatschule' => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung', 'lehrer', 'eltern', 'schueler']],
+    'traeger'      => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung', 'lehrer', 'eltern', 'schueler']],
+    // Eine Lehrkraft, die selbst zahlt, betreibt ihre Klasse wie eine kleine
+    // Schule: Sie verwaltet, legt Schüler und Eltern an.
+    'lehrkraft'    => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung', 'eltern', 'schueler']],
+    // Familie: Eltern verwalten, Kinder lernen. Keine Schule, keine Lehrkraft.
+    'eltern'       => ['inhaber' => 'eltern',
+                       'ebenen'  => ['eltern', 'schueler']],
+    // Ein Erwachsener, der für sich selbst lernt: verwaltet und lernt zugleich.
+    'einzelperson' => ['inhaber' => 'verwaltung',
+                       'ebenen'  => ['verwaltung']],
+];
+
+/**
+ * Die Art der Registrierung dieses Rechners — leer ohne gültige Bescheinigung.
+ *
+ * Im Testlauf gilt `$GLOBALS['PU_TEST_ART']` (tests/hilfe.php). Den Schalter
+ * kann nur PHP-Code setzen, keine .env und keine Startdatei.
+ */
+function pu_art(bool $neu = false): string
+{
+    static $art = null;
+    if ($neu) $art = null;
+
+    if (!empty($GLOBALS['PU_TEST_MODUS']) && array_key_exists('PU_TEST_ART', $GLOBALS)) {
+        $t = (string)$GLOBALS['PU_TEST_ART'];
+        return isset(PU_ARTEN[$t]) ? $t : '';
+    }
+    if ($art !== null) return $art;
+
+    $art = '';
+    try {
+        require_once __DIR__ . '/identitaet.php';
+        $b = pu_ident_bescheinigung();
+        $a = (string)($b['art'] ?? '');
+        if ($b !== null && isset(PU_ARTEN[$a])) $art = $a;
+    } catch (Throwable) {
+        $art = '';      // ohne sodium oder mit kaputter Datei: nicht registriert
+    }
+    return $art;
+}
+
+/** Die Ebene, die das zahlende Konto bei dieser Art bekommt ('' = keine). */
+function pu_art_inhaber(?string $art = null): string
+{
+    return PU_ARTEN[$art ?? pu_art()]['inhaber'] ?? '';
+}
+
+/**
+ * Die gespeicherte Ebene, gedeckelt durch die Art.
+ *
+ * Was die Art nicht kennt, wird Schüler — mit einer Ausnahme: ein altes
+ * `admin` aus der Zeit vor der Registrierungspflicht wird zum Inhaber der
+ * Art. Das war das erste Konto, und bei einer registrierten Installation hat
+ * es auch gezahlt.
+ */
+function pu_ebene_gedeckelt(string $ebene, ?string $art = null): string
+{
+    $regel = PU_ARTEN[$art ?? pu_art()] ?? null;
+    if ($regel === null) return 'schueler';
+    if (in_array($ebene, $regel['ebenen'], true)) return $ebene;
+    return $ebene === 'admin' ? $regel['inhaber'] : 'schueler';
+}
+
+/**
+ * Wer welche Ebene anlegen darf. Nie höher als die eigene — sonst legte eine
+ * Lehrkraft sich eine Verwaltung an und meldete sich mit ihr an.
+ */
+const PU_ANLEGEN = [
+    'admin'      => ['admin', 'verwaltung', 'lehrer', 'eltern', 'schueler'],
+    'verwaltung' => ['verwaltung', 'lehrer', 'eltern', 'schueler'],
+    'lehrer'     => ['eltern', 'schueler'],
+    'eltern'     => ['eltern', 'schueler'],
+    'schueler'   => [],
+];
+
+/**
  * Die Matrix.
  *
  * `vorgabe` ist die Spalte aus dem Plan, §2. `nur_admin` heisst: dieses Recht
@@ -62,7 +172,11 @@ const PU_RECHTE = [
      'aktionen' => ['kurse', 'kurs', 'lektion']],
 
     ['name' => 'rechte.einstellungen', 'gruppe' => 'System & Dashboard',
-     'was' => 'Rechte-Matrix ändern', 'nur_admin' => true,
+     // Seit 28.09.2026 auch Verwaltung und Eltern: Sie betreiben ihre Academy
+     // selbst. Weitergeben dürfen sie nur, was sie selbst haben, und nie an
+     // die eigene Spalte (pu_recht_setzen).
+     'was' => 'Rechte-Matrix ändern (nur weitergeben, was man selbst hat)',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['rechte_lesen', 'recht_setzen', 'rechte_zuruecksetzen']],
 
     ['name' => 'sicherheit.einstellungen', 'gruppe' => 'System & Dashboard',
@@ -206,18 +320,24 @@ const PU_RECHTE = [
      'aktionen' => ['regel_setzen']],
 
     ['name' => 'ki.einstellungen', 'gruppe' => 'Academy-Betrieb',
-     'was' => 'Tutor-Modell und Zugangsschlüssel setzen', 'nur_admin' => true,
+     // Wer den Schlüssel einträgt, zahlt: Verwaltung und Eltern. Einem Kind
+     // geben es die Eltern über die Matrix, sonst gibt es keinen Tutor.
+     'was' => 'Tutor-Modell und Zugangsschlüssel setzen (kostet Geld)',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['geheimnis_setzen', 'tutor_probe', 'or_katalog']],
 
     ['name' => 'wartung.ausfuehren', 'gruppe' => 'Academy-Betrieb',
-     'was' => 'Punkte neu rechnen, Protokolle leeren', 'nur_admin' => true,
+     'was' => 'Punkte neu rechnen, Protokolle leeren',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['wartung']],
 
     /* Updates: die Notiz über „Abmelden“ sehen, eine neue Fassung laden,
-       mit Neustart einspielen und zurücknehmen. Nur Ebene 1 — wer das darf,
-       tauscht das Programm aller auf diesem Rechner. */
+       mit Neustart einspielen und zurücknehmen. Wer das darf, tauscht das
+       Programm aller auf diesem Rechner — deshalb der Inhaber: Verwaltung
+       bzw. Eltern (seit 28.09.2026, vorher nur Ebene 1). */
     ['name' => 'aktualisierung.verwalten', 'gruppe' => 'Academy-Betrieb',
-     'was' => 'Updates sehen, laden, einspielen und zurücknehmen', 'nur_admin' => true,
+     'was' => 'Updates sehen, laden, einspielen und zurücknehmen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['update_stand', 'update_suchen', 'update_laden', 'update_neustart',
                     'update_zurueck', 'update_ausblenden', 'update_einstellen']],
 
@@ -437,6 +557,9 @@ function pu_recht_matrix(bool $neu = false): array
  * `srv/db.php` schreibt sie um; diese Umsetzung hier ist der Gürtel dazu,
  * falls eine Datenbank aus einer alten Sicherung zurückkommt. Unbekanntes
  * wird zum Schüler — der Ebene mit den wenigsten Rechten.
+ *
+ * Seit 28.09.2026 deckelt die Registrierung (PU_ARTEN): Ohne Bescheinigung
+ * ist jeder Schüler, was immer in der Datenbank steht.
  */
 function pu_ebene(?array $wer = null): string
 {
@@ -444,13 +567,12 @@ function pu_ebene(?array $wer = null): string
     if ($wer === null) return '';
 
     $rolle = (string)($wer['rolle'] ?? '');
-    if (isset(PU_EBENEN[$rolle])) return $rolle;
-
-    return match ($rolle) {
+    $ebene = isset(PU_EBENEN[$rolle]) ? $rolle : match ($rolle) {
         'tutor'     => 'lehrer',
         'lernender' => 'schueler',
         default     => 'schueler',
     };
+    return pu_ebene_gedeckelt($ebene);
 }
 
 /** Darf die angemeldete Person (oder `$wer`) das? */
@@ -498,7 +620,8 @@ function pu_recht_meine(?array $wer = null): array
  * entspricht. So bleibt die Tabelle klein und sagt genau, was jemand
  * absichtlich anders wollte.
  */
-function pu_recht_setzen(string $ebene, string $recht, bool $an, int $person): void
+function pu_recht_setzen(string $ebene, string $recht, bool $an, int $person,
+                         ?array $wer = null): void
 {
     if (!isset(PU_EBENEN[$ebene])) {
         throw new RuntimeException('Diese Ebene gibt es nicht: ' . $ebene);
@@ -515,6 +638,7 @@ function pu_recht_setzen(string $ebene, string $recht, bool $an, int $person): v
         throw new RuntimeException(
             'Dieses Recht gehört Ebene 1 allein und lässt sich nicht weitergeben: ' . $recht);
     }
+    pu_recht_setzen_darf($ebene, $recht, $wer);
 
     $vorher = pu_recht_matrix()[$ebene][$recht];
     if ($vorher === $an) return;                        // nichts zu tun, nichts zu protokollieren
@@ -534,6 +658,41 @@ function pu_recht_setzen(string $ebene, string $recht, bool $an, int $person): v
     // Die Matrix wird im selben Request noch einmal gelesen — für die Antwort
     // an den Browser. Ohne dieses Auffrischen zeigte sie den Stand von vorhin.
     pu_recht_matrix(true);
+}
+
+/**
+ * Darf `$wer` diesen Schalter umlegen? Ebene 1 darf alles; der Inhaber einer
+ * Academy (Verwaltung, Eltern) nur mit drei Grenzen (28.09.2026):
+ *
+ *   · nur Rechte, die er selbst hat — sonst gäbe er einem Kind, was er
+ *     selbst nicht darf, und holte es sich über das Kind zurück
+ *   · nie die eigene Spalte — sonst gäbe er sich selbst alles
+ *   · nur Ebenen, die es auf diesem Rechner geben kann (PU_ARTEN)
+ *
+ * Die Matrix selbst weiterzugeben, bleibt Ebene 1 vorbehalten.
+ */
+function pu_recht_setzen_darf(string $ebene, string $recht, ?array $wer = null): void
+{
+    // Ohne angemeldetes Konto ruft das Programm selbst (Tests, Werkzeuge auf
+    // der Kommandozeile). Über api.php kommt man hier nie ohne Anmeldung an:
+    // `recht_setzen` fordert vorher das Recht.
+    if ($wer === null && pu_wer() === null) return;
+
+    $meine = pu_ebene($wer);
+    if ($meine === 'admin') return;
+
+    if ($ebene === $meine) {
+        throw new RuntimeException('Die eigene Spalte lässt sich nicht ändern — sonst gäbe man sich jedes Recht selbst.');
+    }
+    if ($recht === 'rechte.einstellungen') {
+        throw new RuntimeException('Das Recht, Rechte zu verteilen, gibt nur Ebene 1 weiter.');
+    }
+    if (!pu_recht_hat($recht, $wer)) {
+        throw new RuntimeException('Weitergeben lässt sich nur, was man selbst hat: ' . $recht);
+    }
+    if (!in_array($ebene, PU_ARTEN[pu_art()]['ebenen'] ?? [], true)) {
+        throw new RuntimeException('Diese Ebene gibt es auf diesem Rechner nicht: ' . $ebene);
+    }
 }
 
 /** Alles zurück auf die Vorgabe aus dem Plan. */
@@ -638,10 +797,23 @@ function pu_recht_kette_pruefen(): array
  * Absichtlich ein Aufruf: die Seite zeigt Matrix, Vorschau und Protokoll
  * nebeneinander, und drei Aufrufe könnten drei verschiedene Stände zeigen.
  */
-function pu_rechte_ausgabe(): array
+function pu_rechte_ausgabe(bool $mitProtokoll = true): array
 {
     $matrix  = pu_recht_matrix();
     $gruppen = [];
+    $darfAendern = pu_recht_hat('rechte.einstellungen');
+
+    // Welche Zelle `$wer` umlegen dürfte — dieselbe Prüfung wie beim Setzen,
+    // damit die Oberfläche nichts anbietet, was hinterher abgewiesen wird.
+    $aenderbar = static function (array $r, string $e) use ($darfAendern): bool {
+        if (!$darfAendern || $e === 'admin' || !empty($r['nur_admin'])) return false;
+        try {
+            pu_recht_setzen_darf($e, $r['name']);
+            return true;
+        } catch (RuntimeException) {
+            return false;
+        }
+    };
 
     foreach (PU_RECHTE as $r) {
         $gruppen[$r['gruppe']][] = [
@@ -656,16 +828,30 @@ function pu_rechte_ausgabe(): array
             'vorgabe'   => array_map(
                 fn($e) => pu_recht_vorgabe($r, $e),
                 array_combine(array_keys(PU_EBENEN), array_keys(PU_EBENEN))),
+            'aenderbar' => array_map(
+                fn($e) => $aenderbar($r, $e),
+                array_combine(array_keys(PU_EBENEN), array_keys(PU_EBENEN))),
         ];
     }
 
     $abweichungen = (int)pu_db()->query('SELECT COUNT(*) FROM rechte_abweichung')->fetchColumn();
 
-    return [
+    $art = pu_art();
+    $aus = [
         'ebenen'       => PU_EBENEN,
         'gruppen'      => $gruppen,
         'abweichungen' => $abweichungen,
-        'audit'        => pu_recht_audit(12),
-        'kette'        => pu_recht_kette_pruefen(),
+        // Woher die Rolle kommt: die Art der Registrierung, welche Ebenen es
+        // hier geben kann, und welche die eigene ist.
+        'art'          => $art,
+        'inhaber'      => pu_art_inhaber($art),
+        'ebenen_hier'  => PU_ARTEN[$art]['ebenen'] ?? ['schueler'],
+        'meine_ebene'  => pu_ebene(),
+        'darf_aendern' => $darfAendern,
     ];
+    if ($mitProtokoll) {
+        $aus['audit'] = pu_recht_audit(12);
+        $aus['kette'] = pu_recht_kette_pruefen();
+    }
+    return $aus;
 }

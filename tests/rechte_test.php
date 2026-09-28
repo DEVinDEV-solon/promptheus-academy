@@ -55,10 +55,19 @@ gleich('Eltern sehen keine Klassenliste',     false, darf('eltern', 'klassen.vie
 // ============================================================ Ebene 1 abgeschottet
 gruppe('Ebene 1 ist abgeschottet');
 
-foreach (['rollen.manage', 'ki.einstellungen', 'wartung.ausfuehren',
-          'rechte.einstellungen', 'schulen.manage', 'pool.kuratieren'] as $nur1) {
+foreach (['rollen.manage', 'schulen.manage', 'pool.kuratieren', 'persona.nutzen',
+          'abo.bestaetigen'] as $nur1) {
     foreach (['verwaltung', 'lehrer', 'eltern', 'schueler'] as $e) {
         gleich("$e hat $nur1 nicht", false, darf($e, $nur1));
+    }
+}
+
+// Seit 28.09.2026 gehören diese dem Inhaber der Academy (Verwaltung, Eltern):
+// Er betreibt sie selbst. Lehrer und Schüler haben sie ab Werk nicht.
+foreach (['ki.einstellungen', 'wartung.ausfuehren', 'rechte.einstellungen',
+          'aktualisierung.verwalten'] as $inhaber) {
+    foreach (['verwaltung' => true, 'eltern' => true, 'lehrer' => false, 'schueler' => false] as $e => $soll) {
+        gleich("$e: $inhaber ab Werk", $soll, darf($e, $inhaber));
     }
 }
 
@@ -198,7 +207,9 @@ foreach (PU_RECHTE as $r) {
 $ohneWache = ['anmelden', 'einrichten', 'urkunde_pruefen', 'zustand', 'abmelden',
               'kennwort_aendern', 'name_aendern', 'einst_lesen', 'einst_setzen',
               'urkunde_html', 'profil_lesen', 'profil_setzen', 'sprache_stand',
-              'rolle_zurueck'];
+              'rolle_zurueck',
+              // Rollen & Rechte zum Nachlesen: für jeden Angemeldeten, nur lesen.
+              'rollen_erklaert'];
 
 preg_match_all("/^        case '([a-z_]+)':/m", $api, $treffer);
 $alle = array_unique($treffer[1]);
@@ -222,7 +233,10 @@ foreach (array_unique($gefordert[1]) as $recht) {
 // Ersteinrichtung nannte bis zum 27.09.2026 die alte Rolle 'tutor' — jede
 // frische Installation scheiterte, bestehende merkten es nie.
 preg_match_all("/pu_lernenden_anlegen\([^;]*?,\s*'([a-z]+)'\s*\)\s*;/s", $api, $ebenen);
-pruefe('api.php: Ersteinrichtung nennt eine Ebene', in_array('admin', $ebenen[1], true));
+// Seit 28.09.2026 ist das erste Konto Schüler; die Verwaltungsrolle kommt
+// nur aus der Registrierung.
+pruefe('api.php: Ersteinrichtung legt einen Schüler an', in_array('schueler', $ebenen[1], true)
+       && !in_array('admin', $ebenen[1], true));
 foreach (array_unique($ebenen[1]) as $e) {
     pruefe("api.php legt Konten mit bekannter Ebene an: $e", isset(PU_EBENEN[$e]));
 }

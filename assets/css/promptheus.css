@@ -1173,6 +1173,34 @@ html[data-thema-effektiv="hell"]   .symbol-mond  { display: inline; }
 .modal-inhalt { padding: 1.2rem 1.4rem 2rem; overflow-y: auto; max-height: 76vh; }
 .modal-inhalt h3 { margin-top: 0; }
 
+/* Rollen & Rechte (assets/js/rollen.js): die Erklärung liegt ÜBER den
+   Einstellungen, damit man nach dem Schliessen wieder dort steht. */
+.modal.modal-oben { z-index: 125; }
+.modal-oben .modal-flaeche { grid-template-rows: auto 1fr auto; }
+.rollen-fuss a.knopf { text-decoration: none; }
+.rollen-kasten {
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+  background: var(--grund-3); padding: .9rem 1.1rem; margin-bottom: 1.2rem;
+}
+.rollen-kasten .rollen-meine { font-size: 1.05rem; margin-top: 0; }
+.rollen-inhalt { max-height: 68vh; }
+.rollen-abschnitt + .rollen-abschnitt { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--rand); }
+.rollen-abschnitt h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.rollen-tabelle { width: 100%; margin: .6rem 0; }
+.rollen-rolle {
+  border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  padding: .5rem .8rem; margin: .45rem 0; background: var(--grund);
+}
+.rollen-rolle summary { cursor: pointer; }
+.rollen-darf { margin: .3rem 0 .2rem; padding-left: 1.2rem; columns: 2 18rem; column-gap: 2rem; }
+.rollen-darf li { break-inside: avoid; margin: .1rem 0; }
+.rollen-fuss {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+  padding: .8rem 1.2rem; border-top: 1px solid var(--rand); background: var(--grund-3);
+}
+.rollen-fuss .rollen-registrieren { flex-basis: 100%; }
+.rollen-fuss .hidden { display: none; }
+
 /* Ein Fenster ohne Reiterleiste — der Tokenicer über einer Aufgabe. Er
    bekommt dieselbe Fläche, nur ohne die 210 Pixel links daneben. */
 .modal-inhalt.breit { min-height: 60vh; }
