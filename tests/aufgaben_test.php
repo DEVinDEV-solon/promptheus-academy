@@ -93,6 +93,14 @@ gleich('zwei Aufgaben gefunden', 2, count($auf));
 gleich('erste Kennung', 'A1', $auf[0]['id']);
 gleich('zweite Kennung', 'A2', $auf[1]['id']);
 
+// Windows-Zeilenenden (Git mit core.autocrlf, 28.09.2026): vorher fand der
+// Parser das Blockende nicht, und die Aufgabe stand als roher Text da.
+$crlf = str_replace("\n", "\r\n", $text);
+gleich('CRLF: dieselben zwei Aufgaben', ['A1', 'A2'], array_column(pu_aufgaben_aus_text($crlf, 'test.md'), 'id'));
+$fm = pu_frontmatter("---\r\ntype: lesson\r\n---\r\n" . $crlf);
+pruefe('CRLF: der Rumpf trägt kein \\r mehr', !str_contains($fm['rumpf'], "\r"));
+gleich('CRLF: … und die Aufgaben stecken darin', 2, count(pu_aufgaben_aus_text($fm['rumpf'], 'test.md')));
+
 $ohne = pu_aufgaben_aus_text("Nur Text, kein Block.", 'test.md');
 gleich('ohne Block leere Liste', [], $ohne);
 

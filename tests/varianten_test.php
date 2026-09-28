@@ -228,8 +228,9 @@ gruppe('Kopf, Leiste und Karten folgen der Palette');
 $css = pu_varianten_css();
 
 foreach (PU_VARIANTEN as $kennung => $v) {
-    if (!preg_match('/html\[data-variante="' . $kennung . '"\] \{(.*?)
-\}/s', $css, $m)) {
+    // `\r?\n` statt eines Zeilenumbruchs im Muster: mit core.autocrlf trägt
+    // diese Datei sonst ein \r, das im Stylesheet nicht steht.
+    if (!preg_match('/html\[data-variante="' . $kennung . '"\] \{(.*?)\r?\n\}/s', $css, $m)) {
         pruefe("Palette $kennung steht im Stylesheet", false);
         continue;
     }

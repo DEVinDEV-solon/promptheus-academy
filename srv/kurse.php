@@ -274,6 +274,11 @@ function pu_frontmatter(string $text): array
 {
     // BOM entfernen — Obsidian schreibt keinen, ein Windows-Editor schon.
     $text = preg_replace('/^\xEF\xBB\xBF/', '', $text) ?? $text;
+    // Zeilenenden vereinheitlichen (28.09.2026). Git mit `core.autocrlf` legt
+    // die Kurse auf Windows mit CRLF ab; dann fand `^```[ \t]*$` das Ende
+    // eines Aufgabenblocks nie, und die Aufgabe stand als roher YAML-Text in
+    // der Lektion. Alles, was Lehrstoff liest, geht durch diese Funktion.
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
 
     if (!preg_match('/^---\r?\n(.*?)\r?\n---\r?\n?(.*)$/s', $text, $m)) {
         return ['meta' => [], 'rumpf' => $text];
@@ -294,7 +299,8 @@ function pu_frontmatter(string $text): array
  */
 function pu_aufgaben_aus_text(string $text, string $quelle = ''): array
 {
-    if (!preg_match_all('/^```aufgabe[ \t]*\r?\n(.*?)^```[ \t]*$/ms', $text, $treffer)) {
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
+    if (!preg_match_all('/^```aufgabe[ \t]*\n(.*?)^```[ \t]*$/ms', $text, $treffer)) {
         return [];
     }
 
