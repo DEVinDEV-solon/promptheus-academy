@@ -452,22 +452,23 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
       gegen BRAND.md §7 („kein Text steht frei auf dem Grund"). Sie bekommt
       die Fläche einer Textkarte: deckend genug, dass der Text steht, ohne
       Rahmen und Schatten, damit Aufgaben und Kästen darin noch Karten sind.
-   2. **Zeilen, die man zu Ende liest.** Höchstens 68 Zeichen je Zeile,
-      Zeilenhöhe 1.7. Längere Zeilen lassen das Auge beim Zurückspringen die
-      nächste Zeile verfehlen; das ist der Hauptgrund, warum Text „zäh" wirkt.
+   2. **Zeilen, die man zu Ende liest.** Die Fläche füllt die Spalte bis zur
+      rechten Leiste (Wunsch des Betreibers, 28.09.2026: erst 820 px liessen
+      rechts eine leere Bahn). Der Fliesstext darin endet bei 88 Zeichen:
+      Längere Zeilen lassen das Auge beim Zurückspringen die nächste Zeile
+      verfehlen — das ist der Hauptgrund, warum Text „zäh" wirkt. Tabellen,
+      Kästen und Aufgaben nutzen die ganze Breite.
    3. **Abschnitte sieht man, bevor man sie liest.** Jede Zwischenüberschrift
       bekommt Luft darüber, eine feine Linie und eine Glutraute — beim
       Scrollen erkennt man, wo ein neuer Gedanke beginnt. */
 .lektion {
-  max-width: 820px;
   background: rgb(var(--karte-schleier) / .86);
   border-radius: var(--radius);
   padding: clamp(1.1rem, 3vw, 2rem) clamp(1rem, 3.6vw, 2.4rem) clamp(1rem, 2.6vw, 1.6rem);
   backdrop-filter: blur(3px);
 }
 .lektion > h1 { margin: 0 0 .5rem; line-height: 1.2; }
-.lektion > p, .lektion > ul, .lektion > ol,
-.lektion > .kasten, .lektion > blockquote { max-width: 68ch; }
+.lektion > p, .lektion > ul, .lektion > ol { max-width: 88ch; }
 .lektion p, .lektion li { line-height: 1.7; }
 .lektion > p { margin: 0 0 1em; }
 .lektion li + li { margin-top: .35rem; }
