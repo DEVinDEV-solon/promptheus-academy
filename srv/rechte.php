@@ -339,7 +339,7 @@ const PU_RECHTE = [
      'was' => 'Updates sehen, laden, einspielen und zurücknehmen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['update_stand', 'update_suchen', 'update_laden', 'update_neustart',
-                    'update_zurueck', 'update_ausblenden', 'update_einstellen']],
+                    'update_zurueck', 'update_ausblenden', 'update_einstellen', 'update_medien']],
 
     ['name' => 'tutor.fragen', 'gruppe' => 'Academy-Betrieb',
      'was' => 'Die Tutor-Agenten fragen (kostet Modell-Aufrufe)',

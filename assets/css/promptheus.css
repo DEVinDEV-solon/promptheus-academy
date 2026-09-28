@@ -1128,6 +1128,20 @@ html[data-breite="breit"]  { --breit: 1480px; }
 html[data-thema-effektiv="dunkel"] .symbol-sonne { display: inline; }
 html[data-thema-effektiv="hell"]   .symbol-mond  { display: inline; }
 
+/* Der Stil-Schalter der Erwachsenen folgt derselben Regel: In der Academy
+   steht „Klar“ darauf, in der klaren Ansicht „Academy“. */
+.kopf-stil {
+  font: inherit; font-size: .85rem; cursor: pointer; white-space: nowrap;
+  color: var(--schrift-2); background: transparent;
+  border: 1px solid var(--rand); border-radius: 999px;
+  padding: .2rem .7rem; margin-right: .25rem;
+}
+.kopf-stil:hover { color: var(--gold); border-color: var(--gold); background: var(--grund-3); }
+.stil-academy, .stil-klar { display: none; }
+html:not([data-stil="klar"]) .stil-klar { display: inline; }
+html[data-stil="klar"] .stil-academy    { display: inline; }
+@media (max-width: 600px) { .kopf-stil .stil-wort { display: none; } }
+
 /* ============================================================ Modalseite */
 .modal {
   position: fixed; inset: 0; z-index: 120;

@@ -243,8 +243,8 @@ function pu_stil_wirksam(array $einst, ?array $sicht): string
  */
 const PU_WORTE_KLAR = [
     'lernen'      => 'Kurse',
-    'tutor'       => 'KI-Assistent',
-    'tutor_titel' => 'KI-Assistent fragen',
+    'tutor'       => 'Tutoren',
+    'tutor_titel' => 'Einen Tutor fragen',
     'ziel'        => 'Zusatzkurs',
     'fenster'     => 'PROMPTHEUS Academy',
 ];

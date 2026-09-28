@@ -417,12 +417,20 @@ function pu_gem_urheber_anzeige(int $id): string
 /**
  * Darf `$ich` das Produkt gegenzeichnen? Lehrkraft und Verwaltung: jedes
  * Schülerprodukt dieser Academy. Eltern: nur das des eigenen Kindes.
+ *
+ * In einer Familien-Installation (Registrierung „Eltern“, 28.09.2026) gibt es
+ * nur Eltern und ihre Kinder — dort zeichnen die Eltern jedes Kind dieses
+ * Rechners gegen, auch bei mehreren Geschwistern. Ohne ihr Siegel geht nichts
+ * eines Kindes ins Web.
+ *
+ * Gezählt wird die gedeckelte Ebene: ein von Hand in die Datenbank
+ * geschriebenes `verwaltung` gibt auf einem Familienrechner kein Siegel.
  */
 function pu_gem_darf_siegeln(array $ich, array $produkt): bool
 {
-    return match ((string)$ich['rolle']) {
+    return match (pu_ebene_gedeckelt((string)$ich['rolle'])) {
         'admin', 'verwaltung', 'lehrer' => true,
-        'eltern' => (int)($ich['kind_von'] ?? 0) === (int)$produkt['lernender'],
+        'eltern' => pu_art() === 'eltern' || (int)($ich['kind_von'] ?? 0) === (int)$produkt['lernender'],
         default => false,
     };
 }

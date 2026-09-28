@@ -153,6 +153,27 @@ gleich('wer danach den Titel ändert, braucht ein neues Siegel', ['siegel'], pu_
 pu_produkt_siegeln($id, $person($lehrer));
 
 // ─────────────────────────────────────────────────────────────────────────────
+gruppe('Mit-Siegel auf einem Familienrechner (Registrierung „Eltern“)');
+
+// Ein zweites Kind; `kind_von` des Vaters zeigt weiter nur auf Nele.
+$bruder = pu_lernenden_anlegen('tim', 'Tim Beispiel', 'geheim1234', 'schueler');
+$idB = (int)pu_produkt_anlegen($bruder, 'Vulkan-Quiz', 'Ein Quiz.', ['quiz.md' => "# Vulkane\nFragen."], 'werkstatt')['id'];
+wirft('Schule: Eltern siegeln nur das eigene Kind', fn() => pu_produkt_siegeln($idB, $person($papa)), 'nicht gegenzeichnen');
+$GLOBALS['PU_TEST_ART'] = 'eltern';
+gleich('Familie: der Vater sieht das Werk des Geschwisterkinds', [$idB],
+       array_column(pu_produkte($person($papa), true)['siegeln'], 'id'));
+pu_produkt_siegeln($idB, $person($papa));
+pruefe('… und zeichnet es gegen', (int)pu_produkt($idB)['siegel_von'] === $papa);
+pu_db()->prepare('UPDATE produkte SET siegel_von = 0 WHERE id = ?')->execute([$idB]);
+wirft('Familie: eine eingetragene Lehrkraft gibt kein Siegel (es gibt hier keine)',
+      fn() => pu_produkt_siegeln($idB, $person($lehrer)), 'nicht gegenzeichnen');
+pu_db()->prepare("UPDATE lernende SET rolle = 'verwaltung' WHERE id = ?")->execute([$bruder]);
+wirft('Familie: ein Kind, das sich „verwaltung“ in die Datenbank schreibt, auch nicht',
+      fn() => pu_produkt_siegeln($id, $person($bruder)), 'nicht gegenzeichnen');
+pu_db()->prepare("UPDATE lernende SET rolle = 'schueler' WHERE id = ?")->execute([$bruder]);
+$GLOBALS['PU_TEST_ART'] = 'betreiber';
+
+// ─────────────────────────────────────────────────────────────────────────────
 gruppe('Freischalten');
 
 $GLOBALS['rufe'] = [];

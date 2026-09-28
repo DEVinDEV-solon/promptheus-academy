@@ -116,7 +116,7 @@ gleich('ohne Persona-Recht: Sicht = eigenes Konto', 'schueler', pu_ebene($alsKin
 
 // Stufe A: die Wörter des Stils. Nur, was in der Liste steht, ändert sich.
 gleich('Klar: Lernen heisst Kurse',        'Kurse',        pu_wort('lernen', 'Lernen', 'klar'));
-gleich('Klar: Tutor heisst KI-Assistent',  'KI-Assistent', pu_wort('tutor', 'Tutor', 'klar'));
+gleich('Klar: Tutor heisst Tutoren',  'Tutoren',pu_wort('tutor', 'Tutor', 'klar'));
 gleich('Academy: Wörter bleiben',          'Tutor',        pu_wort('tutor', 'Tutor', 'academy'));
 gleich('Klar: Unbekanntes bleibt',         'Tokenicer',    pu_wort('tokenicer', 'Tokenicer', 'klar'));
 $html = pu_wort_html('ziel', 'Der 7. Kurs', 'klar');

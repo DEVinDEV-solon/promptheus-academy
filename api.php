@@ -830,6 +830,19 @@ try {
                         + pu_akt_oberflaeche($ichId));
         }
 
+        // Kursmedien (Video, Hörfolge, Song neben den Kursen) vom eigenen Server:
+        // laden, gegen den signierten Feed prüfen, unter medien/ ablegen.
+        // Kein Neustart nötig — die Playlist liest den Ordner bei jedem Aufruf.
+        case 'update_medien': {
+            pu_recht_fordern('aktualisierung.verwalten');
+            require_once PU_ROOT . '/srv/kursmedien.php';
+            @set_time_limit(0);
+            $r = pu_med_laden();
+            pu_protokoll($ichId, 'update_medien', $r['ok'] ? 'ok' : 'fehler', '');
+            pu_json_out(['ok' => true, 'geladen' => $r['ok'], 'meldung' => $r['meldung']]
+                        + pu_akt_oberflaeche($ichId));
+        }
+
         case 'update_neustart':
             pu_recht_fordern('aktualisierung.verwalten');
             if (pu_akt_bereit() === null) {

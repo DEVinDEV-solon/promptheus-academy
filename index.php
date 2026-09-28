@@ -767,12 +767,22 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <?php endforeach; ?>
   </div>
 
-  <?php if ($darfTutor): ?>
   <!-- Der Tutor steht oben rechts, nicht unten im Menü. Er ist der Knopf, den
        man mitten in einer Aufgabe drückt — und dann zählt der kurze Weg:
        oben rechts ist er von jeder Stelle der Seite aus zwei Zentimeter
        entfernt, im Menüfuss wäre er ganz unten links. -->
   <div class="kopf-rechts">
+    <?php if (!$offen && pu_ebene($wer) !== 'schueler'): ?>
+    <!-- Der Stil-Schalter für Erwachsene (28.09.2026): Academy ↔ Klar mit
+         einem Klick, ohne Umweg über die Einstellungen. Lernende sehen ihn
+         nicht — für sie ist die Academy die Academy. -->
+    <button class="kopf-stil" id="knopf-stil" type="button"
+            title="Ansicht wechseln: Academy (Bilder, Erzählung) oder Klar (schlicht)"
+            aria-label="Ansicht zwischen Academy und Klar wechseln">
+      <span class="stil-academy" aria-hidden="true">🔥 <span class="stil-wort">Academy</span></span>
+      <span class="stil-klar" aria-hidden="true">▫ <span class="stil-wort">Klar</span></span>
+    </button>
+    <?php endif; ?>
     <?php if (pu_ebene() === 'admin'): ?>
     <!-- Die Persona-Vorschau. Nur Ebene 1 sieht sie überhaupt.
 
@@ -792,11 +802,12 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <button class="kopf-symbol gross" id="knopf-glossar" type="button"
             title="Glossar — alle Fachwörter der Academy"
             aria-label="Glossar öffnen">📖</button>
+    <?php if ($darfTutor): ?>
     <button class="kopf-symbol gross" id="knopf-tutor" type="button"<?= $sichtAttr('tutor.fragen') ?>
             title="Tutor öffnen — er erscheint rechts neben dem Stoff"
             aria-label="Tutor als Seitenmenü öffnen">💬</button>
+    <?php endif; ?>
   </div>
-  <?php endif; ?>
 </header>
 
 <main id="haupt">

@@ -25,9 +25,12 @@ window.PU = window.PU || {};
     const n = notiz();
     if (!n) return;
     const a = stand && stand.angebot;
+    const m = stand && stand.medien;
     const sichtbar = !!(a && !stand.ausgeblendet);
+    const medienSichtbar = !sichtbar && !!m && !medienAus;
     const leisteKnopf = document.getElementById('knopf-leiste');
-    if (leisteKnopf) leisteKnopf.classList.toggle('akt-punkt', sichtbar);
+    if (leisteKnopf) leisteKnopf.classList.toggle('akt-punkt', sichtbar || medienSichtbar);
+    if (medienSichtbar) { medienNotiz(n, m, leisteKnopf); return; }
     if (!sichtbar) { n.hidden = true; n.innerHTML = ''; return; }
 
     const bereit = stand.bereit === a.fassung;
@@ -49,6 +52,44 @@ window.PU = window.PU || {};
       if (stand) stand.ausgeblendet = true;
     });
     n.querySelector('.akt-los').addEventListener('click', (ev) => installieren(ev.currentTarget));
+  }
+
+  /* Kursmedien: Video, Hörfolge und Song neben den Kursen. Kommen über den
+     eigenen Server (srv/kursmedien.php), ohne Neustart. × blendet die Notiz
+     bis zum nächsten Laden der Seite aus. */
+  let medienAus = false;
+
+  function mb(byte) { return (byte / 1048576).toFixed(byte < 10485760 ? 1 : 0).replace('.', ',') + ' MB'; }
+
+  function medienNotiz(n, m, leisteKnopf) {
+    n.innerHTML =
+      '<div class="akt-kopf">' +
+        '<b>Neue Kursmedien</b>' +
+        '<button type="button" class="akt-zu" aria-label="Notiz ausblenden" title="Ausblenden">×</button>' +
+      '</div>' +
+      '<p class="akt-klein">Aufnahmen neben den Kursen · ' + PU.h(mb(m.groesse)) +
+        (stand.medien_stand ? ' · installiert: ' + PU.h(stand.medien_stand) : ' · noch keine installiert') + '</p>' +
+      '<button type="button" class="knopf akt-los">Kursmedien laden</button>';
+    n.hidden = false;
+    n.querySelector('.akt-zu').addEventListener('click', () => {
+      medienAus = true; n.hidden = true;
+      if (leisteKnopf) leisteKnopf.classList.remove('akt-punkt');
+    });
+    n.querySelector('.akt-los').addEventListener('click', (ev) => medienLaden(ev.currentTarget));
+  }
+
+  async function medienLaden(knopf) {
+    if (knopf) knopf.disabled = true;
+    PU.melden('Die Kursmedien werden geladen und geprüft …', 'gold');
+    try {
+      const j = await PU.ruf('update_medien');
+      stand = j; zeichnen(); wartungNeu();
+      PU.melden(PU.h(j.meldung), j.geladen ? 'gut' : 'schlecht');
+    } catch (e) {
+      PU.melden(PU.h(e.message), 'schlecht');
+    } finally {
+      if (knopf) knopf.disabled = false;
+    }
   }
 
   /* ------------------------------------------------------------ Ablauf */
@@ -145,6 +186,10 @@ window.PU = window.PU || {};
       ? 'Neue Fassung ' + PU.h(a.fassung) + (a.wichtig ? ' (Sicherheits-Update)' : '') + ' ist verfügbar' +
         (s.bereit === a.fassung ? ' und bereits geladen.' : '.')
       : 'Diese Fassung ist aktuell.'));
+    ziel.appendChild(PU.el('p', '', 'Kursmedien (Aufnahmen neben den Kursen): ' +
+      (s.medien_stand ? 'Stand <b>' + PU.h(s.medien_stand) + '</b>' : '<b>noch keine</b>') +
+      (s.medien ? ' — neuer Stand ' + PU.h(s.medien.stand) + ' verfügbar (' + PU.h(mb(s.medien.groesse)) + ').'
+                : (s.medien_stand ? ', aktuell.' : '. Der Server bietet noch keine an.'))));
 
     const reihe = PU.el('div', 'einst-gruppe');
     const knopf = (text, still, fn) => {
@@ -169,6 +214,7 @@ window.PU = window.PU || {};
       PU.melden(PU.h(j.meldung), j.geladen ? 'gut' : 'schlecht');
     });
     if (a && s.bereit === a.fassung) knopf('Neu starten und installieren', false, () => neustarten('update_neustart'));
+    if (s.medien) knopf('Kursmedien laden (' + mb(s.medien.groesse) + ')', false, () => medienLaden(null));
     if (s.sicherungen && s.sicherungen.length) knopf('Vorige Fassung wiederherstellen', true, async () => {
       const letzte = s.sicherungen[0];
       if (!confirm('Zurück auf ' + (letzte.von || 'den Stand vor dem Update') + '? Die Academy startet dazu neu. ' +

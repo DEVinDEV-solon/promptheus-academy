@@ -921,6 +921,21 @@ PU.start = function () {
     PU.themaSetzen(jetzt === 'dunkel' ? 'hell' : 'dunkel');
   });
 
+  // Academy ↔ Klar mit einem Klick (nur Erwachsene sehen den Knopf). Gemerkt
+  // wird die Wahl wie in den Einstellungen — als feste Wahl, nicht „auto".
+  const st = document.getElementById('knopf-stil');
+  if (st) st.addEventListener('click', async () => {
+    const neu = document.documentElement.dataset.stil === 'klar' ? 'academy' : 'klar';
+    PU.stilSetzen(neu);
+    try {
+      await PU.ruf('einst_setzen', { schluessel: 'stil', wert: neu });
+      PU.einst = PU.einst || {};
+      PU.einst.stil = neu;
+      const d = PU.einstZustand && PU.einstZustand.daten;
+      if (d && d.person) d.person.stil = neu;
+    } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
+  });
+
   const ein = document.getElementById('knopf-einstellungen');
   if (ein) ein.addEventListener('click', () => PU.einstellungenOeffnen());
 

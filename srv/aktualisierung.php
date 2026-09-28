@@ -319,7 +319,7 @@ function pu_akt_stand(): array
 {
     $j = json_decode(pu_setting('update_stand', ''), true);
     return (is_array($j) ? $j : []) + ['geprueft_am' => '', 'naechste' => 0, 'letzter_feed' => '',
-        'angebot' => null, 'fehler' => '', 'weg' => ''];
+        'angebot' => null, 'medien' => null, 'fehler' => '', 'weg' => ''];
 }
 
 function pu_akt_stand_setzen(array $s): void
@@ -347,6 +347,9 @@ function pu_akt_pruefen(bool $jetzt = false): array
         if ($p['ok']) {
             $s['letzter_feed'] = $p['rumpf']['erstellt'];
             $s['angebot'] = pu_akt_angebot($p['rumpf'], pu_fassung(), pu_akt_eimer());
+            // Die Kursmedien stehen im selben, unterschriebenen Feed (srv/kursmedien.php).
+            require_once __DIR__ . '/kursmedien.php';
+            $s['medien'] = pu_med_angebot($p['rumpf']);
             $s['fehler'] = '';
             $s['naechste'] = time() + 3600 * max(1, (int)pu_regel('update_stunden'));
         } else {
@@ -413,7 +416,13 @@ function pu_akt_oberflaeche(int $lernender, bool $jetzt = false): array
         $s['angebot'] = null;
     }
     $bereit = pu_akt_bereit();
+    require_once __DIR__ . '/kursmedien.php';
+    $med = pu_med_installiert();
+    $medAngebot = is_array($s['medien'] ?? null)
+        && pu_akt_rang((string)$s['medien']['stand']) > pu_akt_rang($med['stand']) ? $s['medien'] : null;
     return [
+        'medien'      => $medAngebot,
+        'medien_stand'=> $med['stand'],
         'fassung'     => pu_fassung(),
         'kanal'       => pu_akt_kanal(),
         'weg'         => $s['weg'],
