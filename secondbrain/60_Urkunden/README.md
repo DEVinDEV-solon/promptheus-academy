@@ -68,6 +68,15 @@ Ohne `hintergrund.*` zeichnet die Academy den Schmuck der Gruppe selbst.
   Oberfläche zeigt die Grenzen nur an.
 - Farben als `#rrggbb`. Text muss auf dem Papier gut lesbar bleiben: `schrift`
   dunkel auf hellem `papier`, Kontrast mindestens 7:1.
+- **`titel_im_bild`** (optional, `true`): Das Wort „Urkunde" steckt schon im
+  Hintergrundbild. Die Seite setzt es dann nicht noch einmal, und die Regler für
+  das Wort verschwinden. Gilt nur, wenn das Bild da ist.
+- **`nur_mit_bild`** (optional, `true`): Die Variante erscheint erst in der Auswahl,
+  wenn ihr `hintergrund.*` liegt. Beispiel für beide: `02_historisch-siegel/urkunde-siegel/`.
+
+Dieselben Vorlagen gestalten seit 30.09.2026 auch die Urkunde **jeder einzelnen
+Stufe** (Fortschritt → „Design wählen & drucken"): gleiche Seite, eigener Text,
+nur Prüfcode statt Konto-Hash und Siegel.
 
 ## Die fünf Schriften
 

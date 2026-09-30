@@ -1,4 +1,5 @@
-/* PROMPTHEUS — Abschluss-Urkunde in drei Schritten.
+/* PROMPTHEUS — der Urkunden-Generator: Abschluss-Urkunde in drei Schritten,
+ * Stufen-Urkunde in zwei (ohne Namensschritt, PU.stufenUrkunde).
  *
  *   1  Design wählen     — eine Variante aus drei Gruppen (secondbrain/60_Urkunden)
  *   2  Namen eintragen   — Warnung, zweites Tippen, danach unveränderlich
@@ -28,9 +29,69 @@ PU.abschlussUrkunde = async function (platz) {
     variante: null,                     // Wahl aus Schritt 1
     platz: platz
   };
+  z.art = urkundeArtAbschluss(z);
   urkundeStart(z);
   urkundeStartWunsch(z);
 };
+
+/* ------------------------------------------------------------ Art
+ *
+ * Was sich zwischen Abschluss- und Stufen-Urkunde unterscheidet: Überschrift,
+ * Schritte, die Seite zum Ansehen und der Ruf zum Speichern. Alles andere —
+ * Galerie, Werkbank, Druck — ist dasselbe. */
+function urkundeArtAbschluss(z) {
+  return {
+    titel: '🎓 Abschluss-Urkunde', stufe: 0,
+    schritte: ['Design wählen', 'Namen eintragen', 'Urkunde & Druck'],
+    html: 'abschluss_html', speichern: 'abschluss_design_setzen',
+    zurueck: () => urkundeStart(z)
+  };
+}
+
+/**
+ * Die Urkunde einer Stufe gestalten und drucken — im Vollbildfenster.
+ * Noch nie gestaltet: erst die Galerie, sonst gleich die Werkbank.
+ * Der Name ist der Anzeigename und steht fest; einen Namensschritt gibt es
+ * hier nicht.
+ */
+PU.stufenUrkunde = async function (code) {
+  let s, vorlagen;
+  try {
+    [s, vorlagen] = await Promise.all([PU.ruf('stand').then(j => j.stand), PU.ruf('abschluss_vorlagen')]);
+  } catch (e) { PU.melden(PU.h(e.message), 'warnung'); return; }
+  const u = (s.urkunden || []).find(x => x.pruefcode === code);
+  if (!u) { PU.melden('Diese Urkunde gibt es nicht.', 'warnung'); return; }
+
+  const stufe = (PU.stufen || {})[u.stufe] || {};
+  const flaeche = PU.modalVollbild('Urkunde Stufe ' + u.stufe + (stufe.name ? ' — ' + stufe.name : ''),
+    'Design wählen, anpassen, am eigenen Drucker drucken oder als PDF sichern.');
+  if (!flaeche) return;
+  const karte = PU.el('div', 'karte abschluss-urkunde');
+  flaeche.appendChild(karte);
+
+  const z = {
+    a: { urkunden: [u] }, gruppen: vorlagen.gruppen, schriften: vorlagen.schriften,
+    variante: (u.design || {}).variante || null, platz: flaeche, karte: karte
+  };
+  z.art = {
+    titel: '📜 Stufe ' + u.stufe + (stufe.name ? ' — ' + stufe.name : ''), stufe: u.stufe,
+    schritte: ['Design wählen', 'Urkunde & Druck'],
+    html: 'urkunde_html', speichern: 'urkunde_design_setzen',
+    zurueck: () => PU.modalSchliessen()
+  };
+  if (u.design) urkundeSchritt3(z, code);
+  else urkundeSchritt1(z);
+};
+
+/* Knöpfe `data-stufen-urkunde="<code>"` — in „Dein Stand" und im Ergebnis
+   einer Prüfung. Ein Horcher für alle, weil beide Stellen ihr HTML als Text
+   setzen. */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-stufen-urkunde]');
+  if (!b) return;
+  e.preventDefault();
+  PU.stufenUrkunde(b.dataset.stufenUrkunde);
+});
 
 /* ------------------------------------------------------------ Überblick */
 function urkundeStart(z) {
@@ -96,24 +157,27 @@ function urkundeVariante(z, id) {
   return null;
 }
 
-/** Die Schrittleiste über jedem Schritt. */
-function urkundeKopf(nr) {
-  const namen = ['Design wählen', 'Namen eintragen', 'Urkunde & Druck'];
+/** Die Schrittleiste über jedem Schritt. `nr` zählt wie bei der
+ *  Abschluss-Urkunde (1, 2, 3); ohne Namensschritt wird aus 3 die 2. */
+function urkundeKopf(z, nr) {
+  const namen = z.art.schritte;
+  if (namen.length === 2 && nr === 3) nr = 2;
   return '<ol class="urkunde-schritte">' + namen.map((n, i) =>
     '<li class="' + (i + 1 === nr ? 'jetzt' : (i + 1 < nr ? 'fertig' : '')) + '">' +
     '<span>' + (i + 1 < nr ? '✓' : (i + 1)) + '</span> ' + n + '</li>').join('') + '</ol>';
 }
 
-function urkundeMusterUrl(id) {
-  return 'api.php?aktion=abschluss_muster&variante=' + encodeURIComponent(id);
+function urkundeMusterUrl(z, id) {
+  return 'api.php?aktion=abschluss_muster&variante=' + encodeURIComponent(id) +
+    (z.art.stufe ? '&stufe=' + z.art.stufe : '');
 }
 
 /* ------------------------------------------------------------ Schritt 1 */
 function urkundeSchritt1(z) {
   const k = z.karte;
-  let html = '<div class="karte-kopf"><h3>🎓 Abschluss-Urkunde</h3></div>' + urkundeKopf(1) +
-    '<p>Wähle, wie deine Urkunde aussehen soll. Schrift, Grösse und Abstände passt du in ' +
-    'Schritt 3 noch an — und du kannst das Design auch später jederzeit wechseln.</p>';
+  let html = '<div class="karte-kopf"><h3>' + z.art.titel + '</h3></div>' + urkundeKopf(z, 1) +
+    '<p>Wähle, wie deine Urkunde aussehen soll. Schrift, Grösse und Abstände passt du im ' +
+    'nächsten Schritt noch an — und du kannst das Design auch später jederzeit wechseln.</p>';
 
   z.gruppen.forEach(g => {
     if (!g.varianten.length) return;
@@ -122,7 +186,7 @@ function urkundeSchritt1(z) {
       html += '<button type="button" class="urkunde-muster' + (z.variante === v.id ? ' gewaehlt' : '') +
         '" data-variante="' + PU.h(v.id) + '" aria-pressed="' + (z.variante === v.id) + '">' +
         '<iframe loading="lazy" tabindex="-1" title="Muster ' + PU.h(v.name) + '" src="' +
-        urkundeMusterUrl(v.id) + '"></iframe>' +
+        urkundeMusterUrl(z, v.id) + '"></iframe>' +
         '<span class="muster-name">' + PU.h(v.name) + '</span>' +
         '<span class="klein">' + PU.h(v.beschreibung) + '</span></button>';
     });
@@ -131,6 +195,8 @@ function urkundeSchritt1(z) {
 
   html += '<p class="urkunde-fuss"><button class="knopf still" data-zurueck>Abbrechen</button> ' +
     '<button class="knopf" data-weiter' + (z.variante ? '' : ' disabled') + '>Weiter zu Schritt 2</button></p>';
+  // Stufen-Urkunde: kein Namensschritt — die Wahl wird gespeichert, dann
+  // geht es gleich an die Werkbank.
   k.innerHTML = html;
 
   k.querySelectorAll('[data-variante]').forEach(b => b.addEventListener('click', () => {
@@ -141,8 +207,15 @@ function urkundeSchritt1(z) {
     });
     k.querySelector('[data-weiter]').disabled = false;
   }));
-  k.querySelector('[data-zurueck]').addEventListener('click', () => urkundeStart(z));
-  k.querySelector('[data-weiter]').addEventListener('click', () => urkundeSchritt2(z));
+  k.querySelector('[data-zurueck]').addEventListener('click', () => z.art.zurueck());
+  k.querySelector('[data-weiter]').addEventListener('click', async () => {
+    if (z.art.stufe === 0) { urkundeSchritt2(z); return; }
+    const u = z.a.urkunden[0];
+    try {
+      u.design = (await PU.ruf(z.art.speichern, { code: u.pruefcode, variante: z.variante, design: {} })).design;
+      urkundeSchritt3(z, u.pruefcode);
+    } catch (e) { PU.melden(PU.h(e.message), 'warnung'); }
+  });
 }
 
 /* ------------------------------------------------------------ Schritt 2 */
@@ -156,7 +229,7 @@ function urkundeSchritt2(z) {
   const k = z.karte;
   const a = z.a;
   k.innerHTML =
-    '<div class="karte-kopf"><h3>🎓 Abschluss-Urkunde</h3></div>' + urkundeKopf(2) +
+    '<div class="karte-kopf"><h3>' + z.art.titel + '</h3></div>' + urkundeKopf(z, 2) +
     '<p>Design: <b>' + PU.h(urkundeVarianteName(z, z.variante)) + '</b> ' +
     '<button class="knopf still klein" data-zurueck>ändern</button></p>' +
 
@@ -259,7 +332,7 @@ function urkundeSchritt2(z) {
  */
 function urkundeSchritt3(z, code) {
   const u = z.a.urkunden.find(x => x.pruefcode === code);
-  if (!u) { urkundeStart(z); return; }
+  if (!u) { z.art.zurueck(); return; }
   const k = z.karte;
 
   // Gespeicherter Stand — und ein Arbeitsstand, der erst beim Speichern
@@ -273,12 +346,12 @@ function urkundeSchritt3(z, code) {
     '</optgroup>').join('');
 
   k.innerHTML =
-    '<div class="karte-kopf"><h3>🎓 Abschluss-Urkunde <code>' + PU.h(code) + '</code></h3></div>' +
-    urkundeKopf(3) +
+    '<div class="karte-kopf"><h3>' + z.art.titel + ' <code>' + PU.h(code) + '</code></h3></div>' +
+    urkundeKopf(z, 3) +
     '<div class="urkunde-werkbank">' +
       '<div class="urkunde-regler">' +
         '<label>Design<select data-feld="variante">' + optGruppen + '</select></label>' +
-        '<fieldset><legend>Das Wort „Urkunde"</legend>' +
+        '<fieldset data-titelregler><legend>Das Wort „Urkunde"</legend>' +
           '<label>Schrift<select data-feld="titel_schrift"></select></label>' +
           '<label>Schreibweise<select data-feld="titel_schreibweise">' +
             '<option value="normal">Urkunde</option><option value="gross">URKUNDE</option></select></label>' +
@@ -299,9 +372,10 @@ function urkundeSchritt3(z, code) {
           '<button class="knopf still" data-tun="vorgabe">Vorgabe</button></p>' +
         '<p class="klein">Beim Drucken im Dialog „Als PDF speichern" wählen, um eine PDF zu ' +
           'bekommen. A4 hoch, Ränder: keine bzw. Standard, „Hintergrundgrafiken" an.</p>' +
-        '<p class="klein"><a target="_blank" rel="noopener" href="api.php?aktion=abschluss_html&code=' +
+        '<p class="klein"><a target="_blank" rel="noopener" href="api.php?aktion=' + z.art.html + '&code=' +
           encodeURIComponent(code) + '">In eigenem Fenster öffnen</a> · ' +
-          '<button class="knopf still klein" data-tun="zurueck">Zur Übersicht</button></p>' +
+          '<button class="knopf still klein" data-tun="zurueck">' +
+            (z.art.stufe ? 'Schliessen' : 'Zur Übersicht') + '</button></p>' +
       '</div>' +
       '<div class="urkunde-vorschau"><iframe title="Vorschau der Urkunde"></iframe></div>' +
     '</div>';
@@ -312,6 +386,8 @@ function urkundeSchritt3(z, code) {
   /* Füllt Schriftlisten und Regler aus der gewählten Variante. */
   function vorlageAnlegen() {
     feld('variante').value = v.id;
+    // Steht das Wort schon im Bild, gibt es daran nichts einzustellen.
+    k.querySelector('[data-titelregler]').hidden = !!v.titel_im_bild;
     [['titel_schrift', v.schriften_titel], ['name_schrift', v.schriften_name]].forEach(([n, ids]) => {
       feld(n).innerHTML = ids.map(id => {
         const s = z.schriften.find(x => x.id === id);
@@ -371,11 +447,11 @@ function urkundeSchritt3(z, code) {
 
   function vorschauLaden() {
     iframe.onload = vorschauSetzen;
-    iframe.src = 'api.php?aktion=abschluss_html&code=' + encodeURIComponent(code) + '&t=' + Date.now();
+    iframe.src = 'api.php?aktion=' + z.art.html + '&code=' + encodeURIComponent(code) + '&t=' + Date.now();
   }
 
   async function speichern() {
-    const j = await PU.ruf('abschluss_design_setzen', { code: code, variante: v.id, design: d });
+    const j = await PU.ruf(z.art.speichern, { code: code, variante: v.id, design: d });
     d = Object.assign({}, j.design);
     u.design = j.design;
     geaendert = false;
@@ -425,7 +501,7 @@ function urkundeSchritt3(z, code) {
   });
   k.querySelector('[data-tun="zurueck"]').addEventListener('click', () => {
     if (geaendert && !confirm('Die Änderungen sind noch nicht gespeichert. Trotzdem zurück?')) return;
-    urkundeStart(z);
+    z.art.zurueck();
   });
 
   vorlageAnlegen();

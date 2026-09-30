@@ -3,8 +3,9 @@ declare(strict_types=1);
 /**
  * PROMPTHEUS — Urkunden.
  *
- * Eine Urkunde ist eine HTML-Seite aus `vorlagen/urkunde/` mit einem
- * Prüfcode. Kein PDF: das braeuchte eine Bibliothek, und der Browser druckt
+ * Eine Urkunde ist eine HTML-Seite aus `vorlagen/urkunde/abschluss.html` mit einem
+ * Prüfcode — für Stufen- und Abschluss-Urkunde dieselbe, gestaltet über
+ * srv/urkunden_design.php. Kein PDF: das braeuchte eine Bibliothek, und der Browser druckt
  * HTML nach PDF, ohne dass PROMPTHEUS dafür etwas mitbringen muss.
  *
  * **Der Prüfcode nennt keinen Namen.** Das ist die wichtigste Entscheidung
@@ -118,24 +119,36 @@ function pu_urkunde_widerrufen(string $code, int $durch): bool
 function pu_urkunden(int $lernender): array
 {
     $st = pu_db()->prepare(
-        'SELECT pruefcode, stufe, punkte, ausgestellt, widerrufen FROM urkunden
+        'SELECT pruefcode, stufe, punkte, ausgestellt, widerrufen, design FROM urkunden
          WHERE lernender = ? ORDER BY stufe'
     );
     $st->execute([$lernender]);
-    return $st->fetchAll();
+    $aus = $st->fetchAll();
+    foreach ($aus as &$u) {
+        $d = json_decode((string)$u['design'], true);
+        $u['design'] = is_array($d) ? $d : null;       // null = noch nie gestaltet
+    }
+    return $aus;
 }
 
 /**
- * Baut die Urkunde als HTML.
+ * Baut die Urkunde einer Stufe als HTML — mit denselben Vorlagen, Schriften
+ * und Druckregeln wie die Abschluss-Urkunde (srv/urkunden_design.php).
  *
- * Die Vorlage ist eine gewoehnliche HTML-Datei mit Platzhaltern `{{name}}`.
- * Alles wird escaped eingesetzt — der Anzeigename kommt vom Lernenden, und
- * ein Anzeigename mit einem Script-Tag darf keine Urkunde übernehmen.
+ * Bis zum 30.09.2026 hatte die Stufen-Urkunde ein eigenes, festes Blatt im
+ * Querformat. Wer „öffnen" drückte, bekam genau das — und keinen Generator.
+ * Jetzt gestaltet jeder auch diese Urkunden selbst; ohne eigene Wahl gilt die
+ * erste Vorlage.
+ *
+ * Der Name ist hier der Anzeigename, wie bisher. Versiegelt wird erst der
+ * echte Name auf der Abschluss-Urkunde.
  */
 function pu_urkunde_html(string $code): ?string
 {
+    require_once PU_ROOT . '/srv/abschluss.php';
+
     $st = pu_db()->prepare(
-        'SELECT u.stufe, u.punkte, u.ausgestellt, u.widerrufen, l.anzeigename
+        'SELECT u.pruefcode, u.stufe, u.punkte, u.ausgestellt, u.widerrufen, u.design, l.anzeigename
          FROM urkunden u JOIN lernende l ON l.id = u.lernender
          WHERE u.pruefcode = ?'
     );
@@ -143,20 +156,39 @@ function pu_urkunde_html(string $code): ?string
     $row = $st->fetch();
     if ($row === false) return null;
 
-    $vorlage = PU_VORLAGEN . '/urkunde/urkunde.html';
-    if (!is_file($vorlage)) return null;
+    $design = pu_abschluss_design_lesen((string)$row['design']);
+    $v = pu_urkunden_variante((string)($design['variante'] ?? '')) ?? pu_urkunden_erste_variante();
+    if ($v === null) return null;
 
-    $stufe = (int)$row['stufe'];
-    $ersatz = [
-        '{{name}}'        => pu_h((string)$row['anzeigename']),
-        '{{stufe}}'       => (string)$stufe,
-        '{{stufe_name}}'  => pu_h(PU_STUFEN[$stufe]['name'] ?? ''),
-        '{{stufe_titel}}' => pu_h(PU_STUFEN[$stufe]['titel'] ?? ''),
-        '{{punkte}}'      => (string)(int)$row['punkte'],
-        '{{datum}}'       => pu_h(date('d.m.Y', strtotime((string)$row['ausgestellt']))),
-        '{{pruefcode}}'   => pu_h(strtoupper(trim($code))),
-        '{{widerrufen}}'  => $row['widerrufen'] !== '' ? 'widerrufen' : '',
-    ];
+    return pu_urkunden_seite($v, $design, [
+        'stufe'      => (int)$row['stufe'],
+        'name'       => (string)$row['anzeigename'],
+        'datum'      => date('d.m.Y', strtotime((string)$row['ausgestellt'])),
+        'punkte'     => (int)$row['punkte'],
+        'pruefcode'  => (string)$row['pruefcode'],
+        'widerrufen' => $row['widerrufen'] !== '',
+    ]);
+}
 
-    return strtr((string)file_get_contents($vorlage), $ersatz);
+/**
+ * Speichert die Gestaltung einer Stufen-Urkunde — nur für die eigene.
+ * Anders als bei der Abschluss-Urkunde geht dazu keine Meldung ans Cockpit:
+ * Stufen-Urkunden werden dort nicht geführt.
+ */
+function pu_urkunde_design_setzen(int $lernender, string $code, string $variante, array $wunsch): array
+{
+    require_once PU_ROOT . '/srv/abschluss.php';
+
+    $st = pu_db()->prepare('SELECT pruefcode, widerrufen FROM urkunden WHERE pruefcode = ? AND lernender = ?');
+    $st->execute([strtoupper(trim($code)), $lernender]);
+    $row = $st->fetch();
+    if ($row === false) throw new DomainException('Das ist nicht deine Urkunde.');
+    if ($row['widerrufen'] !== '') throw new DomainException('Diese Urkunde ist widerrufen.');
+
+    $neu = pu_abschluss_design_bauen($variante, $wunsch);
+    if ($neu === null) throw new InvalidArgumentException('Dieses Design gibt es nicht.');
+
+    pu_db()->prepare('UPDATE urkunden SET design = ? WHERE pruefcode = ?')
+           ->execute([json_encode($neu, JSON_UNESCAPED_UNICODE), $row['pruefcode']]);
+    return $neu;
 }

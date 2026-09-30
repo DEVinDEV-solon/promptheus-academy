@@ -1,0 +1,33 @@
+{
+  "name": "Urkunde mit Siegel",
+  "beschreibung": "Pergament mit dem Wort „Urkunde\" in Fraktur oben links und rotem Wachssiegel unten rechts. Das Wort steckt im Bild.",
+  "titel_im_bild": true,
+  "nur_mit_bild": true,
+  "farben": {
+    "papier": "#efe0bf",
+    "schrift": "#14110f",
+    "titel": "#7a1515",
+    "name": "#14110f",
+    "akzent": "#7a5a2e",
+    "linie": "#7a5a2e"
+  },
+  "inhalt_mm": { "oben": 70, "unten": 66, "links": 30, "rechts": 30 },
+  "text_groesse": 11.5,
+  "vorgabe": {
+    "titel_schrift": "fraktur",
+    "titel_schreibweise": "normal",
+    "titel_groesse": 46,
+    "titel_sperrung": 0.02,
+    "name_schrift": "garamond",
+    "name_groesse": 28,
+    "abstand": 0.95,
+    "zeilenabstand": 1.4
+  },
+  "grenzen": {
+    "name_groesse": [20, 36],
+    "abstand": [0.7, 1.3],
+    "zeilenabstand": [1.25, 1.7]
+  },
+  "schriften_titel": ["fraktur"],
+  "schriften_name": ["garamond", "cormorant", "schreibschrift", "fraktur"]
+}

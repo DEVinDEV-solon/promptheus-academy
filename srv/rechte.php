@@ -302,7 +302,7 @@ const PU_RECHTE = [
     ['name' => 'fortschritt.eigen', 'gruppe' => 'Lernen, Prüfung & Fortschritt',
      'was' => 'Den eigenen Lernstand sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['stand', 'kurs_stand']],
+     'aktionen' => ['stand', 'kurs_stand', 'urkunde_design_setzen']],
 
     // Tagesziel und Rückfrage vor einem Hinweis. Beides dreht an den Punkten:
     // Das Ziel legt fest, wofür man sich anstrengt, die Rückfrage schützt vor

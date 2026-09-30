@@ -124,8 +124,10 @@ function pu_urkunden_varianten(): array
             $id = $gruppe . '/' . basename(dirname($datei));
             $v  = pu_urkunden_variante($id);
             if ($v === null) continue;
+            if ($v['nur_mit_bild'] && $v['bild'] === null) continue;
             $liste[] = ['id' => $id, 'name' => $v['name'], 'beschreibung' => $v['beschreibung'],
                         'hat_bild' => $v['bild'] !== null, 'vorgabe' => $v['vorgabe'],
+                        'titel_im_bild' => $v['titel_im_bild'] && $v['bild'] !== null,
                         'grenzen' => $v['grenzen'], 'schriften_titel' => $v['schriften_titel'],
                         'schriften_name' => $v['schriften_name']];
         }
@@ -180,6 +182,12 @@ function pu_urkunden_variante(string $id): ?array
         'schriften_titel' => $g['schriften_titel'],
         'schriften_name'  => $g['schriften_name'],
         'bild'         => null,
+        // Steht das Wort „Urkunde" schon im Hintergrundbild, setzt die Seite
+        // es nicht noch einmal (nur mit Bild — ohne Bild fehlte es sonst).
+        'titel_im_bild' => !empty($roh['titel_im_bild']),
+        // Eine Vorlage, die nur mit ihrem Bild Sinn ergibt, erscheint erst,
+        // wenn das Bild da ist — statt als zweites, leeres Pergament.
+        'nur_mit_bild'  => !empty($roh['nur_mit_bild']),
     ];
 
     foreach ($g['farben'] as $k => $vorgabe) {
@@ -256,6 +264,63 @@ function pu_urkunden_design_klemmen(array $v, array $w): array
     ];
 }
 
+// ── Die Texte ────────────────────────────────────────────────────────────────
+
+/**
+ * Was auf der Urkunde steht — je nach Art, fertig escaped.
+ *
+ * Eine Vorlage für beide Arten: die Abschluss-Urkunde nach allen sechs Stufen
+ * (Name versiegelt, Konto-Hash und Siegel) und die Urkunde einer einzelnen
+ * Stufe (Anzeigename, nur Prüfcode). Gestaltung, Schriften und Druck sind
+ * dieselben — nur die Sätze unterscheiden sich.
+ *
+ * @param array $daten … plus `stufe` (1–6) für eine Stufen-Urkunde, sonst 0
+ * @return array{art:string, text:string, stufen:string, datumzeile:string, pruefzeile:string, schutz:string}
+ */
+function pu_urkunden_texte(array $daten): array
+{
+    $h      = static fn($x): string => pu_h((string)$x);
+    $stufe  = (int)($daten['stufe'] ?? 0);
+    $datum  = $h($daten['datum'] ?? '');
+    $punkte = (int)($daten['punkte'] ?? 0);
+    $code   = '<span><b>Prüfcode</b> ' . $h($daten['pruefcode'] ?? '') . '</span>';
+
+    if ($stufe > 0 && isset(PU_STUFEN[$stufe])) {
+        $s = PU_STUFEN[$stufe];
+        return [
+            'art'        => 'Urkunde Stufe ' . $stufe,
+            'text'       => 'die Abschlussprüfung der Stufe ' . $stufe . ' der PROMPTHEUS ACADEMY bestanden hat — '
+                          . 'ohne Hinweise und ohne Musterlösung — und die Inhalte dieser Stufe selbstständig '
+                          . 'anwenden und kritisch beurteilen kann.',
+            'stufen'     => 'Stufe ' . $stufe . ' · ' . $h($s['name'] ?? '')
+                          . ((string)($s['titel'] ?? '') !== '' ? ' · ' . $h($s['titel']) : ''),
+            'datumzeile' => 'Ausgestellt am ' . $datum . ' · ' . $punkte . ' Punkte in der Prüfung',
+            'pruefzeile' => $code,
+            'schutz'     => 'Erstellt auf dem Rechner der Teilnehmerin oder des Teilnehmers, ohne Sprachmodell. '
+                          . 'Prüfbar mit dem Prüfcode auf der Anmeldeseite der Academy — die Auskunft nennt '
+                          . 'keinen Namen.',
+        ];
+    }
+
+    return [
+        'art'        => 'Abschluss-Urkunde',
+        'text'       => 'alle sechs Stufen der PROMPTHEUS ACADEMY mit bestandener Abschlussprüfung '
+                      . 'durchlaufen hat — ohne Hinweise und ohne Musterlösung in der Prüfung — und damit '
+                      . 'Sprachmodelle verstehen, gezielt einsetzen, zu Systemen verbinden, absichern und '
+                      . 'kritisch beurteilen kann.',
+        'stufen'     => implode(' · ', array_map(static fn(array $s) => pu_h($s['name']), array_values(PU_STUFEN))),
+        'datumzeile' => 'Ausgestellt am ' . $datum . ' · Durchgang ' . (int)($daten['durchgang'] ?? 1)
+                      . ' · ' . $punkte . ' Punkte in sechs Prüfungen',
+        'pruefzeile' => $code
+                      . '<span><b>Konto-Hash</b> ' . $h($daten['konto_hash'] ?? '') . '</span>'
+                      . '<span><b>Siegel</b> ' . $h($daten['siegel'] ?? '') . '</span>',
+        'schutz'     => 'Erstellt auf dem Rechner der Teilnehmerin oder des Teilnehmers, ohne Sprachmodell. '
+                      . 'Der Name wurde selbst eingetragen, liegt nur verschlüsselt vor und ist kryptografisch '
+                      . 'mit dem Konto verbunden. Prüfbar mit dem Prüfcode auf der Anmeldeseite der Academy — '
+                      . 'die Auskunft nennt keinen Namen.',
+    ];
+}
+
 // ── Die Seite ────────────────────────────────────────────────────────────────
 
 /**
@@ -294,8 +359,8 @@ function pu_urkunden_seite(array $v, array $design, array $daten): string
     }
 
     $titel = $d['titel_schreibweise'] === 'gross' ? 'URKUNDE' : 'Urkunde';
-    $stufen = implode(' · ', array_map(static fn(array $s) => pu_h($s['name']), array_values(PU_STUFEN)));
     $muster = !empty($daten['muster']);
+    $texte  = pu_urkunden_texte($daten);
 
     $vars = [
         '--papier' => $f['papier'], '--schrift' => $f['schrift'], '--titel-farbe' => $f['titel'],
@@ -317,21 +382,21 @@ function pu_urkunden_seite(array $v, array $design, array $daten): string
     foreach ($vars as $k => $wert) $root .= $k . ':' . $wert . ';';
 
     $ersatz = [
-        '{{titel_seite}}'  => pu_h(($muster ? 'Muster — ' : '') . 'PROMPTHEUS Abschluss-Urkunde ' . ($daten['pruefcode'] ?? '')),
+        '{{titel_seite}}'  => pu_h(($muster ? 'Muster — ' : '') . 'PROMPTHEUS ' . $texte['art'] . ' '
+                                   . ($daten['pruefcode'] ?? '')),
         '{{root}}'         => $root,
         '{{schriften}}'    => $schriften,
         '{{bild}}'         => $bild !== '' ? 'url("' . $bild . '")' : 'none',
-        '{{stil}}'         => pu_h($v['stil']) . ($bild !== '' ? ' mit-bild' : ''),
+        '{{stil}}'         => pu_h($v['stil']) . ($bild !== '' ? ' mit-bild' : '')
+                              . ($bild !== '' && $v['titel_im_bild'] ? ' titel-im-bild' : ''),
         '{{schmuck}}'      => $bild !== '' ? '' : pu_urkunden_schmuck($v['stil']),
         '{{titel}}'        => $titel,
         '{{name}}'         => pu_h((string)($daten['name'] ?? '')),
-        '{{stufen}}'       => $stufen,
-        '{{datum}}'        => pu_h((string)($daten['datum'] ?? '')),
-        '{{durchgang}}'    => (string)(int)($daten['durchgang'] ?? 1),
-        '{{punkte}}'       => (string)(int)($daten['punkte'] ?? 0),
-        '{{pruefcode}}'    => pu_h((string)($daten['pruefcode'] ?? '')),
-        '{{konto_hash}}'   => pu_h((string)($daten['konto_hash'] ?? '')),
-        '{{siegel}}'       => pu_h((string)($daten['siegel'] ?? '')),
+        '{{text}}'         => $texte['text'],
+        '{{stufen}}'       => $texte['stufen'],
+        '{{datumzeile}}'   => $texte['datumzeile'],
+        '{{pruefzeile}}'   => $texte['pruefzeile'],
+        '{{schutz}}'       => $texte['schutz'],
         '{{unterschriften}}' => $unterschriften,
         '{{stempel}}'      => $muster ? 'Muster'
                               : (!empty($daten['widerrufen']) ? 'widerrufen'

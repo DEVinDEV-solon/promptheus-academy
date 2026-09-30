@@ -609,8 +609,8 @@ function pruefungErgebnisHtml(r) {
 
   if (r.urkunde) {
     html += '<p>Deine Urkunde: <b>' + PU.h(r.urkunde.pruefcode) + '</b> — ' +
-      '<a href="api.php?aktion=urkunde_html&code=' + encodeURIComponent(r.urkunde.pruefcode) +
-      '" target="_blank" rel="noopener">öffnen und drucken</a></p>';
+      '<button class="knopf klein" data-stufen-urkunde="' + PU.h(r.urkunde.pruefcode) + '">' +
+      'Design wählen und drucken</button></p>';
   }
   if (r.naechste_frei) {
     html += '<p>Stufe ' + r.naechste_frei + ' ist jetzt freigeschaltet.</p>';
