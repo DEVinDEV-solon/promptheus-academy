@@ -165,4 +165,15 @@ pruefe('lokal im Minus + eigener Schlüssel → das lokale Tor sperrt', $e['ok']
 gleich('… und nichts geht an den Server', 0, count($GLOBALS['rufe']));
 putenv('PU_OPENROUTER_API_KEY=');
 
+// ================================================================ Tutor-Modell fest
+gruppe('Tutor-Modell fest (30.09.2026)');
+
+gleich('die Tutoren laufen über OpenRouter mit GPT-4o-mini', 'openai/gpt-4o-mini', pu_or_modell());
+pu_einst_global_setzen('or_modell', 'anthropic/claude-opus-5');
+gleich('eine Einstellung ändert das Modell nicht', 'openai/gpt-4o-mini', pu_or_modell());
+putenv('PU_OPENROUTER_MODELL=anthropic/claude-opus-5');
+gleich('die .env auch nicht', 'openai/gpt-4o-mini', pu_or_modell());
+putenv('PU_OPENROUTER_MODELL');
+pu_einst_global_setzen('or_modell', '');
+
 bilanz();

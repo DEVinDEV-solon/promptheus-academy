@@ -685,6 +685,11 @@ try {
                Admins sofort. Auch gesperrt sichtbar — mit dem Stand in %. */
             $aus['werkstatt_stand'] = pu_werkstatt_stand($ichId);
 
+            /* Die Stimmen des festen Stimm-Modells — für jeden, weil jeder
+               unter „Sprache & Stimme" seine eigene wählen darf. */
+            $aus['stimmen'] = ['modell' => pu_stimme_modell(), 'liste' => pu_stimme_liste(),
+                               'vorgabe' => pu_stimme_name()];
+
             if (pu_recht_hat('regeln.manage')) {
                 $aus['global']              = pu_einst_global();
                 $aus['global_beschreibung'] = PU_EINST_GLOBAL;
@@ -728,6 +733,9 @@ try {
         case 'einst_setzen': {
             if (in_array((string)d('schluessel'), PU_EINST_PUNKTE, true)) {
                 pu_recht_fordern('lernen.selbst_regeln');
+            }
+            if (preg_match('/^stimme_(name|prometheus|athena|hermes|hephaistos)$/', (string)d('schluessel'))) {
+                pu_stimme_pruefen((string)d('wert'));
             }
             $wert = pu_einst_person_setzen($ichId, (string)d('schluessel'), (string)d('wert'));
             pu_json_out(['ok' => true, 'wert' => $wert]);
@@ -790,6 +798,9 @@ try {
         // ------------------------------------------------- Verwaltung & Betrieb
         case 'regel_setzen': {
             pu_recht_fordern('regeln.manage');
+            if (preg_match('/^stimme_(name|prometheus|athena|hermes|hephaistos)$/', (string)d('schluessel'))) {
+                pu_stimme_pruefen((string)d('wert'));
+            }
             $wert = pu_einst_global_setzen((string)d('schluessel'), (string)d('wert'));
             pu_protokoll($ichId, 'regel', (string)d('schluessel'), $wert);
             pu_json_out(['ok' => true, 'wert' => $wert]);

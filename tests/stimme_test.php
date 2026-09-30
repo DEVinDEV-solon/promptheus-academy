@@ -34,9 +34,13 @@ gleich('ab Werk aus — sie kostet Geld und gibt Text aus dem Haus',
        'aus', pu_regel('stimme_an'));
 pruefe('…und damit ist die Ausgabe abgeschaltet', !pu_stimme_an());
 
-gleich('das Vorgabemodell gibt wirklich Ton aus',
-       'openai/gpt-audio-mini', pu_stimme_modell());
-gleich('die Vorgabestimme',  'alloy', pu_stimme_name());
+/* **Das Stimm-Modell ist fest** (Entscheid 30.09.2026): Grok Voice von xAI,
+   dort haben die Tutoren ihre Originalstimmen. */
+gleich('das Stimm-Modell ist fest Grok Voice',
+       'x-ai/grok-voice-tts-1.0', pu_stimme_modell());
+gleich('die Vorgabestimme gehört zu Grok',  'eve', pu_stimme_name());
+gleich('angeboten werden nur die Grok-Stimmen',
+       ['eve', 'ara', 'leo', 'rex', 'sal', 'gork'], array_keys(pu_stimme_liste()));
 /* **Das Vorgabeformat ist gemessen, nicht gewählt.** mp3 wäre naheliegend und
    scheitert: Über OpenRouter kommt Ton nur im Strom, und dort liefert der
    OpenAI-Weg nackte Abtastwerte. Gegen openai/gpt-audio-mini geprüft — mp3
@@ -58,15 +62,26 @@ gleich('pcm16 wird als wav ausgezeichnet', 'audio/wav', pu_stimme_mime('pcm16'))
    „alloy", „nova" und die anderen sind die Stimmnamen von OpenAI. Andere
    Anbieter — x-ai etwa — haben eigene. Eine geschlossene Liste hätte die
    ausgesperrt, und die Meldung hätte nicht gesagt, warum. */
+pu_einst_global_setzen('stimme_name', 'rex');
+gleich('eine passende Stimme wird genommen', 'rex', pu_stimme_name());
+
+/* Eine OpenAI-Stimme aus der Zeit vor dem festen Modell: Sie stünde noch in
+   der Datenbank, würde bei Grok aber scheitern. Sie fällt still zurück. */
 pu_einst_global_setzen('stimme_name', 'nova');
-gleich('eine bekannte Stimme wird genommen', 'nova', pu_stimme_name());
+gleich('eine gespeicherte OpenAI-Stimme fällt auf die Vorgabe zurück', 'eve', pu_stimme_name());
+wirft('eine unpassende Stimme wird beim Speichern abgewiesen',
+      fn() => pu_stimme_pruefen('alloy'), 'gehört nicht zu');
+pu_stimme_pruefen('ara');
+pruefe('eine passende Stimme geht durch', true);
+pu_stimme_pruefen('');
+pruefe('leer geht durch (heisst: Vorgabe)', true);
 
 gleich('eine fremde Stimme geht durch — der Anbieter kennt seine Namen selbst',
        'eve', pu_einst_global_setzen('stimme_name', 'eve'));
 gleich('…und sie wirkt', 'eve', pu_stimme_name());
 
 pu_einst_global_setzen('stimme_name', '');
-gleich('leer fällt auf alloy zurück', 'alloy', pu_stimme_name());
+gleich('leer fällt auf die Grok-Vorgabe zurück', 'eve', pu_stimme_name());
 
 // Die Form wird trotzdem geprüft: Was hier durchginge, stünde ungeprüft im
 // Rumpf, und die Anfrage würde als Ganzes abgewiesen.
@@ -420,10 +435,9 @@ gleich('geleert gilt wieder die allgemeine', 'rex', pu_stimme_fuer('athena'));
    hatte, bekam `404: Provider returned 404` — eine Meldung über eine
    Einstellung, die er nie gesetzt hatte. */
 pu_einst_global_setzen('stimme_name', '');
-pu_einst_global_setzen('stimme_modell', 'x-ai/grok-voice-tts-1.0');
 gleich('leer heisst „was zu diesem Modell gehört"', 'eve', pu_stimme_name());
 pu_einst_global_setzen('stimme_modell', 'openai/gpt-audio-mini');
-gleich('…und beim anderen Modell etwas anderes',    'alloy', pu_stimme_name());
+gleich('eine alte Modell-Einstellung ändert nichts mehr (fest)', 'eve', pu_stimme_name());
 pu_einst_global_setzen('stimme_modell', '');
 
 // ================================================================ Regler
@@ -492,9 +506,9 @@ pu_einst_global_setzen('stimme_athena', 'eve');
 gleich('ohne eigene Wahl gilt die Academy-Vorgabe',
        'eve', pu_stimme_fuer('athena', $kind));
 
-pu_einst_person_setzen($kind, 'stimme_athena', 'nova');
+pu_einst_person_setzen($kind, 'stimme_athena', 'ara');
 gleich('das Kind hört jetzt seine eigene',
-       'nova', pu_stimme_fuer('athena', $kind));
+       'ara', pu_stimme_fuer('athena', $kind));
 gleich('…und alle anderen weiter die der Academy',
        'eve', pu_stimme_fuer('athena', $chef));
 
@@ -510,9 +524,14 @@ gleich('geleert gilt wieder die Academy-Vorgabe',
        'eve', pu_stimme_fuer('athena', $kind));
 
 // Ein Tutor ohne Academy-Eintrag: die eigene Wahl sticht auch die allgemeine.
-pu_einst_person_setzen($kind, 'stimme_prometheus', 'onyx');
+pu_einst_person_setzen($kind, 'stimme_prometheus', 'leo');
 gleich('eigene Wahl vor der allgemeinen Stimme',
-       'onyx', pu_stimme_fuer('prometheus', $kind));
+       'leo', pu_stimme_fuer('prometheus', $kind));
+
+// Eine eigene Stimme eines anderen Anbieters wird übergangen.
+pu_einst_person_setzen($kind, 'stimme_prometheus', 'onyx');
+gleich('eine eigene OpenAI-Stimme wird übergangen',
+       'rex', pu_stimme_fuer('prometheus', $kind));
 gleich('…und für andere bleibt es die allgemeine',
        'rex', pu_stimme_fuer('prometheus', $chef));
 pu_einst_person_setzen($kind, 'stimme_prometheus', '');

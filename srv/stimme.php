@@ -261,7 +261,7 @@ function pu_stimme_fuer(string $agent = '', int $lernender = 0): string
 
     if (in_array($agent, PU_STIMM_AGENTEN, true)) {
         $eigen = pu_stimme_eigen_oder_regel('stimme_' . $agent, $lernender);
-        if ($eigen !== '') return $eigen;
+        if ($eigen !== '' && pu_stimme_passt(pu_stimme_modell(), $eigen) !== false) return $eigen;
     }
     return pu_stimme_name();
 }
@@ -327,12 +327,45 @@ function pu_stimme_an(): bool
     return pu_regel('stimme_an') === 'an';
 }
 
-/** Das Modell fürs Vorlesen. Leer heisst: die Vorgabe. */
+/**
+ * Das Modell fürs Vorlesen — **fest** (Entscheid 30.09.2026): Grok Voice von
+ * xAI. Die Tutoren haben dort ihre Originalstimmen; ein Wechsel des Modells
+ * nähme ihnen die Stimme. Eine Einstellung `stimme_modell` oder
+ * `PU_STIMME_MODELL` wird deshalb nicht mehr gelesen.
+ */
+const PU_STIMME_MODELL_FEST = 'x-ai/grok-voice-tts-1.0';
+
 function pu_stimme_modell(): string
 {
-    $gesetzt = pu_regel('stimme_modell');
-    if ($gesetzt !== '') return $gesetzt;
-    return pu_env('PU_STIMME_MODELL', 'openai/gpt-audio-mini');
+    return PU_STIMME_MODELL_FEST;
+}
+
+/**
+ * Die Stimmen, die zum festen Modell gehören — Name => Beschriftung.
+ *
+ * Nur diese werden in der Oberfläche angeboten. Vorher standen dort alle
+ * zwölf, sechs davon von OpenAI, die bei Grok nicht klingen, sondern
+ * scheitern (`404: Provider returned 404`).
+ */
+function pu_stimme_liste(): array
+{
+    $f = pu_stimme_familie(pu_stimme_modell());
+    if ($f === '') return PU_STIMMEN;
+    return array_intersect_key(PU_STIMMEN, array_flip(PU_STIMM_FAMILIEN[$f]));
+}
+
+/**
+ * Wirft, wenn eine Stimme sicher nicht zum Modell passt. Leer ist erlaubt
+ * (heisst: die Vorgabe). Unbekannte Familie: nicht prüfbar, also erlaubt.
+ */
+function pu_stimme_pruefen(string $name): void
+{
+    $name = trim($name);
+    if ($name === '') return;
+    if (pu_stimme_passt(pu_stimme_modell(), $name) === false) {
+        throw new RuntimeException('Die Stimme „' . $name . '" gehört nicht zu '
+            . pu_stimme_modell() . '. Möglich sind: ' . implode(', ', array_keys(pu_stimme_liste())) . '.');
+    }
 }
 
 /**
@@ -346,6 +379,9 @@ function pu_stimme_modell(): string
 function pu_stimme_name(): string
 {
     $s = trim(pu_regel('stimme_name'));
+    // Eine gespeicherte Stimme eines anderen Anbieters (etwa „alloy" aus der
+    // Zeit vor dem festen Modell) fällt still auf die Vorgabe zurück.
+    if ($s !== '' && pu_stimme_passt(pu_stimme_modell(), $s) === false) $s = '';
     return $s !== '' ? $s : pu_stimme_vorgabe(pu_stimme_modell());
 }
 

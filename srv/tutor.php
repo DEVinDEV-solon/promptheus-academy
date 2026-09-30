@@ -140,16 +140,19 @@ function pu_or_schluessel(): string
 }
 
 /**
- * Das Modell für den OpenRouter-Weg. Die Vorgabe ist günstig, schnell und am
- * 28.09.2026 im Katalog geprüft; eine Einstellung oder die .env geht vor.
+ * Das Modell der Tutoren über OpenRouter — **fest** (Entscheid 30.09.2026).
+ *
+ * GPT-4o-mini: günstig, schnell, für Tutoren geeignet, und bei jedem Weg
+ * dasselbe. Eine Einstellung `or_modell` oder `PU_OPENROUTER_MODELL` in der
+ * .env wird bewusst NICHT mehr gelesen: Die Abrechnung rechnet mit einem
+ * bekannten Modell, und ein eingetragenes teures Modell wäre eine Rechnung,
+ * die niemand geplant hat. Andere Modelle gibt es ab der Werkstatt.
  */
-const PU_OR_MODELL_VORGABE = 'deepseek/deepseek-v4-flash-0731';
+const PU_OR_MODELL_VORGABE = 'openai/gpt-4o-mini';
 
 function pu_or_modell(): string
 {
-    $gesetzt = pu_regel('or_modell');
-    if ($gesetzt !== '') return $gesetzt;
-    return pu_env('PU_OPENROUTER_MODELL', PU_OR_MODELL_VORGABE);
+    return PU_OR_MODELL_VORGABE;
 }
 
 /**

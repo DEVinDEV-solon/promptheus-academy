@@ -780,17 +780,15 @@ function kiZeichnen(ziel) {
      („openai/gpt-audio-mini"). Die beiden werden verwechselt, und das Ergebnis
      ist ein stummer Tutor mit einer Meldung, die nach Netzproblem aussieht.
      Deshalb zeigt die Liste unten die KENNUNG und den Namen nur daneben. */
-  modellWaehler(ziel, {
-    titel: 'OpenRouter-Modell',
-    warum: 'Vollständiger Name wie bei OpenRouter. Günstig und schnell: ' +
-           'deepseek/deepseek-v4-flash-0731. Kostenlos: stealth/ox-alpha. ' +
-           'Leer = Vorgabe aus der .env. Der Katalog unten holt die Liste herein — ' +
-           'testen kannst du ein Modell, bevor du es übernimmst.',
-    jetzt: g.or_modell,
-    platzhalter: 'deepseek/deepseek-v4-flash-0731',
-    beiWahl: w => regelSetzen('or_modell', w),
-    beiTest: (id, knopf) => modellTesten(id, knopf)
-  });
+  // Fest seit 30.09.2026: Die Tutoren laufen immer mit GPT-4o-mini
+  // (srv/tutor.php, PU_OR_MODELL_VORGABE). Andere Modelle ab der Werkstatt.
+  const orFest = PU.el('div', 'einst-zeile');
+  orFest.innerHTML = '<div class="titel">Tutor-Modell</div><div><code>' +
+    PU.h((s.or_modell || 'openai/gpt-4o-mini')) + '</code></div>' +
+    '<p class="warum">Fest vorgegeben: günstig, schnell und für Tutoren geeignet. ' +
+    'Ein anderes Modell lässt sich hier bewusst nicht eintragen — die Abrechnung ' +
+    'rechnet mit genau diesem. Weitere Modelle gibt es ab der Werkstatt.</p>';
+  ziel.appendChild(orFest);
 
   coderRegelnZeichnen(ziel, g);
 
@@ -822,48 +820,33 @@ function kiZeichnen(ziel) {
      einträgt, bekommt eine Textantwort statt Ton — und sucht den Fehler dann
      bei der Stimme. Mit dem Filter kommt der Fall gar nicht erst vor. */
   const stimmStand = {
-    modell: g.stimme_modell || 'openai/gpt-audio-mini',
-    stimme: g.stimme_name   || 'alloy',
+    modell: (PU.einstZustand.daten.stimmen || {}).modell || 'x-ai/grok-voice-tts-1.0',
+    stimme: (PU.einstZustand.daten.stimmen || {}).vorgabe || 'eve',
     format: g.stimme_format || 'pcm16',
     familien: s.stimm_familien || {}
   };
 
-  modellWaehler(ziel, {
-    titel: 'Stimm-Modell',
-    warum: 'Es funktionieren nur Modelle, die Ton AUSGEBEN — das sind wenige. ' +
-           'Der Katalog unten ist deshalb auf „nur mit Tonausgabe" vorgestellt. ' +
-           'Kennungen, die im öffentlichen Katalog fehlen — etwa ' +
-           'x-ai/grok-voice-tts-1.0 — findet er trotzdem, wenn du sie ganz eintippst. ' +
-           'Leer = Vorgabe (openai/gpt-audio-mini).',
-    jetzt: g.stimme_modell,
-    platzhalter: 'openai/gpt-audio-mini',
-    nur: 'ton',
-    beiWahl: w => {
-      // Der Modellwechsel kann die eingestellten Stimmen entwerten — die Namen
-      // gehören zum Modell. Gesagt wird das beim Anhören, nicht beim Setzen:
-      // Eine Warnung an dieser Stelle wüsste noch nicht, ob sie recht hat.
-      stimmStand.modell = w || 'openai/gpt-audio-mini';
-      return regelSetzen('stimme_modell', w);
-    },
-    beiTest: (id, knopf) => stimmeTesten(id, stimmStand, knopf)
-  });
+  // Fest seit 30.09.2026: Grok Voice (xAI) — die Originalstimmen der Tutoren.
+  const stimmFest = PU.el('div', 'einst-zeile');
+  stimmFest.innerHTML = '<div class="titel">Stimm-Modell</div><div><code>' +
+    PU.h(stimmStand.modell) + '</code></div>' +
+    '<p class="warum">Fest vorgegeben: Grok Voice von xAI. Dort haben die Tutoren ' +
+    'ihre Originalstimmen; ein anderes Modell nähme ihnen die Stimme.</p>';
+  stimmFest.appendChild(Object.assign(PU.el('button', 'knopf still', '🔊 Probe'), {
+    type: 'button',
+    onclick: function () { stimmeTesten(stimmStand.modell, stimmStand, this); }
+  }));
+  ziel.appendChild(stimmFest);
 
   /* Frei eintragbar, nicht ausgewählt — und das ist eine Korrektur.
      „alloy", „nova" und die anderen sind die Stimmnamen von OpenAI. Ein
      anderer Anbieter hat eigene; mit einer geschlossenen Liste wäre er hier
      unbenutzbar gewesen, ohne dass die Meldung das gesagt hätte. */
   zeileText(ziel, 'Stimme',
-    'Die Namen gehören zum Modell, nicht zur Academy: alloy und nova sind von ' +
-    'OpenAI, eve und gork von Grok Voice. Deshalb frei eintragbar — und eine ' +
-    'Stimme des einen Modells klingt beim anderen nicht anders, sondern gar nicht. ' +
-    'Leer = alloy. Ob es sie gibt, sagt der Probelauf.',
-    g.stimme_name, 'alloy',
-    w => { stimmStand.stimme = w || 'alloy'; return regelSetzen('stimme_name', w); },
-    [], [['alloy', 'OpenAI · ruhig, neutral'], ['echo', 'OpenAI · getragen'],
-         ['fable', 'OpenAI · erzählend'], ['onyx', 'OpenAI · tief'],
-         ['nova', 'OpenAI · hell, freundlich'], ['shimmer', 'OpenAI · weich'],
-         ['eve', 'Grok'], ['ara', 'Grok'], ['leo', 'Grok'],
-         ['rex', 'Grok'], ['sal', 'Grok'], ['gork', 'Grok']]);
+    'Nur Stimmen, die zum Stimm-Modell gehören. Leer = ' + stimmStand.stimme + '.',
+    g.stimme_name, stimmStand.stimme,
+    w => { stimmStand.stimme = w || stimmStand.stimme; return regelSetzen('stimme_name', w); },
+    [], stimmVorschlaege());
 
   /* Zwei Formate, und welches wirklich herauskommt, hängt am Weg: Weg 1 kann
      im Strom nur pcm16, Weg 2 nur mp3 und pcm. Vorher standen hier vier —
@@ -891,7 +874,7 @@ function kiZeichnen(ziel) {
       'Leer heisst: die allgemeine Stimme von oben.',
     wert:      k => g[k] || '',
     speichern: (k, w) => regelSetzen(k, w),
-    ersatz:    stimmStand.stimme || 'alloy',
+    ersatz:    stimmStand.stimme,
     hoeren:    (feld, knopf) => stimmeTesten(
                  stimmStand.modell,
                  { stimme: feld.value.trim() || stimmStand.stimme, format: stimmStand.format },
@@ -1074,6 +1057,16 @@ PU.klangLesen = function (roh) {
  * Gelesen wird auf dem Server persönlich zuerst, Regel danach; siehe
  * `pu_stimme_fuer()` in srv/stimme.php.
  */
+/** Die Stimmen des festen Stimm-Modells, als [[name, beschriftung], …] (srv/stimme.php). */
+function stimmVorschlaege() {
+  const liste = ((PU.einstZustand.daten || {}).stimmen || {}).liste || {};
+  return Object.keys(liste).map(k => [k, liste[k]]);
+}
+
+function stimmModell() {
+  return ((PU.einstZustand.daten || {}).stimmen || {}).modell || 'x-ai/grok-voice-tts-1.0';
+}
+
 function tutorStimmen(ziel, o) {
   ziel.appendChild(PU.el('h4', '', o.ueberschrift));
 
@@ -1081,9 +1074,8 @@ function tutorStimmen(ziel, o) {
   hinweis.innerHTML =
     '<div class="titel">Wie das geht</div><div></div>' +
     '<p class="warum">' + o.einleitung +
-    ' Die Namen gehören zum Modell: bei Grok Voice ' +
-    '<code>eve, ara, leo, rex, sal, gork</code>, bei OpenAI ' +
-    '<code>alloy, echo, fable, onyx, nova, shimmer</code>.</p>';
+    ' Möglich sind die Stimmen von <code>' + PU.h(stimmModell()) + '</code>: <code>' +
+    PU.h(stimmVorschlaege().map(v => v[0]).join(', ')) + '</code>.</p>';
   ziel.appendChild(hinweis);
 
   (PU.AGENTEN || []).forEach(function (a) {
@@ -1136,17 +1128,18 @@ function tutorStimmen(ziel, o) {
   });
 
   // Eine Vorschlagsliste für alle vier Felder, statt vier gleiche im Baum.
-  if (!document.getElementById('stimmen-liste')) {
-    const dl = document.createElement('datalist');
-    dl.id = 'stimmen-liste';
-    ['eve', 'ara', 'leo', 'rex', 'sal', 'gork',
-     'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'].forEach(function (v) {
-      const opt = document.createElement('option');
-      opt.value = v;
-      dl.appendChild(opt);
-    });
-    document.body.appendChild(dl);
-  }
+  // Jedes Mal neu: Die Liste hängt am Stimm-Modell des Servers.
+  const alt = document.getElementById('stimmen-liste');
+  if (alt) alt.remove();
+  const dl = document.createElement('datalist');
+  dl.id = 'stimmen-liste';
+  stimmVorschlaege().forEach(function (v) {
+    const opt = document.createElement('option');
+    opt.value = v[0];
+    opt.label = v[1];
+    dl.appendChild(opt);
+  });
+  document.body.appendChild(dl);
 }
 
 function klangRegler(kennung, roh, speichern) {
