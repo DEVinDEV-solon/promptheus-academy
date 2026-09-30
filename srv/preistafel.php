@@ -16,10 +16,16 @@ declare(strict_types=1);
 /**
  * Die vier Pläne als Karten.
  *
+ * Gross steht der Monatsbetrag bei **jährlicher** Zahlung — der günstigere und
+ * damit der, nach dem gefragt wird. Darunter der monatliche Takt, die Basis
+ * (inkl./zzgl. MwSt.) und, solange die Aktion läuft, der Preis danach. Ein
+ * Aktionspreis ohne den Preis danach wäre eine halbe Angabe.
+ *
  * @param string $jetzt  Schlüssel des laufenden Plans — der bekommt eine Marke
  * @param bool   $knoepfe Knöpfe zeigen? Am Tor nicht: dort kann man nichts buchen.
+ * @param ?string $tag   Stichtag für die Preise (Tests); sonst heute
  */
-function pu_preistafel_html(string $jetzt = '', bool $knoepfe = false): string
+function pu_preistafel_html(string $jetzt = '', bool $knoepfe = false, ?string $tag = null): string
 {
     $h = '<div class="preistafel">';
 
@@ -30,19 +36,37 @@ function pu_preistafel_html(string $jetzt = '', bool $knoepfe = false): string
         // ist — das ist eine Tatsache aus der Tabelle, keine Meinung.
         $beste = $schluessel === 'schule';
 
+        $jahr   = pu_plan_cent($p, 'jaehrlich', $tag);
+        $monat  = pu_plan_cent($p, 'monatlich', $tag);
+        $aktion = pu_plan_in_aktion($p, 'jaehrlich', $tag) || pu_plan_in_aktion($p, 'monatlich', $tag);
+
         $h .= '<article class="preis-karte' . ($laeuft ? ' laeuft' : '') .
               ($beste ? ' beste' : '') . '">';
 
         if ($laeuft)      $h .= '<div class="preis-marke">dein Plan</div>';
-        elseif ($beste)   $h .= '<div class="preis-marke still">je Student am günstigsten</div>';
+        elseif ($beste)   $h .= '<div class="preis-marke still">je Schüler am günstigsten</div>';
 
         $h .= '<h3>' . pu_h($p['name']) . '</h3>'
-            . '<div class="preis-betrag">' . pu_h(pu_eur($p['cent']))
-            . '<span class="preis-takt">im Monat</span></div>';
+            . '<div class="preis-betrag">' . pu_h(pu_eur($jahr))
+            . '<span class="preis-takt">im Monat, jährlich</span></div>'
+            . '<div class="preis-kopf">monatlich kündbar: ' . pu_h(pu_eur($monat)) . ' im Monat</div>'
+            . '<div class="preis-kopf klein">' . pu_h(pu_plan_mwst_text($p)) . '</div>';
+
+        if ($aktion) {
+            $h .= '<div class="preis-aktion klein">Aktionspreis bis '
+                . pu_h(pu_datum_de(PU_AKTION_BIS)) . ', danach '
+                . pu_h(pu_eur(pu_plan_regulaer($p, 'jaehrlich'))) . ' jährlich / '
+                . pu_h(pu_eur(pu_plan_regulaer($p, 'monatlich'))) . ' monatlich</div>';
+        }
 
         if ($p['plaetze'] > 1) {
-            $h .= '<div class="preis-kopf">' . pu_h(pu_eur(pu_plan_je_kopf($p)))
+            $h .= '<div class="preis-kopf">' . pu_h(pu_eur(pu_plan_je_kopf($p, 'jaehrlich', $tag)))
                 . ' je Platz</div>';
+        }
+        if (!empty($p['zusatz'])) {
+            $h .= '<div class="preis-kopf klein">je weitere ' . (int)$p['zusatz']['plaetze']
+                . ' Schüler: ' . pu_h(pu_eur(pu_zusatz_cent($p, 'jaehrlich', $tag)))
+                . ' im Monat (jährlich)</div>';
         }
 
         $h .= '<p class="preis-kurz">' . pu_h($p['kurz']) . '</p>'
@@ -134,10 +158,11 @@ function pu_wege_html(): string
          . '— nicht daran, welchen Tarif du wählst. Alle vier Pläne sind derselbe Weg.</p>'
          . '<div class="weg-reihe">'
          . $weg('Weg 1', 'Zugang im Abo',
-                'Ein Plan, monatlich. Rechtlich eine Dienstleistung.',
+                'Ein Plan, monatlich oder jährlich. Rechtlich eine Dienstleistung.',
                 '14 Tage Widerruf — bleibt bestehen.',
                 'Beginnt der Zugang auf deinen Wunsch sofort, zahlst du bei einem '
-                . 'Widerruf nur den bis dahin genutzten Anteil. Monatlich kündbar.',
+                . 'Widerruf nur den bis dahin genutzten Anteil. Monatlich gebucht: '
+                . 'monatlich kündbar. Jährlich gebucht: zum Ende der zwölf Monate.',
                 'Zugang wählen')
          . $weg('Weg 2', 'Token nachlegen',
                 'Ein Guthabenpaket. Rechtlich ein digitaler Inhalt.',
@@ -150,7 +175,7 @@ function pu_wege_html(): string
          . '</div>'
          . '<p class="klein weg-fuss">Das Widerrufsrecht haben <b>Verbraucher</b>. '
          . 'Schulen und Träger sind Unternehmer nach § 14 BGB und haben keines — '
-         . 'für sie gilt die monatliche Laufzeit. Einzelheiten in der '
+         . 'für sie gilt die gebuchte Laufzeit. Einzelheiten in der '
          . '<a href="recht.php?t=widerruf">Widerrufsbelehrung</a>.</p>'
          . '</div>';
 }

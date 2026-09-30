@@ -301,14 +301,18 @@ function pu_relay_stand(): array
 function pu_relay_abos_offen(): array
 {
     $st = pu_db()->query(
-        "SELECT id, plan, traeger_art, traeger_name, start, laeuft
+        "SELECT id, plan, traeger_art, traeger_name, start, laeuft, takt, cent, zusatz
            FROM abos WHERE bestaetigt = 0 ORDER BY id DESC LIMIT 50");
     $aus = [];
     foreach ($st->fetchAll() as $a) {
         $aus[] = ['id' => (int)$a['id'], 'plan' => (string)$a['plan'],
                   'traeger_art' => (string)$a['traeger_art'],
                   'traeger_name' => $a['traeger_art'] === 'person' ? '' : (string)$a['traeger_name'],
-                  'start' => (string)$a['start'], 'laeuft' => (int)$a['laeuft']];
+                  'start' => (string)$a['start'], 'laeuft' => (int)$a['laeuft'],
+                  // Takt und gebuchter Monatsbetrag, damit der Betreiber den
+                  // Zahlungseingang gegen den richtigen Betrag prüft.
+                  'takt' => (string)$a['takt'], 'cent' => (int)$a['cent'],
+                  'zusatz' => (int)$a['zusatz']];
     }
     return $aus;
 }

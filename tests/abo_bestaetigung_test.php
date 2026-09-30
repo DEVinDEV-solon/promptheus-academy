@@ -29,8 +29,9 @@ gleich('beide offenen Buchungen', 2, count($offen));
 $nachId = array_column($offen, null, 'id');
 gleich('der Schulplan mit Namen der Einrichtung', 'Testschule', $nachId[$schule['id']]['traeger_name']);
 gleich('der Personenplan ohne Namen', '', $nachId[$eigen['id']]['traeger_name']);
-pruefe('keine Felder über Personen (nur Plan, Art, Name des Trägers, Start, läuft)',
-       array_keys($offen[0]) === ['id', 'plan', 'traeger_art', 'traeger_name', 'start', 'laeuft']);
+pruefe('keine Felder über Personen (nur Plan, Art, Name des Trägers, Start, läuft, Takt, Betrag, Pakete)',
+       array_keys($offen[0]) === ['id', 'plan', 'traeger_art', 'traeger_name', 'start', 'laeuft',
+                                  'takt', 'cent', 'zusatz']);
 
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Was vom Server zurückkommt');

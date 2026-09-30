@@ -24,6 +24,7 @@ require_once __DIR__ . '/../srv/rechte.php';
 require_once __DIR__ . '/../srv/lernende.php';
 require_once __DIR__ . '/../srv/profil.php';
 require_once __DIR__ . '/../srv/abo.php';
+require_once __DIR__ . '/../srv/preistafel.php';
 
 // ================================================================ Preistafel
 gruppe('Die Preistafel');
@@ -34,20 +35,90 @@ gleich('Es gibt drei Pakete', 3, count(PU_TOKENPAKETE));
 // Die Zusage am Tor: je Kopf ist die Schule am günstigsten. Wäre das nicht
 // so, zerfiele jede Einrichtung in Einzelkonten — und der Satz auf der
 // Startseite wäre eine Unwahrheit.
-$jeKopf = [];
-foreach (PU_PLAENE as $k => $p) $jeKopf[$k] = pu_plan_je_kopf($p);
+// Geprüft in beiden Takten, in der Aktion und danach — die Zusage gilt
+// nicht nur am Tag, an dem die Tafel geschrieben wurde.
+foreach (['2026-10-01' => 'in der Aktion', '2027-01-01' => 'nach der Aktion'] as $tag => $wann) {
+    foreach (array_keys(PU_TAKTE) as $takt) {
+        $jeKopf = [];
+        foreach (PU_PLAENE as $k => $p) $jeKopf[$k] = pu_plan_je_kopf($p, $takt, $tag);
 
-pruefe('Schule ist je Kopf am günstigsten',
-       $jeKopf['schule'] === min($jeKopf), implode(' · ', array_map(
-           fn($k, $v) => "$k: $v ct", array_keys($jeKopf), $jeKopf)));
-pruefe('…dann die Klasse',   $jeKopf['klasse']  < $jeKopf['familie']);
-pruefe('…dann die Familie',  $jeKopf['familie'] < $jeKopf['schueler']);
+        pruefe("Schule ist je Kopf am günstigsten ($takt, $wann)",
+               $jeKopf['schule'] === min($jeKopf), implode(' · ', array_map(
+                   fn($k, $v) => "$k: $v ct", array_keys($jeKopf), $jeKopf)));
+        pruefe("…Familie je Kopf günstiger als Kind ($takt, $wann)",
+               $jeKopf['familie'] < $jeKopf['schueler']);
+    }
+}
+pruefe('…die Klasse je Kopf günstiger als die Familie (regulär)',
+       pu_plan_je_kopf(PU_PLAENE['klasse'], 'monatlich', '2027-01-01')
+       < pu_plan_je_kopf(PU_PLAENE['familie'], 'monatlich', '2027-01-01'));
+
+// ================================================================ Tarifmodell 30.09.2026
+gruppe('Tarife: Takt, Aktion, Basis');
+
+$kind = PU_PLAENE['schueler'];
+gleich('Kind, monatlich, in der Aktion',  990,  pu_plan_cent($kind, 'monatlich', '2026-12-31'));
+gleich('Kind, jährlich, in der Aktion',   790,  pu_plan_cent($kind, 'jaehrlich', '2026-12-31'));
+gleich('Kind, monatlich, danach',         2900, pu_plan_cent($kind, 'monatlich', '2027-01-01'));
+gleich('Kind, jährlich, danach',         2490, pu_plan_cent($kind, 'jaehrlich', '2027-01-01'));
+
+$fam = PU_PLAENE['familie'];
+gleich('Familie, jährlich, Aktion',  1900, pu_plan_cent($fam, 'jaehrlich', '2026-11-01'));
+gleich('Familie, monatlich, Aktion', 2900, pu_plan_cent($fam, 'monatlich', '2026-11-01'));
+gleich('Familie: ein Elternkonto',   1, $fam['eltern']);
+gleich('Familie: drei Kinder',       3, $fam['plaetze']);
+
+$sch = PU_PLAENE['schule'];
+gleich('Schule, jährlich, Aktion',  39900, pu_plan_cent($sch, 'jaehrlich', '2026-11-01'));
+gleich('Schule, monatlich, danach', 99900, pu_plan_cent($sch, 'monatlich', '2027-02-01'));
+
+// Jährlich ist nie teurer als monatlich — sonst hat jemand die Spalten
+// vertauscht (so geschehen im Entwurf vom 30.09.2026).
+foreach (PU_PLAENE as $k => $p) {
+    foreach (['2026-10-01', '2027-01-01'] as $tag) {
+        pruefe("Plan $k: jährlich nicht teurer als monatlich ($tag)",
+               pu_plan_cent($p, 'jaehrlich', $tag) <= pu_plan_cent($p, 'monatlich', $tag));
+    }
+}
+
+pruefe('die Schule steht netto', str_contains(pu_plan_mwst_text($sch), 'zzgl.'));
+pruefe('das Kind steht brutto',  str_contains(pu_plan_mwst_text($kind), 'inkl.'));
+
+$text = pu_preis_text($kind, 'monatlich', '2026-10-01');
+pruefe('die Preiszeile nennt den Preis danach', str_contains($text, 'danach 29,00 €'), $text);
+pruefe('…und das Enddatum der Aktion',          str_contains($text, '31.12.2026'), $text);
+pruefe('nach der Aktion kein Aktionshinweis',
+       !str_contains(pu_preis_text($kind, 'monatlich', '2027-01-01'), 'Aktion'));
+pruefe('der Klassenplan hat keine Aktion',
+       !pu_plan_in_aktion(PU_PLAENE['klasse'], 'monatlich', '2026-10-01'));
+
+wirft('ein unbekannter Takt ist kein Preis',
+      fn() => pu_plan_cent($kind, 'woechentlich'), 'Zahlungstakt');
+
+// Zusatzpakete: anteilig zum Grundplan je Kopf
+gleich('ein Paket = ein Drittel des Schulplans (jährlich, Aktion)',
+       13300, pu_zusatz_cent($sch, 'jaehrlich', '2026-11-01'));
+gleich('300 + 2 × 100 Plätze', 500, pu_plan_plaetze($sch, 2));
+gleich('das Kind kennt keine Pakete', 0, pu_zusatz_cent($kind));
+
+// Die Tafel am Tor
+$tafel = pu_preistafel_html('', false, '2026-10-01');
+pruefe('die Tafel zeigt den Aktionshinweis', str_contains($tafel, 'Aktionspreis bis 31.12.2026'));
+pruefe('die Tafel zeigt netto für die Schule', str_contains($tafel, 'zzgl. 19 % MwSt.'));
+pruefe('nach der Aktion kein Hinweis mehr',
+       !str_contains(pu_preistafel_html('', false, '2027-01-01'), 'Aktionspreis'));
+
+// Datumsrechnung für die Jahreslaufzeit
+gleich('zwölf Monate weiter',          '2027-10-15', pu_monate_weiter('2026-10-15', 12));
+gleich('der 31.01. wird nicht zum 28.01.', '2027-01-31', pu_monate_weiter('2026-01-31', 12));
+gleich('der 31.01. plus ein Monat',    '2026-02-28', pu_monate_weiter('2026-01-31', 1));
 
 gleich('Der Klassenplan fasst 30 Schüler', 30, PU_PLAENE['klasse']['plaetze']);
 
 foreach (PU_PLAENE as $k => $p) {
     pruefe("Plan $k hat ein Kontingent", $p['kontingent'] > 0);
-    pruefe("Plan $k kostet etwas",       $p['cent'] > 0);
+    pruefe("Plan $k kostet etwas",       pu_plan_cent($p, 'monatlich') > 0
+                                         && pu_plan_cent($p, 'jaehrlich') > 0);
     pruefe("Plan $k nennt seine Trägerart",
            in_array($p['traeger_art'], ['person', 'klasse', 'schule'], true));
 }
@@ -662,5 +733,54 @@ gleich('jede Überweisung schreibt zwei Zeilen', 2, count($prot));
 $arten = array_column($prot, 'aktion');
 sort($arten);
 gleich('eine gesendet, eine empfangen', ['talente_empfangen', 'talente_gesendet'], $arten);
+
+// ================================================================ Buchen mit Takt
+gruppe('Buchen: Takt, Zusatzpakete, festgehaltener Preis');
+
+$heute = pu_heute();
+$tj = pu_abo_buchen('schule', $chef, 'Taktschule', 'schule', $chef, '', 'jaehrlich', 2);
+gleich('der Takt steht am Abo',        'jaehrlich', $tj['takt']);
+gleich('300 + 2 Pakete = 500 Plätze',  500, $tj['plaetze']);
+gleich('der Betrag ist Grundplan + 2 Pakete',
+       pu_plan_cent(PU_PLAENE['schule'], 'jaehrlich') + 2 * pu_zusatz_cent(PU_PLAENE['schule'], 'jaehrlich'),
+       $tj['cent']);
+gleich('gebucht für zwölf Monate', pu_monate_weiter($heute, 12), $tj['laufzeit_bis']);
+pruefe('die Schule steht netto', str_contains($tj['mwst'], 'zzgl.'));
+
+wirft('das Kind kennt keine Zusatzpakete',
+      fn() => pu_abo_buchen('person', $frei, '', 'schueler', $chef, '', 'monatlich', 1), 'Zusatzpakete');
+wirft('ein unbekannter Takt wird nicht gebucht',
+      fn() => pu_abo_buchen('person', $frei, '', 'schueler', $chef, '', 'taeglich'), 'Zahlungstakt');
+wirft('negative Pakete gibt es nicht',
+      fn() => pu_abo_buchen('schule', $chef, 'Taktschule', 'schule', $chef, '', 'monatlich', -1), 'negativ');
+
+// Der Preis steht am Abo und ändert sich nicht, weil sich die Tafel ändert.
+pu_db()->prepare('UPDATE abos SET cent = 1234 WHERE id = ?')->execute([$tj['id']]);
+$st = pu_db()->prepare('SELECT * FROM abos WHERE id = ?');
+$st->execute([$tj['id']]);
+gleich('der festgehaltene Betrag gilt', 1234, pu_abo_aufbereiten($st->fetch())['cent']);
+
+// Läuft die Laufzeit ab, verlängert sie sich — ohne Preisgarantie zum
+// dann gültigen Preis.
+pu_db()->prepare("UPDATE abos SET naechste_zahlung = '2000-01-01', laufzeit_bis = '2000-01-01'
+                  WHERE id = ?")->execute([$tj['id']]);
+pu_abos_verlaengern();
+$st->execute([$tj['id']]);
+$nachher = pu_abo_aufbereiten($st->fetch());
+pruefe('die Laufzeit ist verlängert', $nachher['laufzeit_bis'] > $heute, $nachher['laufzeit_bis']);
+if (!PU_PREISGARANTIE) {
+    gleich('…zum heute gültigen Preis', $tj['cent'], $nachher['cent']);
+}
+
+// Ältere Abos (vor v10) ohne festgehaltenen Betrag rechnen mit dem heutigen Preis.
+pu_db()->prepare('UPDATE abos SET cent = 0 WHERE id = ?')->execute([$tj['id']]);
+$st->execute([$tj['id']]);
+gleich('ohne festgehaltenen Betrag: heutiger Preis', $tj['cent'], pu_abo_aufbereiten($st->fetch())['cent']);
+
+// Die Oberfläche bekommt beide Takte fertig gerechnet.
+$ph = pu_plaene_heute('2026-10-01');
+gleich('Oberfläche: Kind monatlich in der Aktion', 990, $ph['schueler']['takte']['monatlich']['cent']);
+pruefe('Oberfläche: Aktion markiert', $ph['schueler']['takte']['jaehrlich']['aktion']);
+gleich('Oberfläche: Paketpreis Schule', 13300, $ph['schule']['takte']['jaehrlich']['zusatz_cent']);
 
 bilanz();

@@ -24,21 +24,59 @@ declare(strict_types=1);
 // ---------------------------------------------------------------- Die Preistafel
 //
 // Alle Beträge in Cent, damit nichts gerundet wird, was nicht gerundet werden
-// soll. Monatlich, brutto, ohne ausgewiesene Umsatzsteuer — für eine
-// Preisübersicht reicht das, für eine Rechnung nicht.
+// soll. **Jeder Betrag ist ein Monatsbetrag** — auch beim jährlichen Takt, dort
+// eben der Monatsbetrag bei Zahlung für zwölf Monate. So steht auf der Tafel
+// eine vergleichbare Zahl und nicht einmal 94,80 € neben einmal 9,90 €.
+//
+// Zwei Takte je Plan: `monatlich` (monatlich kündbar) und `jaehrlich` (zwölf
+// Monate Laufzeit, dafür günstiger). Jeder Takt hat einen regulären Preis und
+// optional einen Aktionspreis, der bis PU_AKTION_BIS gilt (Stand 30.09.2026).
+//
+// `basis`: Verbraucherpläne stehen **brutto** (inkl. MwSt.) da, die Schule
+// **netto** (zzgl. MwSt.) — sie ist Unternehmer nach § 14 BGB und rechnet mit
+// Nettobeträgen. Entschieden am 30.09.2026.
 //
 // Die Staffel ist so gelegt, dass die Schule **je Kopf am günstigsten** ist.
 // Das ist keine Kosmetik: eine Einrichtung, die 300 Konten bezahlt, soll
 // nicht mehr zahlen als 300 Einzelkonten, sonst zerfällt sie in Einzelkonten.
+
+/** Bis einschliesslich zu diesem Tag gelten die Aktionspreise. */
+const PU_AKTION_BIS = '2026-12-31';
+
+/** Die zwei Zahlungstakte und ihre Laufzeit in Monaten. */
+const PU_TAKTE = [
+    'monatlich' => ['name' => 'monatlich', 'monate' => 1],
+    'jaehrlich' => ['name' => 'jährlich',  'monate' => 12],
+];
+
+/**
+ * Gilt der gebuchte Preis über die Verlängerung hinaus?
+ *
+ * `false` (Vorgabe): Der Preis gilt für die gebuchte Laufzeit — einen Monat
+ * bzw. zwölf Monate. Die Verlängerung läuft zum dann gültigen Preis. Das ist
+ * genau das, was die Tafel sagt: „Aktionspreis bis 31.12.2026, danach X €".
+ * `true`: Wer in der Aktion bucht, behält den Aktionspreis, solange das Abo
+ * läuft. **Offene Entscheidung** — nur hier umzustellen.
+ */
+const PU_PREISGARANTIE = false;
+
+/** Umsatzsteuer für die Anzeige „zzgl. MwSt." — nicht für Rechnungen. */
+const PU_MWST_PROZENT = 19;
+
 const PU_PLAENE = [
     'schueler' => [
-        'name'        => 'Schüler',
-        'cent'        => 990,
+        'name'        => 'Kind',
+        'preise'      => [
+            'monatlich' => ['regulaer' => 2900, 'aktion' => 990],
+            'jaehrlich' => ['regulaer' => 2490, 'aktion' => 790],
+        ],
+        'basis'       => 'brutto',
         'plaetze'     => 1,
         'traeger_art' => 'person',
         'kontingent'  => 150000,
-        'kurz'        => 'Ein Lernender, ein Zugang.',
-        'fuer'        => 'Wer allein lernt — zu Hause, ohne Schule dahinter.',
+        'kurz'        => 'Ein Kind, ein Zugang.',
+        'fuer'        => 'Wer allein lernt — zu Hause, ohne Schule dahinter. '
+                       . 'Auch für eine Lehrkraft, die für sich selbst lernt.',
         'enthalten'   => [
             'Alle sechs Stufen und die Fachkurse',
             'Die vier Tutoren',
@@ -48,22 +86,33 @@ const PU_PLAENE = [
     ],
     'familie' => [
         'name'        => 'Familie',
-        'cent'        => 1990,
+        'preise'      => [
+            'monatlich' => ['regulaer' => 6900, 'aktion' => 2900],
+            'jaehrlich' => ['regulaer' => 5900, 'aktion' => 1900],
+        ],
+        'basis'       => 'brutto',
         'plaetze'     => 3,
-        'eltern'      => 2,
+        'eltern'      => 1,
         'traeger_art' => 'person',
         'kontingent'  => 400000,
-        'kurz'        => 'Bis zu drei Kinder und zwei Elternkonten.',
+        'kurz'        => 'Bis zu drei Kinder und ein Elternkonto.',
         'fuer'        => 'Geschwister, und Eltern, die mitlesen wollen.',
         'enthalten'   => [
-            'Alles aus dem Schüler-Plan, für bis zu 3 Kinder',
-            '2 Elternzugänge mit Blick auf das eigene Kind',
+            'Alles aus dem Kind-Plan, für bis zu 3 Kinder',
+            '1 Elternzugang mit Blick auf jedes Kind und dessen Verbrauch',
             '400.000 Token im Monat für alle zusammen',
         ],
     ],
+    // Der Klassenplan ist im Tarifmodell vom 30.09.2026 nicht neu bepreist
+    // worden. Er bleibt zum bisherigen Preis und ohne Aktion stehen, bis das
+    // entschieden ist.
     'klasse' => [
         'name'        => 'Klasse',
-        'cent'        => 12900,
+        'preise'      => [
+            'monatlich' => ['regulaer' => 12900, 'aktion' => null],
+            'jaehrlich' => ['regulaer' => 12900, 'aktion' => null],
+        ],
+        'basis'       => 'brutto',
         'plaetze'     => 30,
         'traeger_art' => 'klasse',
         'kontingent'  => 2000000,
@@ -79,15 +128,24 @@ const PU_PLAENE = [
     ],
     'schule' => [
         'name'        => 'Schule',
-        'cent'        => 39900,
+        'preise'      => [
+            'monatlich' => ['regulaer' => 99900, 'aktion' => 59900],
+            'jaehrlich' => ['regulaer' => 69900, 'aktion' => 39900],
+        ],
+        'basis'       => 'netto',
         'plaetze'     => 300,
+        // Je Paket 100 weitere Schülerplätze, bepreist wie der Grundplan je
+        // Kopf — ein Paket ist also nie günstiger oder teurer als der Plan selbst.
+        'zusatz'      => ['plaetze' => 100, 'max' => 50],
         'traeger_art' => 'schule',
         'kontingent'  => 10000000,
-        'kurz'        => 'Bis zu 300 Schüler, Lehrkräfte ohne Begrenzung.',
-        'fuer'        => 'Die ganze Einrichtung — der günstigste Weg je Student.',
+        'kurz'        => '300 Schüler, Lehrkräfte ohne Begrenzung, '
+                       . 'weitere Schüler in Paketen zu 100.',
+        'fuer'        => 'Die ganze Einrichtung — der günstigste Weg je Schüler.',
         'enthalten'   => [
-            'Bis zu 300 Schülerzugänge',
+            '300 Schülerzugänge, erweiterbar in Paketen zu 100',
             'Lehrkräfte und Elternkonten ohne Begrenzung',
+            'Verbrauch je Lehrkraft und Klasse sichtbar',
             'Rechte-Matrix, eigene Academy-Regeln, Wartung',
             '10.000.000 Token im Monat für die Schule',
         ],
@@ -266,10 +324,158 @@ function pu_eur(int $cent): string
     return number_format($cent / 100, 2, ',', '.') . ' €';
 }
 
-/** Was ein Platz im Monat kostet — die Zahl, die die Staffel begründet. */
-function pu_plan_je_kopf(array $plan): int
+/** Läuft die Aktion an diesem Tag noch? */
+function pu_aktion_laeuft(?string $tag = null): bool
 {
-    return (int)round($plan['cent'] / max(1, $plan['plaetze']));
+    return ($tag ?? pu_heute()) <= PU_AKTION_BIS;
+}
+
+/** Prüft den Takt und gibt ihn zurück — ein Tippfehler darf kein Preis werden. */
+function pu_takt(string $takt): string
+{
+    if (!isset(PU_TAKTE[$takt])) {
+        throw new RuntimeException('Diesen Zahlungstakt gibt es nicht: ' . $takt);
+    }
+    return $takt;
+}
+
+/** Der reguläre Monatsbetrag eines Plans im Takt — ohne Aktion. */
+function pu_plan_regulaer(array $plan, string $takt = 'monatlich'): int
+{
+    return (int)$plan['preise'][pu_takt($takt)]['regulaer'];
+}
+
+/**
+ * Der an diesem Tag gültige Monatsbetrag eines Plans im Takt.
+ *
+ * Aktionspreis, solange die Aktion läuft und der Plan einen hat; sonst der
+ * reguläre. Brutto oder netto je nach `basis` des Plans.
+ */
+function pu_plan_cent(array $plan, string $takt = 'monatlich', ?string $tag = null): int
+{
+    $p = $plan['preise'][pu_takt($takt)];
+    if ($p['aktion'] !== null && pu_aktion_laeuft($tag)) return (int)$p['aktion'];
+    return (int)$p['regulaer'];
+}
+
+/** Ist der Preis an diesem Tag ein Aktionspreis? */
+function pu_plan_in_aktion(array $plan, string $takt = 'monatlich', ?string $tag = null): bool
+{
+    return $plan['preise'][pu_takt($takt)]['aktion'] !== null && pu_aktion_laeuft($tag);
+}
+
+/**
+ * Monatsbetrag eines Zusatzpakets — anteilig zum Grundplan je Kopf.
+ *
+ * Bei 300 Plätzen und 100 je Paket also ein Drittel des Grundbetrags. Gerundet
+ * auf volle Cent; 0, wenn der Plan keine Pakete kennt.
+ */
+function pu_zusatz_cent(array $plan, string $takt = 'monatlich', ?string $tag = null): int
+{
+    if (empty($plan['zusatz'])) return 0;
+    return (int)round(pu_plan_cent($plan, $takt, $tag) * $plan['zusatz']['plaetze']
+                      / max(1, $plan['plaetze']));
+}
+
+/** Plätze eines Plans mit Zusatzpaketen. */
+function pu_plan_plaetze(array $plan, int $zusatz = 0): int
+{
+    return (int)$plan['plaetze'] + (empty($plan['zusatz']) ? 0 : $zusatz * (int)$plan['zusatz']['plaetze']);
+}
+
+/** Was ein Platz im Monat kostet — die Zahl, die die Staffel begründet. */
+function pu_plan_je_kopf(array $plan, string $takt = 'monatlich', ?string $tag = null): int
+{
+    return (int)round(pu_plan_cent($plan, $takt, $tag) / max(1, $plan['plaetze']));
+}
+
+/** „inkl. MwSt." oder „zzgl. MwSt." — je nach Basis des Plans. */
+function pu_plan_mwst_text(array $plan): string
+{
+    return ($plan['basis'] ?? 'brutto') === 'netto'
+        ? 'zzgl. ' . PU_MWST_PROZENT . ' % MwSt.'
+        : 'inkl. MwSt.';
+}
+
+/** 31.12.2026 */
+function pu_datum_de(string $tag): string
+{
+    $z = strtotime($tag);
+    return $z === false ? $tag : date('d.m.Y', $z);
+}
+
+/**
+ * Die Preiszeile, wie sie überall stehen soll.
+ *
+ * „9,90 € im Monat, monatlich, inkl. MwSt. — Aktionspreis bis 31.12.2026,
+ * danach 29,00 €". Der Satz nach dem Gedankenstrich fehlt, wenn keine Aktion
+ * läuft. Eine Stelle, damit Tafel, Cockpit und Bestätigung dasselbe sagen.
+ */
+function pu_preis_text(array $plan, string $takt = 'monatlich', ?string $tag = null,
+                       int $zusatz = 0): string
+{
+    $cent = pu_plan_cent($plan, $takt, $tag) + $zusatz * pu_zusatz_cent($plan, $takt, $tag);
+    $t = pu_eur($cent) . ' im Monat, ' . PU_TAKTE[$takt]['name'] . ', ' . pu_plan_mwst_text($plan);
+
+    if (pu_plan_in_aktion($plan, $takt, $tag)) {
+        $danach = pu_plan_regulaer($plan, $takt);
+        if (!empty($plan['zusatz'])) {
+            $danach += $zusatz * (int)round($danach * $plan['zusatz']['plaetze'] / max(1, $plan['plaetze']));
+        }
+        $t .= ' — Aktionspreis bis ' . pu_datum_de(PU_AKTION_BIS) . ', danach ' . pu_eur($danach);
+    }
+    return $t;
+}
+
+/**
+ * Die Pläne mit den an diesem Tag gültigen Preisen — für Oberfläche und Cockpit.
+ *
+ * `cent` ist der gültige Monatsbetrag im Takt `monatlich`; so bleibt die alte
+ * Lesart erhalten. `takte` trägt beide Takte vollständig.
+ */
+function pu_plaene_heute(?string $tag = null): array
+{
+    $aus = [];
+    foreach (PU_PLAENE as $k => $p) {
+        $takte = [];
+        foreach (array_keys(PU_TAKTE) as $t) {
+            $takte[$t] = [
+                'name'        => PU_TAKTE[$t]['name'],
+                'cent'        => pu_plan_cent($p, $t, $tag),
+                'regulaer'    => pu_plan_regulaer($p, $t),
+                'aktion'      => pu_plan_in_aktion($p, $t, $tag),
+                'zusatz_cent' => pu_zusatz_cent($p, $t, $tag),
+                'text'        => pu_preis_text($p, $t, $tag),
+            ];
+        }
+        $aus[$k] = $p + [
+            'cent'       => $takte['monatlich']['cent'],
+            'takte'      => $takte,
+            'mwst'       => pu_plan_mwst_text($p),
+            'aktion_bis' => PU_AKTION_BIS,
+        ];
+    }
+    return $aus;
+}
+
+/**
+ * $n Monate weiter, auf denselben Tag; der 31. wird zum Monatsletzten.
+ *
+ * Direkt gerechnet und nicht $n-mal pu_monat_weiter(): sonst würde aus dem
+ * 31.01. über den 28.02. am Ende des Jahres ein 28.01.
+ */
+function pu_monate_weiter(string $tag, int $n): string
+{
+    $z = strtotime($tag);
+    if ($z === false) $z = time();
+
+    $m = (int)date('n', $z) - 1 + $n;
+    $j = (int)date('Y', $z) + intdiv($m, 12);
+    $m = $m % 12 + 1;
+    $t = (int)date('j', $z);
+
+    $letzter = (int)date('t', mktime(0, 0, 0, $m, 1, $j));
+    return sprintf('%04d-%02d-%02d', $j, $m, min($t, $letzter));
 }
 
 // ---------------------------------------------------------------- Abo finden
@@ -327,7 +533,14 @@ function pu_abo_fuer(int $person): ?array
 /** Ergänzt ein Abo aus der Datenbank um alles, was sich ausrechnen lässt. */
 function pu_abo_aufbereiten(array $a): array
 {
-    $plan = pu_plan((string)$a['plan']) ?? PU_PLAENE['schueler'];
+    $plan   = pu_plan((string)$a['plan']) ?? PU_PLAENE['schueler'];
+    $takt   = isset(PU_TAKTE[(string)($a['takt'] ?? '')]) ? (string)$a['takt'] : 'monatlich';
+    $zusatz = (int)($a['zusatz'] ?? 0);
+
+    // Der gebuchte Betrag steht am Abo. Ältere Abos (vor v10) haben keinen —
+    // für sie gilt der heutige Preis ihres Plans im Monatstakt.
+    $cent = (int)($a['cent'] ?? 0);
+    if ($cent <= 0) $cent = pu_plan_cent($plan, $takt) + $zusatz * pu_zusatz_cent($plan, $takt);
 
     return [
         'id'               => (int)$a['id'],
@@ -341,9 +554,15 @@ function pu_abo_aufbereiten(array $a): array
         'laeuft'           => ((int)$a['laeuft']) === 1,
         'bestaetigt'       => ((int)$a['bestaetigt']) === 1,
         'notiz'            => (string)$a['notiz'],
-        'cent'             => (int)$plan['cent'],
-        'preis'            => pu_eur((int)$plan['cent']),
-        'plaetze'          => (int)$plan['plaetze'],
+        'takt'             => $takt,
+        'takt_name'        => PU_TAKTE[$takt]['name'],
+        'laufzeit_bis'     => (string)($a['laufzeit_bis'] ?? ''),
+        'zusatz'           => $zusatz,
+        'basis'            => (string)($plan['basis'] ?? 'brutto'),
+        'mwst'             => pu_plan_mwst_text($plan),
+        'cent'             => $cent,
+        'preis'            => pu_eur($cent),
+        'plaetze'          => pu_plan_plaetze($plan, $zusatz),
         'kontingent'       => (int)$plan['kontingent'],
         'belegt'           => pu_plaetze_belegt($a),
     ];
@@ -425,10 +644,22 @@ function pu_platz_frei(string $gruppe, string $schule): array
  * wartet, ist für eine Schulklasse am Montagmorgen kein Zugang.
  */
 function pu_abo_buchen(string $art, int $traeger, string $traegerName,
-                       string $plan, int $wer, string $notiz = ''): array
+                       string $plan, int $wer, string $notiz = '',
+                       string $takt = 'monatlich', int $zusatz = 0): array
 {
     $p = pu_plan($plan);
     if ($p === null) throw new RuntimeException('Diesen Plan gibt es nicht: ' . $plan);
+    pu_takt($takt);
+
+    // Zusatzpakete gibt es nur, wo der Plan sie kennt — sonst wären es
+    // bezahlte Plätze, die nirgends gezählt werden.
+    if ($zusatz < 0) throw new RuntimeException('Die Zahl der Zusatzpakete kann nicht negativ sein.');
+    if ($zusatz > 0 && empty($p['zusatz'])) {
+        throw new RuntimeException(sprintf('Der Plan „%s" kennt keine Zusatzpakete.', $p['name']));
+    }
+    if ($zusatz > (int)($p['zusatz']['max'] ?? 0) && $zusatz > 0) {
+        throw new RuntimeException(sprintf('Höchstens %d Zusatzpakete je Buchung.', (int)$p['zusatz']['max']));
+    }
 
     if (!in_array($art, ['person', 'klasse', 'schule'], true)) {
         throw new RuntimeException('Unbekannte Trägerart: ' . $art);
@@ -463,16 +694,25 @@ function pu_abo_buchen(string $art, int $traeger, string $traegerName,
     $st->execute([$art, $traeger, trim($traegerName)]);
 
     $heute = pu_heute();
+
+    // Der Preis wird **beim Buchen festgehalten**, nicht beim Anzeigen
+    // ausgerechnet: sonst änderte sich am 01.01. rückwirkend, was jemand im
+    // Dezember gebucht hat.
+    $cent = pu_plan_cent($p, $takt, $heute) + $zusatz * pu_zusatz_cent($p, $takt, $heute);
+
     $st = $pdo->prepare(
         'INSERT INTO abos (traeger_art, traeger, traeger_name, plan, start,
-                           naechste_zahlung, laeuft, bestaetigt, notiz, angelegt_von, angelegt)
-         VALUES (?,?,?,?,?,?,1,0,?,?,?)');
+                           naechste_zahlung, laeuft, bestaetigt, notiz, angelegt_von, angelegt,
+                           takt, cent, zusatz, laufzeit_bis)
+         VALUES (?,?,?,?,?,?,1,0,?,?,?,?,?,?,?)');
     $st->execute([$art, $traeger, trim($traegerName), $plan, $heute,
-                  pu_monat_weiter($heute), trim($notiz), $wer, pu_jetzt()]);
+                  pu_monat_weiter($heute), trim($notiz), $wer, pu_jetzt(),
+                  $takt, $cent, $zusatz, pu_monate_weiter($heute, PU_TAKTE[$takt]['monate'])]);
 
     $id = (int)$pdo->lastInsertId();
     pu_kontingent_gutschreiben($id, $traeger, $p, $heute);
-    pu_protokoll($wer, 'abo', $art . ':' . ($traegerName !== '' ? $traegerName : (string)$traeger), $plan);
+    pu_protokoll($wer, 'abo', $art . ':' . ($traegerName !== '' ? $traegerName : (string)$traeger),
+                 $plan . ':' . $takt . ($zusatz > 0 ? '+' . $zusatz : '') . ':' . $cent);
 
     $st = $pdo->prepare('SELECT * FROM abos WHERE id = ?');
     $st->execute([$id]);
@@ -538,6 +778,23 @@ function pu_abos_verlaengern(): int
 
         $st = $pdo->prepare('UPDATE abos SET naechste_zahlung = ? WHERE id = ?');
         $st->execute([$neu, (int)$a['id']]);
+
+        // Ist die gebuchte Laufzeit um, verlängert sie sich um denselben Takt —
+        // ohne Preisgarantie zum dann gültigen Preis (siehe PU_PREISGARANTIE).
+        $takt = isset(PU_TAKTE[(string)($a['takt'] ?? '')]) ? (string)$a['takt'] : 'monatlich';
+        $bis  = (string)($a['laufzeit_bis'] ?? '');
+        if ($bis === '' || $bis <= $heute) {
+            if ($bis === '') $bis = $heute;
+            while ($bis <= $heute) $bis = pu_monate_weiter($bis, PU_TAKTE[$takt]['monate']);
+
+            $cent = (int)($a['cent'] ?? 0);
+            if (!PU_PREISGARANTIE || $cent <= 0) {
+                $cent = pu_plan_cent($plan, $takt, $heute)
+                      + (int)($a['zusatz'] ?? 0) * pu_zusatz_cent($plan, $takt, $heute);
+            }
+            $st = $pdo->prepare('UPDATE abos SET laufzeit_bis = ?, cent = ? WHERE id = ?');
+            $st->execute([$bis, $cent, (int)$a['id']]);
+        }
 
         pu_kontingent_gutschreiben((int)$a['id'], (int)$a['traeger'], $plan, $heute);
         $n++;
@@ -1265,7 +1522,7 @@ function pu_cockpit(int $person): array
         'unbegrenzt' => pu_token_frei($person),
         'verbrauch'=> $nachArt,
         'letzte'   => $letzte,
-        'plaene'   => PU_PLAENE,
+        'plaene'   => pu_plaene_heute(),
         'pakete'   => PU_TOKENPAKETE,
         'werkzeuge'=> PU_WERKZEUGE,
         'seit'     => $seit,

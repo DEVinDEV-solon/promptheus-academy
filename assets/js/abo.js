@@ -363,7 +363,14 @@ function planKasten(d) {
     '</div>' +
     '<p class="klein">' + PU.h(traeger) + '</p>' +
     '<table class="cockpit-tabelle"><tbody>' +
-    '<tr><th>Preis</th><td>' + PU.h(a.preis) + ' im Monat</td></tr>' +
+    '<tr><th>Preis</th><td>' + PU.h(a.preis) + ' im Monat, ' + PU.h(a.takt_name || 'monatlich') +
+      (a.mwst ? ' <span class="klein">' + PU.h(a.mwst) + '</span>' : '') + '</td></tr>' +
+    (a.laufzeit_bis
+      ? '<tr><th>Gebucht bis</th><td>' + PU.h(datum(a.laufzeit_bis)) + '</td></tr>'
+      : '') +
+    (a.zusatz > 0
+      ? '<tr><th>Zusatzpakete</th><td>' + a.zusatz + '</td></tr>'
+      : '') +
     '<tr><th>Läuft seit</th><td>' + PU.h(datum(a.start)) + '</td></tr>' +
     '<tr><th>Nächste Zahlung</th><td>' + PU.h(datum(a.naechste_zahlung)) +
       ' <span class="klein">' + PU.h(inTagen(a.naechste_zahlung)) + '</span></td></tr>' +
@@ -673,9 +680,16 @@ function verwaltungKasten(d) {
     '<h4>Plan buchen</h4>' +
     '<label class="klein">Plan<select name="plan">' +
       Object.keys(d.plaene).map(s =>
-        '<option value="' + s + '">' + PU.h(d.plaene[s].name) + ' — ' +
-        PU.h(eur(d.plaene[s].cent)) + ' / Monat</option>').join('') +
+        '<option value="' + s + '">' + PU.h(d.plaene[s].name) + '</option>').join('') +
     '</select></label>' +
+    '<label class="klein">Zahlung<select name="takt">' +
+      '<option value="jaehrlich">jährlich (12 Monate, günstiger)</option>' +
+      '<option value="monatlich">monatlich (monatlich kündbar)</option>' +
+    '</select></label>' +
+    // Nur die Schule kennt Zusatzpakete — das Feld erscheint nur dort.
+    '<label class="klein abo-zusatz" hidden>Zusatzpakete zu 100 Schülern' +
+      '<input name="zusatz" type="number" min="0" max="50" step="1" value="0"></label>' +
+    '<p class="klein abo-preis"></p>' +
     // **Das Feld erscheint nur, wenn es etwas bedeutet.** Vorher stand es
     // immer da, mit einem Absatz darunter, der bat, es beim Schüler- und
     // Familienplan leerzulassen. Wer eine Schule betreibt, trägt sie trotzdem
@@ -717,6 +731,29 @@ function verwaltungKasten(d) {
   form.plan.addEventListener('change', traegerZeigen);
   traegerZeigen();
 
+  // Der Preis folgt Plan, Takt und Paketen — gerechnet wird er am Server
+  // (pu_plaene_heute), hier nur zusammengesetzt.
+  const zusatzFeld = form.querySelector('.abo-zusatz');
+  const preisZeile = form.querySelector('.abo-preis');
+  const preisText = () => {
+    const p = d.plaene[form.plan.value] || {};
+    const t = (p.takte || {})[form.takt.value];
+    if (!t) return '';
+    const n = p.zusatz ? Math.max(0, Math.min(50, parseInt(form.zusatz.value, 10) || 0)) : 0;
+    let text = eur(t.cent + n * t.zusatz_cent) + ' im Monat, ' + t.name + ', ' + p.mwst;
+    if (t.aktion) text += ' — Aktionspreis bis ' + datum(p.aktion_bis) + ', danach ' +
+      eur(t.regulaer + n * (p.zusatz ? Math.round(t.regulaer * p.zusatz.plaetze / p.plaetze) : 0));
+    return text;
+  };
+  const preisZeigen = () => {
+    const p = d.plaene[form.plan.value] || {};
+    zusatzFeld.hidden = !p.zusatz;
+    if (!p.zusatz) form.zusatz.value = '0';
+    preisZeile.textContent = preisText();
+  };
+  ['change', 'input'].forEach(ev => form.addEventListener(ev, preisZeigen));
+  preisZeigen();
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const plan = form.plan.value;
@@ -727,11 +764,14 @@ function verwaltungKasten(d) {
       PU.melden('Für diesen Plan fehlt der Name — Klasse oder Schule.', 'schlecht');
       return;
     }
-    if (!confirm('Plan „' + d.plaene[plan].name + '" buchen?\n\n' +
+    const takt   = form.takt.value;
+    const zusatz = d.plaene[plan].zusatz ? (parseInt(form.zusatz.value, 10) || 0) : 0;
+    if (!confirm('Plan „' + d.plaene[plan].name + '" buchen?\n\n' + preisText() + '\n\n' +
                  'Es wird nichts abgebucht. Die Buchung wartet auf Bestätigung.')) return;
 
     try {
-      const r = await PU.ruf('abo_buchen', { plan: plan, traeger_art: art, traeger_name: name });
+      const r = await PU.ruf('abo_buchen', { plan: plan, traeger_art: art, traeger_name: name,
+                                             takt: takt, zusatz: zusatz });
       PU.melden(r.gemeldet
         ? 'Gebucht und an PROMPTHEUS gemeldet. Die Token sind schon da; die Zahlung wird dort bestätigt.'
         : 'Gebucht. Die Token sind schon da; die Zahlung ist noch offen.', 'gut');

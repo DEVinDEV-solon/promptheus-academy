@@ -2100,6 +2100,8 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
 }
 .preis-takt { display: block; font-size: .78rem; font-weight: 400; color: var(--schrift-3); }
 .preis-kopf { font-size: .82rem; color: var(--gut); margin-top: .2rem; }
+.preis-kopf.klein { color: var(--schrift-3); }
+.preis-aktion { color: var(--glut); margin-top: .3rem; font-weight: 600; }
 .preis-kurz { font-size: .88rem; margin: .6rem 0 .4rem; }
 
 .preis-liste { list-style: none; padding: 0; margin: .4rem 0 .6rem; flex: 1; }

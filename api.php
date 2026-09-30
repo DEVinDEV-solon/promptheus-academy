@@ -1206,7 +1206,9 @@ try {
                 (string)d('traeger_name', ''),
                 (string)d('plan'),
                 $ichId,
-                (string)d('notiz', '')
+                (string)d('notiz', ''),
+                (string)d('takt', 'monatlich'),
+                (int)d('zusatz', 0)
             );
             // Gleich beim Server melden, damit der Betreiber die Zahlung
             // bestätigen kann. Scheitert das (offline, nicht registriert),

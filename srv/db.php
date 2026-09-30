@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 9;
+const PU_DB_VERSION = 10;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -28,6 +28,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 7) pu_db_v7($pdo);
     if ($ist < 8) pu_db_v8($pdo);
     if ($ist < 9) pu_db_v9($pdo);
+    if ($ist < 10) pu_db_v10($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -535,4 +536,38 @@ function pu_setting_setzen(string $schluessel, string $wert): void
          ON CONFLICT(schluessel) DO UPDATE SET wert = excluded.wert'
     );
     $st->execute([$schluessel, $wert]);
+}
+
+/**
+ * v10 — Zahlungstakt und gebuchter Preis am Abo (Tarifmodell 30.09.2026).
+ *
+ * `takt`: monatlich oder jaehrlich. `cent`: der Monatsbetrag, **wie er beim
+ * Buchen galt** — Aktionspreise enden am 31.12.2026, und ein im Dezember
+ * gebuchtes Abo darf sich am 01.01. nicht rückwirkend verteuern. `zusatz`:
+ * Pakete zu 100 Schülerplätzen (nur Schule). `laufzeit_bis`: Ende der gebuchten
+ * Laufzeit; bis dahin gilt `cent`.
+ *
+ * Bestehende Abos bekommen `monatlich` und `cent = 0`; 0 heisst „nicht
+ * festgehalten", und dann rechnet pu_abo_aufbereiten() mit dem heutigen Preis.
+ */
+function pu_db_v10(PDO $pdo): void
+{
+    $da = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='abos'")
+              ->fetchColumn();
+    if ($da === false) return;
+
+    $spalten = [];
+    foreach ($pdo->query('PRAGMA table_info(abos)') as $sp) $spalten[] = (string)$sp['name'];
+
+    $neu = [
+        'takt'         => "TEXT NOT NULL DEFAULT 'monatlich'",
+        'cent'         => 'INTEGER NOT NULL DEFAULT 0',
+        'zusatz'       => 'INTEGER NOT NULL DEFAULT 0',
+        'laufzeit_bis' => "TEXT NOT NULL DEFAULT ''",
+    ];
+    foreach ($neu as $name => $art) {
+        if (!in_array($name, $spalten, true)) {
+            $pdo->exec("ALTER TABLE abos ADD COLUMN $name $art");
+        }
+    }
 }
