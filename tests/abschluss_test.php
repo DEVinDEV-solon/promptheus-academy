@@ -258,6 +258,12 @@ pruefe('Muster: Farben der Variante', str_contains($muster, '#7a1515'));
 pruefe('Muster: drei Unterzeichner', substr_count($muster, 'class="unterschrift"') === 3
        && str_contains($muster, 'Prometheus') && str_contains($muster, 'Athena') && str_contains($muster, 'Hermes'));
 pruefe('Muster meldet keinen Druck', str_contains($muster, "var code = '';"));
+foreach (PU_URKUNDEN_SCHRIFTEN as $id => $s) {
+    pruefe("Schriftdatei $id (latin) liegt bei", is_file(PU_ROOT . '/assets/fonts/urkunde/' . sprintf($s['datei'], 'latin')));
+}
+pruefe('Schriften sind eingebettet, je Zeichensatz', substr_count($muster, '@font-face') >= 5
+       && str_contains($muster, 'unicode-range:U+0100') && str_contains($muster, 'data:font/woff2;base64,'));
+pruefe('keine Anfrage nach draussen für Schriften', !str_contains($muster, 'fonts.googleapis') && !str_contains($muster, 'jsdelivr'));
 
 // ================================================================ Gestaltung
 gruppe('Gestaltung und Meldungen');

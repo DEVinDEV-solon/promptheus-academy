@@ -50,20 +50,22 @@ const PU_URKUNDEN_GRUPPEN = [
 
 /**
  * Die fünf Schriften — alle unter der SIL Open Font License, also frei zum
- * Mitliefern und Einbetten. Liegt die Datei unter assets/fonts/urkunde/, wird
- * sie in die Seite eingebettet; sonst greift der Stapel aus Systemschriften.
+ * Mitliefern und Einbetten (Lizenztexte daneben). Die Dateien kommen von
+ * Fontsource und liegen je Zeichensatz getrennt unter assets/fonts/urkunde/:
+ * `%s` ist `latin` bzw. `latin-ext`. Was da ist, wird in die Seite
+ * eingebettet; fehlt etwas, greift der Stapel aus Systemschriften.
  */
 const PU_URKUNDEN_SCHRIFTEN = [
-    'cinzel'         => ['name' => 'Cinzel — römische Versalien',   'datei' => 'Cinzel.woff2',
+    'cinzel'         => ['name' => 'Cinzel — römische Versalien',   'datei' => 'cinzel-%s-400-normal.woff2',
                          'stapel' => '"Cinzel", "Trajan Pro", "Palatino Linotype", Palatino, Georgia, serif'],
-    'garamond'       => ['name' => 'EB Garamond — klassisch',       'datei' => 'EBGaramond.woff2',
+    'garamond'       => ['name' => 'EB Garamond — klassisch',       'datei' => 'eb-garamond-%s-400-normal.woff2',
                          'stapel' => '"EB Garamond", Garamond, "Palatino Linotype", Georgia, serif'],
-    'cormorant'      => ['name' => 'Cormorant — fein, kursiv',      'datei' => 'CormorantGaramond-Italic.woff2',
+    'cormorant'      => ['name' => 'Cormorant — fein, kursiv',      'datei' => 'cormorant-garamond-%s-500-italic.woff2',
                          'stapel' => '"Cormorant Garamond", "Book Antiqua", "Palatino Linotype", Georgia, serif',
                          'kursiv' => true],
-    'fraktur'        => ['name' => 'Unifraktur — gebrochene Schrift', 'datei' => 'UnifrakturMaguntia.woff2',
+    'fraktur'        => ['name' => 'Unifraktur — gebrochene Schrift', 'datei' => 'unifrakturmaguntia-%s-400-normal.woff2',
                          'stapel' => '"UnifrakturMaguntia", "Old English Text MT", "Palatino Linotype", serif'],
-    'schreibschrift' => ['name' => 'Great Vibes — Schreibschrift',  'datei' => 'GreatVibes.woff2',
+    'schreibschrift' => ['name' => 'Great Vibes — Schreibschrift',  'datei' => 'great-vibes-%s-400-normal.woff2',
                          'stapel' => '"Great Vibes", "Segoe Script", "Brush Script MT", cursive'],
 ];
 
@@ -340,17 +342,35 @@ function pu_urkunden_seite(array $v, array $design, array $daten): string
     return strtr($vorlage, $ersatz);
 }
 
-/** @font-face für eine Schrift — eingebettet, wenn die Datei da ist. */
+/**
+ * Die Zeichenbereiche der beiden Teildateien — wie Fontsource sie schneidet.
+ * `latin` trägt Deutsch samt Umlauten und ß, `latin-ext` Namen wie Łukasz,
+ * Şahin oder Dvořák. Der Browser lädt je Zeichen nur die Datei, die es hat.
+ */
+const PU_URKUNDEN_ZEICHEN = [
+    'latin'     => 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,'
+                 . 'U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD',
+    'latin-ext' => 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,'
+                 . 'U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,'
+                 . 'U+2C60-2C7F,U+A720-A7FF',
+];
+
+/** @font-face für eine Schrift — je Zeichensatz eingebettet, wenn die Datei da ist. */
 function pu_urkunden_font_face(string $id): string
 {
     $s = PU_URKUNDEN_SCHRIFTEN[$id] ?? null;
     if ($s === null) return '';
-    $datei = PU_ROOT . '/assets/fonts/urkunde/' . $s['datei'];
-    if (!is_file($datei)) return '';          // dann trägt der Systemstapel
     $familie = trim(explode(',', $s['stapel'])[0], ' "');
-    return '@font-face{font-family:"' . $familie . '";font-style:' . (!empty($s['kursiv']) ? 'italic' : 'normal')
-         . ';font-display:block;src:url(data:font/woff2;base64,' . base64_encode((string)file_get_contents($datei))
-         . ') format("woff2");}';
+    $aus = '';
+    foreach (PU_URKUNDEN_ZEICHEN as $satz => $bereich) {
+        $datei = PU_ROOT . '/assets/fonts/urkunde/' . sprintf($s['datei'], $satz);
+        if (!is_file($datei)) continue;       // dann trägt der Systemstapel
+        $aus .= '@font-face{font-family:"' . $familie . '";font-style:' . (!empty($s['kursiv']) ? 'italic' : 'normal')
+              . ';font-display:block;unicode-range:' . $bereich
+              . ';src:url(data:font/woff2;base64,' . base64_encode((string)file_get_contents($datei))
+              . ') format("woff2");}';
+    }
+    return $aus;
 }
 
 /**

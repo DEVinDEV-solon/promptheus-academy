@@ -72,8 +72,11 @@ Ohne `hintergrund.*` zeichnet die Academy den Schmuck der Gruppe selbst.
 ## Die fünf Schriften
 
 Alle unter der SIL Open Font License — frei zum Mitliefern und Einbetten. Die
-Dateien liegen unter `assets/fonts/urkunde/`; fehlt eine, nimmt die Urkunde eine
-ähnliche Systemschrift.
+Dateien liegen unter `assets/fonts/urkunde/` (von Fontsource, je Schrift `latin` und
+`latin-ext`, Lizenztexte daneben) und werden in jede Urkunde eingebettet — keine
+Anfrage nach draussen. Fehlt eine, nimmt die Urkunde eine ähnliche Systemschrift.
+UnifrakturMaguntia gibt es nur als `latin`; seltene Buchstaben wie „Ł" setzt dort
+eine Ersatzschrift.
 
 | Kennung | Schrift | Wofür |
 |---|---|---|
