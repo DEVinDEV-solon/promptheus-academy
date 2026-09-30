@@ -643,13 +643,17 @@ function pu_abschluss_html(string $code, array $wer): ?string
  * Die Musterseite für Schritt 1 und die Vorschau vor dem Ausstellen:
  * dieselbe Seite, mit Platzhaltern und dem Stempel „Muster".
  */
-function pu_abschluss_muster(string $variante, array $design = []): ?string
+function pu_abschluss_muster(string $variante, array $design = [], int $stufe = 0): ?string
 {
     $v = pu_urkunden_variante($variante);
     if ($v === null) return null;
+    // Mit Stufe: das Muster einer Stufen-Urkunde (Galerie beim Gestalten).
+    $stufe = isset(PU_STUFEN[$stufe]) ? $stufe : 0;
     return pu_urkunden_seite($v, $design, [
+        'stufe' => $stufe,
         'name' => 'Vorname Nachname', 'datum' => date('d.m.Y'), 'durchgang' => 1, 'punkte' => 0,
-        'pruefcode' => 'PU-A-XXXXXXXX', 'konto_hash' => 'KH-XXXXXXXXXXXXXXXX',
+        'pruefcode' => $stufe ? 'PU-' . $stufe . '-XXXXXXXX' : 'PU-A-XXXXXXXX',
+        'konto_hash' => 'KH-XXXXXXXXXXXXXXXX',
         'siegel' => 'XXXX-XXXX-XXXX-XXXX-XXXX', 'muster' => true,
     ]);
 }

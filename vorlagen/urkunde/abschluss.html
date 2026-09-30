@@ -51,6 +51,10 @@
     display: flex; flex-direction: column; align-items: center; text-align: center;
     font-size: var(--text-groesse); line-height: var(--zeilenabstand);
   }
+  /* Steht das Wort „Urkunde" schon im Hintergrundbild, fällt der Titel
+     weg — sonst stünde es zweimal da. Den Abstand nach oben regelt die
+     Vorlage (inhalt_mm.oben), passend zum Bild. */
+  .titel-im-bild .titel { display: none; }
   .marke { font-size: .78em; letter-spacing: .32em; text-transform: uppercase; opacity: .8; }
   .titel {
     margin-top: calc(6mm * var(--abstand));
@@ -129,22 +133,13 @@
       <div class="luft oben"></div>
       <div class="einleitung">Hiermit wird bescheinigt, dass</div>
       <div class="name">{{name}}</div>
-      <p class="text">alle sechs Stufen der PROMPTHEUS ACADEMY mit bestandener Abschlussprüfung
-        durchlaufen hat — ohne Hinweise und ohne Musterlösung in der Prüfung — und damit
-        Sprachmodelle verstehen, gezielt einsetzen, zu Systemen verbinden, absichern und
-        kritisch beurteilen kann.</p>
+      <p class="text">{{text}}</p>
       <div class="stufen">{{stufen}}</div>
       <div class="luft"></div>
-      <div class="datum">Ausgestellt am {{datum}} · Durchgang {{durchgang}} · {{punkte}} Punkte in sechs Prüfungen</div>
+      <div class="datum">{{datumzeile}}</div>
       <div class="unterschriften">{{unterschriften}}</div>
-      <div class="pruefung">
-        <span><b>Prüfcode</b> {{pruefcode}}</span>
-        <span><b>Konto-Hash</b> {{konto_hash}}</span>
-        <span><b>Siegel</b> {{siegel}}</span>
-      </div>
-      <div class="schutz">Erstellt auf dem Rechner der Teilnehmerin oder des Teilnehmers, ohne Sprachmodell.
-        Der Name wurde selbst eingetragen, liegt nur verschlüsselt vor und ist kryptografisch mit dem Konto
-        verbunden. Prüfbar mit dem Prüfcode auf der Anmeldeseite der Academy — die Auskunft nennt keinen Namen.</div>
+      <div class="pruefung">{{pruefzeile}}</div>
+      <div class="schutz">{{schutz}}</div>
     </div>
     <div class="stempel">{{stempel}}</div>
   </div>

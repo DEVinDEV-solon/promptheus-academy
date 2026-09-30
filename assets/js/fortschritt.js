@@ -171,8 +171,9 @@ PU.fortschrittZeichnen = async function () {
         '<td>' + u.ausgestellt.substring(0, 10) + '</td>' +
         '<td>' + (u.widerrufen
           ? '<span class="fehler">widerrufen</span>'
-          : '<a href="api.php?aktion=urkunde_html&code=' + encodeURIComponent(u.pruefcode) +
-            '" target="_blank" rel="noopener">öffnen</a>') + '</td></tr>';
+          // Der Generator statt eines festen Blatts (assets/js/urkunde.js).
+          : '<button class="knopf still klein" data-stufen-urkunde="' + PU.h(u.pruefcode) + '">' +
+            (u.design ? 'Gestalten &amp; drucken' : 'Design wählen &amp; drucken') + '</button>') + '</td></tr>';
     });
     rahmen.innerHTML = html + '</table>';
     ziel.appendChild(rahmen);

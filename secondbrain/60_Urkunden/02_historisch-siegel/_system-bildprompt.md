@@ -8,6 +8,9 @@ Gilt für **jedes** Hintergrundbild in `02_historisch-siegel/`.
 2. **Kein Text im Bild** — auch nicht „Urkunde", auch keine Initiale, keine Schrift
    im Siegel. Das Wort setzt die Academy in der gewählten Schrift (Fraktur,
    Versalien …), damit der Teilnehmer es selbst anpassen kann.
+   **Einzige Ausnahme:** `urkunde-siegel/` — dort steht „Urkunde" fest im Bild
+   (`"titel_im_bild": true` in der `vorlage.json`), eigene Regeln und Zonen in
+   `urkunde-siegel/hintergrund-bildprompt.md`. Auch dort: keine Schrift im Siegel.
 3. **Ränder, die wegfallen:** oben und unten je **10,2 %** — dort nur Pergament.
 4. **Schwarze Schrift muss deutlich lesbar bleiben.** Die Schreibfläche ist
    **hell und ruhig**: helles Pergament, höchstens ganz schwache Flecken, keine

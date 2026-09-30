@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 11;
+const PU_DB_VERSION = 12;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -30,6 +30,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 9) pu_db_v9($pdo);
     if ($ist < 10) pu_db_v10($pdo);
     if ($ist < 11) pu_db_v11($pdo);
+    if ($ist < 12) pu_db_v12($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -640,4 +641,16 @@ function pu_db_v11(PDO $pdo): void
         )
     ");
     $pdo->exec('CREATE INDEX IF NOT EXISTS ix_urk_meldungen_offen ON urkunden_meldungen(gesendet, id)');
+}
+
+/**
+ * v12 (30.09.2026): Auch die Stufen-Urkunden bekommen eine Gestaltung.
+ * Leer = noch nie gestaltet; gerendert wird dann die erste Vorlage.
+ */
+function pu_db_v12(PDO $pdo): void
+{
+    $spalten = array_column($pdo->query('PRAGMA table_info(urkunden)')->fetchAll(), 'name');
+    if (!in_array('design', $spalten, true)) {
+        $pdo->exec("ALTER TABLE urkunden ADD COLUMN design TEXT NOT NULL DEFAULT ''");
+    }
 }

@@ -477,7 +477,8 @@ try {
 
         case 'abschluss_muster': {
             pu_recht_fordern('fortschritt.eigen');
-            $html = pu_abschluss_muster((string)d('variante', $_GET['variante'] ?? ''));
+            $html = pu_abschluss_muster((string)d('variante', $_GET['variante'] ?? ''), [],
+                                        (int)d('stufe', $_GET['stufe'] ?? 0));
             if ($html === null) pu_fehler('Dieses Design gibt es nicht.', 404);
             header('Content-Type: text/html; charset=utf-8');
             header('Cache-Control: no-store');
@@ -490,6 +491,18 @@ try {
             try {
                 $neu = pu_abschluss_design_setzen($ichId, (string)d('code'), (string)d('variante'),
                                                   (array)d('design', []));
+            } catch (InvalidArgumentException | DomainException $e) {
+                pu_fehler($e->getMessage(), 400);
+            }
+            pu_json_out(['ok' => true, 'design' => $neu]);
+        }
+
+        // Die Gestaltung einer Stufen-Urkunde — nur die eigene (srv/zertifikat.php).
+        case 'urkunde_design_setzen': {
+            pu_recht_fordern('fortschritt.eigen');
+            try {
+                $neu = pu_urkunde_design_setzen($ichId, (string)d('code'), (string)d('variante'),
+                                                (array)d('design', []));
             } catch (InvalidArgumentException | DomainException $e) {
                 pu_fehler($e->getMessage(), 400);
             }
