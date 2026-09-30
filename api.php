@@ -28,6 +28,7 @@ require_once __DIR__ . '/srv/punkte.php';
 require_once __DIR__ . '/srv/badges.php';
 require_once __DIR__ . '/srv/pruefung.php';
 require_once __DIR__ . '/srv/zertifikat.php';
+require_once __DIR__ . '/srv/abschluss.php';
 require_once __DIR__ . '/srv/lernende.php';
 require_once __DIR__ . '/srv/brain.php';
 require_once __DIR__ . '/srv/tutor.php';
@@ -421,6 +422,117 @@ try {
             }
             $html = pu_urkunde_html($code);
             if ($html === null) pu_fehler('Zu diesem Code gibt es keine Urkunde.', 404);
+            header('Content-Type: text/html; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo $html;
+            exit;
+        }
+
+        // ---------------------------------------------------------- Abschluss-Urkunde
+        //
+        // Nach allen sechs Stufen, mit dem echten Namen (srv/abschluss.php).
+        // Ohne Sprachmodell und ohne Server: der Name bleibt auf diesem
+        // Rechner und liegt nur verschlüsselt in der Datenbank.
+        case 'abschluss_stand':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'abschluss' => pu_abschluss_stand($ichId)]);
+
+        case 'abschluss_ausstellen': {
+            // Nicht `pruefung.ausfuehren`: die Tür ist das Bestehen aller sechs
+            // Stufen (pu_abschluss_lauf). Wer einen Stand hat, darf die Urkunde
+            // dazu holen — auch ein Elternkonto im Testbetrieb.
+            pu_recht_fordern('fortschritt.eigen');
+            try {
+                $u = pu_abschluss_ausstellen($ichId, (string)d('vorname'), (string)d('nachname'),
+                                             (string)d('bestaetigung'), (string)d('variante'),
+                                             (array)d('design', []));
+            } catch (InvalidArgumentException | DomainException $e) {
+                pu_fehler($e->getMessage(), 400);
+            } catch (RuntimeException $e) {
+                pu_fehler($e->getMessage(), 409);
+            }
+            pu_json_out(['ok' => true, 'urkunde' => $u]);
+        }
+
+        // Schritt 1 und 3: Vorlagen, Musterseite, eigene Gestaltung. Die
+        // Gestaltung gehört dem Teilnehmer; Name und Prüfcode bleiben fest.
+        case 'abschluss_vorlagen':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'gruppen' => pu_urkunden_varianten(),
+                         'schriften' => pu_urkunden_schriften()]);
+
+        case 'abschluss_muster': {
+            pu_recht_fordern('fortschritt.eigen');
+            $html = pu_abschluss_muster((string)d('variante', $_GET['variante'] ?? ''));
+            if ($html === null) pu_fehler('Dieses Design gibt es nicht.', 404);
+            header('Content-Type: text/html; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo $html;
+            exit;
+        }
+
+        case 'abschluss_design_setzen': {
+            pu_recht_fordern('fortschritt.eigen');
+            try {
+                $neu = pu_abschluss_design_setzen($ichId, (string)d('code'), (string)d('variante'),
+                                                  (array)d('design', []));
+            } catch (InvalidArgumentException | DomainException $e) {
+                pu_fehler($e->getMessage(), 400);
+            }
+            pu_json_out(['ok' => true, 'design' => $neu]);
+        }
+
+        case 'abschluss_gedruckt':
+            // Bewacht sich selbst wie abschluss_html: wer öffnen darf, darf drucken.
+            pu_json_out(['ok' => pu_abschluss_gedruckt((string)d('code'), pu_wer_echt() ?? $ich)]);
+
+        // Einstellungen → Urkunden: Überblick, Sicherheit, Testbetrieb.
+        case 'urkunden_uebersicht':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'uebersicht' => pu_urkunden_uebersicht(pu_wer_echt() ?? $ich)]);
+
+        case 'urkunden_testbetrieb':
+            pu_recht_fordern('urkunde.ausstellen');
+            pu_urkunden_testbetrieb_setzen((bool)d('an', false), $ichId);
+            pu_json_out(['ok' => true, 'an' => pu_urkunden_testbetrieb()]);
+
+        case 'urkunden_test_bestehen': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { pu_abschluss_test_bestehen($ziel, $ichId); }
+            catch (InvalidArgumentException | DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true]);
+        }
+
+        case 'urkunden_test_zuruecksetzen': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { $weg = pu_abschluss_test_zuruecksetzen($ziel, $ichId); }
+            catch (InvalidArgumentException | DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true, 'entfernt' => $weg]);
+        }
+
+        case 'abschluss_liste':
+            pu_recht_fordern('urkunde.nachdrucken');
+            pu_json_out(['ok' => true, 'urkunden' => pu_abschluesse_umkreis(pu_wer_echt() ?? $ich)]);
+
+        case 'abschluss_html': {
+            // Bewacht sich selbst: der Lernende immer, sonst Recht UND Umkreis
+            // (pu_abschluss_darf_sehen). Gefragt wird für den echten Menschen —
+            // eine Rollenübernahme macht aus Ebene 1 keinen Schüler.
+            $echt = pu_wer_echt() ?? $ich;
+            try {
+                $html = pu_abschluss_html((string)d('code', $_GET['code'] ?? ''), $echt);
+            } catch (DomainException $e) {
+                pu_fehler($e->getMessage(), 403);
+            }
+            if ($html === null) pu_fehler('Zu diesem Code gibt es keine Abschluss-Urkunde.', 404);
             header('Content-Type: text/html; charset=utf-8');
             header('Cache-Control: no-store');
             echo $html;

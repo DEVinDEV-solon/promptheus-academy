@@ -199,6 +199,8 @@ foreach (PU_RECHTE as $r) {
 //   zustand                             — sagt nur, ob jemand angemeldet ist
 //   abmelden/kennwort_aendern/name_aendern/einst_*  — das eigene Konto
 //   urkunde_html                        — prüft selbst, ob es die eigene ist
+//   abschluss_html, abschluss_gedruckt  — ebenso; fremde nur mit Recht UND
+//                                         Umkreis (pu_abschluss_darf_sehen)
 //   rolle_zurueck                       — der Rückweg ins eigene Konto darf an
 //                                         keinem Recht hängen, sonst sperrt sich
 //                                         Ebene 1 im Konto eines Schülers ein und
@@ -211,7 +213,7 @@ foreach (PU_RECHTE as $r) {
 //                                         damit die Kurs-Sperre aushebelbar.
 $ohneWache = ['anmelden', 'einrichten', 'urkunde_pruefen', 'zustand', 'abmelden',
               'kennwort_aendern', 'name_aendern', 'einst_lesen', 'einst_setzen',
-              'urkunde_html', 'profil_lesen', 'profil_setzen', 'sprache_stand',
+              'urkunde_html', 'abschluss_html', 'abschluss_gedruckt', 'profil_lesen', 'profil_setzen', 'sprache_stand',
               'rolle_zurueck',
               // Rollen & Rechte zum Nachlesen: für jeden Angemeldeten, nur lesen.
               'rollen_erklaert',

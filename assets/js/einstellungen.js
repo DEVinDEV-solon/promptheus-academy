@@ -117,6 +117,10 @@ function einstZeichnen() {
     // Für jeden, auch unregistriert (28.09.2026): welche Rolle man hat, woher
     // sie kommt, was die anderen dürfen. Die Matrix darunter nur mit Recht.
     ['rollen',      'Rollen & Rechte'],
+    // Für jeden (30.09.2026): der eigene Weg zur Abschluss-Urkunde. Was
+    // darunter steht — Urkunden des eigenen Bereichs, Sicherheit,
+    // Testbetrieb —, hängt am Recht und wird in urkunde.js entschieden.
+    ['urkunden',    'Urkunden'],
     ['konto',       'Konto']
   ];
 
@@ -196,6 +200,7 @@ function inhaltZeichnen() {
     case 'lob':         lobZeichnen(ziel);         break;
     case 'konto':       kontoZeichnen(ziel);       break;
     case 'rollen':      PU.rollenZeichnen(ziel);   break;
+    case 'urkunden':    PU.urkundenEinstZeichnen(ziel); break;
     case 'coder':       coderZeichnen(ziel);       break;
     case 'werkstatt':   werkstattZeichnen(ziel);   break;
     case 'sprache':     spracheZeichnen(ziel);     break;

@@ -508,7 +508,8 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
       <summary>Eine Urkunde prüfen</summary>
       <p class="hinweis">
         Der Prüfcode steht auf jeder PROMPTHEUS-Urkunde. Die Auskunft nennt
-        Stufe, Datum und Gültigkeit — keinen Namen.
+        Stufe, Datum und Gültigkeit — keinen Namen. Bei der Abschluss-Urkunde
+        (<code>PU-A-…</code>) zusätzlich Konto-Hash und Siegel zum Vergleich.
       </p>
       <form id="form-urkunde" autocomplete="off">
         <label>Prüfcode <input name="code" placeholder="PU-1-ABCD2345" required></label>
@@ -887,6 +888,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <script src="<?= pu_v('assets/js/zielbilder.js') ?>"></script>
 <script src="<?= pu_v('assets/js/ziel.js') ?>"></script>
 <script src="<?= pu_v('assets/js/fortschritt.js') ?>"></script>
+<script src="<?= pu_v('assets/js/urkunde.js') ?>"></script>
 <script src="<?= pu_v('assets/js/kursstand.js') ?>"></script>
 <?php if ($darfTutor): ?>
   <script src="<?= pu_v('assets/js/tutor.js') ?>"></script>

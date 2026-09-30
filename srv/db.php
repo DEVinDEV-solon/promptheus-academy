@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 10;
+const PU_DB_VERSION = 11;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -29,6 +29,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 8) pu_db_v8($pdo);
     if ($ist < 9) pu_db_v9($pdo);
     if ($ist < 10) pu_db_v10($pdo);
+    if ($ist < 11) pu_db_v11($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -570,4 +571,73 @@ function pu_db_v10(PDO $pdo): void
             $pdo->exec("ALTER TABLE abos ADD COLUMN $name $art");
         }
     }
+}
+
+/**
+ * v11 — die Abschluss-Urkunde nach allen sechs Stufen (srv/abschluss.php).
+ *
+ * Eigene Tabelle und nicht `urkunden`: dort hängt der Anzeigename, hier der
+ * echte Name — und der steht **nur verschlüsselt** da (`*_geheim`, secretbox
+ * mit dem Urkundenschlüssel unter data/urkunden/). `siegel` bindet ihn an
+ * Konto, Prüfcode und Durchgang.
+ *
+ * `UNIQUE (lernender, durchgang)` ist die eigentliche Regel: je Durchgang eine
+ * Urkunde, also ein Name. Die Datenbank hält das, nicht eine Abfrage im Code.
+ *
+ * `bis_pruefung`: die höchste Prüfungsnummer, die dieser Durchgang verbraucht
+ * hat. Der nächste zählt nur Prüfungen mit grösserer Nummer — eine Nummer
+ * statt einer Uhrzeit, weil eine verstellte Uhr sonst Prüfungen doppelt
+ * zählen oder verschlucken könnte.
+ *
+ * `design`: die Gestaltung, die der Teilnehmer zuletzt gespeichert hat
+ * (srv/urkunden_design.php). Sie ist nicht Teil des Siegels — die Urkunde
+ * darf jederzeit anders aussehen, nur Name und Prüfcode bleiben.
+ */
+function pu_db_v11(PDO $pdo): void
+{
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS abschluesse (
+            pruefcode        TEXT PRIMARY KEY,
+            lernender        INTEGER NOT NULL REFERENCES lernende(id) ON DELETE CASCADE,
+            durchgang        INTEGER NOT NULL,
+            konto_hash       TEXT NOT NULL,
+            vorname_geheim   TEXT NOT NULL,
+            nachname_geheim  TEXT NOT NULL,
+            siegel           TEXT NOT NULL,
+            punkte           INTEGER NOT NULL DEFAULT 0,
+            ausgestellt      TEXT NOT NULL,
+            bis_pruefung     INTEGER NOT NULL DEFAULT 0,
+            widerrufen       TEXT NOT NULL DEFAULT '',
+            design           TEXT NOT NULL DEFAULT '',
+            test             INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (lernender, durchgang)
+        )
+    ");
+
+    // Testbetrieb (Einstellungen → Urkunden): eine Prüfung, die dort per Knopf
+    // als bestanden eingetragen wurde, trägt `test = 1`. Eine Urkunde aus
+    // einem Durchgang mit solchen Prüfungen ist eine Testurkunde — mit Stempel,
+    // und die öffentliche Prüfung nennt sie ungültig.
+    $spalten = [];
+    foreach ($pdo->query('PRAGMA table_info(pruefungen)') as $sp) $spalten[] = (string)$sp['name'];
+    if ($spalten !== [] && !in_array('test', $spalten, true)) {
+        $pdo->exec('ALTER TABLE pruefungen ADD COLUMN test INTEGER NOT NULL DEFAULT 0');
+    }
+
+    // Rückmeldungen ans Cockpit: Code, Ereignis, Vorlage, Zeitpunkt — nie ein
+    // Name, nie ein Konto. Ein Postausgang: was der Server angenommen hat,
+    // bekommt `gesendet`; was offline anfällt, geht beim nächsten Abgleich mit.
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS urkunden_meldungen (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            pruefcode  TEXT NOT NULL,
+            durchgang  INTEGER NOT NULL DEFAULT 0,
+            ereignis   TEXT NOT NULL,
+            variante   TEXT NOT NULL DEFAULT '',
+            test       INTEGER NOT NULL DEFAULT 0,
+            zeitpunkt  TEXT NOT NULL,
+            gesendet   TEXT NOT NULL DEFAULT ''
+        )
+    ");
+    $pdo->exec('CREATE INDEX IF NOT EXISTS ix_urk_meldungen_offen ON urkunden_meldungen(gesendet, id)');
 }

@@ -1,0 +1,33 @@
+{
+  "name": "Schmiede",
+  "beschreibung": "Warmes Weiss mit einem Band in Glut — die Farbe der Academy, schlicht gesetzt.",
+  "farben": {
+    "papier": "#fdfaf5",
+    "schrift": "#1a1714",
+    "titel": "#9a3d00",
+    "name": "#1a1714",
+    "akzent": "#ff7a1c",
+    "linie": "#c9b9a4"
+  },
+  "inhalt_mm": { "oben": 30, "unten": 20, "links": 34, "rechts": 26 },
+  "text_groesse": 11.5,
+  "vorgabe": {
+    "titel_schrift": "cinzel",
+    "titel_schreibweise": "gross",
+    "titel_groesse": 38,
+    "titel_sperrung": 0.18,
+    "name_schrift": "cormorant",
+    "name_groesse": 30,
+    "abstand": 1.1,
+    "zeilenabstand": 1.45
+  },
+  "grenzen": {
+    "titel_groesse": [26, 46],
+    "titel_sperrung": [0, 0.4],
+    "name_groesse": [20, 38],
+    "abstand": [0.7, 1.5],
+    "zeilenabstand": [1.25, 1.85]
+  },
+  "schriften_titel": ["cinzel", "garamond", "cormorant"],
+  "schriften_name": ["cormorant", "garamond", "cinzel", "schreibschrift"]
+}

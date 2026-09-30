@@ -66,6 +66,12 @@ function pu_urkunde_ausstellen(int $lernender, int $stufe, int $punkte): array
 function pu_urkunde_pruefen(string $code): array
 {
     $code = strtoupper(trim($code));
+    // Die Abschluss-Urkunde nach allen sechs Stufen hat ihr eigenes Modul —
+    // dieselbe Regel: kein Name in der Antwort.
+    if (preg_match('/^PU-A-[A-Z2-9]{8}$/', $code)) {
+        require_once __DIR__ . '/abschluss.php';
+        return pu_abschluss_pruefen($code);
+    }
     if (!preg_match('/^PU-[1-6]-[A-Z2-9]{8}$/', $code)) {
         return ['gefunden' => false, 'grund' => 'Das ist kein PROMPTHEUS-Prüfcode.'];
     }
@@ -95,6 +101,10 @@ function pu_urkunde_pruefen(string $code): array
 /** Ein Tutor kann eine Urkunde widerrufen. Gelöscht wird sie nie. */
 function pu_urkunde_widerrufen(string $code, int $durch): bool
 {
+    if (str_starts_with(strtoupper(trim($code)), 'PU-A-')) {
+        require_once __DIR__ . '/abschluss.php';
+        return pu_abschluss_widerrufen($code, $durch);
+    }
     $st = pu_db()->prepare(
         "UPDATE urkunden SET widerrufen = ? WHERE pruefcode = ? AND widerrufen = ''"
     );

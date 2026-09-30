@@ -419,6 +419,63 @@ html[data-thema-effektiv="hell"] {
   color: var(--schrift-3); font-size: .82rem; margin-bottom: 0;
 }
 .abschluss-karte { margin-top: 1.6rem; }
+
+/* Abschluss-Urkunde (fortschritt.js): Gold, weil hier etwas geschafft ist. */
+.abschluss-urkunde { margin-top: 1.6rem; border-left: 3px solid var(--gold); }
+.abschluss-urkunde table { margin: .6rem 0 1rem; }
+.abschluss-urkunde .feldpaar { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: .8rem 0; }
+.abschluss-urkunde label { display: block; }
+.abschluss-urkunde label input:not([type="checkbox"]) { display: block; width: 100%; margin-top: .25rem; }
+.abschluss-urkunde .abschluss-name { font-family: var(--serif); font-size: 1.6rem; color: var(--gold); margin: .2rem 0 .9rem; }
+.abschluss-urkunde .abschluss-kontrolle label { margin: .6rem 0; }
+@media (max-width: 600px) { .abschluss-urkunde .feldpaar { grid-template-columns: 1fr; } }
+
+/* Die drei Schritte (urkunde.js) */
+.urkunde-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; padding: 0; margin: .4rem 0 1rem; }
+.urkunde-schritte li { color: var(--schrift-3); font-size: .92rem; }
+.urkunde-schritte li span {
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  border: 1px solid var(--rand-hell); margin-right: .25rem; font-size: .8rem;
+}
+.urkunde-schritte li.jetzt { color: var(--schrift); font-weight: 600; }
+.urkunde-schritte li.jetzt span { border-color: var(--glut); color: var(--glut); }
+.urkunde-schritte li.fertig span { border-color: var(--gold); color: var(--gold); }
+
+.urkunde-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; margin: .6rem 0 1.2rem; }
+.urkunde-muster {
+  display: flex; flex-direction: column; gap: .3rem; text-align: left; cursor: pointer;
+  background: var(--grund-3); border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  padding: .6rem; color: var(--schrift); font: inherit;
+}
+.urkunde-muster:hover { border-color: var(--rand-hell); }
+.urkunde-muster.gewaehlt { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.urkunde-muster iframe {
+  width: 100%; aspect-ratio: 210 / 305; border: 0; pointer-events: none;
+  background: var(--grund); border-radius: 3px;
+}
+.urkunde-muster .muster-name { font-weight: 600; }
+.urkunde-fuss { display: flex; gap: .6rem; justify-content: flex-end; }
+
+.urkunde-werkbank { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 1.2rem; align-items: start; }
+.urkunde-regler fieldset { border: 1px solid var(--rand); border-radius: var(--radius-klein); margin: .8rem 0; padding: .5rem .8rem; }
+.urkunde-regler legend { color: var(--schrift-2); font-size: .9rem; padding: 0 .3rem; }
+.urkunde-regler label { display: block; margin: .45rem 0; font-size: .92rem; }
+.urkunde-regler select, .urkunde-regler input[type="range"] { display: block; width: 100%; margin-top: .2rem; }
+.urkunde-regler output { color: var(--gold); font-family: var(--mono); }
+.urkunde-knoepfe { display: flex; flex-wrap: wrap; gap: .5rem; }
+.urkunde-vorschau iframe {
+  width: 100%; aspect-ratio: 210 / 305; border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  background: var(--grund);
+}
+@media (max-width: 860px) { .urkunde-werkbank { grid-template-columns: 1fr; } }
+
+/* Einstellungen → Urkunden */
+.einst-block { margin: 1.1rem 0; padding: .8rem 1rem; border: 1px solid var(--rand); border-radius: var(--radius-klein); }
+.einst-block h4 { margin: 0 0 .5rem; }
+.einst-block .gut, .abschluss-urkunde .gut { color: var(--gut); }
+.urkunde-sicherheit { padding-left: 1.1rem; }
+.urkunde-sicherheit li { margin: .3rem 0; }
+.urkunde-testschalter { display: flex; align-items: center; gap: .6rem; font-weight: 600; }
 .abschluss-liste { margin: .6rem 0 .9rem; padding-left: 1.2rem; }
 .abschluss-liste li { margin-bottom: .3rem; }
 
