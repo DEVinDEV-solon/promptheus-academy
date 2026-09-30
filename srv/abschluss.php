@@ -740,6 +740,21 @@ function pu_abschluss_meldungen(string $code): array
 }
 
 /**
+ * Die Form, die der Server annimmt (promptheus-devindev, gemeinsam/urkunden.php):
+ * genau diese sieben Felder, kein weiteres — ein zusätzliches Feld lässt der
+ * Server die ganze Sendung abweisen. `nr` ist die Nummer im Postausgang; mit
+ * ihr erkennt der Server eine wiederholte Zusendung.
+ */
+function pu_abschluss_meldungen_form(array $zeilen): array
+{
+    return array_map(static fn(array $m) => [
+        'nr' => (int)$m['id'], 'code' => (string)$m['pruefcode'], 'durchgang' => (int)$m['durchgang'],
+        'ereignis' => (string)$m['ereignis'], 'variante' => (string)$m['variante'],
+        'test' => (int)$m['test'], 'zeit' => (string)$m['zeitpunkt'],
+    ], $zeilen);
+}
+
+/**
  * Schickt den Postausgang an den Server (Relay-Zweck `urkunden`).
  *
  * Läuft nur für registrierte Installationen und nur mit, wenn ohnehin ein
@@ -759,13 +774,7 @@ function pu_abschluss_meldungen_senden(): int
     $offen = $st->fetchAll();
     if ($offen === []) return 0;
 
-    $nutzlast = array_map(static fn(array $m) => [
-        'code' => (string)$m['pruefcode'], 'durchgang' => (int)$m['durchgang'],
-        'ereignis' => (string)$m['ereignis'], 'variante' => (string)$m['variante'],
-        'test' => (int)$m['test'], 'zeit' => (string)$m['zeitpunkt'],
-    ], $offen);
-
-    $aus = pu_relay_ruf('urkunden', ['meldungen' => $nutzlast]);
+    $aus = pu_relay_ruf('urkunden', ['meldungen' => pu_abschluss_meldungen_form($offen)]);
     if (!$aus['ok']) return 0;
 
     $jetzt = pu_jetzt();

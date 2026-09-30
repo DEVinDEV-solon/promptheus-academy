@@ -303,6 +303,17 @@ pruefe('Meldungen nennen keinen Namen', !str_contains($alle, 'Zoe') && !str_cont
        && !str_contains($alle, 'Anna') && !str_contains($alle, 'Müller'));
 pruefe('Meldungen nennen kein Konto', !str_contains($alle, 'KH-') && !str_contains($alle, 'zoe'));
 gleich('ohne Registrierung wird nichts gesendet', 0, pu_abschluss_meldungen_senden());
+
+// Vertrag mit dem Server (promptheus-devindev, gemeinsam/urkunden.php,
+// PU_URKUNDEN_FELDER): genau diese Felder, sonst weist er die Sendung ab.
+$form = pu_abschluss_meldungen_form(pu_db()->query('SELECT * FROM urkunden_meldungen ORDER BY id LIMIT 3')->fetchAll());
+$felder = array_keys($form[0]);
+sort($felder);
+gleich('Meldungsform = Serverform', ['code', 'durchgang', 'ereignis', 'nr', 'test', 'variante', 'zeit'], $felder);
+pruefe('nr ist die Postausgangsnummer, fortlaufend', $form[0]['nr'] >= 1 && $form[1]['nr'] > $form[0]['nr']);
+pruefe('Zeit in der Serverform (JJJJ-MM-TT hh:mm:ss)',
+       (bool)preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $form[0]['zeit']));
+pruefe('Code in der Serverform', (bool)preg_match('/^PU-A-[A-Z2-9]{8}$/', $form[0]['code']));
 pruefe('… und nichts als gesendet markiert',
        (int)pu_db()->query("SELECT COUNT(*) FROM urkunden_meldungen WHERE gesendet <> ''")->fetchColumn() === 0);
 
