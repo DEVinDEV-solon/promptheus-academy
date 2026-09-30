@@ -28,6 +28,7 @@ require_once __DIR__ . '/srv/punkte.php';
 require_once __DIR__ . '/srv/badges.php';
 require_once __DIR__ . '/srv/pruefung.php';
 require_once __DIR__ . '/srv/zertifikat.php';
+require_once __DIR__ . '/srv/abschluss.php';
 require_once __DIR__ . '/srv/lernende.php';
 require_once __DIR__ . '/srv/brain.php';
 require_once __DIR__ . '/srv/tutor.php';
@@ -138,11 +139,7 @@ try {
                    sind — er ist der Abschluss, kein Wahlkurs nebenher. Wer den
                    Stoff pflegt, kommt trotzdem hinein: sonst liesse sich ein
                    Kurs nicht Korrektur lesen, bevor ihn jemand erreicht. */
-                $frei = match ($k['art']) {
-                    'stufe'  => pu_stufe_frei($ichId, (int)$k['stufe']),
-                    'zusatz' => pu_alle_stufen_bestanden($ichId) || pu_recht_hat('lektionen.manage'),
-                    default  => true,
-                };
+                $frei = pu_kurs_frei($ichId, $k) || pu_recht_hat('lektionen.manage');
                 $gel  = 0; $ges = 0;
                 foreach ($k['lektionen'] as $l) {
                     foreach ($l['aufgaben'] as $a) {
@@ -170,12 +167,30 @@ try {
                          'fehler_im_stoff' => pu_recht_hat('lektionen.manage') ? $index['fehler'] : []]);
         }
 
+        /* Der Stand der beiden letzten Menüpunkte: „Der 7. Kurs" und
+           „Werkstatt". Beide stehen immer im Menü und schalten sich frei,
+           wenn der Weg so weit ist — sechs Stufen, dann der 7. Kurs zu 100 %.
+           Ob wirklich geöffnet werden darf, prüfen `kurs` und
+           `werkstatt_oeffnen` selbst; das hier ist nur die Anzeige. */
+        case 'werkstatt_menue': {
+            pu_recht_fordern('dashboard.view');
+            $k7 = pu_coder_kurs();
+            $w  = pu_werkstatt_stand($ichId);
+            pu_json_out(['ok' => true,
+                'kurs7' => [
+                    'frei' => $k7 !== null && (pu_kurs_frei($ichId, $k7) || pu_recht_hat('lektionen.manage')),
+                    'pfad' => $k7['pfad'] ?? '',
+                ],
+                'werkstatt' => $w,
+            ]);
+        }
+
         case 'kurs': {
             pu_recht_fordern('dashboard.view');
             $k = pu_kurs((string)d('pfad'));
             if ($k === null) pu_fehler('Diesen Kurs gibt es nicht.', 404);
-            if ($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $k) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
             $stand = pu_geloest($ichId);
             $lek = [];
@@ -205,8 +220,8 @@ try {
             $rel  = (string)d('pfad');
             $kurs = pu_kurs(dirname($rel));
             if ($kurs === null) pu_fehler('Diese Lektion gehört zu keinem Kurs.', 404);
-            if ($kurs['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$kurs['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $kurs) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
 
             $lek = null;
@@ -362,8 +377,8 @@ try {
             pu_recht_fordern('pruefung.ausfuehren');
             $k = pu_kurs((string)d('pfad'));
             if ($k === null || $k['pruefung'] === null) pu_fehler('Zu diesem Kurs gibt es keine Prüfung.', 404);
-            if ($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $k) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
             $aufgaben = array_map('pu_aufgabe_oeffentlich', $k['pruefung']['aufgaben']);
             pu_protokoll($ichId, 'pruefung_start', $k['pfad'], '');
@@ -427,6 +442,128 @@ try {
             exit;
         }
 
+        // ---------------------------------------------------------- Abschluss-Urkunde
+        //
+        // Nach allen sechs Stufen, mit dem echten Namen (srv/abschluss.php).
+        // Ohne Sprachmodell und ohne Server: der Name bleibt auf diesem
+        // Rechner und liegt nur verschlüsselt in der Datenbank.
+        case 'abschluss_stand':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'abschluss' => pu_abschluss_stand($ichId)]);
+
+        case 'abschluss_ausstellen': {
+            // Nicht `pruefung.ausfuehren`: die Tür ist das Bestehen aller sechs
+            // Stufen (pu_abschluss_lauf). Wer einen Stand hat, darf die Urkunde
+            // dazu holen — auch ein Elternkonto im Testbetrieb.
+            pu_recht_fordern('fortschritt.eigen');
+            try {
+                $u = pu_abschluss_ausstellen($ichId, (string)d('vorname'), (string)d('nachname'),
+                                             (string)d('bestaetigung'), (string)d('variante'),
+                                             (array)d('design', []));
+            } catch (InvalidArgumentException | DomainException $e) {
+                pu_fehler($e->getMessage(), 400);
+            } catch (RuntimeException $e) {
+                pu_fehler($e->getMessage(), 409);
+            }
+            pu_json_out(['ok' => true, 'urkunde' => $u]);
+        }
+
+        // Schritt 1 und 3: Vorlagen, Musterseite, eigene Gestaltung. Die
+        // Gestaltung gehört dem Teilnehmer; Name und Prüfcode bleiben fest.
+        case 'abschluss_vorlagen':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'gruppen' => pu_urkunden_varianten(),
+                         'schriften' => pu_urkunden_schriften()]);
+
+        case 'abschluss_muster': {
+            pu_recht_fordern('fortschritt.eigen');
+            $html = pu_abschluss_muster((string)d('variante', $_GET['variante'] ?? ''));
+            if ($html === null) pu_fehler('Dieses Design gibt es nicht.', 404);
+            header('Content-Type: text/html; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo $html;
+            exit;
+        }
+
+        case 'abschluss_design_setzen': {
+            pu_recht_fordern('fortschritt.eigen');
+            try {
+                $neu = pu_abschluss_design_setzen($ichId, (string)d('code'), (string)d('variante'),
+                                                  (array)d('design', []));
+            } catch (InvalidArgumentException | DomainException $e) {
+                pu_fehler($e->getMessage(), 400);
+            }
+            pu_json_out(['ok' => true, 'design' => $neu]);
+        }
+
+        case 'abschluss_gedruckt':
+            // Bewacht sich selbst wie abschluss_html: wer öffnen darf, darf drucken.
+            pu_json_out(['ok' => pu_abschluss_gedruckt((string)d('code'), pu_wer_echt() ?? $ich)]);
+
+        // Einstellungen → Urkunden: Überblick, Sicherheit, Testbetrieb.
+        case 'urkunden_uebersicht':
+            pu_recht_fordern('fortschritt.eigen');
+            pu_json_out(['ok' => true, 'uebersicht' => pu_urkunden_uebersicht(pu_wer_echt() ?? $ich)]);
+
+        case 'urkunden_testbetrieb':
+            pu_recht_fordern('urkunde.ausstellen');
+            pu_urkunden_testbetrieb_setzen((bool)d('an', false), $ichId);
+            pu_json_out(['ok' => true, 'an' => pu_urkunden_testbetrieb()]);
+
+        case 'urkunden_test_bestehen': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { pu_abschluss_test_bestehen($ziel, $ichId); }
+            catch (InvalidArgumentException | DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true]);
+        }
+
+        case 'urkunden_test_zuruecksetzen': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { $weg = pu_abschluss_test_zuruecksetzen($ziel, $ichId); }
+            catch (InvalidArgumentException | DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true, 'entfernt' => $weg]);
+        }
+
+        case 'urkunden_test_kurs7': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { pu_kurs7_test_setzen($ziel, (bool)d('an', true), $ichId); }
+            catch (DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true]);
+        }
+
+        case 'abschluss_liste':
+            pu_recht_fordern('urkunde.nachdrucken');
+            pu_json_out(['ok' => true, 'urkunden' => pu_abschluesse_umkreis(pu_wer_echt() ?? $ich)]);
+
+        case 'abschluss_html': {
+            // Bewacht sich selbst: der Lernende immer, sonst Recht UND Umkreis
+            // (pu_abschluss_darf_sehen). Gefragt wird für den echten Menschen —
+            // eine Rollenübernahme macht aus Ebene 1 keinen Schüler.
+            $echt = pu_wer_echt() ?? $ich;
+            try {
+                $html = pu_abschluss_html((string)d('code', $_GET['code'] ?? ''), $echt);
+            } catch (DomainException $e) {
+                pu_fehler($e->getMessage(), 403);
+            }
+            if ($html === null) pu_fehler('Zu diesem Code gibt es keine Abschluss-Urkunde.', 404);
+            header('Content-Type: text/html; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo $html;
+            exit;
+        }
+
         // ---------------------------------------------------------- Tutor-Agenten
         case 'tutor_fragen': {
             pu_recht_fordern('tutor.fragen');
@@ -450,8 +587,7 @@ try {
                 // Dieselbe Schranke wie auf der Kursseite: eine gesperrte
                 // Stufe wird auch dann nicht erzählt, wenn man danach fragt.
                 if ($k !== null
-                    && !($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe'])
-                         && !pu_recht_hat('lektionen.manage'))) {
+                    && (pu_kurs_frei($ichId, $k) || pu_recht_hat('lektionen.manage'))) {
                     $kontext['kurs'] = pu_kurs_als_text($k);
                 }
             }

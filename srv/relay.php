@@ -289,6 +289,15 @@ function pu_relay_stand(): array
     if (is_array($aus['stand']['abos_bestaetigt'] ?? null)) {
         pu_relay_abos_bestaetigen($aus['stand']['abos_bestaetigt']);
     }
+    // Die Urkunden-Rückmeldungen (Code, Ereignis, Zeit — ohne Namen) fahren
+    // mit, solange die Verbindung ohnehin steht. Scheitert das, bleibt der
+    // Postausgang liegen; der Stand selbst ist davon unberührt.
+    try {
+        require_once __DIR__ . '/abschluss.php';
+        pu_abschluss_meldungen_senden();
+    } catch (Throwable) {
+        // nächster Abgleich
+    }
     return ['ok' => true, 'stand' => $aus['stand'] ?? [],
             'gezogen_am' => gmdate('Y-m-d\TH:i:s\Z')];
 }

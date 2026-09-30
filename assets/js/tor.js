@@ -59,8 +59,28 @@ if (formUrkunde) {
         ziel.innerHTML = '<p class="fehler">✕ ' + r.grund + '</p>';
         return;
       }
+      if (r.art === 'abschluss' && r.test) {
+        ziel.innerHTML = '<p class="fehler">✕ Das ist eine Testurkunde — zum Ausprobieren erstellt, nicht gültig.</p>';
+        return;
+      }
+      if (r.art === 'abschluss' && !r.siegel_ok) {
+        ziel.innerHTML = '<p class="fehler">✕ Das Siegel dieser Urkunde ist gebrochen — sie ist ungültig.</p>';
+        return;
+      }
       if (!r.gueltig) {
         ziel.innerHTML = '<p class="fehler">✕ Diese Urkunde wurde widerrufen.</p>';
+        return;
+      }
+      // Die Abschluss-Urkunde: kein Name, aber Konto-Hash und Siegel — wer
+      // die Urkunde vor sich hat, vergleicht beides mit dem Aufdruck.
+      if (r.art === 'abschluss') {
+        ziel.innerHTML =
+          '<div class="ergebnis richtig">' +
+          '<div class="ergebnis-kopf"><span class="zeichen">✓</span> Gültige Abschluss-Urkunde</div>' +
+          '<p>Alle sechs Stufen bestanden (Durchgang ' + r.durchgang + ')<br>' +
+          'Ausgestellt am ' + new Date(r.ausgestellt).toLocaleDateString('de-DE') + '<br>' +
+          'Konto-Hash <code>' + r.konto_hash + '</code><br>' +
+          'Siegel <code>' + r.siegel_kurz + '</code></p></div>';
         return;
       }
       ziel.innerHTML =

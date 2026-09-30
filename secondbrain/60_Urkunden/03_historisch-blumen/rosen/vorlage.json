@@ -1,0 +1,33 @@
+{
+  "name": "Rosen",
+  "beschreibung": "Pergamentrolle mit Rosen in zwei Ecken und feinen Goldranken. Schreibschrift für das Wort Urkunde.",
+  "farben": {
+    "papier": "#f3e3c3",
+    "schrift": "#2a1d12",
+    "titel": "#7d2f3c",
+    "name": "#4f2129",
+    "akzent": "#9c7a32",
+    "linie": "#9c7a32"
+  },
+  "inhalt_mm": { "oben": 40, "unten": 40, "links": 28, "rechts": 28 },
+  "text_groesse": 11.5,
+  "vorgabe": {
+    "titel_schrift": "schreibschrift",
+    "titel_schreibweise": "normal",
+    "titel_groesse": 52,
+    "titel_sperrung": 0,
+    "name_schrift": "cormorant",
+    "name_groesse": 30,
+    "abstand": 1.0,
+    "zeilenabstand": 1.45
+  },
+  "grenzen": {
+    "titel_groesse": [34, 64],
+    "titel_sperrung": [0, 0.15],
+    "name_groesse": [20, 40],
+    "abstand": [0.7, 1.4],
+    "zeilenabstand": [1.25, 1.8]
+  },
+  "schriften_titel": ["schreibschrift", "cormorant", "garamond", "cinzel"],
+  "schriften_name": ["cormorant", "schreibschrift", "garamond", "cinzel"]
+}

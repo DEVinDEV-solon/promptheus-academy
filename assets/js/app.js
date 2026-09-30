@@ -784,8 +784,9 @@ PU.modalSchliessen = function () {
      wenn hinter uns nichts Eigenes liegt — jemand hat die Adresse direkt
      aufgerufen —, wird die Adresse ersetzt. */
   if (PU.fensterOffen) {
+    const name = PU.fensterOffen;
     PU.fensterOffen = '';
-    if (PU.routeSchritte > 0 && location.hash.startsWith('#/ziel')) history.back();
+    if (PU.routeSchritte > 0 && location.hash.startsWith('#/' + name)) history.back();
     else if (PU.routeSchreiben) PU.routeSchreiben(true);
   }
   modal.classList.add('hidden');

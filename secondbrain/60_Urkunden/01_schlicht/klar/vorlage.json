@@ -1,0 +1,33 @@
+{
+  "name": "Klar",
+  "beschreibung": "Weisses Blatt, blaues Band am linken Rand, römische Versalien. Sachlich wie ein Zeugnis.",
+  "farben": {
+    "papier": "#ffffff",
+    "schrift": "#1a1714",
+    "titel": "#24466e",
+    "name": "#24466e",
+    "akzent": "#4e82b6",
+    "linie": "#b9b0a4"
+  },
+  "inhalt_mm": { "oben": 30, "unten": 20, "links": 34, "rechts": 26 },
+  "text_groesse": 11.5,
+  "vorgabe": {
+    "titel_schrift": "cinzel",
+    "titel_schreibweise": "gross",
+    "titel_groesse": 36,
+    "titel_sperrung": 0.14,
+    "name_schrift": "garamond",
+    "name_groesse": 28,
+    "abstand": 1.1,
+    "zeilenabstand": 1.45
+  },
+  "grenzen": {
+    "titel_groesse": [26, 46],
+    "titel_sperrung": [0, 0.4],
+    "name_groesse": [20, 36],
+    "abstand": [0.7, 1.5],
+    "zeilenabstand": [1.25, 1.85]
+  },
+  "schriften_titel": ["cinzel", "garamond", "cormorant"],
+  "schriften_name": ["garamond", "cormorant", "cinzel", "schreibschrift"]
+}

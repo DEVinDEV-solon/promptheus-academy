@@ -117,6 +117,10 @@ function einstZeichnen() {
     // Für jeden, auch unregistriert (28.09.2026): welche Rolle man hat, woher
     // sie kommt, was die anderen dürfen. Die Matrix darunter nur mit Recht.
     ['rollen',      'Rollen & Rechte'],
+    // Für jeden (30.09.2026): der eigene Weg zur Abschluss-Urkunde. Was
+    // darunter steht — Urkunden des eigenen Bereichs, Sicherheit,
+    // Testbetrieb —, hängt am Recht und wird in urkunde.js entschieden.
+    ['urkunden',    'Urkunden'],
     ['konto',       'Konto']
   ];
 
@@ -196,6 +200,7 @@ function inhaltZeichnen() {
     case 'lob':         lobZeichnen(ziel);         break;
     case 'konto':       kontoZeichnen(ziel);       break;
     case 'rollen':      PU.rollenZeichnen(ziel);   break;
+    case 'urkunden':    PU.urkundenEinstZeichnen(ziel); break;
     case 'coder':       coderZeichnen(ziel);       break;
     case 'werkstatt':   werkstattZeichnen(ziel);   break;
     case 'sprache':     spracheZeichnen(ziel);     break;
@@ -1400,6 +1405,8 @@ function zeileText(ziel, titel, warum, jetzt, platzhalter, beiWahl, links, vorsc
  * (srv/werkstatt.php) beim Öffnen — hier wird es nur gezeigt.
  */
 const WERKSTATT_GRUND = {
+  stufen_offen: 'Erst die sechs Stufen bestehen, dann den 7. Kurs — danach öffnet sich die Werkstatt.',
+  test:       'Frei im Testbetrieb: Der 7. Kurs ist für dieses Konto als fertig markiert.',
   kurs_fehlt: 'Der 7. Kurs ist auf diesem Rechner noch nicht eingerichtet.',
   kurs_leer:  'Der 7. Kurs wird gerade geschrieben. Sobald er Aufgaben hat, kannst du ihn abschliessen.',
   kurs_offen: 'Die Werkstatt wird frei, wenn du den 7. Kurs vollständig abgeschlossen hast.',
@@ -1407,8 +1414,10 @@ const WERKSTATT_GRUND = {
   kurs:       'Frei. Du hast den 7. Kurs abgeschlossen.'
 };
 
-function werkstattZeichnen(ziel) {
-  const w = PU.einstZustand.daten.werkstatt_stand || { frei: false, grund: 'kurs_fehlt' };
+/* Auch das Fenster hinter dem Menüpunkt „Werkstatt" zeichnet hiermit
+   (assets/js/werkstatt.js) und reicht seinen frischen Stand mit. */
+function werkstattZeichnen(ziel, frisch) {
+  const w = frisch || PU.einstZustand.daten.werkstatt_stand || { frei: false, grund: 'kurs_fehlt' };
 
   ziel.appendChild(PU.el('h3', '', 'Werkstatt'));
   ziel.appendChild(PU.el('p', 'hinweis',
@@ -1451,8 +1460,12 @@ function werkstattZeichnen(ziel) {
   ziel.appendChild(knopf);
 }
 
+PU.werkstattZeichnen = werkstattZeichnen;
+
 /** Was die Kürzel aus pu_coder_stand() für einen Lernenden bedeuten. */
 const CODER_GRUND = {
+  stufen_offen: 'Erst die sechs Stufen bestehen, dann den 7. Kurs — danach ist der Coder frei.',
+  test:        'Frei im Testbetrieb: Der 7. Kurs ist für dieses Konto als fertig markiert.',
   aus:         'Die Academy hat den Coder noch nicht eingeschaltet.',
   kein_modell: 'Es ist noch kein Modell für den Coder eingetragen.',
   kurs_fehlt:  'Der 7. Kurs ist auf diesem Rechner noch nicht eingerichtet.',

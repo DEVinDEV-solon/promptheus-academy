@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{titel_seite}}</title>
+<style>
+  /* Die Abschluss-Urkunde — DIN A4 hoch, eigenständig.
+     Befüllt von srv/urkunden_design.php. Alle Werte, die der Teilnehmer
+     verstellen darf, stehen als Variablen auf :root; die Vorschau in der
+     Academy setzt sie live, ohne die Seite neu zu laden. Farben kommen aus
+     der vorlage.json der Variante. */
+  {{schriften}}
+  :root { {{root}} }
+
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #6d655d; padding: 12px 0; }
+
+  .buehne { width: 100%; display: flex; justify-content: center; }
+  .blatt {
+    /* flex: none — sonst staucht die Bühne das Blatt auf Fensterbreite,
+       statt dass es skaliert wird, und der Umbruch wäre ein anderer als im Druck. */
+    position: relative; width: 210mm; height: 297mm; overflow: hidden; flex: none;
+    background-color: var(--papier);
+    background-image: {{bild}};
+    /* Das Bild ist 9:16 (so kann der Generator), das Blatt 1:1,414. Es füllt
+       die Breite; oben und unten fallen je rund 10 % weg. Die Bildprompts
+       halten diese Streifen deshalb frei von Motiv. */
+    background-size: cover; background-position: center;
+    color: var(--schrift); font-family: var(--grund-schrift);
+    transform-origin: top center;
+    box-shadow: 0 6px 30px rgba(0,0,0,.35);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .blatt.siegel:not(.mit-bild), .blatt.blumen:not(.mit-bild) {
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(255,250,235,.55), transparent 60%),
+      radial-gradient(ellipse at 75% 85%, rgba(160,110,50,.18), transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(150,100,40,.16), transparent 45%);
+  }
+  .schmuck { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  /* Der Textbereich — fest je Variante (inhalt_mm). Ranken, Siegel und
+     Blumen liegen ausserhalb; darin verstellt der Teilnehmer nur Schrift und
+     Luft, nie die Grenzen. */
+  .inhalt {
+    position: absolute; top: var(--rand-oben); bottom: var(--rand-unten);
+    left: var(--rand-links); right: var(--rand-rechts);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    font-size: var(--text-groesse); line-height: var(--zeilenabstand);
+  }
+  .marke { font-size: .78em; letter-spacing: .32em; text-transform: uppercase; opacity: .8; }
+  .titel {
+    margin-top: calc(6mm * var(--abstand));
+    font-family: var(--titel-schrift); font-style: var(--titel-stil);
+    font-size: var(--titel-groesse); letter-spacing: var(--titel-sperrung);
+    color: var(--titel-farbe); line-height: 1.1; font-weight: 400;
+    /* Die Sperrung hängt rechts eine Lücke an — sie wird hier ausgeglichen,
+       sonst steht das Wort sichtbar links der Mitte. */
+    padding-left: var(--titel-sperrung);
+  }
+  .einleitung { margin-top: calc(10mm * var(--abstand)); }
+  .name {
+    margin-top: calc(5mm * var(--abstand));
+    font-family: var(--name-schrift); font-style: var(--name-stil);
+    font-size: var(--name-groesse); color: var(--name-farbe); line-height: 1.2;
+    max-width: 100%; overflow-wrap: anywhere;
+  }
+  .text { margin: calc(7mm * var(--abstand)) auto 0; max-width: 150mm; }
+  .stufen {
+    margin-top: calc(6mm * var(--abstand)); font-size: .82em; letter-spacing: .12em;
+    color: var(--akzent);
+  }
+  /* Die freie Höhe verteilt sich auf zwei Stellen: etwas unter den Titel,
+     mehr über das Datum. So sitzt der Mittelblock ausgewogen, statt oben zu
+     kleben und ein Loch über den Unterschriften zu lassen. */
+  .luft { flex: 1.6 1 0; min-height: 4mm; }
+  .luft.oben { flex: 1 1 0; min-height: 0; }
+  .datum { font-size: .9em; margin-bottom: calc(6mm * var(--abstand)); }
+
+  .unterschriften { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; width: 100%; }
+  .unterschrift { text-align: center; }
+  .zug { height: 14mm; display: flex; align-items: flex-end; justify-content: center;
+         border-bottom: .3mm solid var(--linie); }
+  /* multiply: ein weisser Bildgrund verschwindet auf jedem Papier — die
+     Unterschrift muss nicht freigestellt sein, nur eng zugeschnitten. */
+  .zug img { max-height: 16mm; max-width: 100%; object-fit: contain; margin-bottom: -2mm;
+             mix-blend-mode: multiply; }
+  .u-name { margin-top: 1.5mm; font-size: .95em; }
+  .u-rolle { font-size: .75em; opacity: .75; }
+
+  .pruefung {
+    margin-top: calc(6mm * var(--abstand)); width: 100%;
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: 7.5pt; line-height: 1.5;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 1mm 5mm;
+  }
+  .pruefung b { font-weight: 400; opacity: .7; }
+  .schutz { margin-top: 2.5mm; font-size: 6.6pt; line-height: 1.35; opacity: .75; max-width: 160mm; }
+
+  .stempel {
+    position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+    font: 700 42pt/1 Georgia, serif; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(190, 40, 40, .22); transform: rotate(-30deg);
+  }
+  .stempel:empty { display: none; }
+
+  /* Als kleines Vorschaubild in Schritt 1: nur das Blatt, kein Tisch drumherum. */
+  @media screen and (max-width: 360px) {
+    body { background: transparent; padding: 0; }
+    .blatt { box-shadow: none; }
+  }
+
+  @media print {
+    body { background: none; padding: 0; }
+    .blatt { box-shadow: none; transform: none !important; }
+    .buehne { display: block; height: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="buehne">
+  <div class="blatt {{stil}}">
+    {{schmuck}}
+    <div class="inhalt">
+      <div class="marke">Promptheus Academy</div>
+      <div class="titel">{{titel}}</div>
+      <div class="luft oben"></div>
+      <div class="einleitung">Hiermit wird bescheinigt, dass</div>
+      <div class="name">{{name}}</div>
+      <p class="text">alle sechs Stufen der PROMPTHEUS ACADEMY mit bestandener Abschlussprüfung
+        durchlaufen hat — ohne Hinweise und ohne Musterlösung in der Prüfung — und damit
+        Sprachmodelle verstehen, gezielt einsetzen, zu Systemen verbinden, absichern und
+        kritisch beurteilen kann.</p>
+      <div class="stufen">{{stufen}}</div>
+      <div class="luft"></div>
+      <div class="datum">Ausgestellt am {{datum}} · Durchgang {{durchgang}} · {{punkte}} Punkte in sechs Prüfungen</div>
+      <div class="unterschriften">{{unterschriften}}</div>
+      <div class="pruefung">
+        <span><b>Prüfcode</b> {{pruefcode}}</span>
+        <span><b>Konto-Hash</b> {{konto_hash}}</span>
+        <span><b>Siegel</b> {{siegel}}</span>
+      </div>
+      <div class="schutz">Erstellt auf dem Rechner der Teilnehmerin oder des Teilnehmers, ohne Sprachmodell.
+        Der Name wurde selbst eingetragen, liegt nur verschlüsselt vor und ist kryptografisch mit dem Konto
+        verbunden. Prüfbar mit dem Prüfcode auf der Anmeldeseite der Academy — die Auskunft nennt keinen Namen.</div>
+    </div>
+    <div class="stempel">{{stempel}}</div>
+  </div>
+</div>
+<script>
+  /* Am Bildschirm passt sich das Blatt der Fensterbreite an (auch in der
+     kleinen Vorschau der Academy). Im Druck gilt die echte Grösse. */
+  (function () {
+    var blatt = document.querySelector('.blatt'), buehne = document.querySelector('.buehne');
+    function passen() {
+      var rand = document.documentElement.clientWidth <= 360 ? 0 : 16;
+      var s = Math.min(1, (document.documentElement.clientWidth - rand) / blatt.offsetWidth);
+      blatt.style.transform = 'scale(' + s + ')';
+      buehne.style.height = (blatt.offsetHeight * s) + 'px';
+    }
+    window.addEventListener('resize', passen);
+    passen();
+
+    /* Jeder Druck zählt für die Rückmeldung — mit Code, ohne Namen. */
+    var code = '{{druck_code}}';
+    if (code) {
+      window.addEventListener('afterprint', function () {
+        try {
+          fetch('api.php', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ aktion: 'abschluss_gedruckt', code: code }) });
+        } catch (e) { /* gespeichert und ohne Academy geöffnet: nichts zu melden */ }
+      });
+    }
+  })();
+</script>
+</body>
+</html>

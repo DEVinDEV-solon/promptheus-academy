@@ -178,9 +178,49 @@ PU.fortschrittZeichnen = async function () {
     ziel.appendChild(rahmen);
   }
 
+  /* ------------------------------------------------- Abschluss-Urkunde */
+  //
+  // Eigener Ruf und nicht in `stand`: der Stand wird auf jeder Seite geladen,
+  // die Abschluss-Urkunde nur hier gebraucht.
+  const abschlussPlatz = PU.el('div');
+  ziel.appendChild(abschlussPlatz);
+  PU.abschlussUrkunde(abschlussPlatz);
+
+  if (PU.darf('urkunde.nachdrucken')) {
+    const nachdruck = PU.el('div');
+    ziel.appendChild(nachdruck);
+    nachdruckZeichnen(nachdruck);
+  }
+
   /* ------------------------------------------------- Nach allen Stufen */
   ziel.appendChild(abschlussKarte(s));
 };
+
+/**
+ * Für Schule, Lehrkraft und Eltern: die Abschluss-Urkunden im eigenen
+ * Umkreis, zum erneuten Öffnen und Drucken. Die Liste nennt Anzeigename oder
+ * Pseudonym — den echten Namen zeigt nur die Urkunde selbst.
+ */
+async function nachdruckZeichnen(platz) {
+  let liste;
+  try { liste = (await PU.ruf('abschluss_liste')).urkunden; }
+  catch (e) { return; }                 // ohne Recht in der Sicht: dann eben keine Liste
+  if (!liste.length) return;
+
+  let html = '<h2>Abschluss-Urkunden deiner Lernenden</h2>' +
+    '<p class="hinweis">Erneut öffnen oder drucken — immer mit dem Namen, der beim Ausstellen ' +
+    'versiegelt wurde. Jeder Abruf wird protokolliert, ohne Namen.</p>' +
+    '<div class="tabellenrahmen"><table><tr><th>Konto</th><th>Gruppe</th><th>Durchgang</th>' +
+    '<th>Prüfcode</th><th>Ausgestellt</th><th></th></tr>';
+  liste.forEach(u => {
+    html += '<tr><td>' + PU.h(u.wer) + '</td><td>' + PU.h(u.gruppe) + '</td><td>' + u.durchgang + '</td>' +
+      '<td><code>' + PU.h(u.pruefcode) + '</code></td><td>' + PU.h(u.ausgestellt.substring(0, 10)) + '</td><td>' +
+      (u.widerrufen ? '<span class="fehler">✕ widerrufen</span>'
+        : '<a href="api.php?aktion=abschluss_html&code=' + encodeURIComponent(u.pruefcode) +
+          '" target="_blank" rel="noopener">öffnen / drucken</a>') + '</td></tr>';
+  });
+  platz.innerHTML = html + '</table></div>';
+}
 
 /**
  * Was nach der letzten Stufe kommt.
