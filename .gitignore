@@ -207,3 +207,40 @@ secondbrain/90_Quellen/schulen/*.json
 # Der Harness ist ein eigenes Upstream-Repo und wird vom Installer geholt.
 werkstatt/.dsh/
 werkstatt/deepseek-harness/
+
+# ── 11. Private Inhalte, aus Repo und Historie entfernt (30.09.2026)
+# Liegen nur lokal. Nicht wieder aufnehmen.
+secondbrain/.claudian/
+secondbrain/.obsidian/community-plugins.json
+secondbrain/okf.json
+secondbrain/000_Kontext/admin/
+secondbrain/90_Quellen/schulen/schulen_*
+secondbrain/Login-Level-Rechte-Plan.md
+secondbrain/Netzwerk-Vorplan.md
+/secondbrain/00_Fundament/ki-strukturen/AIS 2027/index.md
+/secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/_hot.md
+/secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/entities/Daniel Kokotajlo.md
+/secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/entities/e03_kokotajlo.md
+/secondbrain/00_Fundament/ki-strukturen/index.md
+/secondbrain/20_Domaenen/DOM-BUERO_Buerobetrieb/01_lektion_einstieg.md
+/secondbrain/20_Domaenen/DOM-BUERO_Buerobetrieb/_index.md
+/secondbrain/20_Domaenen/DOM-DL_Dienstleistung/01_lektion_einstieg.md
+/secondbrain/20_Domaenen/DOM-DL_Dienstleistung/_index.md
+/secondbrain/50_Sprecher_Bilder_Videos/20_Domaenen/DOM-BUERO_Buerobetrieb/01_lektion_einstieg__lehrer.md
+/secondbrain/50_Sprecher_Bilder_Videos/20_Domaenen/DOM-BUERO_Buerobetrieb/01_lektion_einstieg__schule.md
+/secondbrain/90_Quellen/adaptive-learner/_index.md
+/secondbrain/90_Quellen/adaptive-learner/adaptive-learner-methoden.md
+/secondbrain/90_Quellen/agb-token-verfall-recherche.md
+/secondbrain/90_Quellen/community-software/Community-Software-Apache-2-0-Recherche.md
+/secondbrain/90_Quellen/crypto/ki-strukturen-ais-2027-index.md
+/secondbrain/90_Quellen/crypto/ki-strukturen-ais-2027-wiki-entities-daniel-kokotajlo.md
+/secondbrain/90_Quellen/crypto/ki-strukturen-ais-2027-wiki-entities-e03-kokotajlo.md
+/secondbrain/90_Quellen/crypto/ki-strukturen-ais-2027-wiki-hot.md
+/secondbrain/90_Quellen/crypto/ki-strukturen-index.md
+/secondbrain/90_Quellen/kurs-ideen/Bewusstes Sehen Jung Machiavelli.md
+/secondbrain/90_Quellen/kurs-ideen/Kanal-Aussergewoehnlicher-Geist-Kuratierung.md
+/secondbrain/90_Quellen/kurs-ideen/Storytelling - Die Welt der PROMPTHEUS Academy.md
+/secondbrain/90_Quellen/kurs-ideen/Vergessen-ist-kein-Versagen-Ebbinghaus-Testeffekt.md
+/secondbrain/90_Quellen/kurs-ideen/Was ist Intelligenz.md
+/secondbrain/90_Quellen/schulen/schulen_ludwigsburg.md
+/secondbrain/90_Quellen/talente-verteilssystem/Talente-Verteilssystem-Konzept.md
