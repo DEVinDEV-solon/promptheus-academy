@@ -84,6 +84,13 @@ if ($kurs !== null) {
     if ($ids === []) {
         gleich('ein leerer Kurs schaltet nichts frei', 'kurs_leer', pu_coder_stand($schueler)['grund']);
     } else {
+        // Erst die sechs Stufen — derselbe Weg wie zur Werkstatt (pu_kurs7_weg).
+        gleich('ohne Stufen gesperrt', 'stufen_offen', pu_coder_stand($schueler)['grund']);
+        $pr = pu_db()->prepare(
+            "INSERT INTO pruefungen (lernender, stufe, punkte, max_punkte, bestanden, zeitpunkt)
+             VALUES (?, ?, 100, 100, 1, datetime('now'))");
+        foreach (array_keys(PU_STUFEN) as $nr) $pr->execute([$schueler, (int)$nr]);
+
         gleich('vor dem Kurs gesperrt', 'kurs_offen', pu_coder_stand($schueler)['grund']);
         pruefe('pu_coder_frei sagt dasselbe', !pu_coder_frei($schueler));
 

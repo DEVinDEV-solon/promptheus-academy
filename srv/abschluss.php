@@ -862,6 +862,9 @@ function pu_abschluss_test_zuruecksetzen(int $lernender, int $durch): array
         $pdo->exec('ROLLBACK');
         throw $e;
     }
+    // Ohne die Stufen gibt es auch keinen fertigen 7. Kurs mehr.
+    require_once __DIR__ . '/coder.php';
+    if (pu_kurs7_test($lernender)) pu_kurs7_test_setzen($lernender, false, $durch);
     pu_protokoll($durch, 'abschluss_test', 'Konto ' . $lernender, 'Test zurückgesetzt');
     return ['pruefungen' => $p->rowCount(), 'urkunden' => $u->rowCount()];
 }
@@ -918,6 +921,8 @@ function pu_urkunden_uebersicht(array $wer): array
     }
 
     if ($aus['verwalten'] && $aus['testbetrieb']) {
+        require_once __DIR__ . '/coder.php';
+        require_once __DIR__ . '/pruefung.php';
         $st = pu_db()->query('SELECT id, kennung, anzeigename, pseudonym, rolle FROM lernende ORDER BY rolle, anzeigename');
         foreach ($st->fetchAll() as $r) {
             if (!pu_urkunden_testkonto_erlaubt($wer, (int)$r['id'])) continue;
@@ -932,6 +937,8 @@ function pu_urkunden_uebersicht(array $wer): array
                 'test'     => $s['test'],
                 'urkunden' => count($s['urkunden']),
                 'testurkunden' => count(array_filter($s['urkunden'], static fn($u) => !empty($u['test']))),
+                'alle_stufen' => pu_alle_stufen_bestanden((int)$r['id']),
+                'kurs7_test'  => pu_kurs7_test((int)$r['id']),
                 'ich'      => (int)$r['id'] === $id,
             ];
         }

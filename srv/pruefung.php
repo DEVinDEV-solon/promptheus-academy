@@ -36,6 +36,27 @@ function pu_alle_stufen_bestanden(int $lernender): bool
     return true;
 }
 
+/**
+ * Ist dieser Kurs für den Lernenden offen?
+ *
+ *   Stufe       die vorige Stufe ist bestanden
+ *   Zusatzkurs  alle sechs Stufen sind bestanden — der 7. Kurs ist der
+ *               Abschluss, kein Wahlkurs nebenher
+ *   Fachkurs    immer
+ *
+ * Eine Stelle für alle Aufrufe (Kursseite, Lektion, Prüfung, Tutor): Bis zum
+ * 30.09.2026 stand die Sperre des 7. Kurses nur in der Kursliste, und wer
+ * den Pfad kannte, kam trotzdem hinein.
+ */
+function pu_kurs_frei(int $lernender, array $kurs): bool
+{
+    return match ($kurs['art'] ?? '') {
+        'stufe'  => pu_stufe_frei($lernender, (int)$kurs['stufe']),
+        'zusatz' => pu_alle_stufen_bestanden($lernender),
+        default  => true,
+    };
+}
+
 function pu_stufe_bestanden(int $lernender, int $stufe): bool
 {
     $st = pu_db()->prepare(

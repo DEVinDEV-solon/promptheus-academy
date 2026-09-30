@@ -353,8 +353,14 @@ $us = pu_urkunden_uebersicht($lisa);
 pruefe('Schüler: keine Sicherheit, keine Konten', !$us['verwalten'] && $us['sicherheit'] === null && $us['konten'] === []);
 pruefe('Lehrkraft einer anderen Schule darf Tom nicht testen', !pu_urkunden_testkonto_erlaubt($fremdL, $T));
 
+require_once __DIR__ . '/../srv/coder.php';
+pu_kurs7_test_setzen($T, true, (int)$schule['id']);
+$zeile = array_values(array_filter(pu_urkunden_uebersicht($schule)['konten'], fn($k) => $k['id'] === $T))[0] ?? [];
+pruefe('Testliste: Tom hat alle Stufen und den 7. Kurs (Test)', !empty($zeile['alle_stufen']) && !empty($zeile['kurs7_test']));
+
 $echtVorher = (int)pu_db()->query('SELECT COUNT(*) FROM pruefungen WHERE test = 0')->fetchColumn();
 $weg = pu_abschluss_test_zuruecksetzen($T, (int)$schule['id']);
+pruefe('Zurücksetzen nimmt auch den 7. Kurs (Test) zurück', !pu_kurs7_test($T));
 gleich('sechs Test-Prüfungen entfernt', 6, $weg['pruefungen']);
 gleich('eine Testurkunde entfernt', 1, $weg['urkunden']);
 gleich('echte Prüfungen bleiben', $echtVorher, (int)pu_db()->query('SELECT COUNT(*) FROM pruefungen WHERE test = 0')->fetchColumn());

@@ -23,6 +23,7 @@ require_once __DIR__ . '/../srv/db.php';
 require_once __DIR__ . '/../srv/einstellungen.php';
 require_once __DIR__ . '/../srv/lernende.php';
 require_once __DIR__ . '/../srv/werkstatt.php';
+require_once __DIR__ . '/../srv/pruefung.php';
 
 $chef     = pu_lernenden_anlegen('chef', 'Chef', 'probe1234', 'admin');
 $schueler = pu_lernenden_anlegen('probant', 'Probant', 'probe1234', 'schueler');
@@ -60,6 +61,26 @@ if ($kurs !== null) {
     if ($ids === []) {
         gleich('ein leerer Kurs schaltet nichts frei', 'kurs_leer', pu_werkstatt_stand($schueler)['grund']);
     } else {
+        // Der Weg: erst die sechs Stufen, dann der 7. Kurs. Wer die Aufgaben
+        // des 7. Kurses löst, ohne die Stufen zu haben, bekommt nichts.
+        $andrer = pu_lernenden_anlegen('abkuerzer', 'Abkürzer', 'probe1234', 'schueler');
+        $voll = pu_db()->prepare(
+            "INSERT INTO versuche (lernender, aufgabe_id, punkte, max_punkte, richtig, zeitpunkt, tag)
+             VALUES (?, ?, 10, 10, 1, datetime('now'), date('now'))");
+        foreach ($ids as $id) $voll->execute([$andrer, $id]);
+        gleich('7. Kurs gelöst, Stufen offen: gesperrt', 'stufen_offen', pu_werkstatt_stand($andrer)['grund']);
+        pruefe('…und der Kurs selbst ist zu', !pu_kurs_frei($andrer, $kurs));
+
+        gleich('ohne Stufen gesperrt', 'stufen_offen', pu_werkstatt_stand($schueler)['grund']);
+        $pr = pu_db()->prepare(
+            "INSERT INTO pruefungen (lernender, stufe, punkte, max_punkte, bestanden, zeitpunkt)
+             VALUES (?, ?, 100, 100, 1, datetime('now'))");
+        foreach (array_keys(PU_STUFEN) as $nr) {
+            if ((int)$nr < 6) $pr->execute([$schueler, (int)$nr]);
+        }
+        gleich('fünf Stufen reichen nicht', 'stufen_offen', pu_werkstatt_stand($schueler)['grund']);
+        $pr->execute([$schueler, 6]);
+        pruefe('sechs Stufen: der 7. Kurs ist offen', pu_kurs_frei($schueler, $kurs));
         gleich('vor dem Kurs gesperrt', 'kurs_offen', pu_werkstatt_stand($schueler)['grund']);
 
         $st = pu_db()->prepare(
@@ -80,6 +101,35 @@ if ($kurs !== null) {
         gleich('100 %', 100, pu_werkstatt_stand($schueler)['prozent']);
     }
 }
+
+// ================================================================ Testbetrieb
+gruppe('Testbetrieb: 7. Kurs als fertig markieren');
+
+$probe = pu_lernenden_anlegen('testling', 'Testling', 'probe1234', 'schueler');
+$fehler = static function (callable $f): string {
+    try { $f(); return ''; } catch (DomainException $e) { return $e->getMessage(); }
+};
+pruefe('ohne Testbetrieb: abgelehnt',
+       $fehler(fn() => pu_kurs7_test_setzen($probe, true, $chef)) !== '');
+pu_setting_setzen('urkunden_testbetrieb', '1');
+pruefe('ohne Stufen: abgelehnt, auch im Test',
+       $fehler(fn() => pu_kurs7_test_setzen($probe, true, $chef)) !== '');
+$pr = pu_db()->prepare(
+    "INSERT INTO pruefungen (lernender, stufe, punkte, max_punkte, bestanden, zeitpunkt, test)
+     VALUES (?, ?, 100, 100, 1, datetime('now'), 1)");
+foreach (array_keys(PU_STUFEN) as $nr) $pr->execute([$probe, (int)$nr]);
+pruefe('Stufen da, Kurs offen: gesperrt', !pu_werkstatt_stand($probe)['frei']);
+gleich('markieren geht jetzt', '', $fehler(fn() => pu_kurs7_test_setzen($probe, true, $chef)));
+pruefe('markiert: frei', pu_werkstatt_stand($probe)['frei']);
+gleich('…und zwar als Test', 'test', pu_werkstatt_stand($probe)['grund']);
+gleich('nur dieses Konto', [$probe], pu_kurs7_test_konten());
+pu_setting_setzen('urkunden_testbetrieb', '0');
+pruefe('Testbetrieb aus: wieder gesperrt', !pu_werkstatt_stand($probe)['frei']);
+pu_setting_setzen('urkunden_testbetrieb', '1');
+pu_kurs7_test_setzen($probe, false, $chef);
+pruefe('zurückgenommen: gesperrt', !pu_werkstatt_stand($probe)['frei']);
+gleich('Liste leer', [], pu_kurs7_test_konten());
+pu_setting_setzen('urkunden_testbetrieb', '0');
 
 // ================================================================ Ticket
 gruppe('Ticket');

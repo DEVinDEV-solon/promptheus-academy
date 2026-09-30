@@ -388,6 +388,32 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 }
 .menue-geschenk:hover { color: var(--gold); }
 
+/* Der 7. Kurs und die Werkstatt stehen immer da — gesperrt mit Schloss und
+   gedämpft, frei ohne Schloss. Klickbar bleiben beide auch gesperrt: Das
+   Fenster dahinter erklärt, was noch fehlt (assets/js/werkstatt.js). */
+.menue-schloss { margin-left: auto; font-size: .75rem; opacity: .75; flex-shrink: 0; }
+.menue-knopf.gesperrt { color: var(--schrift-3); }
+.menue-knopf.gesperrt:hover { color: var(--schrift-2); }
+.menue-knopf.frei .menue-schloss { display: none; }
+.menue-werkstatt.frei { color: var(--gold); }
+
+/* Der Weg in die Werkstatt: drei Schritte, der erledigte mit Haken. */
+.werkstatt-weg { list-style: none; margin: 0 0 1.1rem; padding: 0; display: grid; gap: .5rem; }
+.werkstatt-weg li {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .55rem .75rem; border: 1px solid var(--rand); border-radius: var(--radius-klein);
+  color: var(--schrift-3);
+}
+.werkstatt-weg li.dran    { color: var(--schrift); border-color: var(--gold); }
+.werkstatt-weg li.fertig  { color: var(--schrift-2); }
+.werkstatt-weg .weg-zeichen {
+  flex-shrink: 0; width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid currentColor; font-size: .85rem;
+}
+.werkstatt-weg li.fertig .weg-zeichen { color: var(--gut); border-color: var(--gut); }
+.werkstatt-weiter { margin: 0 0 1.4rem; }
+
 .kennzahlen {
   display: flex; align-items: center; gap: 1.05rem;
   flex-wrap: wrap; font-size: .86rem; min-width: 0;

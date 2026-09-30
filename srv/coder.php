@@ -80,11 +80,8 @@ function pu_coder_kurs(): ?array
  *
  *   aus         der Schalter der Academy steht auf aus
  *   kein_modell weder Hausmodell noch Auswahl eingetragen
- *   kurs_fehlt  der 7. Kurs liegt nicht im Vault
- *   kurs_leer   der 7. Kurs hat noch keine Aufgaben — dann schaltet er nichts frei
- *   kurs_offen  angefangen oder nicht, aber keine 100 %
  *   betreiber   frei ohne Kurs: Ebene 1, siehe pu_token_frei()
- *   kurs        frei, weil der Kurs vollständig ist
+ *   …           sonst der Weg über die Stufen und den 7. Kurs, pu_kurs7_weg()
  *
  * **Ein leerer Kurs schaltet nicht frei.** 0 von 0 Aufgaben wären
  * rechnerisch „alles gelöst" — und der Coder stünde jedem offen, solange der
@@ -112,9 +109,42 @@ function pu_coder_stand(int $lernender): array
     // den Kurs abgeschlossen hat — sonst gäbe es keinen Weg, sie zu prüfen.
     if (pu_token_frei($lernender)) return ['frei' => true, 'grund' => 'betreiber'] + $aus;
 
+    return pu_kurs7_weg($lernender) + $aus;
+}
+
+/**
+ * Der Weg in die Werkstatt, Schritt für Schritt — für Werkstatt und Coder
+ * dieselbe Rechnung:
+ *
+ *   sechs Stufen bestanden  →  der 7. Kurs ist offen
+ *   7. Kurs zu 100 %        →  Werkstatt und Coder sind frei
+ *
+ * Die erste Stufe steht mit Absicht hier und nicht nur vor dem Kurs: Wer die
+ * Aufgaben des 7. Kurses über die Schnittstelle löst, ohne die Stufen zu
+ * haben, bekäme sonst die Werkstatt geschenkt.
+ *
+ *   stufen_offen  noch nicht alle sechs Stufen bestanden
+ *   kurs_fehlt    der 7. Kurs liegt nicht im Vault
+ *   kurs_leer     der 7. Kurs hat noch keine Aufgaben
+ *   kurs_offen    angefangen oder nicht, aber keine 100 %
+ *   test          im Urkunden-Testbetrieb als fertig markiert (pu_kurs7_test)
+ *   kurs          frei, weil der Kurs vollständig ist
+ *
+ * @return array{frei:bool, grund:string, prozent:int, kurs:?array}
+ */
+function pu_kurs7_weg(int $lernender): array
+{
+    require_once PU_ROOT . '/srv/pruefung.php';
+    require_once PU_ROOT . '/srv/kursstand.php';
+
+    $aus = ['frei' => false, 'grund' => '', 'prozent' => 0, 'kurs' => null];
+
     $k = pu_coder_kurs();
-    if ($k === null) return ['grund' => 'kurs_fehlt'] + $aus;
-    $aus['kurs'] = ['pfad' => $k['pfad'], 'titel' => $k['titel']];
+    if ($k !== null) $aus['kurs'] = ['pfad' => $k['pfad'], 'titel' => $k['titel']];
+
+    if (!pu_alle_stufen_bestanden($lernender)) return ['grund' => 'stufen_offen'] + $aus;
+    if (pu_kurs7_test($lernender))             return ['frei' => true, 'grund' => 'test', 'prozent' => 100] + $aus;
+    if ($k === null)                           return ['grund' => 'kurs_fehlt'] + $aus;
 
     $s = pu_kurs_stand($lernender, $k['pfad']);
     if (!empty($s['leer'])) return ['grund' => 'kurs_leer'] + $aus;
@@ -123,6 +153,49 @@ function pu_coder_stand(int $lernender): array
     if ((int)$s['geloest'] < (int)$s['aufgaben_ges']) return ['grund' => 'kurs_offen'] + $aus;
 
     return ['frei' => true, 'grund' => 'kurs'] + $aus;
+}
+
+// ── Testbetrieb: den 7. Kurs als fertig markieren ───────────────────────────
+//
+// Damit sich der Weg bis zur Werkstatt auf einer Testinstallation zu Ende
+// gehen lässt, ohne jede Aufgabe des 7. Kurses zu lösen. Es gilt nur, solange
+// der Urkunden-Testbetrieb an ist (dieselbe Einstellung wie in
+// srv/abschluss.php) — schaltet ihn jemand aus, ist die Werkstatt wieder zu.
+// Gelöste Aufgaben und Punkte fasst die Markierung nicht an.
+
+const PU_KURS7_TEST = 'kurs7_test';
+
+/** Die markierten Konten. */
+function pu_kurs7_test_konten(): array
+{
+    $ids = array_map('intval', explode(',', pu_setting(PU_KURS7_TEST, '')));
+    return array_values(array_unique(array_filter($ids, static fn(int $i) => $i > 0)));
+}
+
+function pu_kurs7_test(int $lernender): bool
+{
+    return pu_setting('urkunden_testbetrieb') === '1'
+        && in_array($lernender, pu_kurs7_test_konten(), true);
+}
+
+/**
+ * Markiert den 7. Kurs eines Kontos als fertig (oder nimmt es zurück).
+ * Nur im Testbetrieb, und nur, wenn die sechs Stufen schon bestanden sind —
+ * die Reihenfolge des Weges gilt auch im Test.
+ */
+function pu_kurs7_test_setzen(int $lernender, bool $an, int $durch): void
+{
+    require_once PU_ROOT . '/srv/pruefung.php';
+    if (pu_setting('urkunden_testbetrieb') !== '1') {
+        throw new DomainException('Der Testbetrieb ist ausgeschaltet.');
+    }
+    if ($an && !pu_alle_stufen_bestanden($lernender)) {
+        throw new DomainException('Erst die sechs Stufen bestehen — auch im Test.');
+    }
+    $ids = array_values(array_diff(pu_kurs7_test_konten(), [$lernender]));
+    if ($an) $ids[] = $lernender;
+    pu_setting_setzen(PU_KURS7_TEST, implode(',', $ids));
+    pu_protokoll($durch, 'kurs7_test', 'Konto ' . $lernender, $an ? '7. Kurs als fertig (Test)' : 'zurückgenommen');
 }
 
 /** Kurzform für die Stellen, die nur Ja oder Nein brauchen. */

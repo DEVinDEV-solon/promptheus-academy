@@ -139,11 +139,7 @@ try {
                    sind — er ist der Abschluss, kein Wahlkurs nebenher. Wer den
                    Stoff pflegt, kommt trotzdem hinein: sonst liesse sich ein
                    Kurs nicht Korrektur lesen, bevor ihn jemand erreicht. */
-                $frei = match ($k['art']) {
-                    'stufe'  => pu_stufe_frei($ichId, (int)$k['stufe']),
-                    'zusatz' => pu_alle_stufen_bestanden($ichId) || pu_recht_hat('lektionen.manage'),
-                    default  => true,
-                };
+                $frei = pu_kurs_frei($ichId, $k) || pu_recht_hat('lektionen.manage');
                 $gel  = 0; $ges = 0;
                 foreach ($k['lektionen'] as $l) {
                     foreach ($l['aufgaben'] as $a) {
@@ -171,12 +167,30 @@ try {
                          'fehler_im_stoff' => pu_recht_hat('lektionen.manage') ? $index['fehler'] : []]);
         }
 
+        /* Der Stand der beiden letzten Menüpunkte: „Der 7. Kurs" und
+           „Werkstatt". Beide stehen immer im Menü und schalten sich frei,
+           wenn der Weg so weit ist — sechs Stufen, dann der 7. Kurs zu 100 %.
+           Ob wirklich geöffnet werden darf, prüfen `kurs` und
+           `werkstatt_oeffnen` selbst; das hier ist nur die Anzeige. */
+        case 'werkstatt_menue': {
+            pu_recht_fordern('dashboard.view');
+            $k7 = pu_coder_kurs();
+            $w  = pu_werkstatt_stand($ichId);
+            pu_json_out(['ok' => true,
+                'kurs7' => [
+                    'frei' => $k7 !== null && (pu_kurs_frei($ichId, $k7) || pu_recht_hat('lektionen.manage')),
+                    'pfad' => $k7['pfad'] ?? '',
+                ],
+                'werkstatt' => $w,
+            ]);
+        }
+
         case 'kurs': {
             pu_recht_fordern('dashboard.view');
             $k = pu_kurs((string)d('pfad'));
             if ($k === null) pu_fehler('Diesen Kurs gibt es nicht.', 404);
-            if ($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $k) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
             $stand = pu_geloest($ichId);
             $lek = [];
@@ -206,8 +220,8 @@ try {
             $rel  = (string)d('pfad');
             $kurs = pu_kurs(dirname($rel));
             if ($kurs === null) pu_fehler('Diese Lektion gehört zu keinem Kurs.', 404);
-            if ($kurs['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$kurs['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $kurs) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
 
             $lek = null;
@@ -363,8 +377,8 @@ try {
             pu_recht_fordern('pruefung.ausfuehren');
             $k = pu_kurs((string)d('pfad'));
             if ($k === null || $k['pruefung'] === null) pu_fehler('Zu diesem Kurs gibt es keine Prüfung.', 404);
-            if ($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe']) && !pu_recht_hat('lektionen.manage')) {
-                pu_fehler('Diese Stufe ist noch nicht freigeschaltet.', 403);
+            if (!pu_kurs_frei($ichId, $k) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
             }
             $aufgaben = array_map('pu_aufgabe_oeffentlich', $k['pruefung']['aufgaben']);
             pu_protokoll($ichId, 'pruefung_start', $k['pfad'], '');
@@ -518,6 +532,17 @@ try {
             pu_json_out(['ok' => true, 'entfernt' => $weg]);
         }
 
+        case 'urkunden_test_kurs7': {
+            pu_recht_fordern('urkunde.ausstellen');
+            $ziel = (int)d('lernender');
+            if (!pu_urkunden_testkonto_erlaubt(pu_wer_echt() ?? $ich, $ziel)) {
+                pu_fehler('Dieses Konto liegt nicht in deinem Bereich.', 403);
+            }
+            try { pu_kurs7_test_setzen($ziel, (bool)d('an', true), $ichId); }
+            catch (DomainException $e) { pu_fehler($e->getMessage(), 400); }
+            pu_json_out(['ok' => true]);
+        }
+
         case 'abschluss_liste':
             pu_recht_fordern('urkunde.nachdrucken');
             pu_json_out(['ok' => true, 'urkunden' => pu_abschluesse_umkreis(pu_wer_echt() ?? $ich)]);
@@ -562,8 +587,7 @@ try {
                 // Dieselbe Schranke wie auf der Kursseite: eine gesperrte
                 // Stufe wird auch dann nicht erzählt, wenn man danach fragt.
                 if ($k !== null
-                    && !($k['art'] === 'stufe' && !pu_stufe_frei($ichId, (int)$k['stufe'])
-                         && !pu_recht_hat('lektionen.manage'))) {
+                    && (pu_kurs_frei($ichId, $k) || pu_recht_hat('lektionen.manage'))) {
                     $kontext['kurs'] = pu_kurs_als_text($k);
                 }
             }

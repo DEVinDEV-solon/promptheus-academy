@@ -169,7 +169,7 @@ const PU_RECHTE = [
     ['name' => 'dashboard.view', 'gruppe' => 'System & Dashboard',
      'was' => 'Kurse, Lektionen und das Menü sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['kurse', 'kurs', 'lektion']],
+     'aktionen' => ['kurse', 'kurs', 'lektion', 'werkstatt_menue']],
 
     ['name' => 'rechte.einstellungen', 'gruppe' => 'System & Dashboard',
      // Seit 28.09.2026 auch Verwaltung und Eltern: Sie betreiben ihre Academy
@@ -287,7 +287,7 @@ const PU_RECHTE = [
      'was' => 'Urkunden widerrufen, Urkunden-Sicherheit sehen, Testbetrieb schalten',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 0, 'schueler' => 0],
      'aktionen' => ['urkunde_widerrufen', 'urkunden_testbetrieb', 'urkunden_test_bestehen',
-                    'urkunden_test_zuruecksetzen']],
+                    'urkunden_test_zuruecksetzen', 'urkunden_test_kurs7']],
 
     // Die Abschluss-Urkunde trägt den echten Namen (srv/abschluss.php). Den
     // Lernenden selbst fragt niemand nach einem Recht — für alle anderen gilt

@@ -533,17 +533,28 @@ PU.urkundenEinstZeichnen = async function (ziel) {
       '<p class="klein">Für Testrechner. Ein Knopf trägt für ein Konto alle sechs Stufenprüfungen als ' +
         'bestanden ein — gekennzeichnet als Test. Jede Urkunde daraus trägt den Stempel ' +
         '„Testurkunde", die Prüfung des Codes nennt sie ungültig, und das Cockpit zählt sie nicht mit. ' +
-        'Echte Prüfungen und echte Urkunden fasst der Testbetrieb nicht an.</p>';
+        'Echte Prüfungen und echte Urkunden fasst der Testbetrieb nicht an. Danach lässt sich der ' +
+        '7. Kurs als fertig markieren — dann geht im Menü die Werkstatt auf. Diese Markierung gilt ' +
+        'nur, solange der Testbetrieb an ist.</p>';
 
     if (u.testbetrieb) {
       html += '<div class="tabellenrahmen"><table><tr><th>Konto</th><th>Ebene</th><th>Stufen</th>' +
-        '<th>Urkunden</th><th></th></tr>';
+        '<th>Urkunden</th><th>7. Kurs</th><th></th></tr>';
       u.konten.forEach(k => {
         html += '<tr><td>' + PU.h(k.name) + (k.ich ? ' <span class="klein">(du)</span>' : '') +
           '<br><span class="klein"><code>' + PU.h(k.kennung) + '</code></span></td>' +
           '<td>' + PU.h(ebeneName(k.ebene)) + '</td>' +
           '<td>' + k.stufen + ' / 6' + (k.faellig ? ' <span class="gut">✓</span>' : '') + '</td>' +
-          '<td>' + k.urkunden + (k.testurkunden ? ' (' + k.testurkunden + ' Test)' : '') + '</td><td>' +
+          '<td>' + k.urkunden + (k.testurkunden ? ' (' + k.testurkunden + ' Test)' : '') + '</td>' +
+          // Der nächste Schritt nach der Urkunde: den 7. Kurs als fertig
+          // markieren, damit der Menüpunkt „Werkstatt" aufgeht. Erst nach
+          // den sechs Stufen — die Reihenfolge gilt auch im Test.
+          '<td>' + (k.kurs7_test
+            ? '<span class="gut">✓ Test</span> <button class="knopf still klein" data-kurs7="' + k.id +
+              '" data-an="0">zurücknehmen</button>'
+            : (k.alle_stufen
+              ? '<button class="knopf klein" data-kurs7="' + k.id + '" data-an="1">7. Kurs fertig (Test)</button>'
+              : '<span class="klein">erst die Stufen</span>')) + '</td><td>' +
           (!k.faellig ? '<button class="knopf klein" data-bestehen="' + k.id + '">Kurs bestanden (Test)</button> ' : '') +
           (k.test || k.testurkunden
             ? '<button class="knopf still klein" data-zuruecksetzen="' + k.id + '">Test zurücksetzen</button> ' : '') +
@@ -583,6 +594,18 @@ PU.urkundenEinstZeichnen = async function (ziel) {
       await PU.ruf('urkunden_test_bestehen', { lernender: Number(b.dataset.bestehen) });
       PU.melden('Alle sechs Stufen als bestanden eingetragen (Test).', 'gut');
       PU.urkundenEinstZeichnen(ziel);
+      if (PU.menueWegLaden) PU.menueWegLaden(true);
+    } catch (e) { PU.melden(PU.h(e.message), 'warnung'); }
+  }));
+
+  ziel.querySelectorAll('[data-kurs7]').forEach(b => b.addEventListener('click', async () => {
+    const an = b.dataset.an === '1';
+    try {
+      await PU.ruf('urkunden_test_kurs7', { lernender: Number(b.dataset.kurs7), an: an });
+      PU.melden(an ? '7. Kurs als fertig markiert (Test) — die Werkstatt ist für dieses Konto frei.'
+                   : 'Markierung zurückgenommen — die Werkstatt ist wieder gesperrt.', 'gut');
+      PU.urkundenEinstZeichnen(ziel);
+      if (PU.menueWegLaden) PU.menueWegLaden(true);
     } catch (e) { PU.melden(PU.h(e.message), 'warnung'); }
   }));
 
@@ -594,6 +617,7 @@ PU.urkundenEinstZeichnen = async function (ziel) {
       PU.melden(j.entfernt.pruefungen + ' Test-Prüfungen und ' + j.entfernt.urkunden +
                 ' Testurkunden entfernt.', 'gut');
       PU.urkundenEinstZeichnen(ziel);
+      if (PU.menueWegLaden) PU.menueWegLaden(true);
     } catch (e) { PU.melden(PU.h(e.message), 'warnung'); }
   }));
 

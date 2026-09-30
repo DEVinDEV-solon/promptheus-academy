@@ -599,8 +599,20 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
          arbeitet, sondern die Auskunft darüber, was am Ende wartet. Eine
          eigene Adresse hat er trotzdem (`#/ziel`), damit er sich verhält wie
          alles andere im Menü: teilbar, neu ladbar, mit Zurück-Knopf. -->
-    <a class="menue-knopf menue-geschenk" href="#/ziel" data-ansicht="ziel"><span
-      class="menue-zeichen" aria-hidden="true">🎁</span><span class="menue-wort"<?= pu_wort_html('ziel', 'Der 7. Kurs', $stil) ?></span></a>
+    <a class="menue-knopf menue-geschenk gesperrt" id="menue-kurs7" href="#/ziel" data-ansicht="ziel"
+       title="Frei, sobald alle sechs Stufen bestanden sind."><span
+      class="menue-zeichen" aria-hidden="true">🎁</span><span class="menue-wort"<?= pu_wort_html('ziel', 'Der 7. Kurs', $stil) ?></span><span
+      class="menue-schloss" aria-hidden="true">🔒</span></a>
+
+    <!-- Die Werkstatt steht direkt unter dem 7. Kurs, weil sie nach ihm kommt.
+         Sichtbar für jeden, auch gesperrt: So steht der ganze Weg im Menü —
+         sechs Stufen, dann der 7. Kurs, dann die Werkstatt. Das Schloss nimmt
+         assets/js/werkstatt.js weg, sobald der Server sie freigibt; geöffnet
+         wird sie im Fenster (`#/werkstatt`), nie schon beim Klick. -->
+    <a class="menue-knopf menue-werkstatt gesperrt" id="menue-werkstatt" href="#/werkstatt" data-ansicht="werkstatt"
+       title="Frei, sobald du den 7. Kurs abgeschlossen hast."><span
+      class="menue-zeichen" aria-hidden="true">⚒️</span><span class="menue-wort">Werkstatt</span><span
+      class="menue-schloss" aria-hidden="true">🔒</span></a>
   </div>
 
   <!-- Der Fuss: was die Seite aussehen lässt, plus der Ausgang. Die Farbliste
@@ -890,6 +902,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <script src="<?= pu_v('assets/js/fortschritt.js') ?>"></script>
 <script src="<?= pu_v('assets/js/urkunde.js') ?>"></script>
 <script src="<?= pu_v('assets/js/kursstand.js') ?>"></script>
+<script src="<?= pu_v('assets/js/werkstatt.js') ?>"></script>
 <?php if ($darfTutor): ?>
   <script src="<?= pu_v('assets/js/tutor.js') ?>"></script>
   <script src="<?= pu_v('assets/js/tutorpanel.js') ?>"></script>

@@ -71,10 +71,8 @@ function pu_werkstatt_laeuft(): bool
  * Darf dieser Lernende die Werkstatt öffnen — und wenn nicht, warum nicht.
  *
  *   betreiber   frei ohne Kurs (Ebene admin, siehe pu_token_frei())
- *   kurs        frei, weil der 7. Kurs vollständig ist
- *   kurs_fehlt  der 7. Kurs liegt nicht im Vault
- *   kurs_leer   der 7. Kurs hat noch keine Aufgaben — schaltet nichts frei
- *   kurs_offen  noch keine 100 %
+ *   …           sonst der Weg über die Stufen und den 7. Kurs, pu_kurs7_weg():
+ *               stufen_offen, kurs_fehlt, kurs_leer, kurs_offen, test, kurs
  */
 function pu_werkstatt_stand(int $lernender): array
 {
@@ -96,18 +94,9 @@ function pu_werkstatt_stand(int $lernender): array
         return ['frei' => true, 'grund' => 'betreiber'] + $aus;
     }
 
-    $k = pu_coder_kurs();
-    if ($k === null) return ['grund' => 'kurs_fehlt'] + $aus;
-    $aus['kurs'] = ['pfad' => $k['pfad'], 'titel' => $k['titel']];
-
-    $s = pu_kurs_stand($lernender, $k['pfad']);
-    if (!empty($s['leer'])) return ['grund' => 'kurs_leer'] + $aus;
-
-    $aus['prozent'] = (int)$s['prozent'];
-    if ((int)$s['geloest'] < (int)$s['aufgaben_ges']) return ['grund' => 'kurs_offen'] + $aus;
-
-    $aus['laeuft'] = pu_werkstatt_laeuft();
-    return ['frei' => true, 'grund' => 'kurs'] + $aus;
+    $weg = pu_kurs7_weg($lernender);
+    if ($weg['frei']) $aus['laeuft'] = pu_werkstatt_laeuft();
+    return $weg + $aus;
 }
 
 /**
