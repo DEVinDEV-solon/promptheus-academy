@@ -1,0 +1,22 @@
+# ui-settings-web-search   ·   Namensraum: settings.webSearch
+
+## locales.ts  [zh]  18 Schlüssel
+
+  "title": '网页搜索'
+  "description": '设置 DeepSeek 的搜索提供方。'
+  "apiKey": 'API Key'
+  "apiKeyHint": '不写入设置文件。留空表示保持当前密钥。'
+  "apiKeySet": '已配置密钥。'
+  "apiKeyUnset": '未配置密钥；仅使用 DeepSeek 账号模型的对话可以通过默认接口地址搜索。'
+  "baseUrl": '接口地址'
+  "baseUrlHint": '留空则使用提供方默认地址。'
+  "maxUses": '单次请求最多搜索次数'
+  "maxUsesHint": '一次请求在必须作答前最多可以搜索多少次。'
+  "overridden": '已覆盖'
+  "reset": '恢复默认'
+  "readOnly": '本部署的设置为只读。'
+  "unavailable": '该插件当前未加载，暂时无法配置。'
+  "save": '保存'
+  "saving": '保存中…'
+  "saveFailed": '本部署没有接受这些值，已保留供你修改。'
+  "invalidNumber": '请填数字；留空表示使用默认值。'

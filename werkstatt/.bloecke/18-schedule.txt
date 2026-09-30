@@ -1,0 +1,21 @@
+# ui-schedule  ·  Namensraum: schedule.catalog
+
+### Objekt: zh  (16 Schlüssel)
+
+  'trigger.label': '提醒',
+  'list.loading': '正在加载提醒…',
+  'list.error': '无法加载提醒。',
+  'list.retry': '重试',
+  'delete.action': '删除',
+  'delete.pending': '正在删除…',
+  'delete.label': '删除提醒：{title}',
+  'list.open': '打开提醒详情：{title}',
+  'trigger.one': '{count} 个提醒',
+  'trigger.other': '{count} 个提醒',
+  'list.aria': '活动提醒',
+  'list.nextRun': '下次运行',
+  'frequency.once': '单次',
+  'frequency.every': '{value}{unit}一次',
+  ...frequencyZh,
+  'mark.aria': '{count} 个自动化任务',
+  'hover.more': '另有 {count} 个任务',

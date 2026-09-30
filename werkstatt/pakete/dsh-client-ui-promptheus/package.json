@@ -1,0 +1,27 @@
+{
+  "name": "@promptheus/dsh-client-ui-promptheus",
+  "description": "PROMPTHEUS Werkstatt — deutsche Bedienoberfläche des DeepSeek Harness im Brand von PROMPTHEUS ACADEMY",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web"
+    }
+  },
+  "license": "UNLICENSED",
+  "files": [
+    "lib/index.js",
+    "lib/client.js"
+  ]
+}

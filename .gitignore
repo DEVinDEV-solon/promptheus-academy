@@ -195,3 +195,15 @@ GitHub-Download/
 # Update-Pakete (werkzeuge/paket_bauen.php) — gehören ins Release, nicht ins Repo
 /dist/
 /manifest.json
+
+# ── 10. Eigene Projekte und lokale Daten (30.09.2026)
+# Webseite (eigenes Repo), privater Bereich, Schullisten.
+/promptheus-devindev/
+/promptheus-privat/
+/3D-game/
+secondbrain/90_Quellen/schulen/*.json
+
+# Werkstatt: Zuhause mit Zugangsdaten und Sitzungen bleibt lokal.
+# Der Harness ist ein eigenes Upstream-Repo und wird vom Installer geholt.
+werkstatt/.dsh/
+werkstatt/deepseek-harness/

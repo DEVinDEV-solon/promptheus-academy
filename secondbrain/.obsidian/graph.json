@@ -1,175 +1,231 @@
 {
   "collapse-filter": false,
-  "search": "",
-  "showTags": false,
-  "showAttachments": false,
+  "search": "PROMPTHEUS WISSEN",
+  "showTags": true,
+  "showAttachments": true,
   "hideUnresolved": true,
   "showOrphans": false,
   "collapse-color-groups": false,
   "colorGroups": [
     {
-      "query": "path:\"000_Kontext\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"000_Academy\"",
       "color": {
         "a": 1,
-        "rgb": 15442092
+        "rgb": 12544375
       }
     },
     {
-      "query": "path:\"00_Fundament\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"000_Kontext\"",
       "color": {
         "a": 1,
-        "rgb": 16429959
+        "rgb": 12555369
       }
     },
     {
-      "query": "path:\"01_Stellar\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"00_Fundament\"",
       "color": {
         "a": 1,
-        "rgb": 16376495
+        "rgb": 11583337
       }
     },
     {
-      "query": "path:\"02_Mirofish_Analysen\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen\"",
       "color": {
         "a": 1,
-        "rgb": 10937249
+        "rgb": 7847785
       }
     },
     {
-      "query": "path:\"03_BTC_Analysen\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"20_Domaenen\"",
       "color": {
         "a": 1,
-        "rgb": 9757397
+        "rgb": 6930324
       }
     },
     {
-      "query": "path:\"04_Five_Eyes_Konzept\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"30_Agenten\"",
       "color": {
         "a": 1,
-        "rgb": 9034987
+        "rgb": 6926527
       }
     },
     {
-      "query": "path:\"05_Hyperstellar\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"40_Aufgabentypen\"",
       "color": {
         "a": 1,
-        "rgb": 7653356
+        "rgb": 6911935
       }
     },
     {
-      "query": "path:\"05_Methodologie\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"90_Bibliothek\"",
       "color": {
         "a": 1,
-        "rgb": 9024762
+        "rgb": 9726399
       }
     },
     {
-      "query": "path:\"06_Corp_Workflow\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"90_Quellen\"",
       "color": {
         "a": 1,
-        "rgb": 11845374
+        "rgb": 12544432
       }
     },
     {
-      "query": "path:\"10_Themen\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"99_Inbox\"",
       "color": {
         "a": 1,
-        "rgb": 13346551
+        "rgb": 15961000
       }
     },
     {
-      "query": "path:\"20_Entitaeten\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"Clippings\"",
       "color": {
         "a": 1,
-        "rgb": 15442092
+        "rgb": 9673138
       }
     },
     {
-      "query": "path:\"30_Agenten\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"_archiv\"",
       "color": {
         "a": 1,
-        "rgb": 16429959
+        "rgb": 7106694
       }
     },
     {
-      "query": "path:\"40_Influencer\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"_scripts\"",
       "color": {
         "a": 1,
-        "rgb": 16376495
+        "rgb": 7106694
       }
     },
     {
-      "query": "path:\"70_Analysen\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"_templates\"",
       "color": {
         "a": 1,
-        "rgb": 10937249
+        "rgb": 7106694
       }
     },
     {
-      "query": "path:\"80_Chancen\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/01_Entdecker\"",
       "color": {
         "a": 1,
-        "rgb": 9757397
+        "rgb": 15959704
       }
     },
     {
-      "query": "path:\"99_Rohdaten\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/02_Priester\"",
       "color": {
         "a": 1,
-        "rgb": 9034987
+        "rgb": 15965062
       }
     },
     {
-      "query": "path:\"CK\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/03_Builder\"",
       "color": {
         "a": 1,
-        "rgb": 7653356
+        "rgb": 15974790
       }
     },
     {
-      "query": "path:\"Corp-Profil\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/04_Architekt\"",
       "color": {
         "a": 1,
-        "rgb": 9024762
+        "rgb": 15984518
       }
     },
     {
-      "query": "path:\"kanal-logo\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/05_Waechter\"",
       "color": {
         "a": 1,
-        "rgb": 11845374
+        "rgb": 14218118
       }
     },
     {
-      "query": "path:\"media-lib\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/06_Meister\"",
       "color": {
         "a": 1,
-        "rgb": 13346551
+        "rgb": 11727750
       }
     },
     {
-      "query": "path:\"SecondBrainConcept\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"10_Stufen/07_Der 7. Kurs\"",
       "color": {
         "a": 1,
-        "rgb": 15442092
+        "rgb": 9237382
       }
     },
     {
-      "query": "path:\"Stella-Profil\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"20_Domaenen/DOM-BER_Beratung\"",
       "color": {
         "a": 1,
-        "rgb": 16429959
+        "rgb": 8844199
       }
     },
     {
-      "query": "path:\"stellar-analysis\" -file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"20_Domaenen/DOM-BUCH_Buchhaltung\"",
       "color": {
         "a": 1,
-        "rgb": 16376495
+        "rgb": 8844238
       }
     },
     {
-      "query": "file:\"CRYPTO GESAMTKONZEPT\"",
+      "query": "path:\"20_Domaenen/DOM-BUERO2_Buerokratie\"",
+      "color": {
+        "a": 1,
+        "rgb": 8844019
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-BUERO_Buerobetrieb\"",
+      "color": {
+        "a": 1,
+        "rgb": 8834291
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-DL_Dienstleistung\"",
+      "color": {
+        "a": 1,
+        "rgb": 8824307
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-HDL_Handel\"",
+      "color": {
+        "a": 1,
+        "rgb": 9340659
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-JURA_Jura\"",
+      "color": {
+        "a": 1,
+        "rgb": 11831027
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-PERS_Personalverwaltung\"",
+      "color": {
+        "a": 1,
+        "rgb": 14386931
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-SIC_Sicherheit\"",
+      "color": {
+        "a": 1,
+        "rgb": 15959781
+      }
+    },
+    {
+      "query": "path:\"20_Domaenen/DOM-VK_Verkauf\"",
+      "color": {
+        "a": 1,
+        "rgb": 15959743
+      }
+    },
+    {
+      "query": "file:\"PROMPTHEUS WISSEN\"",
       "color": {
         "a": 1,
         "rgb": 16723245
@@ -177,15 +233,15 @@
     }
   ],
   "collapse-display": false,
-  "showArrow": true,
-  "textFadeMultiplier": -0.1,
-  "nodeSizeMultiplier": 0.98046875,
-  "lineSizeMultiplier": 0.52109375,
+  "showArrow": false,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.12971707317073,
+  "lineSizeMultiplier": 0.946146341463415,
   "collapse-forces": false,
-  "centerStrength": 0.611979166666667,
-  "repelStrength": 10.78125,
-  "linkStrength": 0.0130208333333333,
-  "linkDistance": 48,
-  "scale": 0.18462326225857484,
+  "centerStrength": 0.509853658536585,
+  "repelStrength": 10.1397816549332,
+  "linkStrength": 0.77209756097561,
+  "linkDistance": 314,
+  "scale": 0.18462326225857456,
   "close": true
 }

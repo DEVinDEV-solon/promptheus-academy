@@ -1,0 +1,26 @@
+# ui-sidebar-documentpreview   ·   Namensraum: sidebar-documentpreview
+
+## locales.ts  [zh]  22 Schlüssel
+
+  "loading": '文档渲染中...'
+  "loadMore": '加载更多'
+  "changed": '文件已更新，当前显示为旧内容'
+  "reloadNow": '重新载入'
+  "reload": '重新读取文件'
+  "autoRefresh": '自动刷新'
+  "autoRefresh.enable": '开启自动刷新'
+  "autoRefresh.disable": '关闭自动刷新'
+  "wrap.enable": '自动换行'
+  "wrap.disable": '取消换行'
+  "wrap.aria": '自动换行'
+  "openWith": '打开方式'
+  "viewer.text": '纯文本'
+  "resourceUnavailable": '文件资源服务不可用'
+  "rendererUnavailable": '预览器 {name} 不可用'
+  "unsupportedFile": '该格式文件暂时无法预览'
+  "error.notFound": '文件不存在，可能已被移动或删除'
+  "error.tooLarge": '单页内容超过 {limit} 上限，无法读取'
+  "error.notText": '该格式文件暂时无法预览'
+  "error.notRegularFile": '该路径不是普通文件，没有可显示的内容'
+  "error.unavailable": '读取失败：{message}'
+  "retry": '重试'

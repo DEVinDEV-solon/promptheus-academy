@@ -1,0 +1,15 @@
+# ui-reference   ·   Namensraum: reference
+
+## locales.ts  [zh]  11 Schlüssel
+
+  "section.files": '文件与文件夹'
+  "section.subagents": '子智能体'
+  "section.sessions": '对话'
+  "candidate.noCwd": '（无工作目录）'
+  "crumb.root": '工作区'
+  "time.now": '刚刚'
+  "time.minutes": '{n}分钟'
+  "time.hours": '{n}小时'
+  "time.days": '{n}天'
+  "time.months": '{n}个月'
+  "time.years": '{n}年'
