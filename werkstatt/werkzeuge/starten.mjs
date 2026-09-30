@@ -9,7 +9,7 @@
  */
 
 import { spawn } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync } from 'node:fs'
 import { createConnection } from 'node:net'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -143,6 +143,47 @@ async function laufendePruefen(port) {
 
 const port = portLesen()
 
+// ── Freigabe: nur mit Ticket aus der Academy ─────────────────────────────────
+//
+// Die Werkstatt ist bis zum 7. Kurs gesperrt. Entschieden wird das auf dem
+// Server der Academy (srv/werkstatt.php), nicht hier: Nur ein freigegebenes
+// Konto bekommt beim Klick auf „Werkstatt öffnen" ein Ticket. Es liegt in
+// data/werkstatt/ticket.json, gilt zwei Minuten und nur für einen Start.
+//
+// Grenze: Das ist eine Sperre auf demselben Rechner. Wer Schreibrechte auf den
+// Ordner hat, kann sie umgehen. Auf Schulrechnern gehört der Programmordner
+// deshalb dem Verwalter-Konto, nicht dem Schülerkonto.
+//
+// `--betreiber` startet ohne Ticket — für die Entwicklung, mit Warnung.
+const TICKET = join(WURZEL, '..', 'data', 'werkstatt', 'ticket.json')
+
+function ticketPruefen() {
+  if (process.argv.includes('--betreiber')) {
+    console.log('starten: --betreiber: Start ohne Ticket aus der Academy (nur Entwicklung).')
+    return
+  }
+  let ticket = null
+  try { ticket = JSON.parse(readFileSync(TICKET, 'utf8')) } catch { ticket = null }
+  // Einmalig: gleich verbrauchen, auch wenn es abgelaufen ist.
+  try { rmSync(TICKET, { force: true }) } catch { /* bleibt liegen, verfällt */ }
+
+  const gueltig = ticket !== null && typeof ticket.ablauf === 'number' &&
+    ticket.ablauf >= Math.floor(Date.now() / 1000) && typeof ticket.nonce === 'string' &&
+    /^[0-9a-f]{32}$/.test(ticket.nonce)
+  if (gueltig) return
+
+  console.log('')
+  console.log('  ================================================================')
+  console.log('   Die Werkstatt wird aus der Academy geöffnet.')
+  console.log('  ================================================================')
+  console.log('')
+  console.log('  Academy starten → Einstellungen → Werkstatt → „Werkstatt öffnen".')
+  console.log('  Frei ist sie mit dem 7. Kurs zu 100 % (Admins: sofort).')
+  console.log('')
+  process.exit(3)
+}
+ticketPruefen()
+
 // ── Die Anbieter-Umgebung ────────────────────────────────────────────────────
 //
 // Das ist der Punkt, an dem die Modelwahl scheitert, wenn er fehlt.
@@ -249,6 +290,7 @@ console.log('')
 if (schluesselName === undefined) {
   console.error('starten: In der .env des Harness steht kein OPENROUTER_API_KEY.')
   console.error(`         Erwartet in: ${join(HARNESS, '.env')}`)
+  console.error('         Eintragen mit: WERKSTATT-EINRICHTEN.bat')
   process.exit(1)
 }
 

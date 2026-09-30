@@ -204,12 +204,18 @@ foreach (PU_RECHTE as $r) {
 //                                         Ebene 1 im Konto eines Schülers ein und
 //                                         käme nur über Abmelden wieder heraus.
 //                                         Das Übernehmen selbst ist bewacht.
+//   werkstatt_oeffnen                   — bewacht sich selbst über die Freigabe
+//                                         (srv/werkstatt.php: Kurs 7 zu 100 %,
+//                                         Admins sofort). Ein Recht aus der
+//                                         Matrix wäre je Ebene umstellbar und
+//                                         damit die Kurs-Sperre aushebelbar.
 $ohneWache = ['anmelden', 'einrichten', 'urkunde_pruefen', 'zustand', 'abmelden',
               'kennwort_aendern', 'name_aendern', 'einst_lesen', 'einst_setzen',
               'urkunde_html', 'profil_lesen', 'profil_setzen', 'sprache_stand',
               'rolle_zurueck',
               // Rollen & Rechte zum Nachlesen: für jeden Angemeldeten, nur lesen.
-              'rollen_erklaert'];
+              'rollen_erklaert',
+              'werkstatt_oeffnen'];
 
 preg_match_all("/^        case '([a-z_]+)':/m", $api, $treffer);
 $alle = array_unique($treffer[1]);

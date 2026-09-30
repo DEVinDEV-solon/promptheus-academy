@@ -9,28 +9,37 @@ Logo von PROMPTHEUS ACADEMY, bedienbar auf Deutsch.
 
 ## Der schnellste Weg
 
-**Doppelklick auf `WERKSTATT-START.bat`.**
+1. **Einmal einrichten:** Doppelklick auf `WERKSTATT-EINRICHTEN.bat`
+   (Node.js 22.19+ und Git nötig; holt den Harness beim geprüften Stand,
+   installiert die Abhängigkeiten, legt das Profil an, fragt den
+   OpenRouter-Schlüssel ab, baut die Pakete).
+2. **Öffnen aus der Academy:** Einstellungen → Werkstatt → „Werkstatt öffnen".
+   Frei mit dem 7. Kurs zu 100 %, Admins sofort. Die Academy legt ein Ticket
+   ab (`data\werkstatt\ticket.json`, zwei Minuten, einmalig); ohne Ticket
+   startet die Werkstatt nicht.
 
 Danach ist die Werkstatt unter **http://127.0.0.1:3081** erreichbar.
 
-Oder von Hand:
+Entwicklung ohne Academy (Warnung im Fenster):
 
 ```powershell
-cd D:\zarbot\tenants\admin\scripts\PROMPTHEUS\werkstatt
-
-node werkzeuge\bauen.mjs            # Pakete bauen und ins Zuhause spiegeln
-node werkzeuge\buendel_pruefen.mjs  # das gebaute Bündel prüfen
-node werkzeuge\woerter_pruefen.mjs  # die deutschen Texte zählen
-node werkzeuge\kontrast_pruefen.mjs # die Farben messen
-node werkzeuge\starten.mjs          # starten auf http://127.0.0.1:3081
+cd werkstatt
+node werkzeuge\bauen.mjs                 # Pakete bauen und ins Zuhause spiegeln
+node werkzeuge\buendel_pruefen.mjs       # das gebaute Bündel prüfen
+node werkzeuge\starten.mjs --betreiber   # starten ohne Ticket
 ```
+
+**Grenze der Sperre:** Sie gilt auf demselben Rechner. Wer Schreibrechte auf
+den Programmordner hat, kann sie umgehen. Auf Schulrechnern gehört der Ordner
+deshalb dem Verwalter-Konto, nicht dem Schülerkonto.
 
 ## Was hier liegt
 
 | Ordner | Inhalt |
 |---|---|
-| `deepseek-harness\` | **der Harness selbst** — vollständig und lauffähig |
-| `.dsh\` | **das eigene Zuhause** — Profil, Sitzungen, Einstellungen, Zugangsdaten |
+| `deepseek-harness\` | **der Harness selbst** — wird bei der Einrichtung geholt (nicht im Repo) |
+| `.dsh\` | **das eigene Zuhause** — Profil, Sitzungen, Einstellungen, Zugangsdaten (lokal, nicht im Repo) |
+| `vorlage\profil-promptheus\` | die Profilvorlage, aus der `WERKSTATT-EINRICHTEN.bat` das Profil anlegt |
 | `pakete\` | die PROMPTHEUS-Pakete — Marke, Palette, deutsche Texte |
 | `werkzeuge\` | Bauen, Prüfen, Zählen, Starten |
 | `patches\` | die vier Sprachzeilen, als Anleitung |

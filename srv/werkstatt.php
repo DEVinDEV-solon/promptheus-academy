@@ -1,0 +1,160 @@
+<?php
+declare(strict_types=1);
+/**
+ * PROMPTHEUS — die Werkstatt: ob sie frei ist, ob sie eingerichtet ist, und
+ * wie sie geöffnet wird.
+ *
+ * Die Werkstatt ist eine eigene Anwendung (DeepSeek Harness, Ordner
+ * `werkstatt/`, Port 3081). Sie ist **bis zum 7. Kurs gesperrt**: frei mit
+ * dem 7. Kurs zu 100 %, Admins sofort (damit der Betreiber sie prüfen kann).
+ *
+ * Entschieden wird hier, auf dem Server — nicht am Knopf. Wer frei ist, bekommt
+ * beim Öffnen ein **Ticket** (`data/werkstatt/ticket.json`): zufällig, zwei
+ * Minuten gültig, nur für einen Start. `werkstatt/werkzeuge/starten.mjs`
+ * verbraucht es und startet ohne gültiges Ticket nicht.
+ *
+ * Grenze: Das ist eine Sperre auf demselben Rechner. Wer Schreibrechte auf den
+ * Programmordner hat, kann sie umgehen. Auf Schulrechnern gehört der Ordner
+ * deshalb dem Verwalter-Konto.
+ *
+ * Unabhängig vom Werkstatt-Coder (srv/coder.php): Der Coder ist ein Schalter
+ * der Academy mit eigener Modellliste. Die Freigabe-Bedingung (Kurs 7 zu 100 %)
+ * ist dieselbe und kommt deshalb aus derselben Stelle: pu_coder_kurs().
+ */
+
+require_once PU_ROOT . '/srv/coder.php';
+
+/** Der Port der Werkstatt (werkzeuge/starten.mjs, Vorgabe). */
+const PU_WERKSTATT_PORT = 3081;
+
+/** So lange gilt ein Ticket. Kurz: Es soll nur den Start tragen, nicht liegen bleiben. */
+const PU_WERKSTATT_TICKET_SEK = 120;
+
+/** Der Werkstatt-Ordner. Tests legen ihn über PU_TEST_WERKSTATT um. */
+function pu_werkstatt_ordner(): string
+{
+    $t = getenv('PU_TEST_WERKSTATT');
+    return is_string($t) && $t !== '' ? $t : PU_ROOT . '/werkstatt';
+}
+
+/** Die Ticketdatei. Tests legen sie über PU_TEST_WERKSTATT_TICKET um. */
+function pu_werkstatt_ticket_pfad(): string
+{
+    $t = getenv('PU_TEST_WERKSTATT_TICKET');
+    return is_string($t) && $t !== '' ? $t : PU_ROOT . '/data/werkstatt/ticket.json';
+}
+
+/**
+ * Ist die Werkstatt auf diesem Rechner eingerichtet?
+ *
+ * Drei Dinge müssen da sein: der Harness, seine Abhängigkeiten, das Profil.
+ * Fehlt eines, hilft `werkstatt/WERKSTATT-EINRICHTEN.bat`.
+ */
+function pu_werkstatt_eingerichtet(): bool
+{
+    $w = pu_werkstatt_ordner();
+    return is_file($w . '/deepseek-harness/apps/cli/src/bin.ts')
+        && is_dir($w . '/deepseek-harness/node_modules')
+        && is_file($w . '/.dsh/profiles/promptheus/package.json');
+}
+
+/** Läuft schon eine Werkstatt? Eine schlichte Verbindung auf den Port. */
+function pu_werkstatt_laeuft(): bool
+{
+    $s = @fsockopen('127.0.0.1', PU_WERKSTATT_PORT, $nr, $txt, 0.4);
+    if ($s === false) return false;
+    fclose($s);
+    return true;
+}
+
+/**
+ * Darf dieser Lernende die Werkstatt öffnen — und wenn nicht, warum nicht.
+ *
+ *   betreiber   frei ohne Kurs (Ebene admin, siehe pu_token_frei())
+ *   kurs        frei, weil der 7. Kurs vollständig ist
+ *   kurs_fehlt  der 7. Kurs liegt nicht im Vault
+ *   kurs_leer   der 7. Kurs hat noch keine Aufgaben — schaltet nichts frei
+ *   kurs_offen  noch keine 100 %
+ */
+function pu_werkstatt_stand(int $lernender): array
+{
+    require_once PU_ROOT . '/srv/abo.php';
+    require_once PU_ROOT . '/srv/kursstand.php';
+
+    $aus = [
+        'frei'         => false,
+        'grund'        => '',
+        'prozent'      => 0,
+        'kurs'         => null,
+        'eingerichtet' => pu_werkstatt_eingerichtet(),
+        'laeuft'       => false,
+        'port'         => PU_WERKSTATT_PORT,
+    ];
+
+    if (pu_token_frei($lernender)) {
+        $aus['laeuft'] = pu_werkstatt_laeuft();
+        return ['frei' => true, 'grund' => 'betreiber'] + $aus;
+    }
+
+    $k = pu_coder_kurs();
+    if ($k === null) return ['grund' => 'kurs_fehlt'] + $aus;
+    $aus['kurs'] = ['pfad' => $k['pfad'], 'titel' => $k['titel']];
+
+    $s = pu_kurs_stand($lernender, $k['pfad']);
+    if (!empty($s['leer'])) return ['grund' => 'kurs_leer'] + $aus;
+
+    $aus['prozent'] = (int)$s['prozent'];
+    if ((int)$s['geloest'] < (int)$s['aufgaben_ges']) return ['grund' => 'kurs_offen'] + $aus;
+
+    $aus['laeuft'] = pu_werkstatt_laeuft();
+    return ['frei' => true, 'grund' => 'kurs'] + $aus;
+}
+
+/**
+ * Stellt ein Ticket aus. Nur nach pu_werkstatt_stand()['frei'] aufrufen.
+ *
+ * Geschrieben wird atomar (temporär + umbenennen), damit starten.mjs nie eine
+ * halbe Datei liest. Die Lernenden-ID steht darin für das Protokoll, nicht für
+ * eine Anmeldung: Die Werkstatt hat ihre eigene.
+ */
+function pu_werkstatt_ticket(int $lernender): array
+{
+    $pfad = pu_werkstatt_ticket_pfad();
+    $dir  = dirname($pfad);
+    if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
+        throw new RuntimeException('Ticket-Ordner nicht anlegbar: ' . $dir);
+    }
+
+    $ticket = [
+        'nonce'     => bin2hex(random_bytes(16)),
+        'lernender' => $lernender,
+        'ablauf'    => time() + PU_WERKSTATT_TICKET_SEK,
+    ];
+    $tmp = $pfad . '.' . bin2hex(random_bytes(4)) . '.tmp';
+    if (file_put_contents($tmp, json_encode($ticket), LOCK_EX) === false || !rename($tmp, $pfad)) {
+        @unlink($tmp);
+        throw new RuntimeException('Ticket nicht schreibbar.');
+    }
+    @chmod($pfad, 0600);
+    return $ticket;
+}
+
+/**
+ * Startet die Werkstatt im eigenen Fenster (Windows) bzw. im Hintergrund.
+ *
+ * Der Harness öffnet danach selbst den Browser — mit seinem Zugangstoken in
+ * der Adresse. Diese Adresse kennt nur er; die Academy öffnet deshalb nichts.
+ */
+function pu_werkstatt_starten(): void
+{
+    $w = pu_werkstatt_ordner();
+    if (PHP_OS_FAMILY === 'Windows') {
+        $bat = str_replace('/', '\\', $w . '/WERKSTATT-START.bat');
+        // `start` kehrt sofort zurück; das Fenster gehört dann der Werkstatt.
+        $h = popen('start "PROMPTHEUS Werkstatt" /MIN cmd /c "' . $bat . '"', 'r');
+        if ($h !== false) pclose($h);
+        return;
+    }
+    $cmd = 'cd ' . escapeshellarg($w) . ' && nohup node werkzeuge/starten.mjs >/dev/null 2>&1 &';
+    exec($cmd);
+}

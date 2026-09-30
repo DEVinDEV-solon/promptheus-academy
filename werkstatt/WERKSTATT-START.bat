@@ -1,28 +1,28 @@
 @echo off
 rem ============================================================
-rem  PROMPTHEUS WERKSTATT — Start
+rem  PROMPTHEUS WERKSTATT - Start
 rem
-rem  Dies ist die PROMPTHEUS-Werkstatt: eine EIGENE, VOLLSTAENDIGE
-rem  Fassung des DeepSeek Harness. Sie laeuft unabhaengig auf
-rem  http://127.0.0.1:3081 mit eigenem Profil und eigenem Zuhause.
+rem  Eigene, vollstaendige Fassung des DeepSeek Harness auf
+rem  http://127.0.0.1:3081 mit eigenem Profil und Zuhause.
 rem
-rem  Alles, was sie braucht, liegt in diesem Ordner:
-rem    deepseek-harness\   der Harness selbst
-rem    .dsh\               ihr eigenes Zuhause (Profil, Sitzungen, Daten)
+rem  Geoeffnet wird sie normalerweise AUS DER ACADEMY
+rem  (Einstellungen - Werkstatt), frei ab Kurs 7. Die Academy legt
+rem  dafuer ein Ticket ab; ohne Ticket startet sie nicht.
+rem  Entwicklung ohne Academy:  WERKSTATT-START.bat --betreiber
 rem
-rem  Der gewohnte Betrieb auf 3080 bleibt voellig unberuehrt.
-rem  Beide koennen gleichzeitig offen sein.
+rem  Der Ordner wird aus der Lage dieser Datei bestimmt - kein
+rem  fester Pfad, laeuft in jeder Installation.
 rem ============================================================
+setlocal
 title PROMPTHEUS Werkstatt  -  http://127.0.0.1:3081
+set "DASH=%~dp0"
+if "%DASH:~-1%"=="\" set "DASH=%DASH:~0,-1%"
 
-set "DASH=D:\zarbot\tenants\admin\scripts\PROMPTHEUS\werkstatt"
-
-if not exist "%DASH%\werkzeuge\starten.mjs" (
+where node >nul 2>&1
+if errorlevel 1 (
   echo.
-  echo  FEHLER: Die Werkstatt wurde nicht gefunden unter
-  echo    %DASH%
-  echo.
-  echo  Erwartet wird die Datei werkzeuge\starten.mjs.
+  echo  FEHLER: Node.js fehlt. Bitte Node 22.19 oder neuer installieren:
+  echo    winget install OpenJS.NodeJS.LTS
   echo.
   pause
   exit /b 1
@@ -30,29 +30,23 @@ if not exist "%DASH%\werkzeuge\starten.mjs" (
 
 if not exist "%DASH%\deepseek-harness\apps\cli\src\bin.ts" (
   echo.
-  echo  FEHLER: Der Harness fehlt unter
-  echo    %DASH%\deepseek-harness
+  echo  Die Werkstatt ist auf diesem Rechner noch nicht eingerichtet.
+  echo  Die Einrichtung startet jetzt ^(einmalig, einige Minuten^).
   echo.
-  echo  Die Werkstatt ist eine eigene Fassung und braucht ihren
-  echo  eigenen Harness in diesem Ordner.
-  echo.
-  pause
-  exit /b 1
+  call "%DASH%\WERKSTATT-EINRICHTEN.bat" --aus-start
+  if errorlevel 1 exit /b 1
 )
 
 echo.
 echo  PROMPTHEUS Werkstatt
 echo  ---------------------------------------------
-echo  Maske    : %DASH%
+echo  Ordner   : %DASH%
 echo  Adresse  : http://127.0.0.1:3081
-echo  Profil   : promptheus
-echo.
-echo  Der gewohnte Betrieb auf 3080 bleibt unberuehrt.
 echo  Beenden mit Strg+C.
 echo.
 
 cd /d "%DASH%"
-node werkzeuge\starten.mjs
+node werkzeuge\starten.mjs %*
 
 echo.
 echo  Werkstatt beendet.

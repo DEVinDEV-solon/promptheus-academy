@@ -35,7 +35,7 @@ etwas installieren will.
 Diesen Auftrag kannst du so übernehmen:
 
 ```text
-Installiere PROMPTHEUS ACADEMY aus https://github.com/DEVinDEV-dan/promptheus-academy
+Installiere PROMPTHEUS ACADEMY aus https://github.com/DEVinDEV-solon/promptheus-academy
 auf diesem Rechner und folge dabei der README. Starte die Academy nur auf 127.0.0.1
 und frag mich, bevor du Software installierst.
 ```
@@ -48,7 +48,7 @@ Startskript erwartet, und startet die Academy:
 
 ```powershell
 $ProgressPreference = 'SilentlyContinue'
-Invoke-WebRequest https://github.com/DEVinDEV-dan/promptheus-academy/archive/refs/heads/main.zip -OutFile promptheus.zip
+Invoke-WebRequest https://github.com/DEVinDEV-solon/promptheus-academy/archive/refs/heads/main.zip -OutFile promptheus.zip
 Expand-Archive promptheus.zip -DestinationPath . ; Remove-Item promptheus.zip
 Set-Location promptheus-academy-main
 Invoke-WebRequest https://windows.php.net/downloads/releases/latest/php-8.3-nts-Win32-vs16-x64-latest.zip -OutFile php.zip
@@ -76,7 +76,7 @@ Gefragt wird einmal (Merker `data\verknuepfung.txt`; löschen, um neu zu fragen)
 - **Meldet das Startfenster eine fehlende Laufzeit:** PHP braucht die Microsoft
   Visual C++ Redistributable. Sie kommt mit
   `winget install Microsoft.VCRedist.2015+.x64` auf den Rechner.
-- **Mit Git statt ZIP:** `git clone https://github.com/DEVinDEV-dan/promptheus-academy.git`,
+- **Mit Git statt ZIP:** `git clone https://github.com/DEVinDEV-solon/promptheus-academy.git`,
   dann im Ordner die beiden PHP-Zeilen und den Start wie oben.
 
 ### macOS und Linux
@@ -91,6 +91,26 @@ php -S 127.0.0.1:8801 -t . router.php
 
 Geprüft ist bisher Windows. Was ein Rechner genau mitbringen muss, steht in
 [REQUIREMENTS.md](REQUIREMENTS.md).
+
+
+### Die Werkstatt einrichten (ab Kurs 7)
+
+Die Werkstatt ist eine eigene Anwendung im Ordner `werkstatt\` (DeepSeek
+Harness mit PROMPTHEUS-Oberfläche, Port 3081). Sie ist **bis zum 7. Kurs
+gesperrt**; Admins können sie sofort prüfen. Geöffnet wird sie aus der Academy:
+**Einstellungen → Werkstatt → „Werkstatt öffnen"**.
+
+Einmal einrichten — Doppelklick auf `werkstatt\WERKSTATT-EINRICHTEN.bat`:
+
+- braucht **Node.js 22.19+** (`winget install OpenJS.NodeJS.LTS`) und **Git**
+  (`winget install --id Git.Git -e`); pnpm richtet das Skript auf Wunsch selbst ein
+- holt den Harness beim geprüften Stand, installiert die Abhängigkeiten
+  (rund 1 GB, einige Minuten), legt das Profil `promptheus` an und baut die
+  PROMPTHEUS-Pakete
+- fragt den **OpenRouter-Schlüssel** ab oder übernimmt den der Academy. Er landet
+  nur in `werkstatt\deepseek-harness\.env`, nie im Repo
+
+Das Skript ist mehrfach startbar; Erledigtes wird übersprungen.
 
 ---
 

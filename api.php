@@ -45,6 +45,7 @@ require_once __DIR__ . '/srv/persona.php';
 require_once __DIR__ . '/srv/katalog.php';
 require_once __DIR__ . '/srv/raenge.php';
 require_once __DIR__ . '/srv/coder.php';
+require_once __DIR__ . '/srv/werkstatt.php';
 require_once __DIR__ . '/srv/relay.php';
 require_once __DIR__ . '/srv/gemeinde.php';
 require_once __DIR__ . '/srv/aktualisierung.php';
@@ -680,6 +681,10 @@ try {
                der Schlüssel bleibt im Tutor-KI-Zweig. */
             $aus['coder_stand'] = pu_coder_stand($ichId);
 
+            /* Die Werkstatt (eigene Anwendung, Port 3081): frei ab Kurs 7,
+               Admins sofort. Auch gesperrt sichtbar — mit dem Stand in %. */
+            $aus['werkstatt_stand'] = pu_werkstatt_stand($ichId);
+
             if (pu_recht_hat('regeln.manage')) {
                 $aus['global']              = pu_einst_global();
                 $aus['global_beschreibung'] = PU_EINST_GLOBAL;
@@ -800,6 +805,27 @@ try {
             // Protokoll — ein Protokoll ist eine Datei, die man weitergibt.
             pu_protokoll($ichId, 'geheimnis', $name, $wert === '' ? 'gelöscht' : 'gesetzt');
             pu_json_out(['ok' => true, 'stand' => pu_geheimnis_stand($name)]);
+        }
+
+        // ------------------------------------------------ Werkstatt (Port 3081)
+        //
+        // Frei ab Kurs 7 zu 100 %, Admins sofort — geprüft HIER, vor dem
+        // Ticket. Der Knopf in der Oberfläche ist nur Anzeige.
+        case 'werkstatt_oeffnen': {
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+
+            $st = pu_werkstatt_stand($ichId);
+            if (!$st['frei'])         pu_fehler('Die Werkstatt ist erst mit dem 7. Kurs frei.', 403);
+            if (!$st['eingerichtet']) pu_fehler('Die Werkstatt ist auf diesem Rechner noch nicht eingerichtet: '
+                                               . 'werkstatt\\WERKSTATT-EINRICHTEN.bat ausführen.', 409);
+            if ($st['laeuft']) {
+                pu_json_out(['ok' => true, 'laeuft' => true, 'port' => $st['port']]);
+            }
+
+            pu_werkstatt_ticket($ichId);
+            pu_werkstatt_starten();
+            pu_protokoll($ichId, 'werkstatt', 'oeffnen', $st['grund']);
+            pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'port' => $st['port']]);
         }
 
         case 'tutor_probe': {

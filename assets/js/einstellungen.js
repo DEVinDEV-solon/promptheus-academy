@@ -111,6 +111,9 @@ function einstZeichnen() {
     ['sprache',     'Sprache & Stimme'],
     ['lernen',      'Lernen'],
     ['lob',         'Lob & Vertiefung'],
+    // Für jeden sichtbar, auch gesperrt: Wer sieht, wie weit es noch ist,
+    // hat einen Grund, den 7. Kurs fertigzumachen.
+    ['werkstatt',   'Werkstatt'],
     // Für jeden, auch unregistriert (28.09.2026): welche Rolle man hat, woher
     // sie kommt, was die anderen dürfen. Die Matrix darunter nur mit Recht.
     ['rollen',      'Rollen & Rechte'],
@@ -194,6 +197,7 @@ function inhaltZeichnen() {
     case 'konto':       kontoZeichnen(ziel);       break;
     case 'rollen':      PU.rollenZeichnen(ziel);   break;
     case 'coder':       coderZeichnen(ziel);       break;
+    case 'werkstatt':   werkstattZeichnen(ziel);   break;
     case 'sprache':     spracheZeichnen(ziel);     break;
     case 'profil':      profilZeichnen(ziel);      break;
     case 'ueber':       ueberZeichnen(ziel);       break;
@@ -1395,6 +1399,64 @@ function zeileText(ziel, titel, warum, jetzt, platzhalter, beiWahl, links, vorsc
  * eines davon. Ob er schon darf, entscheidet der Server (srv/coder.php) —
  * hier wird es nur gesagt.
  */
+
+/* ================================================================ Werkstatt
+ *
+ * Die Werkstatt ist eine eigene Anwendung (DeepSeek Harness, Port 3081).
+ * Frei mit dem 7. Kurs zu 100 %, Admins sofort. Ob, entscheidet der Server
+ * (srv/werkstatt.php) beim Öffnen — hier wird es nur gezeigt.
+ */
+const WERKSTATT_GRUND = {
+  kurs_fehlt: 'Der 7. Kurs ist auf diesem Rechner noch nicht eingerichtet.',
+  kurs_leer:  'Der 7. Kurs wird gerade geschrieben. Sobald er Aufgaben hat, kannst du ihn abschliessen.',
+  kurs_offen: 'Die Werkstatt wird frei, wenn du den 7. Kurs vollständig abgeschlossen hast.',
+  betreiber:  'Frei für dich als Admin, damit du die Werkstatt vorab prüfen kannst.',
+  kurs:       'Frei. Du hast den 7. Kurs abgeschlossen.'
+};
+
+function werkstattZeichnen(ziel) {
+  const w = PU.einstZustand.daten.werkstatt_stand || { frei: false, grund: 'kurs_fehlt' };
+
+  ziel.appendChild(PU.el('h3', '', 'Werkstatt'));
+  ziel.appendChild(PU.el('p', 'hinweis',
+    'In der Werkstatt baust du mit einem KI-Agenten eigene Projekte — Texte, ' +
+    'Seiten, kleine Programme. Sie ist der Schritt aus den Kursen in die eigene ' +
+    'Arbeit und öffnet sich deshalb erst nach dem 7. Kurs.'));
+
+  const stand = PU.el('p', 'merkzettel' + (w.frei ? ' gut' : ''));
+  let text = '<b>' + (w.frei ? 'Frei.' : 'Noch gesperrt.') + '</b> ' + PU.h(WERKSTATT_GRUND[w.grund] || '');
+  if (w.grund === 'kurs_offen') text += ' Stand: <b>' + (w.prozent | 0) + ' %</b>.';
+  stand.innerHTML = text;
+  ziel.appendChild(stand);
+
+  if (!w.frei) return;
+
+  if (!w.eingerichtet) {
+    const h = PU.el('p', 'merkzettel');
+    h.innerHTML = '<b>Noch nicht eingerichtet.</b> Auf diesem Rechner einmal ' +
+      '<code>werkstatt\\WERKSTATT-EINRICHTEN.bat</code> ausführen (braucht Node.js 22.19+ und Git). ' +
+      'Danach hier öffnen.';
+    ziel.appendChild(h);
+    return;
+  }
+
+  const knopf = PU.el('button', 'knopf', w.laeuft ? 'Werkstatt läuft — Fenster suchen' : 'Werkstatt öffnen');
+  knopf.type = 'button';
+  knopf.addEventListener('click', async () => {
+    knopf.disabled = true;
+    try {
+      const r = await PU.ruf('werkstatt_oeffnen');
+      PU.melden(r.laeuft
+        ? 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat.'
+        : 'Die Werkstatt startet. Gleich öffnet sich ein neues Browserfenster.', 'gut');
+    } catch (e) {
+      PU.melden(PU.h(e.message), 'schlecht');
+    } finally {
+      setTimeout(() => { knopf.disabled = false; }, 4000);
+    }
+  });
+  ziel.appendChild(knopf);
+}
 
 /** Was die Kürzel aus pu_coder_stand() für einen Lernenden bedeuten. */
 const CODER_GRUND = {
