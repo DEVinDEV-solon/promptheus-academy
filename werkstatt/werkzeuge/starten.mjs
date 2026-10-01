@@ -160,7 +160,7 @@ const TICKET = join(WURZEL, '..', 'data', 'werkstatt', 'ticket.json')
 function ticketPruefen() {
   if (process.argv.includes('--betreiber')) {
     console.log('starten: --betreiber: Start ohne Ticket aus der Academy (nur Entwicklung).')
-    return
+    return null
   }
   let ticket = null
   try { ticket = JSON.parse(readFileSync(TICKET, 'utf8')) } catch { ticket = null }
@@ -170,7 +170,7 @@ function ticketPruefen() {
   const gueltig = ticket !== null && typeof ticket.ablauf === 'number' &&
     ticket.ablauf >= Math.floor(Date.now() / 1000) && typeof ticket.nonce === 'string' &&
     /^[0-9a-f]{32}$/.test(ticket.nonce)
-  if (gueltig) return
+  if (gueltig) return ticket
 
   console.log('')
   console.log('  ================================================================')
@@ -182,7 +182,16 @@ function ticketPruefen() {
   console.log('')
   process.exit(3)
 }
-ticketPruefen()
+const ticket = ticketPruefen()
+
+/**
+ * Wo die Academy läuft, die diese Werkstatt geöffnet hat. Der Knopf
+ * „Community“ leitet dorthin (`api.php?aktion=community_oeffnen`), denn nur
+ * die Academy kennt die Person und das Abo. Das Ticket trägt die Adresse; ohne
+ * Ticket (`--betreiber`) gilt die Vorgabe der Startdatei. Nur dieser Rechner.
+ */
+const ACADEMY = typeof ticket?.academy === 'string' &&
+  /^http:\/\/(127\.0\.0\.1|localhost):\d{1,5}$/.test(ticket.academy) ? ticket.academy : 'http://127.0.0.1:8801'
 
 // ── Die Anbieter-Umgebung ────────────────────────────────────────────────────
 //
@@ -216,7 +225,7 @@ ticketPruefen()
 // den Betrieb auf 3080 unberührt.
 const ZUHAUSE = join(WURZEL, '.dsh')
 
-const umgebung = { ...process.env, DEEPSEEK_BASE_URL: BASIS_URL, DSH_HOME: ZUHAUSE }
+const umgebung = { ...process.env, DEEPSEEK_BASE_URL: BASIS_URL, DSH_HOME: ZUHAUSE, PROMPTHEUS_ACADEMY_URL: ACADEMY }
 
 // **Den Schlüssel NICHT in die Umgebung heben.**
 //
@@ -265,6 +274,7 @@ console.log('starten: PROMPTHEUS Werkstatt')
 console.log(`starten: Profil   promptheus`)
 console.log(`starten: Adresse  http://127.0.0.1:${port}`)
 console.log(`starten: Zuhause  ${ZUHAUSE}`)
+console.log(`starten: Academy  ${ACADEMY}`)
 console.log(`starten: Anbieter ${BASIS_URL}`)
 console.log(`starten: Schlüssel ${schluesselName ?? 'FEHLT — Modelle werden nicht laden'}`)
 console.log('')

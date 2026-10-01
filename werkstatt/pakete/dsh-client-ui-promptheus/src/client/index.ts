@@ -71,8 +71,35 @@ import {
 /** Die Fassung des Pakets, in der Maske angezeigt (K-FASSUNG, Runde 6). */
 export const FASSUNG = '0.1.0'
 
-/** Die Adresse der Gemeinde. */
-export const GEMEINDE_URL = 'https://promptheus-academy.de/community'
+/**
+ * Der Weg in die Gemeinde: eine Route der Werkstatt selbst (Node-Hälfte,
+ * `GEMEINDE_PFAD`), die an die Academy weiterleitet. Die Academy prüft das
+ * Abo, holt die Einlassmarke und öffnet die Community im Browser
+ * (Plan 30_Community, C2).
+ */
+export const GEMEINDE_URL = '/promptheus-community'
+
+/** Der Farbkasten, sobald er steht — für die Palette im Gemeindeknopf. */
+let farbkastenWaehler: Palettenwaehler | null = null
+
+/**
+ * Die Adresse des Gemeindeknopfs mit der gerade wirksamen Palette, damit die
+ * Community in denselben Farben aufgeht wie die Werkstatt.
+ * @returns die Adresse samt `?v=`.
+ */
+export function gemeindeAdresse(): string {
+  const v = farbkastenWaehler?.getSnapshot() ?? ''
+  return v === '' ? GEMEINDE_URL : `${GEMEINDE_URL}?v=${encodeURIComponent(v)}`
+}
+
+/**
+ * Setzt die Adresse unmittelbar vor dem Folgen des Links — die Palette kann
+ * sich seit dem Zeichnen des Knopfs geändert haben.
+ * @param ereignis - das Klick-Ereignis des Links.
+ */
+function gemeindeKlick(ereignis) {
+  ereignis.currentTarget.href = gemeindeAdresse()
+}
 
 /** Harte Abhängigkeit: ohne das Steckplatz-Register gibt es nichts zu belegen. */
 export const inject = ['slots']
@@ -223,7 +250,7 @@ function Wortmarke() {
 /**
  * Der Gemeindeknopf im Fuß der linken Spalte.
  *
- * Führt in die Gemeinde unter promptheus-academy.de/community.
+ * Führt über die Academy in die Community (promptheus-academy.de/gemeinde/).
  *
  * Er trägt die Glutfarbe als Zeichen dafür, dass er weiterführt — BRAND.md §1:
  * „Glut heisst: hier geht es weiter." Das Zeichen ist ein Punkt, kein Symbol;
@@ -238,6 +265,7 @@ function Gemeindeknopf(eigenschaften) {
     'a',
     {
       href: GEMEINDE_URL,
+      onClick: gemeindeKlick,
       target: '_blank',
       rel: 'noreferrer',
       title: 'Zur Gemeinde der PROMPTHEUS Academy',
@@ -297,6 +325,7 @@ function GemeindeImKopf() {
     'a',
     {
       href: GEMEINDE_URL,
+      onClick: gemeindeKlick,
       target: '_blank',
       rel: 'noreferrer',
       title: 'Zur Gemeinde der PROMPTHEUS Academy',
@@ -581,6 +610,7 @@ export function apply(ctx) {
   ctx.inject(['theme'], (thema) => {
     const theme = thema.theme
     const { waehler, abraeumer } = farbkastenAufbauen(theme)
+    farbkastenWaehler = waehler
     // Beim Start einmal eintragen, dann je Wahl.
     waehler.anwenden()
     thema.effect(() => {
@@ -591,7 +621,7 @@ export function apply(ctx) {
         // übersetzt selbst in seinen Grundton.
         waehler.farbschemaSetzen(stand.active.colorScheme)
       })
-      return () => { ab(); abraeumer() }
+      return () => { ab(); abraeumer(); farbkastenWaehler = null }
     }, 'promptheus: Farbkasten')
 
     // Die Einstellungszeile. `settings.general.item` ist eine LISTE: die Zeilen

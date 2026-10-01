@@ -140,6 +140,8 @@ $GLOBALS['marke'] = $marke . "\r\nSet-Cookie: x=1";
 $r = pu_gem_einlass($ich($nele), '');
 gleich('Marke in falscher Form: nicht in die Kopfzeile', 'marke_form', $r['grund'] ?? null);
 pruefe('… kein Ziel', !isset($r['ziel']));
+$GLOBALS['marke'] = $marke . "\n";
+gleich('… auch kein Zeilenende dahinter', 'marke_form', pu_gem_einlass($ich($nele), '')['grund'] ?? null);
 $GLOBALS['marke'] = $marke;
 
 $GLOBALS['antworten']['einlass_holen'] = static fn() => ['ok' => false, 'grund' => 'rufname_fehlt'];

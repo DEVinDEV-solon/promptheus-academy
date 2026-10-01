@@ -990,7 +990,9 @@ try {
                 pu_json_out(['ok' => true, 'laeuft' => true, 'port' => $st['port']]);
             }
 
-            pu_werkstatt_ticket($ichId);
+            // Die Werkstatt soll wissen, wo diese Academy läuft (Port aus der
+            // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
+            pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
             pu_werkstatt_starten();
             pu_protokoll($ichId, 'werkstatt', 'oeffnen', $st['grund']);
             pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'port' => $st['port']]);

@@ -51,6 +51,46 @@ export const FAVICON_DUNKEL_PFAD = '/favicon-dark.svg'
 /** Der Pfad, unter dem das Hintergrundbild ausgeliefert wird. */
 export const HINTERGRUND_PFAD = '/promptheus-hintergrund.jpg'
 
+/**
+ * Der Weg in die Community (Plan 30_Community, C2): der Knopf „Community“
+ * zeigt hierher, und diese Route leitet an die Academy weiter
+ * (`api.php?aktion=community_oeffnen`). Die Academy kennt die Person, prüft
+ * das Abo, holt die Einlassmarke und leitet in die Community.
+ *
+ * Über die Werkstatt und nicht direkt, weil nur die Node-Hälfte weiss, auf
+ * welchem Port die Academy läuft (`PROMPTHEUS_ACADEMY_URL`, gesetzt von
+ * `werkzeuge/starten.mjs` aus dem Ticket der Academy).
+ */
+export const GEMEINDE_PFAD = '/promptheus-community'
+
+/** Die Academy, wenn das Ticket keine Adresse trug: die Vorgabe der Startdatei. */
+export const ACADEMY_VORGABE = 'http://127.0.0.1:8801'
+
+/** Die sechs Paletten der Werkstatt, wortgleich mit `srv/varianten.php` der Academy. */
+const PALETTEN = ['schmiede', 'pergament', 'olymp', 'marmor', 'terrakotta', 'funkenflug']
+
+/**
+ * Die Adresse der Academy — nur dieser Rechner. Was nicht passt, fällt auf die
+ * Vorgabe zurück: Die Route soll nie an einen fremden Server weiterleiten.
+ * @param roh - der Wert aus der Umgebung.
+ * @returns Ursprung ohne Schrägstrich am Ende.
+ */
+export function academyAdresse(roh: string | undefined): string {
+  return typeof roh === 'string' && /^http:\/\/(127\.0\.0\.1|localhost):\d{1,5}$/.test(roh) ? roh : ACADEMY_VORGABE
+}
+
+/**
+ * Das Ziel der Weiterleitung, mit der Palette der Werkstatt (`?v=`), damit
+ * der Übergang Werkstatt → Community farblich gleich bleibt.
+ * @param academy - Ursprung der Academy.
+ * @param url - die angefragte Adresse samt Query.
+ * @returns die Adresse von `community_oeffnen`.
+ */
+export function gemeindeZiel(academy: string, url: string | undefined): string {
+  const v = new URL(url ?? '/', 'http://x').searchParams.get('v') ?? ''
+  return `${academy}/api.php?aktion=community_oeffnen${PALETTEN.includes(v) ? `&v=${v}` : ''}`
+}
+
 /** Das Hintergrundbild im Verhältnis zur Werkstatt-Wurzel. */
 const HINTERGRUND_RELATIV = ['assets', 'img', 'promptheus-background.jpg']
 
@@ -185,6 +225,22 @@ const UEBERSETZUNGS_SCHUTZ = `
 export function apply(ctx: any): void {
   const webServer = ctx.get?.('webServer')
   if (webServer === undefined) return
+
+  // ── Der Weg in die Community ───────────────────────────────────────────────
+  // Zuerst, weil die Routen weiter unten bei fehlenden Dateien früh aussteigen.
+  const academy = academyAdresse(process.env.PROMPTHEUS_ACADEMY_URL)
+  ctx.effect(() => webServer.register({
+    kind: 'exact',
+    path: GEMEINDE_PFAD,
+    handler: (req: any, res: any) => {
+      res.writeHead(302, {
+        'location': gemeindeZiel(academy, req?.url),
+        'cache-control': 'no-store',
+        'referrer-policy': 'no-referrer',
+      })
+      res.end()
+    },
+  }), `promptheus: Community ${GEMEINDE_PFAD}`)
 
   // ── Schutz gegen Übersetzungserweiterungen ─────────────────────────────────
   //

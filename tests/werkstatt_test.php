@@ -143,5 +143,15 @@ pruefe('gilt höchstens zwei Minuten', $t['ablauf'] <= time() + 120 && $t['ablau
 $t2 = pu_werkstatt_ticket($chef);
 pruefe('jedes Ticket ist neu', $t2['nonce'] !== $t['nonce']);
 pruefe('keine Reste vom atomaren Schreiben', glob(dirname(pu_werkstatt_ticket_pfad()) . '/*.tmp') === []);
+pruefe('ohne Adresse keine Academy im Ticket', !isset($t2['academy']));
+
+// Der Knopf „Community“ der Werkstatt führt zurück in diese Academy.
+gleich('Ticket trägt die Adresse der Academy', 'http://127.0.0.1:8802',
+       pu_werkstatt_ticket($chef, 'http://127.0.0.1:8802')['academy'] ?? null);
+gleich('… auch localhost', 'http://localhost:8801', pu_werkstatt_ticket($chef, 'http://localhost:8801')['academy'] ?? null);
+foreach (['http://boese.example:8801', 'http://127.0.0.1:8801/pfad', 'https://127.0.0.1:8801',
+          "http://127.0.0.1:8801\r\nX: 1", "http://127.0.0.1:8801\n", 'http://127.0.0.1'] as $fremd) {
+    pruefe('keine fremde Adresse: ' . addcslashes($fremd, "\r\n"), !isset(pu_werkstatt_ticket($chef, $fremd)['academy']));
+}
 
 bilanz();

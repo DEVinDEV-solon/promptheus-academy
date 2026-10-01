@@ -801,7 +801,7 @@ function pu_gem_einlass(array $ich, string $variante = ''): array
     }
     // Die Marke landet in einer Kopfzeile (Location): nur die erwartete Form.
     $marke = (string)($r['marke'] ?? '');
-    if (!preg_match('/^[A-Za-z0-9_-]{43}$/', $marke)) {
+    if (!preg_match('/^[A-Za-z0-9_-]{43}\z/', $marke)) {
         return ['ok' => false, 'grund' => 'marke_form'];
     }
     pu_protokoll($id, 'gemeinde', 'einlass', $v);

@@ -331,13 +331,20 @@ function paketPruefen(paket) {
   }
 
   // ── 7. Die Gemeindeadresse prüfen ─────────────────────────────────────────
+  //
+  // Seit 01.10.2026 (Plan 30_Community, C2) führt der Knopf nicht mehr direkt
+  // ins Netz, sondern über die eigene Route der Werkstatt zur Academy
+  // (`community_oeffnen`): Nur die Academy kennt Person und Abo und holt die
+  // Einlassmarke. Eine absolute Adresse hier wäre der alte, offene Weg.
   const gemeinde = rumpf.GEMEINDE_URL
-  if (typeof gemeinde !== 'string' || !gemeinde.startsWith('https://promptheus-academy.de/')) {
+  if (gemeinde !== '/promptheus-community') {
     beanstandungen.push(
-      `${paket.name}: GEMEINDE_URL fehlt oder zeigt nicht auf promptheus-academy.de (ist: ${String(gemeinde)})`,
+      `${paket.name}: GEMEINDE_URL zeigt nicht auf die eigene Route /promptheus-community (ist: ${String(gemeinde)})`,
     )
-  } else if (gemeinde !== 'https://promptheus-academy.de/community') {
-    beanstandungen.push(`${paket.name}: GEMEINDE_URL zeigt auf ${gemeinde} statt auf /community`)
+  }
+  const adresse = typeof rumpf.gemeindeAdresse === 'function' ? rumpf.gemeindeAdresse() : undefined
+  if (typeof adresse !== 'string' || !/^\/promptheus-community(\?v=[a-z]+)?$/.test(adresse)) {
+    beanstandungen.push(`${paket.name}: gemeindeAdresse() fehlt oder liefert eine fremde Adresse (ist: ${String(adresse)})`)
   }
 
   return beanstandungen

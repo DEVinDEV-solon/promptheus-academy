@@ -30,6 +30,7 @@ __export(index_exports, {
   GEMEINDE_URL: () => GEMEINDE_URL,
   apply: () => apply,
   default: () => index_default,
+  gemeindeAdresse: () => gemeindeAdresse,
   inject: () => inject
 });
 module.exports = __toCommonJS(index_exports);
@@ -3217,7 +3218,15 @@ var workspace = {
 
 // pakete/dsh-client-ui-promptheus/src/client/index.ts
 var FASSUNG = "0.1.0";
-var GEMEINDE_URL = "https://promptheus-academy.de/community";
+var GEMEINDE_URL = "/promptheus-community";
+var farbkastenWaehler = null;
+function gemeindeAdresse() {
+  const v = farbkastenWaehler?.getSnapshot() ?? "";
+  return v === "" ? GEMEINDE_URL : `${GEMEINDE_URL}?v=${encodeURIComponent(v)}`;
+}
+function gemeindeKlick(ereignis) {
+  ereignis.currentTarget.href = gemeindeAdresse();
+}
 var inject = ["slots"];
 var GLUT = "#ff7a1c";
 var GLUT_HELL = "#ffa347";
@@ -3296,6 +3305,7 @@ function Gemeindeknopf(eigenschaften) {
     "a",
     {
       href: GEMEINDE_URL,
+      onClick: gemeindeKlick,
       target: "_blank",
       rel: "noreferrer",
       title: "Zur Gemeinde der PROMPTHEUS Academy",
@@ -3347,6 +3357,7 @@ function GemeindeImKopf() {
     "a",
     {
       href: GEMEINDE_URL,
+      onClick: gemeindeKlick,
       target: "_blank",
       rel: "noreferrer",
       title: "Zur Gemeinde der PROMPTHEUS Academy",
@@ -3545,6 +3556,7 @@ function apply(ctx) {
   ctx.inject(["theme"], (thema) => {
     const theme = thema.theme;
     const { waehler, abraeumer } = farbkastenAufbauen(theme);
+    farbkastenWaehler = waehler;
     waehler.anwenden();
     thema.effect(() => {
       const ab = thema.on("theme/change", (stand) => {
@@ -3553,6 +3565,7 @@ function apply(ctx) {
       return () => {
         ab();
         abraeumer();
+        farbkastenWaehler = null;
       };
     }, "promptheus: Farbkasten");
     thema.slots.inject("settings.general.item", () => thema.slots.register({

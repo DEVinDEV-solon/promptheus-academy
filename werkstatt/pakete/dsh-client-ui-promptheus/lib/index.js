@@ -6,6 +6,16 @@ var PRODUKT_TITEL = "Werkstatt \u2014 Promptheus Academy";
 var FAVICON_PFAD = "/favicon.svg";
 var FAVICON_DUNKEL_PFAD = "/favicon-dark.svg";
 var HINTERGRUND_PFAD = "/promptheus-hintergrund.jpg";
+var GEMEINDE_PFAD = "/promptheus-community";
+var ACADEMY_VORGABE = "http://127.0.0.1:8801";
+var PALETTEN = ["schmiede", "pergament", "olymp", "marmor", "terrakotta", "funkenflug"];
+function academyAdresse(roh) {
+  return typeof roh === "string" && /^http:\/\/(127\.0\.0\.1|localhost):\d{1,5}$/.test(roh) ? roh : ACADEMY_VORGABE;
+}
+function gemeindeZiel(academy, url) {
+  const v = new URL(url ?? "/", "http://x").searchParams.get("v") ?? "";
+  return `${academy}/api.php?aktion=community_oeffnen${PALETTEN.includes(v) ? `&v=${v}` : ""}`;
+}
 var HINTERGRUND_RELATIV = ["assets", "img", "promptheus-background.jpg"];
 var name = "promptheus-werkstatt";
 var inject = ["webServer"];
@@ -52,6 +62,19 @@ var UEBERSETZUNGS_SCHUTZ = `
 function apply(ctx) {
   const webServer = ctx.get?.("webServer");
   if (webServer === void 0) return;
+  const academy = academyAdresse(process.env.PROMPTHEUS_ACADEMY_URL);
+  ctx.effect(() => webServer.register({
+    kind: "exact",
+    path: GEMEINDE_PFAD,
+    handler: (req, res) => {
+      res.writeHead(302, {
+        "location": gemeindeZiel(academy, req?.url),
+        "cache-control": "no-store",
+        "referrer-policy": "no-referrer"
+      });
+      res.end();
+    }
+  }), `promptheus: Community ${GEMEINDE_PFAD}`);
   ctx.effect(() => ctx.on("webserver/index-inject", (table) => {
     table.push({ kind: "script", placement: "head", text: UEBERSETZUNGS_SCHUTZ });
   }), "promptheus: Schutz gegen \xDCbersetzungserweiterungen");
@@ -105,11 +128,15 @@ function escapeHtml(text) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 export {
+  ACADEMY_VORGABE,
   FAVICON_DUNKEL_PFAD,
   FAVICON_PFAD,
+  GEMEINDE_PFAD,
   HINTERGRUND_PFAD,
   PRODUKT_TITEL,
+  academyAdresse,
   apply,
+  gemeindeZiel,
   inject,
   name
 };
