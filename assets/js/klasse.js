@@ -20,15 +20,34 @@ PU.klasseZeichnen = async function () {
     '<p class="hinweis">Wer lernt, wie weit — und wo jemand hängt. ' +
     'Von hier aus legst du Konten an und setzt Kennwörter zurück.</p>';
 
+  /* Eine Lehrkraft sieht nur die Klassen, die ihr die Schule zugeordnet hat
+     (Plan 30_Community, C8). Steht noch keine da, soll sie wissen, warum die
+     Liste leer ist — und wer das ändert. */
+  if (Array.isArray(j.meine_klassen)) {
+    ziel.appendChild(PU.el('p', j.meine_klassen.length ? 'hinweis' : 'merkzettel',
+      j.meine_klassen.length
+        ? 'Deine Klassen: <b>' + PU.h(j.meine_klassen.join(', ')) + '</b>. Zugeordnet von der Schulverwaltung.'
+        : 'Die Schulverwaltung hat dir noch keine Klasse zugeordnet. Bis dahin siehst du hier nur dich selbst ' +
+          'und gibst kein Mit-Siegel.'));
+  }
+  const zuordnung = j.lehrer_klassen || {};
+
   const rahmen = PU.el('div', 'tabellenrahmen');
-  let html = '<table><tr><th>Name</th><th>Kennung</th><th>Gruppe</th>' +
+  let html = '<table><tr><th>Name</th><th>Kennung</th><th>' + (Object.keys(zuordnung).length ? 'Gruppe · Klassen' : 'Gruppe') + '</th>' +
              '<th>Punkte</th><th>Titel</th><th>Serie</th>' +
              '<th>Stufen</th><th>Abzeichen</th><th>Versuche</th><th></th></tr>';
   j.klasse.forEach(l => {
     html += '<tr>' +
       '<td>' + PU.h(l.anzeigename) + (l.rolle === 'schueler' ? '' : ' <span class="klein">(' + PU.h(PU.ebenenKurz(l.rolle)) + ')</span>') + '</td>' +
       '<td><code>' + PU.h(l.kennung) + '</code></td>' +
-      '<td>' + PU.h(l.gruppe) + '</td>' +
+      '<td>' + (zuordnung[l.id] !== undefined
+        // Bei einer Lehrkraft steht hier nicht ihre eigene Gruppe, sondern
+        // die Klassen, die sie sieht — für die Verwaltung zum Eintragen.
+        ? '<span class="klassen-zuordnen"><input data-klassen="' + l.id + '" value="' +
+          PU.h(zuordnung[l.id].join(', ')) + '" placeholder="z. B. 7a, 8c" size="10" ' +
+          'aria-label="Klassen von ' + PU.h(l.anzeigename) + '">' +
+          '<button class="knopf still schmal" type="button" data-klassen-speichern="' + l.id + '">Zuordnen</button></span>'
+        : PU.h(l.gruppe)) + '</td>' +
       '<td>' + l.punkte + '</td>' +
       '<td>' + PU.h(l.titel) + '</td>' +
       '<td>' + l.serie + '</td>' +
@@ -61,6 +80,19 @@ PU.klasseZeichnen = async function () {
         // serverseitig im HTML. Ein halb umgestelltes Fenster wäre schlimmer
         // als ein kurzer Neuaufbau.
         location.href = 'index.php';
+      } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
+    });
+  });
+
+  rahmen.querySelectorAll('[data-klassen-speichern]').forEach(k => {
+    k.addEventListener('click', async () => {
+      const feld = rahmen.querySelector('[data-klassen="' + k.dataset.klassenSpeichern + '"]');
+      try {
+        const r = await PU.ruf('lehrer_klassen_setzen',
+          { lehrer: Number(k.dataset.klassenSpeichern), klassen: feld ? feld.value : '' });
+        if (feld) feld.value = r.klassen.join(', ');
+        PU.melden(r.klassen.length ? 'Klassen zugeordnet: ' + PU.h(r.klassen.join(', ')) + '.'
+                                   : 'Keine Klasse mehr zugeordnet.', 'gut');
       } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
     });
   });

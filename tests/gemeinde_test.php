@@ -138,6 +138,10 @@ gleich('jetzt fehlt nur das Mit-Siegel', ['siegel'], pu_produkt($id)['fehlt']);
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Mit-Siegel');
 
+gleich('Lehrkraft ohne zugeordnete Klasse sieht nichts (C8)', [], pu_produkte($person($lehrer), true)['siegeln']);
+wirft('… und siegelt nicht', fn() => pu_produkt_siegeln($id, $person($lehrer)), 'nicht gegenzeichnen');
+pu_db()->prepare("UPDATE lernende SET gruppe = '6b' WHERE id = ?")->execute([$kind]);
+pu_lehrer_gruppen_setzen($lehrer, '6b', $lehrer);
 $liste = pu_produkte($person($lehrer), true);
 gleich('die Lehrkraft sieht, was auf ihr Siegel wartet', [$id], array_column($liste['siegeln'], 'id'));
 gleich('… mit dem Namen (der bleibt hier)', 'Nele Beispiel', $liste['siegeln'][0]['urheber'] ?? '');

@@ -25,6 +25,7 @@ declare(strict_types=1);
 require_once PU_ROOT . '/srv/pii.php';
 require_once PU_ROOT . '/srv/relay.php';
 require_once PU_ROOT . '/srv/profil.php';
+require_once PU_ROOT . '/srv/lernende.php';   // pu_lehrer_sieht (Klassen der Lehrkraft)
 
 // Wortgleich mit gemeinsam/gemeinde.php des Servers (Kategorien.md).
 const PU_GEM_HAUPTFELDER = ['A' => 'Schulbedarf (KI)', 'B' => 'Schulbedarf (Lernstoff)', 'C' => 'Berufssparten'];
@@ -421,8 +422,9 @@ function pu_gem_urheber_anzeige(int $id): string
 }
 
 /**
- * Darf `$ich` das Produkt gegenzeichnen? Lehrkraft und Verwaltung: jedes
- * Schülerprodukt dieser Academy. Eltern: nur das des eigenen Kindes.
+ * Darf `$ich` das Produkt gegenzeichnen? Verwaltung: jedes Schülerprodukt
+ * dieser Academy. Lehrkraft: nur aus den Klassen, die ihr die Schule
+ * zugeordnet hat (Plan 30_Community, C8). Eltern: nur das des eigenen Kindes.
  *
  * In einer Familien-Installation (Registrierung „Eltern“, 28.09.2026) gibt es
  * nur Eltern und ihre Kinder — dort zeichnen die Eltern jedes Kind dieses
@@ -435,7 +437,9 @@ function pu_gem_urheber_anzeige(int $id): string
 function pu_gem_darf_siegeln(array $ich, array $produkt): bool
 {
     return match (pu_ebene_gedeckelt((string)$ich['rolle'])) {
-        'admin', 'verwaltung', 'lehrer' => true,
+        'admin', 'verwaltung' => true,
+        // Nur Schüler der Klassen, die die Schule zugeordnet hat (C8).
+        'lehrer' => pu_lehrer_sieht((int)$ich['id'], (int)$produkt['lernender']),
         'eltern' => pu_art() === 'eltern' || (int)($ich['kind_von'] ?? 0) === (int)$produkt['lernender'],
         default => false,
     };

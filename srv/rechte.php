@@ -198,9 +198,9 @@ const PU_RECHTE = [
      'aktionen' => ['klasse']],
 
     ['name' => 'klassen.manage', 'gruppe' => 'Schulverwaltung',
-     'was' => 'Klassen und Gruppen verwalten',
+     'was' => 'Klassen und Gruppen verwalten, Lehrkräften ihre Klassen zuordnen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 0, 'schueler' => 0],
-     'aktionen' => []],
+     'aktionen' => ['lehrer_klassen_setzen']],
 
     // Ein Konto wirklich uebernehmen, um einen Ablauf ueber mehrere Rollen zu
     // pruefen. **Nur Ebene 1, in der Vorgabe sonst ueberall 0** — auch bei der

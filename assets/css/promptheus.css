@@ -115,6 +115,9 @@ hr { border: 0; border-top: 1px solid var(--rand); margin: 2rem 0; }
 
 /* Breite Inhalte scrollen in sich selbst — die Seite selbst nie waagerecht. */
 .tabellenrahmen { overflow-x: auto; margin: 0 0 1.2em; }
+/* Klassen einer Lehrkraft zuordnen (klasse.js): Feld und Knopf in einer Zeile. */
+.klassen-zuordnen { display: inline-flex; gap: .35em; align-items: center; white-space: nowrap; }
+.klassen-zuordnen input { width: 8em; min-width: 0; margin: 0; }
 table { border-collapse: collapse; width: 100%; font-size: .94rem; }
 th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--rand); }
 th { color: var(--schrift-2); font-weight: 600; font-size: .85rem;

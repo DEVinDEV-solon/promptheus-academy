@@ -1665,9 +1665,28 @@ try {
             $weg = pu_recht_zuruecksetzen($ichId);
             pu_json_out(['ok' => true, 'geloescht' => $weg] + pu_rechte_ausgabe());
 
-        case 'klasse':
+        case 'klasse': {
             pu_recht_fordern('klassen.view');
-            pu_json_out(['ok' => true, 'klasse' => pu_klasse()]);
+            // Eine Lehrkraft sieht nur ihre Klassen (C8); wer zuordnen darf,
+            // bekommt dazu die Klassen jeder Lehrkraft.
+            $klasse = pu_klasse($ich);
+            $zuordnung = [];
+            if (pu_recht_hat('klassen.manage')) {
+                foreach ($klasse as $l) {
+                    if (pu_ebene($l) === 'lehrer') $zuordnung[(string)$l['id']] = pu_lehrer_gruppen((int)$l['id']);
+                }
+            }
+            pu_json_out(['ok' => true, 'klasse' => $klasse, 'lehrer_klassen' => (object)$zuordnung,
+                         'meine_klassen' => $ebene === 'lehrer' ? pu_lehrer_gruppen($ichId) : null]);
+        }
+
+        // Die Schule ordnet einer Lehrkraft Klassen zu (Plan 30_Community, C8).
+        case 'lehrer_klassen_setzen': {
+            pu_recht_fordern('klassen.manage');
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            $liste = pu_lehrer_gruppen_setzen((int)d('lehrer', 0), d('klassen', ''), $ichId);
+            pu_json_out(['ok' => true, 'klassen' => $liste]);
+        }
 
         // ------------------------------------------------ Rollenübernahme
         //
