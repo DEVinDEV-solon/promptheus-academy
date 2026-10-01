@@ -154,4 +154,49 @@ foreach (['http://boese.example:8801', 'http://127.0.0.1:8801/pfad', 'https://12
     pruefe('keine fremde Adresse: ' . addcslashes($fremd, "\r\n"), !isset(pu_werkstatt_ticket($chef, $fremd)['academy']));
 }
 
+// ================================================================ Neu starten
+gruppe('Werkstatt beenden (für den Neustart)');
+
+exec('where node 2>NUL', $wo, $rc);
+if (PHP_OS_FAMILY !== 'Windows' || $rc !== 0) {
+    gleich('ausserhalb von Windows: nicht unterstützt', PHP_OS_FAMILY === 'Windows' ? 'ohne node' : 'nicht_windows',
+           PHP_OS_FAMILY === 'Windows' ? 'ohne node' : (pu_werkstatt_beenden(39999)['grund'] ?? ''));
+} else {
+    $node = trim((string)$wo[0]);
+    $port = random_int(39000, 39900);
+    // Ein Schein-Starter wie werkzeuge/starten.mjs: startet einen Dienst, der
+    // sich wie der Harness ausweist (--profile promptheus), und wartet.
+    $lausch = "require('http').createServer(()=>{}).listen(Number(process.argv.at(-1)),'127.0.0.1')";
+    file_put_contents($tmp . '/starten.mjs', "import { spawn } from 'node:child_process'\n"
+        . "const k = spawn(process.execPath, ['-e', " . json_encode($lausch) . ", '--', '--profile', 'promptheus', '--port', '$port'], { stdio: 'ignore' })\n"
+        . "k.on('exit', () => process.exit(0))\n");
+    $starter = proc_open([$node, $tmp . '/starten.mjs'], [], $rohr);
+    $fremdPort = $port + 1;
+    $fremd = proc_open([$node, '-e', $lausch, '--', (string)$fremdPort], [], $rohr2);
+    $da = static function (int $p): bool {
+        for ($i = 0; $i < 40; $i++) {
+            $s = @fsockopen('127.0.0.1', $p, $n, $t, 0.2);
+            if ($s !== false) { fclose($s); return true; }
+            usleep(100000);
+        }
+        return false;
+    };
+    pruefe('Schein-Werkstatt lauscht', $da($port));
+    pruefe('fremder Dienst lauscht', $da($fremdPort));
+
+    gleich('fremder Dienst auf dem Port: nicht anfassen', 'fremd', pu_werkstatt_beenden($fremdPort, 2)['grund'] ?? null);
+    pruefe('… läuft weiter', proc_get_status($fremd)['running']);
+
+    $r = pu_werkstatt_beenden($port);
+    pruefe('Werkstatt beendet', ($r['ok'] ?? false) && ($r['beendet'] ?? false), kurz($r));
+    pruefe('… Port frei', @fsockopen('127.0.0.1', $port, $n, $t, 0.3) === false);
+    usleep(300000);
+    pruefe('… und der Starter mit ihr', !proc_get_status($starter)['running']);
+    gleich('nichts mehr da: ok, nichts beendet', ['ok' => true, 'beendet' => false], pu_werkstatt_beenden($port));
+
+    proc_terminate($fremd);
+    proc_close($fremd);
+    proc_close($starter);
+}
+
 bilanz();

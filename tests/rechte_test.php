@@ -217,7 +217,9 @@ $ohneWache = ['anmelden', 'einrichten', 'urkunde_pruefen', 'zustand', 'abmelden'
               'rolle_zurueck',
               // Rollen & Rechte zum Nachlesen: für jeden Angemeldeten, nur lesen.
               'rollen_erklaert',
-              'werkstatt_oeffnen'];
+              'werkstatt_oeffnen',
+              // derselbe Zweig wie werkstatt_oeffnen, dieselbe Freigabe
+              'werkstatt_neustarten'];
 
 preg_match_all("/^        case '([a-z_]+)':/m", $api, $treffer);
 $alle = array_unique($treffer[1]);

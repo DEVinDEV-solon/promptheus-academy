@@ -977,8 +977,13 @@ try {
         //
         // Frei ab Kurs 7 zu 100 %, Admins sofort — geprüft HIER, vor dem
         // Ticket. Der Knopf in der Oberfläche ist nur Anzeige.
-        case 'werkstatt_oeffnen': {
+        // Neu starten, wenn das Browserfenster der Werkstatt weg ist: Ihre
+        // Adresse trägt ein Zugangstoken, das nur der Harness kennt — ohne
+        // Neustart kommt man nicht mehr hinein. Dieselben Prüfungen wie oben.
+        case 'werkstatt_oeffnen':
+        case 'werkstatt_neustarten': {
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            $neu = $aktion === 'werkstatt_neustarten';
 
             $st = pu_werkstatt_stand($ichId);
             if (!$st['frei'])         pu_fehler('Die Werkstatt ist erst mit dem 7. Kurs frei.', 403);
@@ -986,16 +991,25 @@ try {
             if (!$zu['ok'])           pu_fehler(pu_gem_grund_text($zu['grund']) . ' Die Werkstatt gehört zum Abo.', 403);
             if (!$st['eingerichtet']) pu_fehler('Die Werkstatt ist auf diesem Rechner noch nicht eingerichtet: '
                                                . 'werkstatt\\WERKSTATT-EINRICHTEN.bat ausführen.', 409);
-            if ($st['laeuft']) {
+            if ($st['laeuft'] && !$neu) {
                 pu_json_out(['ok' => true, 'laeuft' => true, 'port' => $st['port']]);
+            }
+            if ($st['laeuft']) {
+                $b = pu_werkstatt_beenden();
+                if (!$b['ok']) pu_fehler(match ($b['grund']) {
+                    'fremd'         => 'Auf Port ' . PU_WERKSTATT_PORT . ' läuft ein anderes Programm, nicht die Werkstatt. Es wird nicht beendet.',
+                    'nicht_windows' => 'Neu starten geht hier nur unter Windows. Beende die Werkstatt im Terminal (Strg+C).',
+                    default         => 'Die Werkstatt liess sich nicht beenden. Schliess ihr Fenster und versuch es noch einmal.',
+                }, 409);
+                pu_protokoll($ichId, 'werkstatt', 'beenden', 'Neustart');
             }
 
             // Die Werkstatt soll wissen, wo diese Academy läuft (Port aus der
             // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
             pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
             pu_werkstatt_starten();
-            pu_protokoll($ichId, 'werkstatt', 'oeffnen', $st['grund']);
-            pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'port' => $st['port']]);
+            pu_protokoll($ichId, 'werkstatt', $neu ? 'neustart' : 'oeffnen', $st['grund']);
+            pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'neu' => $neu, 'port' => $st['port']]);
         }
 
         case 'tutor_probe': {
