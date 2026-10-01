@@ -404,10 +404,10 @@ const PU_RECHTE = [
     // Academy registriert ist; hinaus gehen nur Pseudonym und Synonym. Wer
     // moderiert, sitzt im Cockpit des Betreibers — hier gibt es dafür kein Recht.
     ['name' => 'gemeinde.ansehen', 'gruppe' => 'Community',
-     'was' => 'Werke der Community ansehen und herunterladen',
+     'was' => 'Werke der Community ansehen und herunterladen, die Community im Browser öffnen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket',
-                    'gemeinde_talente']],
+                    'gemeinde_talente', 'community_oeffnen']],
 
     ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Community',
      'was' => 'Liken, kommentieren, melden (unter dem eigenen Synonym)',

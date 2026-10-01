@@ -75,6 +75,12 @@ const PU_GEM_GRUENDE = [
     'eigenes_werk'      => 'Das eigene Werk kann man nicht liken.',
     'form'              => 'Die Angaben sind unvollständig.',
     'nichts_umwandelbar' => 'Gerade ist nichts umwandelbar: keine Talente oder der Monatsdeckel ist erreicht.',
+    // Community im Browser (Plan 30_Community)
+    'rufname_fehlt'     => 'Wähle zuerst dein Synonym (Einstellungen → Profil).',
+    'nicht_registriert' => 'Die Community gibt es nur für registrierte Academies.',
+    'kein_abo'          => 'Für dein Konto läuft noch kein Abo.',
+    'nicht_freigegeben' => 'Die Community ist für diese Einrichtung gerade nicht freigegeben.',
+    'marke_form'        => 'Der Server hat eine unlesbare Antwort geschickt.',
 ];
 
 function pu_gem_grund_text(string $grund): string
@@ -708,4 +714,111 @@ function pu_gem_talente(array $ich): array
 function pu_gem_talente_abholen(array $ich, ?int $menge = null): array
 {
     return pu_gem_ruf('talente_abholen', $ich, $menge === null ? [] : ['menge' => $menge], true);
+}
+// ═════════════════════════════════════════════════════════════════════════════
+// Community im Browser: der Einlass (Plan 30_Community, C1–C5)
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Der Knopf „Community“ der Werkstatt öffnet `api.php?aktion=community_oeffnen`.
+// Die Academy kennt die Person (Sitzung), hat den Schlüssel und weiss, ob ein
+// Abo läuft. Sie holt beim Server eine Einlassmarke (60 s, einmal) und leitet
+// auf `…/gemeinde/#e=<Marke>` weiter. Hinter `#` geht die Marke an keinen
+// Server und in kein Protokoll; die Seite tauscht sie sofort gegen ein Cookie.
+
+/**
+ * Darf dieses Konto in die Community im Browser — oder, mit `$werkstatt`, in
+ * die Werkstatt? Sonst zeigt die Oberfläche das Werbe-Modal (C1).
+ *
+ *   nicht_registriert  keine gültige Bescheinigung: Ohne Schlüssel verlässt
+ *                      keine Anfrage den Rechner, die Community ist zu.
+ *   kein_abo           weder eigenes Abo noch eines der Klasse oder Schule
+ *
+ * Admins brauchen kein Abo (pu_token_frei). Für die Werkstatt brauchen sie
+ * auch keine Registrierung — sie läuft auf diesem Rechner, und der Betreiber
+ * soll sie prüfen können, bevor es einen Code gibt.
+ */
+function pu_gem_zugang(int $lernender, bool $werkstatt = false): array
+{
+    require_once PU_ROOT . '/srv/abo.php';
+
+    $admin = pu_token_frei($lernender);
+    if ($werkstatt && $admin) {
+        return ['ok' => true, 'grund' => ''];
+    }
+    $z = pu_relay_zustand();
+    if (!$z['registriert'] || !$z['gueltig']) {
+        return ['ok' => false, 'grund' => 'nicht_registriert'];
+    }
+    if (!$admin && pu_abo_fuer($lernender) === null) {
+        return ['ok' => false, 'grund' => 'kein_abo'];
+    }
+    return ['ok' => true, 'grund' => ''];
+}
+
+/**
+ * Die Adresse der Community: neben dem Relay auf demselben Server.
+ * `https://promptheus-academy.de/relay/` → `https://promptheus-academy.de/gemeinde/`.
+ */
+function pu_gem_adresse(): string
+{
+    $relay = pu_relay_url();
+    if (preg_match('#/relay/$#', $relay)) {
+        return substr($relay, 0, -strlen('relay/')) . 'gemeinde/';
+    }
+    $p = parse_url($relay);
+    return $p['scheme'] . '://' . $p['host'] . (isset($p['port']) ? ':' . $p['port'] : '') . '/gemeinde/';
+}
+
+/**
+ * Holt die Einlassmarke und baut das Ziel der Weiterleitung.
+ *
+ * @param string $variante Palette der Werkstatt (`?v=`); Unbekanntes fällt weg.
+ * @return array ok + ziel, oder ok=false + grund (+ werbung, wenn das Werbe-Modal gemeint ist)
+ */
+function pu_gem_einlass(array $ich, string $variante = ''): array
+{
+    require_once PU_ROOT . '/srv/varianten.php';
+
+    $id = (int)$ich['id'];
+    $z = pu_gem_zugang($id);
+    if (!$z['ok']) {
+        return $z + ['werbung' => true];
+    }
+    if (!pu_gem_synonym_gemeldet($id)) {
+        $s = pu_gem_synonym_melden($ich);
+        if (!$s['ok']) {
+            return ['ok' => false, 'grund' => (string)($s['grund'] ?? 'serverfehler')];
+        }
+    }
+    $v = array_key_exists($variante, PU_VARIANTEN) ? $variante : '';
+    $r = pu_gem_ruf('einlass_holen', $ich, $v === '' ? [] : ['variante' => $v], true);
+    if (!$r['ok']) {
+        return ['ok' => false, 'grund' => (string)($r['grund'] ?? 'serverfehler')];
+    }
+    // Die Marke landet in einer Kopfzeile (Location): nur die erwartete Form.
+    $marke = (string)($r['marke'] ?? '');
+    if (!preg_match('/^[A-Za-z0-9_-]{43}$/', $marke)) {
+        return ['ok' => false, 'grund' => 'marke_form'];
+    }
+    pu_protokoll($id, 'gemeinde', 'einlass', $v);
+    return ['ok' => true, 'ziel' => pu_gem_adresse() . '#e=' . $marke . ($v !== '' ? '&v=' . $v : '')];
+}
+
+/**
+ * Ein Satz für die Ansicht „Community“ der Academy, einmal. Wenn der Knopf
+ * der Werkstatt nicht in die Community führen konnte (Synonym fehlt, Server
+ * nicht erreichbar), landet man dort und liest, warum.
+ */
+function pu_gem_hinweis_setzen(string $text): void
+{
+    pu_session_start();
+    $_SESSION['pu_gem_hinweis'] = mb_substr($text, 0, 300);
+}
+
+function pu_gem_hinweis_nehmen(): string
+{
+    pu_session_start();
+    $t = (string)($_SESSION['pu_gem_hinweis'] ?? '');
+    unset($_SESSION['pu_gem_hinweis']);
+    return $t;
 }
