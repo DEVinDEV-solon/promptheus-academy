@@ -899,6 +899,8 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
      ab, `ziel.js` baut daraus das Fenster. -->
 <script src="<?= pu_v('assets/js/zielbilder.js') ?>"></script>
 <script src="<?= pu_v('assets/js/ziel.js') ?>"></script>
+<!-- Werbe-Modal für Community und Werkstatt ohne Abo, gebaut wie die Zielseite. -->
+<script src="<?= pu_v('assets/js/werbung.js') ?>"></script>
 <script src="<?= pu_v('assets/js/fortschritt.js') ?>"></script>
 <script src="<?= pu_v('assets/js/urkunde.js') ?>"></script>
 <script src="<?= pu_v('assets/js/kursstand.js') ?>"></script>

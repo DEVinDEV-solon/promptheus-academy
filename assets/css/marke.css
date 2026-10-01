@@ -605,6 +605,41 @@ html[data-thema-effektiv="hell"] {
   .ziel-kopf { grid-template-columns: 1fr; gap: 1.4rem; padding-top: 1.4rem; }
 }
 
+/* ============================================================ Werbe-Modal
+
+   Community und Werkstatt ohne Abo (werbung.js). Dieselbe Seite wie das Ziel
+   des 7. Kurses; als Beispiel dienen Clips und nachgebaute Oberflächen aus
+   echten Bausteinen. Häkchen tragen Text daneben, nie nur die Farbe.       */
+
+.werbung-seite video,
+.werbung-seite .ziel-foto {
+  display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: var(--radius-klein); background: var(--grund-3);
+}
+.werbung-seite figcaption { margin-top: .5rem; color: var(--schrift-3); font-size: .8rem; }
+.werbung-raster { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+
+.werbung-muster { display: grid; gap: .55rem; font-size: .88rem; }
+.werbung-karte {
+  background: var(--grund-2); border: 1px solid var(--rand);
+  border-radius: var(--radius-klein); padding: .6rem .75rem;
+}
+.werbung-karte p { margin: .35rem 0; }
+.werbung-zeile { display: flex; justify-content: space-between; gap: .6rem; }
+.werbung-zeile span:last-child { color: var(--schrift-3); }
+.werbung-muster .werbung-zeile .ok     { color: var(--gut); font-weight: 600; }
+.werbung-muster .werbung-zeile .warten { color: var(--warn); font-weight: 600; }
+.werbung-muster .werbung-zeile .gold   { color: var(--gold); font-weight: 600; }
+.werbung-xxx { font-family: var(--mono); color: var(--schlecht); }
+.werbung-knoepfe { display: flex; gap: .5rem; flex-wrap: wrap; }
+.werbung-muster .werbung-knoepfe .knopf { pointer-events: none; }
+
+.werbung-sicht { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.werbung-feld { border: 1px dashed var(--rand-hell); border-radius: var(--radius-klein); padding: .55rem .7rem; }
+.werbung-feld b { display: block; }
+.werbung-feld ul { margin: .25rem 0 0; padding-left: 1.1rem; }
+.werbung-feld.schule { grid-column: 1 / -1; border-style: solid; border-color: var(--glut); }
+
 /* ============================================================ Feierflächen
 
    Wo etwas gelungen ist, kommt die Palmette. Sie ist das einzige Ornament,

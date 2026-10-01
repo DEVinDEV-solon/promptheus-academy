@@ -40,7 +40,7 @@ PU.ROUTE_LERNORTE = { kurs: 'kurs', lektion: 'lektion', pruefung: 'pruefung' };
  * Die Ansicht darunter bleibt, was sie war. Deshalb steht hier nur der Name
  * des Fensters, und `routeAnwenden` wechselt für ihn nichts.
  */
-PU.ROUTE_FENSTER = { ziel: 'ziel', werkstatt: 'werkstatt' };
+PU.ROUTE_FENSTER = { ziel: 'ziel', werkstatt: 'werkstatt', werbung: 'werbung', 'werbung-werkstatt': 'werbung-werkstatt' };
 
 /**
  * Wie viele Adressen diese Sitzung schon durchlaufen hat.
@@ -147,6 +147,8 @@ PU.routeAnwenden = function () {
       PU.fensterOffen = r.fenster;
       if (r.fenster === 'ziel' && PU.zielSeite) PU.zielSeite();
       if (r.fenster === 'werkstatt' && PU.werkstattFenster) PU.werkstattFenster();
+      if (r.fenster === 'werbung' && PU.werbungAusAdresse) PU.werbungAusAdresse('community');
+      if (r.fenster === 'werbung-werkstatt' && PU.werbungAusAdresse) PU.werbungAusAdresse('werkstatt');
     }
     return;                       // Die Ansicht darunter bleibt, wie sie war.
   }

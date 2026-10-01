@@ -102,11 +102,14 @@ function pu_werkstatt_stand(int $lernender): array
 /**
  * Stellt ein Ticket aus. Nur nach pu_werkstatt_stand()['frei'] aufrufen.
  *
+ * `$academy` ist der Ursprung dieser Academy (`http://127.0.0.1:8801`), damit
+ * die Werkstatt weiss, wohin ihr Knopf „Community“ führt.
+ *
  * Geschrieben wird atomar (temporär + umbenennen), damit starten.mjs nie eine
  * halbe Datei liest. Die Lernenden-ID steht darin für das Protokoll, nicht für
  * eine Anmeldung: Die Werkstatt hat ihre eigene.
  */
-function pu_werkstatt_ticket(int $lernender): array
+function pu_werkstatt_ticket(int $lernender, string $academy = ''): array
 {
     $pfad = pu_werkstatt_ticket_pfad();
     $dir  = dirname($pfad);
@@ -119,6 +122,11 @@ function pu_werkstatt_ticket(int $lernender): array
         'lernender' => $lernender,
         'ablauf'    => time() + PU_WERKSTATT_TICKET_SEK,
     ];
+    // Wo diese Academy läuft: Der Knopf „Community“ der Werkstatt leitet
+    // dorthin zurück (community_oeffnen). Nur dieser Rechner, nie ein fremder.
+    if (preg_match('#^http://(127\.0\.0\.1|localhost):\d{1,5}\z#', $academy)) {
+        $ticket['academy'] = $academy;
+    }
     $tmp = $pfad . '.' . bin2hex(random_bytes(4)) . '.tmp';
     if (file_put_contents($tmp, json_encode($ticket), LOCK_EX) === false || !rename($tmp, $pfad)) {
         @unlink($tmp);

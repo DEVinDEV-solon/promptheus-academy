@@ -198,9 +198,9 @@ const PU_RECHTE = [
      'aktionen' => ['klasse']],
 
     ['name' => 'klassen.manage', 'gruppe' => 'Schulverwaltung',
-     'was' => 'Klassen und Gruppen verwalten',
+     'was' => 'Klassen und Gruppen verwalten, Lehrkräften ihre Klassen zuordnen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 0, 'schueler' => 0],
-     'aktionen' => []],
+     'aktionen' => ['lehrer_klassen_setzen']],
 
     // Ein Konto wirklich uebernehmen, um einen Ablauf ueber mehrere Rollen zu
     // pruefen. **Nur Ebene 1, in der Vorgabe sonst ueberall 0** — auch bei der
@@ -404,10 +404,10 @@ const PU_RECHTE = [
     // Academy registriert ist; hinaus gehen nur Pseudonym und Synonym. Wer
     // moderiert, sitzt im Cockpit des Betreibers — hier gibt es dafür kein Recht.
     ['name' => 'gemeinde.ansehen', 'gruppe' => 'Community',
-     'was' => 'Werke der Community ansehen und herunterladen',
+     'was' => 'Werke der Community ansehen und herunterladen, die Community im Browser öffnen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
      'aktionen' => ['gemeinde_start', 'pii_regeln', 'gemeinde_werke', 'gemeinde_werk', 'gemeinde_bild', 'gemeinde_paket',
-                    'gemeinde_talente']],
+                    'gemeinde_talente', 'community_oeffnen']],
 
     ['name' => 'gemeinde.mitmachen', 'gruppe' => 'Community',
      'was' => 'Liken, kommentieren, melden (unter dem eigenen Synonym)',

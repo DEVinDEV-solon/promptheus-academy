@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 11;
+const PU_DB_VERSION = 12;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -30,6 +30,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 9) pu_db_v9($pdo);
     if ($ist < 10) pu_db_v10($pdo);
     if ($ist < 11) pu_db_v11($pdo);
+    if ($ist < 12) pu_db_v12($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -640,4 +641,23 @@ function pu_db_v11(PDO $pdo): void
         )
     ");
     $pdo->exec('CREATE INDEX IF NOT EXISTS ix_urk_meldungen_offen ON urkunden_meldungen(gesendet, id)');
+}
+
+/**
+ * Welche Klassen eine Lehrkraft sieht (Plan 30_Community, C8). Die Schule
+ * ordnet zu (Recht `klassen.manage`, Verwaltung); eine Lehrkraft kann mehrere
+ * Klassen haben. Ohne Zuordnung sieht sie keine Schüler und keine
+ * Produktionen. Die Klasse eines Schülers ist sein `lernende.gruppe`.
+ */
+function pu_db_v12(PDO $pdo): void
+{
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS lehrer_gruppen (
+            lehrer          INTEGER NOT NULL,
+            gruppe          TEXT NOT NULL,
+            zugeordnet_von  INTEGER NOT NULL DEFAULT 0,
+            angelegt        TEXT NOT NULL,
+            PRIMARY KEY (lehrer, gruppe)
+        )
+    ");
 }

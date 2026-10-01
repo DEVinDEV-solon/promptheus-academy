@@ -95,6 +95,17 @@ PU.werkstattFenster = async function () {
     return;
   }
 
+  /* Ohne Registrierung oder Abo zuerst das Werbe-Modal (Plan 30_Community,
+     C1): Die Werkstatt gehört zum Abo, die Kurse 1 bis 6 nicht. Die Adresse
+     wird ersetzt, nicht angehängt — sonst führte der Zurück-Knopf wieder
+     hierher und gleich wieder ins Werbe-Modal. */
+  if (r.zugang && !r.zugang.ok && PU.werbungSeite) {
+    PU.fensterOffen = 'werbung-werkstatt';
+    if (PU.routeSchreiben) PU.routeSchreiben(true);
+    PU.werbungSeite('werkstatt', r.zugang.grund);
+    return;
+  }
+
   const w = r.werkstatt || { frei: false, grund: 'stufen_offen', prozent: 0 };
   const betreiber = w.grund === 'betreiber';
   const stufenOk  = betreiber || w.grund !== 'stufen_offen';

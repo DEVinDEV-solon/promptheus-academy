@@ -66,6 +66,19 @@ function d(string $name, $vorgabe = '')
     return $D[$name] ?? $vorgabe;
 }
 
+/**
+ * Weiterleiten statt JSON — nur für `community_oeffnen`, das der Browser als
+ * Seite öffnet (Knopf der Werkstatt). Kein Referer, nichts im Zwischenspeicher:
+ * Das Ziel trägt eine Einlassmarke.
+ */
+function api_umleiten(string $ziel): never
+{
+    header('Cache-Control: no-store');
+    header('Referrer-Policy: no-referrer');
+    header('Location: ' . $ziel, true, 302);
+    exit;
+}
+
 try {
     // ============================================================ ohne Anmeldung
     switch ($aktion) {
@@ -106,10 +119,14 @@ try {
 
         case 'urkunde_pruefen':
             pu_json_out(['ok' => true, 'ergebnis' => pu_urkunde_pruefen((string)d('code', $_GET['code'] ?? ''))]);
+
     }
 
     // ============================================================ ab hier Anmeldung
     $ich = pu_wer();
+    // Der Knopf „Community“ der Werkstatt öffnet eine Seite, keinen Abruf:
+    // ohne Anmeldung zur Anmeldung, nicht zu einem JSON-Fehler.
+    if ($ich === null && $aktion === 'community_oeffnen') api_umleiten('./');
     if ($ich === null) pu_fehler('Bitte anmelden.', 401);
     $ichId = (int)$ich['id'];
 
@@ -182,6 +199,8 @@ try {
                     'pfad' => $k7['pfad'] ?? '',
                 ],
                 'werkstatt' => $w,
+                // Ohne Registrierung oder Abo zeigt das Fenster das Werbe-Modal (C1).
+                'zugang' => pu_gem_zugang($ichId, true),
             ]);
         }
 
@@ -963,13 +982,17 @@ try {
 
             $st = pu_werkstatt_stand($ichId);
             if (!$st['frei'])         pu_fehler('Die Werkstatt ist erst mit dem 7. Kurs frei.', 403);
+            $zu = pu_gem_zugang($ichId, true);
+            if (!$zu['ok'])           pu_fehler(pu_gem_grund_text($zu['grund']) . ' Die Werkstatt gehört zum Abo.', 403);
             if (!$st['eingerichtet']) pu_fehler('Die Werkstatt ist auf diesem Rechner noch nicht eingerichtet: '
                                                . 'werkstatt\\WERKSTATT-EINRICHTEN.bat ausführen.', 409);
             if ($st['laeuft']) {
                 pu_json_out(['ok' => true, 'laeuft' => true, 'port' => $st['port']]);
             }
 
-            pu_werkstatt_ticket($ichId);
+            // Die Werkstatt soll wissen, wo diese Academy läuft (Port aus der
+            // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
+            pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
             pu_werkstatt_starten();
             pu_protokoll($ichId, 'werkstatt', 'oeffnen', $st['grund']);
             pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'port' => $st['port']]);
@@ -1185,6 +1208,24 @@ try {
         // Die Gemeinde gibt es nur über den Server; ohne Registrierung zeigt
         // die Oberfläche, warum nicht. Hinaus geht nur das Pseudonym `L-<id>`
         // und das Synonym — nie Name, Kennung, Klasse oder Schule.
+        /* Der Knopf „Community“ der Werkstatt (Plan 30_Community). Ein GET, den
+           der Browser als Seite öffnet; am Ende steht immer eine Weiterleitung:
+             - in die Community mit Einlassmarke im Fragment (#e=…), oder
+             - ohne Registrierung oder Abo ins Werbe-Modal (#/werbung), oder
+             - bei einem anderen Hindernis in die Ansicht „Community“ mit Satz.
+           Eine fremde Seite, die diesen Link auslöst, schickt die Person in
+           ihre eigene Community — mehr kann sie damit nicht. */
+        case 'community_oeffnen': {
+            pu_recht_fordern('gemeinde.ansehen');
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') pu_fehler('Nur per GET.', 405);
+            $v = is_string($_GET['v'] ?? null) ? (string)$_GET['v'] : '';
+            $r = pu_gem_einlass($ich, $v);
+            if ($r['ok']) api_umleiten($r['ziel']);
+            if (!empty($r['werbung'])) api_umleiten('./#/werbung');
+            pu_gem_hinweis_setzen(pu_gem_grund_text((string)$r['grund']));
+            api_umleiten('./#/gemeinde');
+        }
+
         case 'gemeinde_start': {
             pu_recht_fordern('gemeinde.ansehen');
             $z = pu_relay_zustand();
@@ -1196,6 +1237,10 @@ try {
             pu_json_out(['ok' => true,
                 'registriert' => (bool)($z['registriert'] ?? false) && (bool)($z['gueltig'] ?? false),
                 'synonym' => $syn, 'synonym_fehler' => $fehler === null ? '' : pu_gem_grund_text($fehler),
+                // Einmal-Hinweis, wenn der Knopf der Werkstatt hier gelandet ist.
+                'hinweis' => pu_gem_hinweis_nehmen(),
+                // Community im Browser (Knopf der Werkstatt): sonst Werbe-Modal.
+                'zugang' => pu_gem_zugang($ichId),
                 'darf' => ['mitmachen' => pu_recht_hat('gemeinde.mitmachen'),
                            'veroeffentlichen' => pu_recht_hat('gemeinde.veroeffentlichen'),
                            'siegeln' => pu_recht_hat('gemeinde.siegel')],
@@ -1622,9 +1667,28 @@ try {
             $weg = pu_recht_zuruecksetzen($ichId);
             pu_json_out(['ok' => true, 'geloescht' => $weg] + pu_rechte_ausgabe());
 
-        case 'klasse':
+        case 'klasse': {
             pu_recht_fordern('klassen.view');
-            pu_json_out(['ok' => true, 'klasse' => pu_klasse()]);
+            // Eine Lehrkraft sieht nur ihre Klassen (C8); wer zuordnen darf,
+            // bekommt dazu die Klassen jeder Lehrkraft.
+            $klasse = pu_klasse($ich);
+            $zuordnung = [];
+            if (pu_recht_hat('klassen.manage')) {
+                foreach ($klasse as $l) {
+                    if (pu_ebene($l) === 'lehrer') $zuordnung[(string)$l['id']] = pu_lehrer_gruppen((int)$l['id']);
+                }
+            }
+            pu_json_out(['ok' => true, 'klasse' => $klasse, 'lehrer_klassen' => (object)$zuordnung,
+                         'meine_klassen' => $ebene === 'lehrer' ? pu_lehrer_gruppen($ichId) : null]);
+        }
+
+        // Die Schule ordnet einer Lehrkraft Klassen zu (Plan 30_Community, C8).
+        case 'lehrer_klassen_setzen': {
+            pu_recht_fordern('klassen.manage');
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            $liste = pu_lehrer_gruppen_setzen((int)d('lehrer', 0), d('klassen', ''), $ichId);
+            pu_json_out(['ok' => true, 'klassen' => $liste]);
+        }
 
         // ------------------------------------------------ Rollenübernahme
         //

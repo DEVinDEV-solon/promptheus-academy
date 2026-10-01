@@ -175,10 +175,26 @@ function pu_stand(int $lernender): array
  * und werden erst gezeigt, wenn ein Tutor gezielt eine Aufgabe aufmacht.
  * Eine Übersicht, die nebenbei jede Antwort ausbreitet, lädt zum Stoebern
  * ein statt zum Helfen.
+ *
+ * **Eine Lehrkraft sieht nur ihre Klassen** (Plan 30_Community, C8): sich
+ * selbst und die Schüler der Klassen, die ihr die Schule zugeordnet hat
+ * (pu_lehrer_gruppen). Ohne Zuordnung nur sich selbst. Verwaltung und Admin
+ * sehen alle Konten dieser Academy.
+ *
+ * @param array|null $ich wer fragt; null = ohne Einschränkung (Werkzeuge, Tests)
  */
-function pu_klasse(): array
+function pu_klasse(?array $ich = null): array
 {
-    $rows = pu_db()->query(
+    require_once PU_ROOT . '/srv/rechte.php';
+    $wo = '';
+    $werte = [];
+    if ($ich !== null && pu_ebene($ich) === 'lehrer') {
+        $gruppen = pu_lehrer_gruppen((int)$ich['id']);
+        $wo = 'WHERE l.id = ?' . ($gruppen === [] ? ''
+            : " OR (l.rolle = 'schueler' AND l.gruppe IN (" . implode(',', array_fill(0, count($gruppen), '?')) . '))');
+        $werte = array_merge([(int)$ich['id']], $gruppen);
+    }
+    $st = pu_db()->prepare(
         "SELECT l.id, l.kennung, l.anzeigename, l.rolle, l.gruppe,
                 l.pseudonym, l.lebensalter, l.schule, l.kind_von,
                 COALESCE(k.summe, 0) AS punkte, COALESCE(k.titel, 'Funke') AS titel,
@@ -189,10 +205,90 @@ function pu_klasse(): array
          FROM lernende l
          LEFT JOIN punkte_konto k ON k.lernender = l.id
          LEFT JOIN streak s ON s.lernender = l.id
+         $wo
          ORDER BY punkte DESC, l.anzeigename"
-    )->fetchAll();
+    );
+    $st->execute($werte);
+    return $st->fetchAll();
+}
 
-    return $rows;
+// ---------------------------------------------------------------- Klassen der Lehrkraft
+
+/** So viele Klassen höchstens je Lehrkraft, so lang höchstens ein Klassenname. */
+const PU_LEHRER_GRUPPEN_MAX = 30;
+const PU_GRUPPE_LAENGE = 40;
+
+/** Die Klassen, die die Schule dieser Lehrkraft zugeordnet hat. */
+function pu_lehrer_gruppen(int $lehrer): array
+{
+    $st = pu_db()->prepare('SELECT gruppe FROM lehrer_gruppen WHERE lehrer = ? ORDER BY gruppe');
+    $st->execute([$lehrer]);
+    return array_map('strval', $st->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/**
+ * Ordnet einer Lehrkraft ihre Klassen zu — ersetzt die bisherige Liste.
+ * Das Recht (`klassen.manage`) prüft api.php; hier wird geprüft, dass es eine
+ * Lehrkraft ist und dass die Namen taugen.
+ *
+ * @param array|string $gruppen Liste oder „7a, 8c“
+ * @return string[] die gespeicherte Liste
+ */
+function pu_lehrer_gruppen_setzen(int $lehrer, $gruppen, int $wer): array
+{
+    require_once PU_ROOT . '/srv/rechte.php';
+    $st = pu_db()->prepare('SELECT id, rolle FROM lernende WHERE id = ?');
+    $st->execute([$lehrer]);
+    $z = $st->fetch();
+    if ($z === false || pu_ebene($z) !== 'lehrer') {
+        throw new RuntimeException('Klassen zuordnen geht nur bei einer Lehrkraft.');
+    }
+    if (is_string($gruppen)) {
+        $gruppen = explode(',', $gruppen);
+    }
+    if (!is_array($gruppen)) {
+        throw new RuntimeException('Die Klassen sind unlesbar.');
+    }
+    $liste = [];
+    foreach ($gruppen as $g) {
+        $g = trim(is_string($g) ? $g : '');
+        if ($g === '') continue;
+        if (mb_strlen($g) > PU_GRUPPE_LAENGE || preg_match('/[ -<>]/u', $g)) {
+            throw new RuntimeException('Ein Klassenname hat höchstens ' . PU_GRUPPE_LAENGE . ' Zeichen, ohne < und >.');
+        }
+        $liste[$g] = true;
+    }
+    $liste = array_keys($liste);
+    if (count($liste) > PU_LEHRER_GRUPPEN_MAX) {
+        throw new RuntimeException('Höchstens ' . PU_LEHRER_GRUPPEN_MAX . ' Klassen je Lehrkraft.');
+    }
+    sort($liste);
+
+    $pdo = pu_db();
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('DELETE FROM lehrer_gruppen WHERE lehrer = ?')->execute([$lehrer]);
+        $ein = $pdo->prepare('INSERT INTO lehrer_gruppen (lehrer, gruppe, zugeordnet_von, angelegt) VALUES (?, ?, ?, ?)');
+        foreach ($liste as $g) {
+            $ein->execute([$lehrer, $g, $wer, pu_jetzt()]);
+        }
+        $pdo->commit();
+    } catch (Throwable $f) {
+        $pdo->rollBack();
+        throw $f;
+    }
+    pu_protokoll($wer, 'klassen', 'zuordnen', 'Lehrkraft ' . $lehrer . ': ' . implode(', ', $liste));
+    return $liste;
+}
+
+/** Ist dieser Schüler in einer der Klassen der Lehrkraft? */
+function pu_lehrer_sieht(int $lehrer, int $schueler): bool
+{
+    $st = pu_db()->prepare(
+        "SELECT 1 FROM lernende l JOIN lehrer_gruppen g ON g.gruppe = l.gruppe AND g.lehrer = ?
+          WHERE l.id = ? AND l.rolle = 'schueler' AND l.gruppe <> ''");
+    $st->execute([$lehrer, $schueler]);
+    return $st->fetchColumn() !== false;
 }
 
 /** Die Antworten eines Lernenden zu einer Aufgabe — nur für Tutoren. */

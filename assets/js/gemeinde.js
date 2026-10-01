@@ -83,6 +83,19 @@ PU.gemeindeZeichnen = async function () {
     'Prompts, Skills und Plugins aus vielen Academies — unter Synonymen, ohne Namen. ' +
     'Jedes Werk hat ein Mensch geprüft, bevor du es siehst.'));
 
+  // Der Knopf „Community“ der Werkstatt konnte nicht hinein: hier steht, warum.
+  if (s.hinweis) ziel.appendChild(PU.el('p', 'merkzettel', PU.h(s.hinweis)));
+
+  // Community im Browser gehört zum Abo (Plan 30_Community, C1).
+  if (s.zugang && !s.zugang.ok && PU.werbungSeite) {
+    const zeile = PU.el('p', 'gemeinde-werbung');
+    const mehr = PU.el('button', 'knopf still', 'Was die Community bietet');
+    mehr.type = 'button';
+    mehr.addEventListener('click', () => PU.werbungSeite('community', s.zugang.grund));
+    zeile.appendChild(mehr);
+    ziel.appendChild(zeile);
+  }
+
   if (!s.registriert) {
     ziel.appendChild(PU.el('div', 'karte gemeinde-hinweis',
       '<p><b>Die Community gibt es nur für registrierte Academies.</b></p>' +
