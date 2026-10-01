@@ -1442,22 +1442,51 @@ function werkstattZeichnen(ziel, frisch) {
     return;
   }
 
+  const reihe = PU.el('p', 'werkstatt-knoepfe');
   const knopf = PU.el('button', 'knopf', w.laeuft ? 'Werkstatt läuft — Fenster suchen' : 'Werkstatt öffnen');
   knopf.type = 'button';
+
+  /* Neu starten: Das Browserfenster der Werkstatt trägt ein Zugangstoken, das
+     nur sie kennt. Ist das Fenster zu oder unauffindbar, kommt man ohne
+     Neustart nicht mehr hinein („authentication required“). Der Knopf steht
+     da, sobald sie läuft. */
+  const neu = PU.el('button', 'knopf still', 'Neu starten');
+  neu.type = 'button';
+  neu.hidden = !w.laeuft;
+  neu.title = 'Beendet die Werkstatt und startet sie mit einem neuen Browserfenster.';
+
+  const sperren = (an) => { knopf.disabled = an; neu.disabled = an; };
   knopf.addEventListener('click', async () => {
-    knopf.disabled = true;
+    sperren(true);
     try {
       const r = await PU.ruf('werkstatt_oeffnen');
+      if (r.laeuft) neu.hidden = false;
       PU.melden(r.laeuft
-        ? 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat.'
+        ? 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
+          'Ist es weg, hilft „Neu starten“.'
         : 'Die Werkstatt startet. Gleich öffnet sich ein neues Browserfenster.', 'gut');
     } catch (e) {
       PU.melden(PU.h(e.message), 'schlecht');
     } finally {
-      setTimeout(() => { knopf.disabled = false; }, 4000);
+      setTimeout(() => sperren(false), 4000);
     }
   });
-  ziel.appendChild(knopf);
+  neu.addEventListener('click', async () => {
+    if (!confirm('Werkstatt neu starten?\n\nSie wird beendet und öffnet sich in einem neuen ' +
+                 'Browserfenster. Was dort gerade läuft, bricht ab; Gespeichertes bleibt.')) return;
+    sperren(true);
+    try {
+      await PU.ruf('werkstatt_neustarten');
+      PU.melden('Die Werkstatt startet neu. Gleich öffnet sich ein neues Browserfenster.', 'gut');
+    } catch (e) {
+      PU.melden(PU.h(e.message), 'schlecht');
+    } finally {
+      setTimeout(() => sperren(false), 6000);
+    }
+  });
+  reihe.appendChild(knopf);
+  reihe.appendChild(neu);
+  ziel.appendChild(reihe);
 }
 
 PU.werkstattZeichnen = werkstattZeichnen;

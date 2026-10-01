@@ -155,3 +155,69 @@ function pu_werkstatt_starten(): void
     $cmd = 'cd ' . escapeshellarg($w) . ' && nohup node werkzeuge/starten.mjs >/dev/null 2>&1 &';
     exec($cmd);
 }
+
+/**
+ * Beendet die laufende Werkstatt — und nur sie.
+ *
+ * Für den Fall, dass ihr Browserfenster weg ist: Die Adresse mit dem
+ * Zugangstoken kennt nur der Harness, und ohne Token lässt er niemanden
+ * hinein („dsh web authentication required“). Dann hilft nur ein Neustart.
+ *
+ * Beendet wird der Prozess auf dem Port, aber nur, wenn er wirklich die
+ * Werkstatt ist (`--profile promptheus`). Mit ihm gehen Starter und Fenster,
+ * aus denen er kam (`starten.mjs`, `WERKSTATT-START.bat`), damit kein
+ * verwaistes Konsolenfenster mit „Werkstatt beendet“ stehen bleibt.
+ *
+ * @return array ok + beendet (bool); sonst grund: fremd (etwas anderes auf
+ *               dem Port), haengt (Port nach dem Beenden noch belegt),
+ *               nicht_windows
+ */
+function pu_werkstatt_beenden(int $port = PU_WERKSTATT_PORT, float $warten = 8.0): array
+{
+    if (PHP_OS_FAMILY !== 'Windows') {
+        return ['ok' => false, 'grund' => 'nicht_windows'];
+    }
+    // Feste Befehlsfolge; eingesetzt wird nur die Portnummer (eine Zahl).
+    $skript = <<<PS
+\$c = Get-NetTCPConnection -LocalPort {$port} -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not \$c) { 'frei'; exit 0 }
+\$p = Get-CimInstance Win32_Process -Filter "ProcessId=\$(\$c.OwningProcess)"
+if (-not \$p -or \$p.CommandLine -notmatch '--profile promptheus') { 'fremd'; exit 0 }
+\$wurzel = \$p; \$q = \$p
+for (\$i = 0; \$i -lt 4; \$i++) {
+  \$q = Get-CimInstance Win32_Process -Filter "ProcessId=\$(\$q.ParentProcessId)" -ErrorAction SilentlyContinue
+  if (-not \$q -or (\$q.CommandLine -notmatch 'starten\.mjs|WERKSTATT-START\.bat')) { break }
+  \$wurzel = \$q
+}
+& taskkill.exe /PID \$wurzel.ProcessId /T /F | Out-Null
+'beendet'
+PS;
+    $h = proc_open(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', $skript],
+        [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $rohr);
+    if (!is_resource($h)) {
+        return ['ok' => false, 'grund' => 'haengt'];
+    }
+    $aus = trim((string)stream_get_contents($rohr[1]));
+    fclose($rohr[1]);
+    fclose($rohr[2]);
+    proc_close($h);
+    $letzte = trim((string)strrchr("\n" . $aus, "\n"));
+
+    if ($letzte === 'frei') {
+        return ['ok' => true, 'beendet' => false];
+    }
+    if ($letzte === 'fremd') {
+        return ['ok' => false, 'grund' => 'fremd'];
+    }
+    // Warten, bis der Port wirklich frei ist — sonst scheitert der Neustart.
+    $bis = microtime(true) + $warten;
+    while (microtime(true) < $bis) {
+        $s = @fsockopen('127.0.0.1', $port, $nr, $txt, 0.3);
+        if ($s === false) {
+            return ['ok' => true, 'beendet' => true];
+        }
+        fclose($s);
+        usleep(200000);
+    }
+    return ['ok' => false, 'grund' => 'haengt'];
+}
