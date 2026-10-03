@@ -41,6 +41,13 @@ pruefe('ohne Profil: noch nicht eingerichtet', !pu_werkstatt_eingerichtet());
 file_put_contents($tmp . '/ws/.dsh/profiles/promptheus/package.json', '{}');
 pruefe('Harness, Abhängigkeiten, Profil: eingerichtet', pu_werkstatt_eingerichtet());
 
+// ================================================================ Erster Start
+gruppe('Erster Start');
+
+@mkdir($tmp . '/data', 0700, true);
+pruefe('ohne Markierung: der erste Start', pu_werkstatt_erster_start());
+pruefe('danach nicht mehr', !pu_werkstatt_erster_start());
+
 // ================================================================ Freigabe
 gruppe('Freigabe');
 

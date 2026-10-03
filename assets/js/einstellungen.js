@@ -1459,41 +1459,147 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
   neu.hidden = !w.laeuft;
   neu.title = 'Beendet die Werkstatt und startet sie mit einem neuen Browserfenster.';
 
-  // Im Fenster hinter dem Menüpunkt stehen die Knöpfe in dessen Kopfzeile;
-  // ihre Antwort gehört dann mitten ins Fenster, nicht unter es (PU.fensterInfo).
-  const sagen = knopfOrt ? PU.fensterInfo : PU.melden;
+  // Die Antwort gehört ins offene Fenster, nicht unter es (PU.fensterInfo).
   const sperren = (an) => { knopf.disabled = an; neu.disabled = an; };
-  knopf.addEventListener('click', async () => {
+  const starten = async (neustart) => {
     sperren(true);
     try {
-      const r = await PU.ruf('werkstatt_oeffnen');
-      if (r.laeuft) neu.hidden = false;
-      sagen(r.laeuft
-        ? 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
-          'Ist es weg, hilft „Neu starten“.'
-        : 'Die Werkstatt startet. Gleich öffnet sich ein neues Browserfenster.', 'gut');
-    } catch (e) {
-      sagen(PU.h(e.message), 'schlecht');
+      const r = await werkstattStartBegleiten(neustart);
+      if (r && (r.laeuft || r.gestartet)) {
+        neu.hidden = false;
+        knopf.textContent = 'Werkstatt läuft — Fenster suchen';
+      }
     } finally {
-      setTimeout(() => sperren(false), 4000);
+      sperren(false);
     }
-  });
-  neu.addEventListener('click', async () => {
+  };
+  knopf.addEventListener('click', () => starten(false));
+  neu.addEventListener('click', () => {
     if (!confirm('Werkstatt neu starten?\n\nSie wird beendet und öffnet sich in einem neuen ' +
                  'Browserfenster. Was dort gerade läuft, bricht ab; Gespeichertes bleibt.')) return;
-    sperren(true);
-    try {
-      await PU.ruf('werkstatt_neustarten');
-      sagen('Die Werkstatt startet neu. Gleich öffnet sich ein neues Browserfenster.', 'gut');
-    } catch (e) {
-      sagen(PU.h(e.message), 'schlecht');
-    } finally {
-      setTimeout(() => sperren(false), 6000);
-    }
+    starten(true);
   });
   reihe.appendChild(knopf);
   reihe.appendChild(neu);
   (knopfOrt || ziel).appendChild(reihe);
+}
+
+/* Was beim Start geschieht, als Schritte zum Mitlesen. Die Werkstatt meldet
+   ihren Fortschritt nicht; die Schritte laufen deshalb nach der Uhr durch und
+   überbrücken die Wartezeit. Der letzte bleibt offen, bis sie wirklich
+   antwortet (Port 3081, werkstatt_menue) — „bereit“ ist also echt. Beim
+   ersten Start auf einem Rechner dauert es länger, und es gibt mehr zu sehen. */
+const WERKSTATT_SCHRITTE = {
+  sonst:  ['Werkstatt starten', 'Werkzeuge laden', 'Browserfenster öffnen'],
+  erster: ['Node.js starten', 'Den Agenten-Kern übersetzen', 'Profil „promptheus“ einrichten',
+           'Werkzeuge und Erweiterungen bereitstellen', 'Arbeitsbereich anlegen',
+           'Verbindung zum Modell vorbereiten', 'Browserfenster öffnen']
+};
+
+const werkstattPause = (ms) => new Promise((ok) => setTimeout(ok, ms));
+
+/**
+ * Startet (oder startet neu) und begleitet den Start im offenen Fenster.
+ * Ohne offenes Fenster bleibt es bei den Kurzmeldungen.
+ *
+ * @returns {Promise<object|null>} die Antwort von werkstatt_oeffnen/-neustarten
+ */
+async function werkstattStartBegleiten(neustart) {
+  const info = PU.fensterInfo(
+    '<b>Einen Moment.</b> Die Werkstatt ist etwas grösser und wird jetzt gestartet. ' +
+    'Das kann eine Weile dauern.', 'warten', 'Ausblenden');
+
+  let liste = null;
+  const schritt = (text) => {
+    if (!liste) return;
+    const vorher = liste.querySelector('li.laeuft');
+    if (vorher) vorher.className = 'fertig';
+    if (text) liste.appendChild(PU.el('li', 'laeuft', PU.h(text)));
+  };
+  if (info) {
+    info.karte.insertBefore(PU.el('div', 'start-glut', ''), info.knopf);
+    liste = PU.el('ol', 'start-schritte');
+    info.karte.insertBefore(liste, info.knopf);
+    schritt(neustart ? 'Laufende Werkstatt beenden' : 'Zugang prüfen');
+  }
+  // Schluss: alle Schritte abhaken, Streifen und Liste weg, ein letzter Satz.
+  const abschliessen = (text, art, listeBehalten) => {
+    if (!info || !info.offen()) { PU.melden(text, art); return; }
+    liste.querySelectorAll('li').forEach((li) => { li.className = 'fertig'; });
+    const glut = info.karte.querySelector('.start-glut');
+    if (glut) glut.remove();
+    if (!listeBehalten) liste.remove();
+    info.knopf.textContent = 'Verstanden';
+    info.setzen(text, art);
+  };
+
+  let r;
+  try {
+    r = await PU.ruf(neustart ? 'werkstatt_neustarten' : 'werkstatt_oeffnen');
+  } catch (e) {
+    abschliessen(PU.h(e.message), 'schlecht');
+    return null;
+  }
+
+  if (r.laeuft) {
+    const t = 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
+              'Ist es weg, hilft „Neu starten“.';
+    abschliessen(t, 'gut');
+    return r;
+  }
+  if (!info) {
+    PU.melden(neustart ? 'Die Werkstatt startet neu. Gleich öffnet sich ein neues Browserfenster.'
+                       : 'Die Werkstatt startet. Gleich öffnet sich ein neues Browserfenster.', 'gut');
+    return r;
+  }
+  if (!info.offen()) return r;
+
+  if (neustart) schritt('Zugang prüfen');
+  if (r.erster) {
+    info.setzen('<b>Einen Moment.</b> Die Werkstatt ist etwas grösser und wird jetzt gestartet. ' +
+                'Beim ersten Mal auf diesem Rechner richtet sie sich noch ein; das kann eine Weile dauern.', 'warten');
+  }
+
+  // Die Schritte nach der Uhr; der letzte wartet auf die Werkstatt.
+  const folge = WERKSTATT_SCHRITTE[r.erster ? 'erster' : 'sonst'].slice();
+  const takt = r.erster ? 7000 : 2500;
+  schritt(folge.shift());
+  const uhr = setInterval(() => {
+    if (!info.offen() || folge.length === 0) { clearInterval(uhr); return; }
+    schritt(folge.shift());
+  }, takt);
+
+  const frist = Date.now() + (r.erster ? 300000 : 120000);
+  let bereit = false;
+  while (info.offen() && Date.now() < frist) {
+    await werkstattPause(2000);
+    if (!info.offen()) break;
+    try {
+      const st = await PU.ruf('werkstatt_menue');
+      if (st.werkstatt && st.werkstatt.laeuft) { bereit = true; break; }
+    } catch (e) { /* beim nächsten Mal wieder */ }
+  }
+  clearInterval(uhr);
+  if (!info.offen()) return r;          // ausgeblendet: dann auch kein Nachsatz
+
+  // Früher fertig als die Uhr: die übrigen Schritte zügig nachziehen, damit
+  // die Liste nicht mittendrin aufhört.
+  if (bereit) {
+    while (folge.length && info.offen()) {
+      schritt(folge.shift());
+      await werkstattPause(220);
+    }
+  }
+
+  if (bereit) {
+    abschliessen('<b>Die Werkstatt ist bereit.</b> Sieh in deinem Browser nach: Sie öffnet sich ' +
+                 'in einem neuen Fenster, manchmal hinter diesem hier. Ist keins zu sehen, ' +
+                 'hilft „Neu starten“.', 'gut', true);
+  } else {
+    abschliessen('<b>Die Werkstatt braucht länger als sonst.</b> In der Taskleiste steht ihr ' +
+                 'Konsolenfenster „Werkstatt“; dort steht, woran es hängt.', 'warnung');
+  }
+  return r;
 }
 
 PU.werkstattZeichnen = werkstattZeichnen;

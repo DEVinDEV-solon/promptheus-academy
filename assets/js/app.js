@@ -47,43 +47,64 @@ PU.melden = function (text, art) {
  * Der Melder steht unten rechts und liegt unter jedem Fenster. Was ein Knopf
  * *im* Fenster auslöst, soll man aber dort lesen, ohne das Fenster erst zu
  * schliessen. Deshalb legt sich die Auskunft über den Inhalt des Fensters,
- * mittig, bis man sie mit „Verstanden“, einem Klick daneben oder Esc wegnimmt.
+ * mittig, bis man sie mit dem Knopf, einem Klick daneben oder Esc wegnimmt.
  * Esc schliesst dabei nur die Auskunft, nicht das Fenster darunter. Ist kein
  * Fenster offen, geht sie den gewohnten Weg über den Melder.
+ *
+ * Für Abläufe, die eine Weile dauern, gibt sie einen Griff zurück: `setzen()`
+ * tauscht Text und Art, `knopf` und `karte` nehmen Weiteres auf, `offen()`
+ * sagt, ob sie noch steht. Ohne Fenster ist der Griff `null`.
+ *
+ * @param {string} text  HTML, wie bei PU.melden
+ * @param {string} art   gut | schlecht | warnung | warten
+ * @param {string} [knopfText]
  */
-PU.fensterInfo = function (text, art) {
+PU.fensterInfo = function (text, art, knopfText) {
   const modal = document.getElementById('modal');
   const flaeche = modal && !modal.classList.contains('hidden') && modal.querySelector('.modal-flaeche');
-  if (!flaeche) { PU.melden(text, art); return; }
+  if (!flaeche) { PU.melden(text, art); return null; }
 
   const alt = flaeche.querySelector('.fenster-info');
   if (alt) alt.remove();
 
   const decke = PU.el('div', 'fenster-info');
-  const karte = PU.el('div', 'fenster-info-karte ' + (art || ''));
+  const karte = PU.el('div', 'fenster-info-karte');
   karte.setAttribute('role', 'alertdialog');
   karte.setAttribute('aria-modal', 'true');
-  karte.appendChild(PU.el('p', '', text));
-  const ok = PU.el('button', 'knopf', 'Verstanden');
+  const satz = PU.el('p', 'fenster-info-text');
+  satz.setAttribute('aria-live', 'polite');
+  karte.appendChild(satz);
+  const ok = PU.el('button', 'knopf', PU.h(knopfText || 'Verstanden'));
   ok.type = 'button';
   karte.appendChild(ok);
   decke.appendChild(karte);
   flaeche.appendChild(decke);
 
-  const weg = () => {
-    decke.remove();
-    window.removeEventListener('keydown', taste, true);
+  const griff = {
+    karte: karte, knopf: ok,
+    setzen(t, a) {
+      satz.innerHTML = t;
+      karte.className = 'fenster-info-karte ' + (a || '');
+    },
+    offen() { return decke.isConnected; },
+    weg() {
+      decke.remove();
+      window.removeEventListener('keydown', taste, true);
+    }
   };
   // Vor PU.modalEscape abfangen, sonst nähme Esc das ganze Fenster mit.
   const taste = (e) => {
     if (e.key !== 'Escape') return;
     e.stopPropagation(); e.preventDefault();
-    weg();
+    griff.weg();
   };
   window.addEventListener('keydown', taste, true);
-  ok.addEventListener('click', weg);
-  decke.addEventListener('click', (e) => { if (e.target === decke) weg(); });
+  ok.addEventListener('click', griff.weg);
+  decke.addEventListener('click', (e) => { if (e.target === decke) griff.weg(); });
+
+  griff.setzen(text, art);
   ok.focus();
+  return griff;
 };
 
 /* ---------------------------------------------------------------- Werkzeug */
