@@ -4,6 +4,23 @@
  * Verbotsregel ist rot umrandet (E16) — sie soll auffallen, nicht schimpfen.
  */
 
+/* Titelzeile: der Film-Knopf rechtsbündig, mit Abstand zum rechten Rand. */
+.gemeinde-titelzeile { display: flex; align-items: center; justify-content: space-between;
+  gap: .6em 1.2em; flex-wrap: wrap; padding-right: 1.5rem; }
+.gemeinde-titelzeile h1 { margin-right: auto; }
+.gemeinde-film-knopf { display: inline-flex; align-items: center; gap: .45em; white-space: nowrap; }
+.gemeinde-film-knopf span { color: var(--glut); font-size: .85em; }
+
+/* Das Film-Fenster. Der Film trägt einen eigenen Mäander-Rahmen dicht am
+   Bildrand: genau 16:9, nichts beschnitten, keine runden Ecken am Bild. Die
+   Breite richtet sich nach der Höhe, damit das ganze Bild ohne Scrollen passt
+   (6vh Rand aussen, rund 8,5rem für Kopf, Abstände und Hinweis). */
+.modal-flaeche.film-flaeche { max-width: min(1600px, calc((94vh - 8.5rem) * 16 / 9 + 2.8rem)); }
+.modal-inhalt.film-inhalt { min-height: 0; max-height: none; overflow: visible; padding: 1.2rem 1.4rem 1rem; }
+.gemeinde-film { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain;
+  background: var(--code-grund); border: 1px solid var(--rand-hell); border-radius: 0; }
+.gemeinde-film-hinweis { margin: .7em 0 0; color: var(--schrift-3); }
+
 .gemeinde-hinweis { margin: 0 0 1.2em; }
 .gemeinde-synonym { margin: 0 0 1.2em; padding: .6em .9em; border-left: 3px solid var(--glut);
   background: var(--grund-2); border-radius: var(--radius-klein); }

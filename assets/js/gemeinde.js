@@ -70,15 +70,28 @@ PU.piiFeld = function (feld, ort) {
 PU.gemeindeZeichnen = async function () {
   const ziel = document.getElementById('view-gemeinde');
   if (!ziel) return;
-  ziel.innerHTML = '<p class="leer-hinweis">Lade Community …</p>';
+  // Titelzeile: links der Titel, rechts der Knopf zum Community-Film. Sie
+  // steht vor dem Abruf, damit jede Rolle den Film sieht, auch ohne
+  // Registrierung, ohne Abo und wenn der Abruf scheitert.
+  const titelzeile = PU.el('div', 'gemeinde-titelzeile');
+  titelzeile.appendChild(PU.el('h1', '', 'Community'));
+  const film = PU.el('button', 'knopf still gemeinde-film-knopf',
+    '<span aria-hidden="true">▶</span> Film ansehen');
+  film.type = 'button';
+  film.addEventListener('click', PU.gemeindeFilm);
+  titelzeile.appendChild(film);
+  ziel.innerHTML = '';
+  ziel.appendChild(titelzeile);
+  const laden = PU.el('p', 'leer-hinweis', 'Lade Community …');
+  ziel.appendChild(laden);
+
   let s;
   try { s = await PU.ruf('gemeinde_start'); }
-  catch (e) { ziel.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; return; }
+  catch (e) { laden.className = 'fehler'; laden.textContent = e.message; return; }
   PU.gem.start = s;
   PU.piiLaden();
+  laden.remove();
 
-  ziel.innerHTML = '';
-  ziel.appendChild(PU.el('h1', '', 'Community'));
   ziel.appendChild(PU.el('p', 'hinweis',
     'Prompts, Skills und Plugins aus vielen Academies — unter Synonymen, ohne Namen. ' +
     'Jedes Werk hat ein Mensch geprüft, bevor du es siehst.'));
@@ -136,6 +149,47 @@ PU.gemeindeZeichnen = async function () {
   else if (PU.gem.reiter === 'siegeln' && s.darf.siegeln) PU.produkteZeichnen(flaeche, true);
   else if (PU.gem.reiter === 'talente' && s.registriert) PU.talenteZeichnen(flaeche);
   else if (s.registriert) PU.schaufensterZeichnen(flaeche);
+};
+
+/* ---------------------------------------------------------------- Der Film
+ *
+ * Ein Rundgang durch Community und Bibliothek, rund zwei Minuten mit Musik.
+ * Er kommt wie alle Aufnahmen mit dem Medienpaket (`medien/96_Community/`),
+ * das Standbild mit dem Programm. Fehlt der Film, bleibt das Standbild.
+ *
+ * Der Film trägt einen eigenen Mäander-Rahmen dicht am Bildrand. Deshalb
+ * wird nichts beschnitten: genau 16:9, `contain`, keine runden Ecken, und das
+ * Fenster ist nur so breit, dass das ganze Bild in die Höhe passt.
+ */
+PU.gemeindeFilm = function () {
+  const flaeche = PU.modalZeigen('Der Community-Film');
+  if (!flaeche) return;
+  const kasten = flaeche.closest('.modal-flaeche');
+  if (kasten) kasten.classList.add('film-flaeche');
+  flaeche.classList.add('film-inhalt');
+
+  const poster = 'assets/img/community-film.jpg';
+  const hinweis = PU.el('p', 'klein gemeinde-film-hinweis',
+    'Ein Rundgang durch Community und Bibliothek, rund zwei Minuten, mit Musik.');
+  const v = PU.el('video', 'gemeinde-film');
+  v.controls = true; v.playsInline = true; v.preload = 'metadata';
+  v.poster = poster;
+  v.setAttribute('aria-label', 'Der Community-Film, rund zwei Minuten mit Musik');
+  v.addEventListener('error', () => {
+    const b = PU.el('img', 'gemeinde-film');
+    b.src = poster; b.alt = 'Standbild aus dem Community-Film';
+    v.replaceWith(b);
+    hinweis.textContent = 'Der Film kommt mit dem Medienpaket. Bis dahin steht hier sein Standbild.';
+  });
+  v.src = 'medien/96_Community/community-film.mp4';
+
+  flaeche.appendChild(v);
+  flaeche.appendChild(hinweis);
+
+  // Der Klick auf den Knopf war die Erlaubnis zum Abspielen, auch mit Ton.
+  // Wer weniger Bewegung eingestellt hat, startet selbst.
+  const ruhig = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!ruhig) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
 };
 
 /* ---------------------------------------------------------------- Schaufenster */
