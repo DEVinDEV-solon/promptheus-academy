@@ -1007,9 +1007,11 @@ try {
             // Die Werkstatt soll wissen, wo diese Academy läuft (Port aus der
             // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
             pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
+            $erster = pu_werkstatt_erster_start();
             pu_werkstatt_starten();
             pu_protokoll($ichId, 'werkstatt', $neu ? 'neustart' : 'oeffnen', $st['grund']);
-            pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'neu' => $neu, 'port' => $st['port']]);
+            pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'neu' => $neu,
+                         'erster' => $erster, 'port' => $st['port']]);
         }
 
         case 'tutor_probe': {

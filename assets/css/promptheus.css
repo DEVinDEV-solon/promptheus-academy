@@ -1144,6 +1144,64 @@ body.mit-persona #knopf-persona {
 .meldung.warnung { border-left-color: var(--glut); border-left-width: 4px; }
 @keyframes rein { from { opacity: 0; transform: translateY(6px); } }
 
+/* Die Auskunft mitten im offenen Fenster (PU.fensterInfo in app.js): Sie deckt
+   den Inhalt ab, das Fenster selbst bleibt stehen. */
+.modal-flaeche { position: relative; }
+.fenster-info {
+  position: absolute; inset: 0; z-index: 10;
+  display: grid; place-items: center; padding: 1.5rem;
+  background: rgba(8,6,5,.55); backdrop-filter: blur(2px);
+  animation: rein .2s ease-out;
+}
+.fenster-info-karte {
+  max-width: 30rem; padding: 1.2rem 1.4rem 1.1rem;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-top: 3px solid var(--glut); border-radius: var(--radius);
+  box-shadow: var(--schatten); text-align: center;
+}
+.fenster-info-karte.gut      { border-top-color: var(--gut); }
+.fenster-info-karte.schlecht { border-top-color: var(--schlecht); }
+.fenster-info-karte.warnung  { border-top-color: var(--glut); }
+.fenster-info-karte.warten   { border-top-color: var(--gold); width: min(28rem, 100%); }
+.fenster-info-text { margin: 0 0 1rem; line-height: 1.5; }
+
+/* Der Start der Werkstatt: ein glühender Streifen, der wandert, und die
+   Schritte darunter. Der laufende Schritt dreht sein Zeichen, die fertigen
+   tragen ein Häkchen. */
+.start-glut {
+  height: 3px; margin: -.3rem 0 1rem; border-radius: 3px; overflow: hidden;
+  background: var(--grund-3); position: relative;
+}
+.start-glut::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 35%;
+  background: linear-gradient(90deg, transparent, var(--glut), var(--gold), transparent);
+  animation: glut-wandert 1.6s ease-in-out infinite;
+}
+@keyframes glut-wandert { from { left: -35%; } to { left: 100%; } }
+.start-schritte {
+  list-style: none; margin: 0 0 1.1rem; padding: 0; text-align: left;
+  display: grid; gap: .35rem; font-size: .9rem;
+}
+.start-schritte li {
+  display: flex; align-items: center; gap: .55rem; color: var(--schrift-2);
+  animation: rein .25s ease-out;
+}
+.start-schritte li::before {
+  content: ''; flex: none; width: .9rem; height: .9rem; box-sizing: border-box;
+  display: inline-grid; place-items: center; font-size: .8rem; line-height: 1;
+}
+.start-schritte li.laeuft { color: var(--schrift); }
+.start-schritte li.laeuft::before {
+  border: 2px solid var(--rand-hell); border-top-color: var(--glut); border-radius: 50%;
+  animation: start-dreht .9s linear infinite;
+}
+.start-schritte li.fertig::before { content: '\2713'; color: var(--gut); }
+@keyframes start-dreht { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .start-glut::after, .start-schritte li.laeuft::before, .start-schritte li { animation: none; }
+  .start-glut::after { left: 0; width: 100%; opacity: .5; }
+}
+
 /* ------------------------------------------------------ Das Schild beim Stopp
    Es steht in einem gewöhnlichen Modalfenster (PU.tokenSchild in app.js) und
    hat deshalb hier nur die Innenordnung: Bilanz, Grund, die Wege, der Nachsatz.

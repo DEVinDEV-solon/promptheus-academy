@@ -137,6 +137,23 @@ function pu_werkstatt_ticket(int $lernender, string $academy = ''): array
 }
 
 /**
+ * Der erste Start auf diesem Rechner? Merkt es sich zugleich für das nächste Mal.
+ *
+ * Beim ersten Mal braucht die Werkstatt deutlich länger (der Harness wird
+ * übersetzt, der Virenscanner liest node_modules). Das Fenster begleitet den
+ * Start dann ausführlicher. Die Markierung liegt neben dem Ticket; geht sie
+ * verloren, ist die Begleitung einmal zu lang, sonst nichts.
+ */
+function pu_werkstatt_erster_start(): bool
+{
+    $pfad = dirname(pu_werkstatt_ticket_pfad()) . '/gestartet.txt';
+    if (is_file($pfad)) return false;
+    @file_put_contents($pfad, date('c') . "
+");
+    return true;
+}
+
+/**
  * Startet die Werkstatt im eigenen Fenster (Windows) bzw. im Hintergrund.
  *
  * Der Harness öffnet danach selbst den Browser — mit seinem Zugangstoken in
