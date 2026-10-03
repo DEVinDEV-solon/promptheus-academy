@@ -248,6 +248,23 @@ pruefe('die Meldung von Weg 1 mit einem TTS-Modell wird erkannt',
 pruefe('die Meldung von Weg 2 mit einem Chat-Modell auch',
        pu_stimme_falscher_weg('Model openai/gpt-audio-mini does not exist'));
 
+/* **Die neue Fassung vom 03.10.2026.** OpenRouter sagt es inzwischen anders,
+   und ohne diese Erkennung blieb das Vorlesen auf Weg 1 stehen. Wörtlich
+   gemessen; jedes Stück für sich muss reichen, und die Schreibweise darf
+   nicht entscheiden. */
+$neu = 'OpenRouter meldet 400: x-ai/grok-voice-tts-1.0 is a text-to-speech model '
+     . 'and cannot be used with the chat/completions endpoint. '
+     . 'Use the /api/v1/audio/speech endpoint instead.';
+pruefe('die neue Meldung von Weg 1 wird erkannt', pu_stimme_falscher_weg($neu));
+pruefe('…schon am Wort „text-to-speech model"',
+       pu_stimme_falscher_weg('x-ai/grok-voice-tts-1.0 is a text-to-speech model'));
+pruefe('…schon am Verweis auf chat/completions',
+       pu_stimme_falscher_weg('cannot be used with the chat/completions endpoint'));
+pruefe('…schon am Hinweis auf audio/speech',
+       pu_stimme_falscher_weg('Use the /api/v1/audio/speech endpoint instead.'));
+pruefe('…auch in Grossbuchstaben',         pu_stimme_falscher_weg(strtoupper($neu)));
+pruefe('…und die alte in anderer Schreibung', pu_stimme_falscher_weg('Output Modalities'));
+
 // Nicht jeder Fehler ist ein Wegfehler. Bei „kein Guthaben" wäre ein zweiter
 // Versuch auf dem anderen Weg nur ein zweiter Fehlschlag — und eine zweite
 // Rechnung, falls er doch durchginge.
@@ -640,5 +657,23 @@ gleich('auto ist die Vorgabe', 'auto', pu_regel('stimme_weg'));
    Rückfall fängt den Irrtum ohnehin ab. Steht nichts da, gilt Weg 1, weil das
    Vorgabemodell dorthin gehört. */
 gleich('ein unbekanntes Modell nimmt Weg 1', 'chat', pu_stimme_weg_fuer('erfunden/gibtesnicht'));
+
+/* **Ein reines Vorlesemodell geht gleich auf Weg 2.** Das Vorgabemodell steht
+   in keinem Katalog; ohne diese Erkennung scheiterte jeder Satz erst auf
+   Weg 1 (gemessen 03.10.2026). Erkannt wird `tts` nur als eigenes Namensstück. */
+gleich('Grok Voice nimmt ohne Umweg Weg 2', 'tts', pu_stimme_weg_fuer('x-ai/grok-voice-tts-1.0'));
+gleich('das Vorgabemodell auch',            'tts', pu_stimme_weg_fuer(pu_stimme_modell()));
+gleich('…und andere Vorlesemodelle',        'tts', pu_stimme_weg_fuer('openai/gpt-4o-mini-tts'));
+gleich('ein Chat-Tonmodell bleibt auf Weg 1', 'chat', pu_stimme_weg_fuer('openai/gpt-audio-mini'));
+pruefe('reines TTS am Namensstück erkannt',  pu_stimme_reines_tts('x-ai/grok-voice-tts-1.0'));
+pruefe('…ohne Rücksicht auf die Schreibung', pu_stimme_reines_tts('X-AI/Grok-Voice-TTS-1.0'));
+pruefe('„tts" mitten im Wort zählt nicht',  !pu_stimme_reines_tts('erfunden/gotts-modell'));
+pruefe('ein Chat-Modell ist kein reines TTS', !pu_stimme_reines_tts('openai/gpt-audio-mini'));
+
+// Von Hand gesetzt schlägt die Erkennung — wer Weg 1 erzwingt, bekommt Weg 1.
+pu_einst_global_setzen('stimme_weg', 'chat');
+gleich('von Hand gesetzt gilt auch für Vorlesemodelle', 'chat',
+       pu_stimme_weg_fuer('x-ai/grok-voice-tts-1.0'));
+pu_einst_global_setzen('stimme_weg', 'auto');
 
 bilanz();
