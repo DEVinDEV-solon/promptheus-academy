@@ -141,15 +141,33 @@ function pu_werkstatt_ticket(int $lernender, string $academy = ''): array
  *
  * Der Harness öffnet danach selbst den Browser — mit seinem Zugangstoken in
  * der Adresse. Diese Adresse kennt nur er; die Academy öffnet deshalb nichts.
+ *
+ * **Windows: ohne geerbte Handles.** Ein Kind von `popen`/`proc_open` erbt
+ * alle vererbbaren Handles dieses PHP-Servers, auch den lauschenden Socket
+ * auf Port 8801. `start` gibt sie weiter. Lief die Werkstatt länger als die
+ * Academy, hielt sie den alten Socket fest: Die neu gestartete Academy lauschte
+ * daneben, der Browser landete aber beim alten Socket, und niemand antwortete
+ * (gemessen am 03.10.2026). `Start-Process` ohne Umleitung startet über die
+ * Shell, und dabei erbt das Kind nichts. Die PowerShell dazwischen erbt den
+ * Socket zwar auch, ist aber nach einem Augenblick wieder weg.
  */
 function pu_werkstatt_starten(): void
 {
     $w = pu_werkstatt_ordner();
     if (PHP_OS_FAMILY === 'Windows') {
         $bat = str_replace('/', '\\', $w . '/WERKSTATT-START.bat');
-        // `start` kehrt sofort zurück; das Fenster gehört dann der Werkstatt.
-        $h = popen('start "PROMPTHEUS Werkstatt" /MIN cmd /c "' . $bat . '"', 'r');
-        if ($h !== false) pclose($h);
+        // Einfache Anführungszeichen sind in PowerShell der einzige Sonderfall
+        // in '…': verdoppeln. Den Fenstertitel setzt die Batch-Datei selbst.
+        $ps = "Start-Process -FilePath 'cmd.exe' -WindowStyle Minimized "
+            . "-WorkingDirectory '" . str_replace("'", "''", str_replace('/', '\\', $w)) . "' "
+            . "-ArgumentList '/c', '\"" . str_replace("'", "''", $bat) . "\"'";
+        $h = proc_open(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', $ps],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $rohr);
+        if (is_resource($h)) {
+            fclose($rohr[1]);
+            fclose($rohr[2]);
+            proc_close($h);
+        }
         return;
     }
     $cmd = 'cd ' . escapeshellarg($w) . ' && nohup node werkzeuge/starten.mjs >/dev/null 2>&1 &';
