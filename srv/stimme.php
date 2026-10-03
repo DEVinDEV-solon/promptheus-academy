@@ -467,9 +467,27 @@ function pu_stimme_weg_fuer(string $modell): string
         }
     }
 
-    // Unbekannt: Weg 1, weil das Vorgabemodell dorthin gehört. Liegt es
-    // daneben, wechselt `pu_stimme_lauf()` einmal — das kostet keine Token.
+    // Der Katalog kennt nicht jedes Modell — `x-ai/grok-voice-tts-1.0` fehlt
+    // dort (siehe oben). Ein reines Vorlesemodell sagt es aber im Namen, und
+    // dann wäre Weg 1 ein sicherer Fehlschlag vor jedem Satz.
+    if (pu_stimme_reines_tts($modell)) return 'tts';
+
+    // Sonst unbekannt: Weg 1. Liegt er daneben, wechselt `pu_stimme_lauf()`
+    // einmal — das kostet keine Token.
     return 'chat';
+}
+
+/**
+ * Ist das ein reines Vorlesemodell, das nur über `audio/speech` läuft?
+ *
+ * Erkannt am Namensteil `tts` als eigenes Stück (`…-tts-1.0`, `…-mini-tts`),
+ * nicht als beliebige Buchstabenfolge. Gemessen am 03.10.2026: Ohne diese
+ * Erkennung ging `x-ai/grok-voice-tts-1.0` jedes Mal erst über Weg 1 und
+ * scheiterte dort.
+ */
+function pu_stimme_reines_tts(string $modell): bool
+{
+    return preg_match('~(?:^|[/\-_.])tts(?:[\-_.]|$)~i', $modell) === 1;
 }
 
 // ---------------------------------------------------------------- Der Speicher
@@ -793,7 +811,7 @@ function pu_stimme_schaetzung(string $text): int
  * gemeldet. Ein Fehlversuch kostet keine Token, nur eine halbe Sekunde — das
  * ist billiger als ein Mensch, der eine Einstellung sucht, die stimmt.
  *
- * Gewechselt wird **nur** bei den beiden Meldungen, die den falschen Weg
+ * Gewechselt wird **nur** bei den Meldungen, die den falschen Weg
  * bedeuten. Bei „kein Guthaben" oder „Stimme unbekannt" wäre ein zweiter
  * Versuch nur ein zweiter Fehlschlag.
  *
@@ -827,18 +845,32 @@ function pu_stimme_lauf(string $text, string $modell, string $name,
 /**
  * Sagt eine Fehlermeldung, dass der falsche Endpunkt gewählt wurde?
  *
- * Beide Sätze sind wörtlich gemessen:
+ * Alle Sätze sind wörtlich gemessen:
  *   · Weg 1 mit einem TTS-Modell: „No endpoints found that support the
  *     requested output modalities"
+ *   · Weg 1 mit einem TTS-Modell, Fassung vom 03.10.2026: „… is a
+ *     text-to-speech model and cannot be used with the chat/completions
+ *     endpoint. Use the /api/v1/audio/speech endpoint instead."
  *   · Weg 2 mit einem Chat-Modell: „Model … does not exist"
  *
- * Der zweite ist der gefährlichere: Er klingt, als gäbe es das Modell nicht.
- * Es gibt es — nur nicht dort.
+ * Der letzte ist der gefährlichere: Er klingt, als gäbe es das Modell nicht.
+ * Es gibt es — nur nicht dort. Verglichen wird ohne Rücksicht auf Gross- und
+ * Kleinschreibung, weil OpenRouter den Wortlaut ändert, ohne Bescheid zu sagen.
  */
+const PU_STIMME_WEGFEHLER = [
+    'output modalities',
+    'does not exist',
+    'text-to-speech model',
+    'cannot be used with the chat/completions endpoint',
+    'audio/speech endpoint',
+];
+
 function pu_stimme_falscher_weg(string $fehler): bool
 {
-    return stripos($fehler, 'output modalities') !== false
-        || stripos($fehler, 'does not exist')    !== false;
+    foreach (PU_STIMME_WEGFEHLER as $satz) {
+        if (stripos($fehler, $satz) !== false) return true;
+    }
+    return false;
 }
 
 /**
