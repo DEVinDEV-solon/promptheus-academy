@@ -41,6 +41,51 @@ PU.melden = function (text, art) {
              (art === 'gold' || art === 'warnung') ? 8000 : 4500);
 };
 
+/**
+ * Eine Auskunft mitten im offenen Fenster.
+ *
+ * Der Melder steht unten rechts und liegt unter jedem Fenster. Was ein Knopf
+ * *im* Fenster auslöst, soll man aber dort lesen, ohne das Fenster erst zu
+ * schliessen. Deshalb legt sich die Auskunft über den Inhalt des Fensters,
+ * mittig, bis man sie mit „Verstanden“, einem Klick daneben oder Esc wegnimmt.
+ * Esc schliesst dabei nur die Auskunft, nicht das Fenster darunter. Ist kein
+ * Fenster offen, geht sie den gewohnten Weg über den Melder.
+ */
+PU.fensterInfo = function (text, art) {
+  const modal = document.getElementById('modal');
+  const flaeche = modal && !modal.classList.contains('hidden') && modal.querySelector('.modal-flaeche');
+  if (!flaeche) { PU.melden(text, art); return; }
+
+  const alt = flaeche.querySelector('.fenster-info');
+  if (alt) alt.remove();
+
+  const decke = PU.el('div', 'fenster-info');
+  const karte = PU.el('div', 'fenster-info-karte ' + (art || ''));
+  karte.setAttribute('role', 'alertdialog');
+  karte.setAttribute('aria-modal', 'true');
+  karte.appendChild(PU.el('p', '', text));
+  const ok = PU.el('button', 'knopf', 'Verstanden');
+  ok.type = 'button';
+  karte.appendChild(ok);
+  decke.appendChild(karte);
+  flaeche.appendChild(decke);
+
+  const weg = () => {
+    decke.remove();
+    window.removeEventListener('keydown', taste, true);
+  };
+  // Vor PU.modalEscape abfangen, sonst nähme Esc das ganze Fenster mit.
+  const taste = (e) => {
+    if (e.key !== 'Escape') return;
+    e.stopPropagation(); e.preventDefault();
+    weg();
+  };
+  window.addEventListener('keydown', taste, true);
+  ok.addEventListener('click', weg);
+  decke.addEventListener('click', (e) => { if (e.target === decke) weg(); });
+  ok.focus();
+};
+
 /* ---------------------------------------------------------------- Werkzeug */
 PU.h = function (s) {
   const d = document.createElement('div');

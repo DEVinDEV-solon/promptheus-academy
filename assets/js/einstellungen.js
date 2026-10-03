@@ -1459,18 +1459,21 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
   neu.hidden = !w.laeuft;
   neu.title = 'Beendet die Werkstatt und startet sie mit einem neuen Browserfenster.';
 
+  // Im Fenster hinter dem Menüpunkt stehen die Knöpfe in dessen Kopfzeile;
+  // ihre Antwort gehört dann mitten ins Fenster, nicht unter es (PU.fensterInfo).
+  const sagen = knopfOrt ? PU.fensterInfo : PU.melden;
   const sperren = (an) => { knopf.disabled = an; neu.disabled = an; };
   knopf.addEventListener('click', async () => {
     sperren(true);
     try {
       const r = await PU.ruf('werkstatt_oeffnen');
       if (r.laeuft) neu.hidden = false;
-      PU.melden(r.laeuft
+      sagen(r.laeuft
         ? 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
           'Ist es weg, hilft „Neu starten“.'
         : 'Die Werkstatt startet. Gleich öffnet sich ein neues Browserfenster.', 'gut');
     } catch (e) {
-      PU.melden(PU.h(e.message), 'schlecht');
+      sagen(PU.h(e.message), 'schlecht');
     } finally {
       setTimeout(() => sperren(false), 4000);
     }
@@ -1481,9 +1484,9 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
     sperren(true);
     try {
       await PU.ruf('werkstatt_neustarten');
-      PU.melden('Die Werkstatt startet neu. Gleich öffnet sich ein neues Browserfenster.', 'gut');
+      sagen('Die Werkstatt startet neu. Gleich öffnet sich ein neues Browserfenster.', 'gut');
     } catch (e) {
-      PU.melden(PU.h(e.message), 'schlecht');
+      sagen(PU.h(e.message), 'schlecht');
     } finally {
       setTimeout(() => sperren(false), 6000);
     }

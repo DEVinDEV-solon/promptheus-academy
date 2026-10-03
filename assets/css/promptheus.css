@@ -1144,6 +1144,25 @@ body.mit-persona #knopf-persona {
 .meldung.warnung { border-left-color: var(--glut); border-left-width: 4px; }
 @keyframes rein { from { opacity: 0; transform: translateY(6px); } }
 
+/* Die Auskunft mitten im offenen Fenster (PU.fensterInfo in app.js): Sie deckt
+   den Inhalt ab, das Fenster selbst bleibt stehen. */
+.modal-flaeche { position: relative; }
+.fenster-info {
+  position: absolute; inset: 0; z-index: 10;
+  display: grid; place-items: center; padding: 1.5rem;
+  background: rgba(8,6,5,.55); backdrop-filter: blur(2px);
+  animation: rein .2s ease-out;
+}
+.fenster-info-karte {
+  max-width: 30rem; padding: 1.2rem 1.4rem 1.1rem;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-top: 3px solid var(--glut); border-radius: var(--radius);
+  box-shadow: var(--schatten); text-align: center;
+}
+.fenster-info-karte.gut      { border-top-color: var(--gut); }
+.fenster-info-karte.schlecht { border-top-color: var(--schlecht); }
+.fenster-info-karte p { margin: 0 0 1rem; line-height: 1.5; }
+
 /* ------------------------------------------------------ Das Schild beim Stopp
    Es steht in einem gewöhnlichen Modalfenster (PU.tokenSchild in app.js) und
    hat deshalb hier nur die Innenordnung: Bilanz, Grund, die Wege, der Nachsatz.
