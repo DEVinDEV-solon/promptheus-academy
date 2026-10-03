@@ -87,8 +87,10 @@ if (!$gesperrt && str_starts_with(trim($pfad, '/'), 'medien/')) {
     if (function_exists('pu_session_start')) {
         pu_session_start();
     } elseif (session_status() !== PHP_SESSION_ACTIVE) {
-        session_name('PROMPTHEUS');
-        @session_start();
+        // Derselbe Name und derselbe Ordner wie in lib.php — sonst fände der
+        // Router die Anmeldung nicht, die api.php angelegt hat.
+        require_once __DIR__ . '/srv/sitzung.php';
+        @pu_sitzung_oeffnen(__DIR__);
     }
     if ((int)($_SESSION['pu_id'] ?? 0) <= 0) $gesperrt = true;
 }
