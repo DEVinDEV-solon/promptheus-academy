@@ -8,6 +8,8 @@
  *   conversation.hero.brand.mark           dieselbe Marke auf der Startseite
  *   sidebar.footer.action                  der Weg in die Gemeinde (Community)
  *   conversation.session.header.utilities  derselbe Weg im Sitzungskopf
+ *   conversation.composer.dock             die Schutzleiste (schutzleiste.ts)
+ *   conversation.input.dock                die Karte „Erste Schritte“ (ersteschritte.ts)
  *
  * Die Marken-Belegungen sind EINZELplätze: der bisherige Bewohner (der Wal) wird
  * verdrängt. Das ist hier gewollt und ohne Verlust — es ist eine reine
@@ -39,6 +41,7 @@ import { layerAus, Palettenwaehler, SCHICHT } from './farbkasten.ts'
 import { FarbkastenZeile } from './farbkasten-zeile.ts'
 import { BILDMARKE, MAEANDER } from './marke.ts'
 import { Schutzleiste } from './schutzleiste.ts'
+import { ErsteSchritte } from './ersteschritte.ts'
 import { gespraech } from './woerter/gespraech.ts'
 import { ergebnisse } from './woerter/ergebnisse.ts'
 import { erweiterungen } from './woerter/erweiterungen.ts'
@@ -695,6 +698,14 @@ export function apply(ctx) {
     slots.register(
       { name: 'conversation.composer.dock', id: 'promptheus-schutz', order: -10 },
       Schutzleiste,
+    ))
+
+  // ── Erste Schritte (Phase A, 03.10.2026) ────────────────────────────────────
+  // Einmalige Karte über dem Eingabefeld, bis „Verstanden“ (ersteschritte.ts).
+  slots.inject('conversation.input.dock', () =>
+    slots.register(
+      { name: 'conversation.input.dock', id: 'promptheus-erste-schritte', order: -20 },
+      ErsteSchritte,
     ))
 }
 

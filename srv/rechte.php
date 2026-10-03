@@ -169,7 +169,7 @@ const PU_RECHTE = [
     ['name' => 'dashboard.view', 'gruppe' => 'System & Dashboard',
      'was' => 'Kurse, Lektionen und das Menü sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['kurse', 'kurs', 'lektion', 'werkstatt_menue']],
+     'aktionen' => ['kurse', 'kurs', 'lektion', 'werkstatt_menue', 'werkstatt_adresse']],
 
     ['name' => 'rechte.einstellungen', 'gruppe' => 'System & Dashboard',
      // Seit 28.09.2026 auch Verwaltung und Eltern: Sie betreiben ihre Academy

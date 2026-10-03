@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url'
 import { SCHUTZ_PORT, schluesselLesen, schutzschichtStarten } from './schutz/schutzschicht.mjs'
 import { arbeitsordnerBereinigen, laufMerken, profilAbsichern, profilPruefen, schluesselUmziehen, schutzAdresse } from './schutz/absichern.mjs'
 import { profilHephaistos } from './hephaistos/persona.mjs'
+import { adresseAusZeile, adresseLoeschen, adresseSchreiben, ausgabeMitlesen } from './adresse.mjs'
 
 /** Wurzel dieses Werkzeugs (…/werkstatt). */
 const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -375,6 +376,13 @@ try {
 //     Schaltern des Starters. Der Starter gibt alles ab dem ersten Token, das
 //     er nicht kennt, unverändert an das Programm weiter.
 // Also: `--profile promptheus --port 3081` — und kein `web` dazwischen.
+//
+// Die Standardausgabe läuft durch dieses Skript (unverändert ins Fenster), damit
+// die Zeile „dsh web: …“ mitgelesen werden kann: Ihre Adresse trägt das
+// Zugangstoken, und die Academy öffnet damit „Zur Werkstatt“ (adresse.mjs).
+// Eine alte Adresse vom letzten Lauf gilt nicht mehr.
+adresseLoeschen()
+process.on('exit', () => adresseLoeschen())
 const kind = spawn(
   process.execPath,
   [
@@ -385,12 +393,24 @@ const kind = spawn(
   ],
   {
     cwd: HARNESS,
-    stdio: 'inherit',
+    stdio: ['inherit', 'pipe', 'inherit'],
     env: umgebung,
   },
 )
 
+ausgabeMitlesen(kind.stdout, process.stdout, (zeile) => {
+  const adresse = adresseAusZeile(zeile, port)
+  if (adresse === null) return
+  try {
+    adresseSchreiben(adresse, { lernender: ticket?.lernender, port })
+  } catch (fehler) {
+    // Ohne Datei fehlt nur der Knopf „Zur Werkstatt“; das Fenster öffnet der Harness selbst.
+    console.warn(`starten: Adresse für die Academy nicht ablegbar (${fehler.code ?? fehler.message}).`)
+  }
+})
+
 kind.on('exit', (code) => {
+  adresseLoeschen()
   console.log(`\nstarten: beendet (${String(code)})`)
   schutz.schliessen().finally(() => process.exit(code ?? 0))
 })
