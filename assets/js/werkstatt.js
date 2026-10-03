@@ -111,6 +111,23 @@ PU.werkstattFenster = async function () {
   const stufenOk  = betreiber || w.grund !== 'stufen_offen';
   const kursOk    = w.frei;
 
+  /* Aufbau: oben zwei Blöcke nebeneinander (links der Weg, rechts die
+     Werkstatt), dann ein Mäanderband, dann der Erklärfilm. Die Knöpfe stehen
+     in der Kopfzeile rechts neben dem Titel, mit Abstand zum ×. */
+  const kasten = flaeche.closest('.modal-flaeche');
+  if (kasten) kasten.classList.add('werkstatt-flaeche');
+  const kopfKnoepfe = PU.el('div', 'werkstatt-kopf-knoepfe');
+  const zu = kasten && kasten.querySelector('.modal-zu');
+  if (zu) zu.parentNode.insertBefore(kopfKnoepfe, zu);
+
+  const oben = PU.el('div', 'werkstatt-oben');
+  const links = PU.el('section', 'werkstatt-block');
+  const rechts = PU.el('section', 'werkstatt-block');
+  links.appendChild(PU.el('h3', '', 'Drei Schritte'));
+  oben.appendChild(links);
+  oben.appendChild(rechts);
+  flaeche.appendChild(oben);
+
   const weg = PU.el('ol', 'werkstatt-weg');
   [
     ['Die sechs Stufen bestehen', stufenOk, betreiber ? 'als Admin übersprungen' : ''],
@@ -126,7 +143,7 @@ PU.werkstattFenster = async function () {
       (zusatz ? '<span class="klein"> · ' + PU.h(zusatz) + '</span>' : '') + '</span>';
     weg.appendChild(li);
   });
-  flaeche.appendChild(weg);
+  links.appendChild(weg);
 
   // Der 7. Kurs ist offen, aber noch nicht fertig: dann ist das der nächste
   // Schritt, und er bekommt den Knopf.
@@ -143,11 +160,45 @@ PU.werkstattFenster = async function () {
       PU.kursOeffnen(r.kurs7.pfad);
     });
     zeile.appendChild(zum);
-    flaeche.appendChild(zeile);
+    links.appendChild(zeile);
   }
 
-  if (PU.werkstattZeichnen) PU.werkstattZeichnen(flaeche, w);
+  if (PU.werkstattZeichnen) PU.werkstattZeichnen(rechts, w, kopfKnoepfe);
+
+  flaeche.appendChild(PU.el('div', 'zierband', ''));
+  flaeche.appendChild(werkstattFilm());
 };
+
+/**
+ * Der Erklärfilm: Hephaistos zeigt die Werkstatt (rund 2:20, mit Ton).
+ *
+ * Er kommt wie alle Aufnahmen mit dem Medienpaket (`medien/97_Werkstatt/`),
+ * das Standbild mit dem Programm. Fehlt der Film, bleibt das Standbild. Er
+ * startet nicht von selbst: Das Fenster ist zum Lesen da, der Film ein
+ * Angebot daneben. Beim Schliessen leert `PU.modalSchliessen()` das Fenster,
+ * damit hält auch der Film an.
+ */
+function werkstattFilm() {
+  const poster = 'assets/img/werkstatt-film.jpg';
+  const figur = PU.el('figure', 'werkstatt-film-figur');
+  const hinweis = PU.el('figcaption', 'klein werkstatt-film-hinweis',
+    'Hephaistos zeigt die Werkstatt: der 7. Kurs, der Zugang, Schlüssel und Fingerabdruck, ' +
+    'die Sicherheit und der Weg in die Community. Rund zwei Minuten, mit Ton.');
+  const v = PU.el('video', 'werkstatt-film');
+  v.controls = true; v.playsInline = true; v.preload = 'metadata';
+  v.poster = poster;
+  v.setAttribute('aria-label', 'Erklärfilm zur Werkstatt');
+  v.addEventListener('error', () => {
+    const b = PU.el('img', 'werkstatt-film');
+    b.src = poster; b.alt = 'Standbild aus dem Erklärfilm zur Werkstatt';
+    v.replaceWith(b);
+    hinweis.textContent = 'Der Film kommt mit dem Medienpaket. Bis dahin steht hier sein Standbild.';
+  });
+  v.src = 'medien/97_Werkstatt/werkstatt-film.mp4';
+  figur.appendChild(v);
+  figur.appendChild(hinweis);
+  return figur;
+}
 
 /* Nach jedem Ansichtswechsel nachsehen — gedrosselt, siehe oben. So springt das
    Schloss auf, sobald man nach der letzten Prüfung oder Aufgabe weiterklickt. */

@@ -1415,8 +1415,9 @@ const WERKSTATT_GRUND = {
 };
 
 /* Auch das Fenster hinter dem Menüpunkt „Werkstatt" zeichnet hiermit
-   (assets/js/werkstatt.js) und reicht seinen frischen Stand mit. */
-function werkstattZeichnen(ziel, frisch) {
+   (assets/js/werkstatt.js) und reicht seinen frischen Stand mit. Dort stehen
+   die Knöpfe in der Kopfzeile: `knopfOrt` nimmt sie dann auf. */
+function werkstattZeichnen(ziel, frisch, knopfOrt) {
   const w = frisch || PU.einstZustand.daten.werkstatt_stand || { frei: false, grund: 'kurs_fehlt' };
 
   ziel.appendChild(PU.el('h3', '', 'Werkstatt'));
@@ -1426,7 +1427,10 @@ function werkstattZeichnen(ziel, frisch) {
     'Arbeit und öffnet sich deshalb erst nach dem 7. Kurs.'));
 
   const stand = PU.el('p', 'merkzettel' + (w.frei ? ' gut' : ''));
-  let text = '<b>' + (w.frei ? 'Frei.' : 'Noch gesperrt.') + '</b> ' + PU.h(WERKSTATT_GRUND[w.grund] || '');
+  // Die freien Gründe beginnen selbst mit „Frei“; ein zweites davor hiesse „Frei. Frei.“
+  const grund = WERKSTATT_GRUND[w.grund] || '';
+  const vorne = w.frei ? (grund.startsWith('Frei') ? '' : '<b>Frei.</b> ') : '<b>Noch gesperrt.</b> ';
+  let text = vorne + PU.h(grund);
   if (w.grund === 'kurs_offen') text += ' Stand: <b>' + (w.prozent | 0) + ' %</b>.';
   stand.innerHTML = text;
   ziel.appendChild(stand);
@@ -1486,7 +1490,7 @@ function werkstattZeichnen(ziel, frisch) {
   });
   reihe.appendChild(knopf);
   reihe.appendChild(neu);
-  ziel.appendChild(reihe);
+  (knopfOrt || ziel).appendChild(reihe);
 }
 
 PU.werkstattZeichnen = werkstattZeichnen;

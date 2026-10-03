@@ -419,6 +419,34 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .werkstatt-weg li.fertig .weg-zeichen { color: var(--gut); border-color: var(--gut); }
 .werkstatt-weiter { margin: 0 0 1.4rem; }
 
+/* Das Fenster hinter dem Menüpunkt „Werkstatt" (werkstatt.js): breiter als
+   das übliche, oben zwei Blöcke nebeneinander, darunter Mäanderband und Film.
+   Die Knöpfe stehen in der Kopfzeile vor dem ×, mit Abstand zu ihm. */
+.modal-flaeche.werkstatt-flaeche { max-width: 1200px; }
+.werkstatt-flaeche .modal-kopf { flex-wrap: wrap; }
+.werkstatt-flaeche .modal-inhalt { max-height: calc(94vh - 5rem); }
+.werkstatt-kopf-knoepfe { margin-left: auto; margin-right: .8rem; }
+.werkstatt-kopf-knoepfe .werkstatt-knoepfe { margin: 0; }
+.werkstatt-oben { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; align-items: stretch; }
+.werkstatt-block {
+  padding: 1rem 1.1rem; background: var(--grund); border: 1px solid var(--rand); border-radius: var(--radius);
+}
+.werkstatt-block h3 { margin-top: 0; }
+.werkstatt-block .werkstatt-weg, .werkstatt-block .werkstatt-weiter { margin-bottom: 0; }
+.werkstatt-block > :last-child { margin-bottom: 0; }
+.werkstatt-film-figur { margin: 0; }
+/* Der Film hat einen eigenen Mäanderrahmen im Bild: genau 16:9, nichts
+   beschnitten, keine runden Ecken. */
+.werkstatt-film {
+  display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: contain;
+  background: var(--code-grund); border: 1px solid var(--rand-hell); border-radius: 0;
+}
+.werkstatt-film-hinweis { margin: .6em 0 0; color: var(--schrift-3); }
+@media (max-width: 760px) {
+  .werkstatt-oben { grid-template-columns: 1fr; }
+  .werkstatt-kopf-knoepfe { order: 3; flex-basis: 100%; margin: 0; }
+}
+
 .kennzahlen {
   display: flex; align-items: center; gap: 1.05rem;
   flex-wrap: wrap; font-size: .86rem; min-width: 0;
