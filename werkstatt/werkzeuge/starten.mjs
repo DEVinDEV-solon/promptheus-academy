@@ -15,6 +15,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { SCHUTZ_PORT, schluesselLesen, schutzschichtStarten } from './schutz/schutzschicht.mjs'
 import { arbeitsordnerBereinigen, laufMerken, profilAbsichern, profilPruefen, schluesselUmziehen, schutzAdresse } from './schutz/absichern.mjs'
+import { profilHephaistos } from './hephaistos/persona.mjs'
 
 /** Wurzel dieses Werkzeugs (…/werkstatt). */
 const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -282,6 +283,12 @@ const ordnerWeg = arbeitsordnerBereinigen(ZUHAUSE)
 for (const z of profilAenderung) console.log(`starten: Profil    ${z}`)
 for (const t of ordnerWeg) console.log(`starten: Arbeitsordner „${t}“ entfernt (liegt in der Academy oder darüber)`)
 if (umzug.umgezogen) console.log('starten: Schlüssel in die Schutzschicht umgezogen; der Harness hat einen Platzhalter.')
+
+// Hephaistos als Agent der Werkstatt (werkzeuge/hephaistos/persona.mjs): keine
+// Selbstvorstellung als „DeepSeek Harness“, eigene Persona in jedem Preset.
+const hephaistos = profilHephaistos(PROFIL)
+for (const z of hephaistos.geaendert) console.log(`starten: Profil    ${z}`)
+for (const f of hephaistos.fehler) console.warn(`starten: Hinweis   ${f}`)
 
 // Startsperre: Ein Modellweg, der nicht über die Schutzschicht geht, wäre ein
 // Loch im Riegel. Dann startet die Werkstatt nicht.

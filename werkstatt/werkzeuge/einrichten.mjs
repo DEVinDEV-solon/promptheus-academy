@@ -27,6 +27,7 @@ import { createInterface } from 'node:readline'
 import { fileURLToPath } from 'node:url'
 import { SCHUTZ_PORT } from './schutz/schutzschicht.mjs'
 import { arbeitsordnerBereinigen, profilAbsichern, profilPruefen, schluesselUmziehen } from './schutz/absichern.mjs'
+import { profilHephaistos } from './hephaistos/persona.mjs'
 
 const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const ACADEMY = resolve(WURZEL, '..')
@@ -227,6 +228,9 @@ function absichern() {
   const umzug = schluesselUmziehen(join(WURZEL, 'deepseek-harness', '.env'))
   if (umzug.umgezogen) melde('Schlüssel in die Ebene der Schutzschicht umgezogen; der Harness behält einen Platzhalter.')
   for (const t of arbeitsordnerBereinigen(join(WURZEL, '.dsh'))) melde(`Arbeitsordner „${t}“ entfernt (liegt in der Academy).`)
+  const hephaistos = profilHephaistos(profil)
+  for (const z of hephaistos.geaendert) melde(`Profil: ${z}`)
+  for (const f of hephaistos.fehler) melde(`Hinweis: ${f}`)
   const befunde = profilPruefen(profil, SCHUTZ_PORT)
   if (befunde.length > 0) {
     for (const b of befunde) melde(`ACHTUNG: ${b}`)

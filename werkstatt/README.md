@@ -91,6 +91,18 @@ eigentliche Riegel.
 Prüfen: `node werkzeuge\schutz\schutz_pruefen.mjs` (nachgestellter Anbieter,
 nichts verlässt den Rechner) und `node werkzeuge\schutz\absichern_pruefen.mjs`.
 
+**2c. Hephaistos ist der Agent** (`werkzeuge/hephaistos/persona.mjs`, bei
+jedem Start und beim Einrichten). Der Harness stellt sich an drei Stellen
+selbst vor: mit einem festen Satz („powered by DeepSeek Harness“), mit einem
+englischen Abschnitt über seine Web-Oberfläche und mit der Persona jedes
+Agenten-Presets („You are a coding agent …“). Das Modul schaltet die ersten
+beiden ab und schreibt die Presets mit Hephaistos als Persona neu — erzeugt aus
+den Preset-Dateien des Harness selbst, damit Werkzeuge und Gruppen nach einem
+Update stimmen. Alles steht in einem markierten Block am Ende des Profils
+(Sicherung `*.vor-hephaistos`). Den Text der Persona pflegst du in
+`vorlage\hephaistos\persona.md`; erlaubt sind nur die Variablen `{{model}}`
+und `{{cwd}}`. Prüfen: `node werkzeuge\hephaistos\persona_pruefen.mjs`.
+
 **3. Das Bündel.** Die PROMPTHEUS-Pakete liegen außerhalb des Harness-Workspace
 und werden mit esbuild gebaut, weil der Bau-Preset des Harness nur Pakete
 **innerhalb** des Repos auflöst. Dabei sind die drei Kopfzeilen Pflicht, die
