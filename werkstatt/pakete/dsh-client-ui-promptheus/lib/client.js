@@ -607,6 +607,228 @@ var BILDMARKE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" rol
 </svg>`;
 var MAEANDER = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"><path d="M0 28 H32"/><path d="M6 28 V6 H26 V22 H12 V16 H20"/></g></svg>`;
 
+// pakete/dsh-client-ui-promptheus/src/client/schutzleiste.ts
+var ART = {
+  geheim: "Geheimwert",
+  muster: "Schl\xFCssel",
+  person: "Name aus dieser Academy",
+  pii: "pers\xF6nliche Angabe",
+  pii_weich: "m\xF6glicher Name"
+};
+var HART = ["geheim", "muster", "person", "pii"];
+async function pruefen(text) {
+  try {
+    const r = await fetch("/promptheus-schutz/pruefen", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+function melden(entscheidung, treffer) {
+  fetch("/promptheus-schutz/entscheidung", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ entscheidung, treffer })
+  }).catch(() => {
+  });
+}
+function eingabefeld() {
+  const kandidaten = Array.from(document.querySelectorAll("textarea"));
+  return kandidaten.find((t) => !t.disabled && t.offsetParent !== null && t.closest('[data-slot*="composer"], form, footer')) ?? kandidaten.find((t) => !t.disabled && t.offsetParent !== null) ?? null;
+}
+function textSetzen(feld, text) {
+  const setzer = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+  setzer?.call(feld, text);
+  feld.dispatchEvent(new Event("input", { bubbles: true }));
+}
+function zusammenfassung(treffer, nurHart) {
+  return Object.entries(treffer).filter(([a, n]) => n > 0 && (!nurHart || HART.includes(a))).map(([a, n]) => `${n} \xD7 ${ART[a] ?? a}`).join(", ");
+}
+function hartAnzahl(treffer) {
+  return HART.reduce((s, a) => s + (treffer[a] ?? 0), 0);
+}
+function Schutzleiste() {
+  const React = require("react");
+  const { useEffect, useRef, useState } = React;
+  const [befund, setBefund] = useState(null);
+  const [vorschau, setVorschau] = useState(false);
+  const [halt, setHalt] = useState(false);
+  const freigabe2 = useRef("");
+  const letzter = useRef(null);
+  useEffect(() => {
+    let feld = null;
+    let uhr = null;
+    let suche = null;
+    const neu = () => {
+      if (!feld) return;
+      const text = feld.value;
+      if (uhr) clearTimeout(uhr);
+      if (text.trim() === "") {
+        letzter.current = null;
+        setBefund(null);
+        setHalt(false);
+        return;
+      }
+      uhr = setTimeout(async () => {
+        const b = await pruefen(text);
+        if (feld && feld.value === text) {
+          letzter.current = b;
+          setBefund(b);
+        }
+      }, 350);
+    };
+    const sperre = async (ereignis) => {
+      if (!feld) return;
+      const text = feld.value;
+      if (text.trim() === "" || freigabe2.current === text) return;
+      let b = letzter.current;
+      if (!b || b.text === void 0) b = await pruefen(text);
+      if (b && hartAnzahl(b.treffer) > 0 && b.text !== text) {
+        ereignis.preventDefault();
+        ereignis.stopImmediatePropagation();
+        letzter.current = b;
+        setBefund(b);
+        setHalt(true);
+      }
+    };
+    const taste = (e) => {
+      if (e.key !== "Enter" || e.shiftKey || e.isComposing || !feld) return;
+      const b = letzter.current;
+      if (freigabe2.current === feld.value) return;
+      if (b && hartAnzahl(b.treffer) > 0 && b.text !== feld.value) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setBefund(b);
+        setHalt(true);
+      }
+    };
+    const klick = (e) => {
+      const ziel = e.target;
+      const knopf = ziel?.closest("button");
+      if (!knopf || !feld) return;
+      const art = (knopf.getAttribute("aria-label") ?? "") + " " + (knopf.getAttribute("data-slot") ?? "") + " " + (knopf.getAttribute("type") ?? "");
+      if (!/send|senden|submit|input\.send/i.test(art)) return;
+      void sperre(e);
+      const b = letzter.current;
+      if (b && hartAnzahl(b.treffer) > 0 && b.text !== feld.value && freigabe2.current !== feld.value) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    };
+    const anbinden = () => {
+      const f = eingabefeld();
+      if (!f || f === feld) return;
+      if (feld) {
+        feld.removeEventListener("input", neu);
+        feld.removeEventListener("keydown", taste, true);
+      }
+      feld = f;
+      feld.addEventListener("input", neu);
+      feld.addEventListener("keydown", taste, true);
+      neu();
+    };
+    anbinden();
+    suche = setInterval(anbinden, 1e3);
+    document.addEventListener("click", klick, true);
+    return () => {
+      if (suche) clearInterval(suche);
+      if (uhr) clearTimeout(uhr);
+      document.removeEventListener("click", klick, true);
+      if (feld) {
+        feld.removeEventListener("input", neu);
+        feld.removeEventListener("keydown", taste, true);
+      }
+    };
+  }, []);
+  const h = React.createElement;
+  if (!befund) return null;
+  const hart = hartAnzahl(befund.treffer);
+  const weich = befund.treffer.pii_weich ?? 0;
+  if (hart === 0 && weich === 0) return null;
+  const mitPlatzhaltern = () => {
+    const feld = eingabefeld();
+    if (!feld) return;
+    textSetzen(feld, befund.text);
+    freigabe2.current = befund.text;
+    melden("mit_platzhaltern", befund.treffer);
+    setHalt(false);
+    feld.focus();
+  };
+  const aendern = () => {
+    melden("text_aendern", befund.treffer);
+    setHalt(false);
+    eingabefeld()?.focus();
+  };
+  return h(
+    "div",
+    {
+      role: halt ? "alertdialog" : "status",
+      "aria-live": "polite",
+      style: {
+        margin: "0 0 6px",
+        padding: "8px 12px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        lineHeight: 1.45,
+        background: "var(--dsw-alias-bg-surface, rgba(20,14,10,.92))",
+        border: `1px solid ${halt ? "var(--dsw-alias-text-danger, #e05a4f)" : "var(--dsw-alias-border-default, rgba(255,255,255,.18))"}`,
+        borderLeft: `3px solid ${halt ? "var(--dsw-alias-text-danger, #e05a4f)" : "var(--dsw-alias-text-accent, #ff7a1c)"}`
+      }
+    },
+    h(
+      "div",
+      { style: { display: "flex", gap: "10px", alignItems: "baseline", flexWrap: "wrap" } },
+      h("b", null, halt ? "Angehalten, nichts gesendet:" : "Schutz:"),
+      h("span", null, hart > 0 ? `${zusammenfassung(befund.treffer, true)} \u2014 ${hart === 1 ? "wird" : "werden"} ersetzt, bevor Hephaistos die Nachricht sieht.` : `${weich} \xD7 m\xF6glicher Name \u2014 bleibt stehen. Ist es ein echter Name, ersetze ihn lieber.`),
+      h(
+        "button",
+        {
+          type: "button",
+          onClick: () => setVorschau(!vorschau),
+          style: { marginLeft: "auto", background: "none", border: 0, color: "inherit", textDecoration: "underline", cursor: "pointer", font: "inherit" }
+        },
+        vorschau ? "Vorschau schliessen" : "So geht es hinaus"
+      )
+    ),
+    vorschau ? h("pre", { style: { margin: "6px 0 0", whiteSpace: "pre-wrap", wordBreak: "break-word", opacity: 0.85, maxHeight: "9em", overflow: "auto", font: "inherit" } }, befund.text) : null,
+    halt ? h(
+      "div",
+      { style: { display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" } },
+      h("button", {
+        type: "button",
+        onClick: mitPlatzhaltern,
+        autoFocus: true,
+        style: {
+          padding: "5px 12px",
+          borderRadius: "8px",
+          border: 0,
+          cursor: "pointer",
+          fontWeight: 600,
+          background: "var(--dsw-alias-text-accent, #ff7a1c)",
+          color: "var(--dsw-alias-bg-base, #14100c)"
+        }
+      }, "Platzhalter einsetzen"),
+      h("button", {
+        type: "button",
+        onClick: aendern,
+        style: {
+          padding: "5px 12px",
+          borderRadius: "8px",
+          cursor: "pointer",
+          background: "none",
+          color: "inherit",
+          border: "1px solid var(--dsw-alias-border-default, rgba(255,255,255,.3))"
+        }
+      }, "Text \xE4ndern")
+    ) : null
+  );
+}
+
 // pakete/dsh-client-ui-promptheus/src/client/woerter/gespraech.ts
 var gespraech = {
   // ── Tastenkürzel und Hinweise ──────────────────────────────────────────────
@@ -3595,6 +3817,10 @@ function apply(ctx) {
   slots.inject("conversation.session.header.utilities", () => slots.register(
     { name: "conversation.session.header.utilities", id: "promptheus-community-kopf", order: 10 },
     GemeindeImKopf
+  ));
+  slots.inject("conversation.composer.dock", () => slots.register(
+    { name: "conversation.composer.dock", id: "promptheus-schutz", order: -10 },
+    Schutzleiste
   ));
 }
 var index_default = { apply, inject };

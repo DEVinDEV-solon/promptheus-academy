@@ -48,6 +48,24 @@ gruppe('Erster Start');
 pruefe('ohne Markierung: der erste Start', pu_werkstatt_erster_start());
 pruefe('danach nicht mehr', !pu_werkstatt_erster_start());
 
+// ================================================================ Schutzliste
+gruppe('Schutzliste (Namen als Fingerabdrücke)');
+
+pu_lernenden_anlegen('beispielkonto', 'Mia Beispielkind', 'probe1234', 'schueler');
+$n = pu_werkstatt_schutzliste();
+$liste = json_decode((string)file_get_contents($tmp . '/data/schutz-namen.json'), true);
+pruefe('Liste geschrieben', $n >= 2 && count($liste['hashes'] ?? []) === $n);
+pruefe('kein Name im Klartext', !str_contains(json_encode($liste), 'beispiel') && !str_contains(json_encode($liste), 'Mia'));
+gleich('längste Wortfolge', 2, $liste['laengste']);
+// Node rechnet dieselben Fingerabdrücke: der Name verschwindet aus einem Text.
+$maske = str_replace('\\', '/', realpath(__DIR__ . '/../werkstatt/werkzeuge/schutz/maske.mjs'));
+$js = 'import("file:///' . $maske . '").then(m => { const n = m.namenLaden(process.argv[1]);'
+    . ' console.log(m.maskeBauen({ namen: n }).text("Ich bin Mia Beispielkind. Kennung: beispielkonto")) })';
+$h = proc_open(['node', '-e', $js, $tmp . '/data/schutz-namen.json'], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $rohr);
+$aus = trim((string)stream_get_contents($rohr[1]));
+fclose($rohr[1]); fclose($rohr[2]); proc_close($h);
+gleich('Node maskiert die Namen aus der Liste', 'Ich bin [PERSON]. Kennung: [PERSON]', $aus);
+
 // ================================================================ Freigabe
 gruppe('Freigabe');
 

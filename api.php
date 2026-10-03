@@ -50,6 +50,7 @@ require_once __DIR__ . '/srv/werkstatt.php';
 require_once __DIR__ . '/srv/relay.php';
 require_once __DIR__ . '/srv/gemeinde.php';
 require_once __DIR__ . '/srv/aktualisierung.php';
+require_once __DIR__ . '/srv/audit.php';
 
 header('X-Content-Type-Options: nosniff');
 
@@ -79,7 +80,52 @@ function api_umleiten(string $ziel): never
     exit;
 }
 
+/**
+ * Kam die Anfrage von einer fremden Seite?
+ *
+ * Die Werkstatt läuft auf 127.0.0.1:3081, die Academy auf :8801. Für den
+ * Browser sind das zwei Herkünfte derselben Site — das Anmelde-Cookie
+ * (SameSite=Lax) geht deshalb mit, wenn eine Seite aus der Werkstatt (etwa eine
+ * Vorschau, die der Agent gebaut hat) hierher schickt. Ohne diese Prüfung
+ * könnte eine solche Seite im Namen der angemeldeten Person handeln.
+ *
+ * Die Academy selbst ruft alles per fetch von derselben Herkunft
+ * (`Sec-Fetch-Site: same-origin`). Fremd ist, was der Browser als
+ * `same-site`/`cross-site` kennzeichnet oder eine fremde `Origin` trägt.
+ * Fehlen beide Kopfzeilen (Kommandozeile, Tests), gilt die Anfrage als eigen.
+ */
+function api_fremde_herkunft(): bool
+{
+    $site = strtolower((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? ''));
+    if ($site !== '' && $site !== 'same-origin' && $site !== 'none') return true;
+    $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
+    if ($origin === '') return false;
+    $eigen = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://')
+           . (string)($_SERVER['HTTP_HOST'] ?? '');
+    return strcasecmp(rtrim($origin, '/'), $eigen) !== 0;
+}
+
+/** Aktionen, die ausdrücklich von fremden Seiten kommen dürfen. */
+const API_FREMD_ERLAUBT = [
+    // Der Knopf „Community“ der Werkstatt: ein Seitenaufruf, der nur weiterleitet.
+    'community_oeffnen' => 'navigate',
+    // Urkunden prüfen Dritte, ohne Konto; die Antwort nennt keinen Namen.
+    'urkunde_pruefen'   => '',
+];
+
 try {
+    if (api_fremde_herkunft()) {
+        $modus = API_FREMD_ERLAUBT[$aktion] ?? null;
+        $art   = strtolower((string)($_SERVER['HTTP_SEC_FETCH_MODE'] ?? ''));
+        if ($modus === null || ($modus === 'navigate' && $art !== '' && $art !== 'navigate')) {
+            pu_audit(0, 'fremde_anfrage', 'Anfrage von fremder Seite abgewiesen: ' . $aktion, [
+                'outcome' => 'blocked', 'severity' => 'warning', 'action_category' => 'security',
+                'resource' => mb_substr((string)($_SERVER['HTTP_ORIGIN'] ?? ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')), 0, 120),
+            ]);
+            pu_fehler('Diese Anfrage kam von einer fremden Seite und wird nicht ausgeführt.', 403);
+        }
+    }
+
     // ============================================================ ohne Anmeldung
     switch ($aktion) {
         case 'zustand':
@@ -1008,10 +1054,62 @@ try {
             // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
             pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
             $erster = pu_werkstatt_erster_start();
+            // Die Namen dieser Academy für die Schutzschicht — als Fingerabdrücke.
+            try { pu_werkstatt_schutzliste(); } catch (Throwable $e) { /* ohne Liste schützt die Schicht weiter mit Werten und Regeln */ }
             pu_werkstatt_starten();
             pu_protokoll($ichId, 'werkstatt', $neu ? 'neustart' : 'oeffnen', $st['grund']);
             pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'neu' => $neu,
                          'erster' => $erster, 'port' => $st['port']]);
+        }
+
+        // ---------------------------------------------------------- Audit-Trail
+        /* Der Reiter „Audit-Trail“ (assets/js/audit.js). Wer audit.alles hat,
+           sieht alles; alle anderen nur, was in ihrem Namen geschah. Vor jeder
+           Ansicht wird der Spool der Werkstatt eingelesen — sonst zeigte die
+           Seite einen Stand, den die Schutzschicht längst überholt hat. */
+        case 'audit_stand': {
+            pu_recht_fordern('audit.eigenes');
+            $alles = pu_recht_hat('audit.alles');
+            try { pu_audit_einlesen(); } catch (Throwable $e) { /* Anzeige geht vor */ }
+            pu_json_out(['ok' => true, 'alles' => $alles,
+                'kennzahlen'    => pu_audit_kennzahlen($alles ? null : $ichId),
+                'schutzschicht' => pu_audit_schutzschicht_stand(),
+            ]);
+        }
+
+        case 'audit_liste': {
+            pu_recht_fordern('audit.eigenes');
+            $f = is_array(d('filter', [])) ? d('filter', []) : [];
+            pu_json_out(['ok' => true] + pu_audit_liste($f, (int)d('seite', 1), (int)d('je', 50),
+                pu_recht_hat('audit.alles') ? null : $ichId));
+        }
+
+        case 'audit_export': {
+            pu_recht_fordern('audit.eigenes');
+            $f = is_array(d('filter', [])) ? d('filter', []) : [];
+            $format = d('format', 'csv') === 'json' ? 'json' : 'csv';
+            $alles = pu_recht_hat('audit.alles');
+            pu_audit($ichId, 'audit_export', 'Audit-Trail exportiert (' . $format . ')', [
+                'action_category' => 'compliance', 'metadata' => ['filter' => $f, 'umfang' => $alles ? 'alles' : 'eigenes']]);
+            pu_json_out(['ok' => true, 'format' => $format,
+                'datei' => 'audit-trail-' . gmdate('Y-m-d') . '.' . $format,
+                'inhalt' => pu_audit_export($f, $format, $alles ? null : $ichId)]);
+        }
+
+        case 'audit_pruefen': {
+            pu_recht_fordern('audit.alles');
+            $p = pu_audit_pruefen();
+            pu_audit($ichId, 'audit_pruefen', 'Hash-Kette geprüft: ' . ($p['ok'] ? 'heil' : 'NICHT heil'), [
+                'action_category' => 'compliance', 'outcome' => $p['ok'] ? 'success' : 'error',
+                'severity' => $p['ok'] ? 'info' : 'critical',
+                'metadata' => ['anzahl' => $p['anzahl'], 'bruch_seq' => $p['bruch_seq']]]);
+            pu_json_out(['ok' => true, 'pruefung' => $p]);
+        }
+
+        case 'audit_einlesen': {
+            pu_recht_fordern('audit.alles');
+            $sitzungen = pu_audit_sitzungen_lesen();
+            pu_json_out(['ok' => true, 'sitzungen' => $sitzungen, 'spool' => pu_audit_einlesen()]);
         }
 
         case 'tutor_probe': {

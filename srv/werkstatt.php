@@ -137,6 +137,65 @@ function pu_werkstatt_ticket(int $lernender, string $academy = ''): array
 }
 
 /**
+ * Die Namen dieser Academy als Fingerabdrücke für die Schutzschicht.
+ *
+ * Die Schutzschicht der Werkstatt (`werkzeuge/schutz/maske.mjs`) ersetzt jeden
+ * bekannten Namen durch `[PERSON]`, bevor eine Anfrage das Haus verlässt —
+ * auch wenn der Agent ihn aus einer Datei gelesen hat. Sie bekommt die Namen
+ * aber nicht im Klartext: nur sha256(salz | name), mit einem Salz, das bei
+ * jedem Schreiben neu ausgewürfelt wird. Sie hasht dann jede Wortfolge eines
+ * Textes und vergleicht.
+ *
+ * Aufgenommen werden Anzeigename, Kennung (ab 5 Zeichen), Schule und die
+ * echten Vor- und Nachnamen der Urkunden. Letztere liegen verschlüsselt und
+ * werden nur hier im Speicher entschlüsselt, gehasht und verworfen.
+ * Unter 4 Zeichen bleibt ein Wert draussen: zu viele falsche Treffer.
+ *
+ * @return int Anzahl der Fingerabdrücke
+ */
+function pu_werkstatt_schutzliste(): int
+{
+    $werte = [];
+    $plus = static function (?string $s) use (&$werte): void {
+        $s = trim((string)preg_replace('/\s+/u', ' ', mb_strtolower((string)$s)));
+        if (mb_strlen($s) >= 4) $werte[$s] = true;
+    };
+    foreach (pu_db()->query('SELECT kennung, anzeigename, schule FROM lernende') as $z) {
+        $plus($z['anzeigename']);
+        if (mb_strlen((string)$z['kennung']) >= 5) $plus($z['kennung']);
+        $plus($z['schule'] ?? '');
+    }
+    try {
+        require_once PU_ROOT . '/srv/abschluss.php';
+        foreach (pu_db()->query('SELECT vorname_geheim, nachname_geheim FROM abschluesse') as $z) {
+            $v = pu_abschluss_entschluesseln((string)$z['vorname_geheim']) ?? '';
+            $n = pu_abschluss_entschluesseln((string)$z['nachname_geheim']) ?? '';
+            $plus(trim($v . ' ' . $n));
+            $plus($n);
+        }
+    } catch (Throwable $e) {
+        // Keine Urkunden oder kein Schlüssel: dann eben ohne.
+    }
+
+    $salz = bin2hex(random_bytes(16));
+    $laengste = 1;
+    $hashes = [];
+    foreach (array_keys($werte) as $w) {
+        $hashes[] = hash('sha256', $salz . '|' . $w);
+        $laengste = max($laengste, min(4, count(explode(' ', $w))));
+    }
+    // Neben dem Ticket (im Betrieb data/werkstatt/), damit Tests es umlegen.
+    $pfad = dirname(pu_werkstatt_ticket_pfad()) . '/schutz-namen.json';
+    if (!is_dir(dirname($pfad))) @mkdir(dirname($pfad), 0700, true);
+    $tmp = $pfad . '.' . bin2hex(random_bytes(4)) . '.tmp';
+    if (file_put_contents($tmp, json_encode(['salz' => $salz, 'laengste' => $laengste, 'hashes' => $hashes]), LOCK_EX) !== false) {
+        @chmod($tmp, 0600);
+        @rename($tmp, $pfad);
+    }
+    return count($hashes);
+}
+
+/**
  * Der erste Start auf diesem Rechner? Merkt es sich zugleich für das nächste Mal.
  *
  * Beim ersten Mal braucht die Werkstatt deutlich länger (der Harness wird

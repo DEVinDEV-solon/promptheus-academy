@@ -92,5 +92,9 @@ function test_db_vorbereiten(): string
 {
     $datei = sys_get_temp_dir() . '/pu_test_' . bin2hex(random_bytes(6)) . '.db';
     putenv('PU_TEST_DB=' . $datei);
+    // Auch der Audit-Trail: pu_protokoll() schreibt dorthin mit, und ein Test
+    // soll keine Einträge in die echte Kette hängen (die liessen sich nicht
+    // mehr entfernen — sie ist nur anhängbar).
+    putenv('PU_TEST_AUDIT=' . sys_get_temp_dir() . '/pu_test_audit_' . bin2hex(random_bytes(6)));
     return $datei;
 }

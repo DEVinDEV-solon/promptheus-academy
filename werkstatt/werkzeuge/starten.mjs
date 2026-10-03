@@ -13,6 +13,8 @@ import { existsSync, readFileSync, rmSync } from 'node:fs'
 import { createConnection } from 'node:net'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { SCHUTZ_PORT, schluesselLesen, schutzschichtStarten } from './schutz/schutzschicht.mjs'
+import { arbeitsordnerBereinigen, laufMerken, profilAbsichern, profilPruefen, schluesselUmziehen, schutzAdresse } from './schutz/absichern.mjs'
 
 /** Wurzel dieses Werkzeugs (…/werkstatt). */
 const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -183,6 +185,8 @@ function ticketPruefen() {
   process.exit(3)
 }
 const ticket = ticketPruefen()
+// Wer gestartet hat — für die Zuordnung der Sitzungen im Audit-Trail.
+laufMerken(ticket?.lernender)
 
 /**
  * Wo die Academy läuft, die diese Werkstatt geöffnet hat. Der Knopf
@@ -225,7 +229,24 @@ const ACADEMY = typeof ticket?.academy === 'string' &&
 // den Betrieb auf 3080 unberührt.
 const ZUHAUSE = join(WURZEL, '.dsh')
 
-const umgebung = { ...process.env, DEEPSEEK_BASE_URL: BASIS_URL, DSH_HOME: ZUHAUSE, PROMPTHEUS_ACADEMY_URL: ACADEMY }
+// ── Die Schutzschicht (werkzeuge/schutz/) ────────────────────────────────────
+//
+// Seit dem 03.10.2026 spricht die Werkstatt NIE direkt mit dem Anbieter. Beide
+// Modellwege zeigen auf die Schutzschicht auf 127.0.0.1:3089:
+//   * `DEEPSEEK_BASE_URL` (Anbieter deepseek-official, hier),
+//   * `baseURL` des Anbieters `openrouter` im Profil (profilAbsichern).
+// Sie maskiert jede Anfrage, hält sie im Zweifel an und protokolliert sie für
+// den Audit-Trail der Academy. Den echten Schlüssel hält nur sie
+// (`data/werkstatt/schutzschicht.env`); der Harness hat einen Platzhalter.
+//
+// `DSH_AGENTS_HOME`: Skills nur aus dem eigenen Zuhause, nicht aus dem
+// `~/.agents` des Windows-Kontos, das andere Werkzeuge mitbenutzen.
+const umgebung = { ...process.env, DEEPSEEK_BASE_URL: schutzAdresse(SCHUTZ_PORT), DSH_HOME: ZUHAUSE,
+  DSH_AGENTS_HOME: join(ZUHAUSE, 'agents'), PROMPTHEUS_ACADEMY_URL: ACADEMY,
+  // Für die Schutzleiste über dem Eingabefeld (Plugin, Node-Hälfte).
+  PROMPTHEUS_SCHUTZ_URL: `http://127.0.0.1:${SCHUTZ_PORT}` }
+// Schlüssel aus der Umgebung des Windows-Kontos erbt die Werkstatt nicht.
+for (const name of ['OPENROUTER_API_KEY', 'DEEPSEEK_API_KEY', 'PU_OPENROUTER_API_KEY']) delete umgebung[name]
 
 // **Den Schlüssel NICHT in die Umgebung heben.**
 //
@@ -253,6 +274,25 @@ const umgebung = { ...process.env, DEEPSEEK_BASE_URL: BASIS_URL, DSH_HOME: ZUHAU
 // HTTP 401. Sie darf und muss hier gesetzt werden.
 //
 // Nur melden, was in der `.env` steht — ohne es in die Umgebung zu heben.
+// ── Absichern vor jedem Start (werkzeuge/schutz/absichern.mjs) ───────────────
+const PROFIL = join(ZUHAUSE, 'profiles', 'promptheus', 'cordis.patch.yml')
+const umzug = schluesselUmziehen(join(HARNESS, '.env'))
+const profilAenderung = profilAbsichern(PROFIL, SCHUTZ_PORT)
+const ordnerWeg = arbeitsordnerBereinigen(ZUHAUSE)
+for (const z of profilAenderung) console.log(`starten: Profil    ${z}`)
+for (const t of ordnerWeg) console.log(`starten: Arbeitsordner „${t}“ entfernt (liegt in der Academy oder darüber)`)
+if (umzug.umgezogen) console.log('starten: Schlüssel in die Schutzschicht umgezogen; der Harness hat einen Platzhalter.')
+
+// Startsperre: Ein Modellweg, der nicht über die Schutzschicht geht, wäre ein
+// Loch im Riegel. Dann startet die Werkstatt nicht.
+const befunde = profilPruefen(PROFIL, SCHUTZ_PORT)
+if (befunde.length > 0) {
+  console.error('starten: Die Werkstatt startet nicht — sie wäre nicht geschützt:')
+  for (const b of befunde) console.error(`         ${b}`)
+  console.error(`         Profil: ${PROFIL}`)
+  process.exit(4)
+}
+
 const dateiUmgebung = envLesen(join(HARNESS, '.env'))
 const schluesselName = dateiUmgebung.OPENROUTER_API_KEY !== undefined ? 'OPENROUTER_API_KEY'
   : dateiUmgebung.DEEPSEEK_API_KEY !== undefined ? 'DEEPSEEK_API_KEY'
@@ -275,8 +315,8 @@ console.log(`starten: Profil   promptheus`)
 console.log(`starten: Adresse  http://127.0.0.1:${port}`)
 console.log(`starten: Zuhause  ${ZUHAUSE}`)
 console.log(`starten: Academy  ${ACADEMY}`)
-console.log(`starten: Anbieter ${BASIS_URL}`)
-console.log(`starten: Schlüssel ${schluesselName ?? 'FEHLT — Modelle werden nicht laden'}`)
+console.log(`starten: Anbieter ${BASIS_URL} — nur über die Schutzschicht 127.0.0.1:${SCHUTZ_PORT}`)
+console.log(`starten: Schlüssel ${schluesselLesen() ? 'in der Schutzschicht' : 'FEHLT — Modelle werden nicht laden'}`)
 console.log('')
 
 if (gesperrteSchluessel.length > 0) {
@@ -297,16 +337,27 @@ console.log('  antwortet sie mit „401 Nicht autorisiert". Nimm deshalb die')
 console.log('  Adresse aus dem Fenster oder aus der Zeile „dsh web: …" unten.')
 console.log('')
 
-if (schluesselName === undefined) {
-  console.error('starten: In der .env des Harness steht kein OPENROUTER_API_KEY.')
-  console.error(`         Erwartet in: ${join(HARNESS, '.env')}`)
-  console.error('         Eintragen mit: WERKSTATT-EINRICHTEN.bat')
+if (schluesselName === undefined || !schluesselLesen()) {
+  console.error('starten: Es ist kein Anbieter-Schlüssel eingerichtet.')
+  console.error('         Er gehört in die Ebene der Schutzschicht (data\\werkstatt\\schutzschicht.env),')
+  console.error('         nicht zum Harness. Eintragen mit: WERKSTATT-EINRICHTEN.bat')
   process.exit(1)
 }
 
 // ── Läuft schon etwas auf diesem Port? ───────────────────────────────────────
 // Die Prüfung und ihre Begründung stehen bei `laufendePruefen` oben.
 await laufendePruefen(port)
+
+// Die Schutzschicht zuerst. Startet sie nicht, startet die Werkstatt nicht:
+// ohne Riegel kein Modellzugang (der Harness fände nur einen toten Port).
+let schutz
+try {
+  schutz = await schutzschichtStarten({ port: SCHUTZ_PORT, lernender: ticket?.lernender })
+} catch (fehler) {
+  console.error(`starten: Die Schutzschicht startet nicht (${fehler.code ?? fehler.message}).`)
+  console.error(`         Ist Port ${SCHUTZ_PORT} belegt? Dann läuft noch eine alte Werkstatt; in der Academy „Neu starten“.`)
+  process.exit(5)
+}
 
 // Der Harness wird aus dem Quelltext gestartet — genau wie der heutige Betrieb.
 //
@@ -334,4 +385,5 @@ const kind = spawn(
 
 kind.on('exit', (code) => {
   console.log(`\nstarten: beendet (${String(code)})`)
+  schutz.schliessen().finally(() => process.exit(code ?? 0))
 })

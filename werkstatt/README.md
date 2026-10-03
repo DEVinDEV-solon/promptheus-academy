@@ -60,11 +60,36 @@ teilen — und der zuletzt gestartete Harness würde die Modulverweise des ander
 **umschreiben**. `starten.mjs` setzt das Zuhause, `bauen.mjs` legt die Verweise
 dorthin. **Beide müssen denselben Ort nennen.**
 
-**2. Der Anbieter.** Der Schlüssel in der `.env` des Harness ist ein
-**OpenRouter**-Schlüssel. Ohne `DEEPSEEK_BASE_URL` fragt der Harness
-`api.deepseek.com` und bekommt **HTTP 401** — die Modellwahl bleibt dann leer
-und lässt sich nicht bedienen. `starten.mjs` setzt die Adresse und meldet
-Anbieter und Schlüssel beim Start an.
+**2. Der Anbieter — nur über die Schutzschicht (seit 03.10.2026).** Die
+Werkstatt spricht nie direkt mit OpenRouter. Beide Modellwege zeigen auf die
+**Schutzschicht** auf `127.0.0.1:3089` (`werkzeuge/schutz/`):
+`DEEPSEEK_BASE_URL` setzt `starten.mjs`, die `baseURL` des Anbieters
+`openrouter` steht im Profil. Den echten Schlüssel hält nur die Schutzschicht
+(`data\werkstatt\schutzschicht.env`); der Harness hat einen Platzhalter
+(`OPENROUTER_API_KEY=schutzschicht`). Ohne `DEEPSEEK_BASE_URL` fragte der
+Harness `api.deepseek.com` und bekäme **HTTP 401**.
+
+**2a. Was die Schutzschicht tut.** Jede Anfrage — Eingabe, Verlauf, Dateien,
+die der Agent selbst gelesen hat — wird maskiert (`maske.mjs`): bekannte
+Geheimwerte aus allen `.env`, Schlüssel nach Muster, Kontonamen (als
+Fingerabdrücke von der Academy, `schutz-namen.json`), harte PII-Regeln der
+Academy. Danach der **Torschluss**: Übersteht ein bekannter Wert, geht nichts
+hinaus (HTTP 451). Jede Anfrage landet ohne Inhalt im Audit-Trail der Academy
+(Einstellungen › Audit-Trail). Die Leiste über dem Eingabefeld
+(`schutzleiste.ts`) zeigt schon beim Tippen, was ersetzt wird, und hält vor dem
+Absenden an.
+
+**2b. Was bei jedem Start gerichtet wird** (`absichern.mjs`, auch beim
+Einrichten): Zugriffsstufe „Workspace schreiben“ mit Rückfrage statt
+Vollzugriff; die Academy ist kein Arbeitsordner (sonst dürfte der Agent ihren
+Code ändern); Skills nur aus `werkstatt\.dsh\agents`. **Startsperre:** Zeigt ein
+Modellweg nicht auf die Schutzschicht oder startet sie nicht, startet die
+Werkstatt nicht. Achtung: Die Sandbox unter Windows begrenzt nur das
+**Schreiben** — lesen kann der Agent überall. Deshalb ist die Schutzschicht der
+eigentliche Riegel.
+
+Prüfen: `node werkzeuge\schutz\schutz_pruefen.mjs` (nachgestellter Anbieter,
+nichts verlässt den Rechner) und `node werkzeuge\schutz\absichern_pruefen.mjs`.
 
 **3. Das Bündel.** Die PROMPTHEUS-Pakete liegen außerhalb des Harness-Workspace
 und werden mit esbuild gebaut, weil der Bau-Preset des Harness nur Pakete

@@ -63,6 +63,36 @@ export const HINTERGRUND_PFAD = '/promptheus-hintergrund.jpg'
  */
 export const GEMEINDE_PFAD = '/promptheus-community'
 
+/** Die Wege der Schutzleiste (client/schutzleiste.ts). */
+export const SCHUTZ_PFAD = '/promptheus-schutz'
+
+/** Die Schutzschicht — nur dieser Rechner; sonst die Vorgabe. */
+export function schutzAdresse(roh: string | undefined): string {
+  return typeof roh === 'string' && /^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(roh) ? roh : 'http://127.0.0.1:3089'
+}
+
+/** Reicht eine kleine POST-Anfrage an die Schutzschicht weiter. */
+function schutzWeiterreichen(req: any, res: any, ziel: string): void {
+  const antwort = (code: number, text: string) => {
+    res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store' })
+    res.end(text)
+  }
+  if (req.method !== 'POST') return antwort(405, '{"fehler":"nur POST"}')
+  // Nur die eigene Werkstatt-Seite. Sonst könnte eine fremde Seite auf diesem
+  // Rechner ausprobieren, ob ein Name zu einem Konto gehört ([PERSON]).
+  const site = String(req.headers?.['sec-fetch-site'] ?? '')
+  if (site !== 'same-origin') return antwort(403, '{"fehler":"nur von der Werkstatt-Seite"}')
+  const teile: Buffer[] = []
+  let laenge = 0
+  req.on('data', (c: Buffer) => { laenge += c.length; if (laenge <= 65536) teile.push(c) })
+  req.on('end', () => {
+    if (laenge > 65536) return antwort(413, '{"fehler":"zu gross"}')
+    fetch(ziel, { method: 'POST', headers: { 'content-type': 'application/json' }, body: Buffer.concat(teile) })
+      .then(async r => antwort(r.status, await r.text()))
+      .catch(() => antwort(503, '{"fehler":"Schutzschicht nicht erreichbar"}'))
+  })
+}
+
 /** Die Academy, wenn das Ticket keine Adresse trug: die Vorgabe der Startdatei. */
 export const ACADEMY_VORGABE = 'http://127.0.0.1:8801'
 
@@ -241,6 +271,19 @@ export function apply(ctx: any): void {
       res.end()
     },
   }), `promptheus: Community ${GEMEINDE_PFAD}`)
+
+  // ── Die Schutzleiste über dem Eingabefeld ──────────────────────────────────
+  // Der Client fragt hier, die Node-Hälfte reicht an die Schutzschicht auf
+  // 127.0.0.1 weiter (Adresse von werkzeuge/starten.mjs). Nur zwei feste Wege,
+  // nur POST, höchstens 64 KB; die Antwort enthält nur die maskierte Fassung.
+  const schutz = schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL)
+  for (const weg of ['pruefen', 'entscheidung']) {
+    ctx.effect(() => webServer.register({
+      kind: 'exact',
+      path: `${SCHUTZ_PFAD}/${weg}`,
+      handler: (req: any, res: any) => schutzWeiterreichen(req, res, `${schutz}/schutz/${weg}`),
+    }), `promptheus: Schutz ${weg}`)
+  }
 
   // ── Schutz gegen Übersetzungserweiterungen ─────────────────────────────────
   //
