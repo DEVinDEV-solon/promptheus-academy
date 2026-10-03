@@ -41,7 +41,12 @@
         approval: never
         name: Vollzugriff
         description: Vollzugriff
-    defaultPreset: danger-full-access
+    # Seit 03.10.2026: Vorgabe „Workspace schreiben“ mit Rückfrage, nicht
+    # Vollzugriff ohne Rückfrage. Die Werkstatt ist für Kinder und Jugendliche.
+    # Achtung: Die Sandbox unter Windows begrenzt nur das SCHREIBEN; lesen kann
+    # der Agent weiterhin überall. Deshalb gehen alle Modellanfragen über die
+    # Schutzschicht (werkzeuge/schutz/), die maskiert und protokolliert.
+    defaultPreset: workspace-write
 
 # ── Die Maske selbst ────────────────────────────────────────────────────────
 - insert:
@@ -85,6 +90,7 @@
   config:
     providers:
       openrouter:
+        baseURL: http://127.0.0.1:3089/v1
         apiKeyEnv: OPENROUTER_API_KEY
         models:
           - id: anthropic/claude-3-haiku

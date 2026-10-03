@@ -905,6 +905,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <script src="<?= pu_v('assets/js/urkunde.js') ?>"></script>
 <script src="<?= pu_v('assets/js/kursstand.js') ?>"></script>
 <script src="<?= pu_v('assets/js/werkstatt.js') ?>"></script>
+<script src="<?= pu_v('assets/js/audit.js') ?>"></script>
 <?php if ($darfTutor): ?>
   <script src="<?= pu_v('assets/js/tutor.js') ?>"></script>
   <script src="<?= pu_v('assets/js/tutorpanel.js') ?>"></script>

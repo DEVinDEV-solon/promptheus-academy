@@ -129,6 +129,12 @@ function einstZeichnen() {
   // etwas, das es nicht gibt.
   if (d.coder_stand && d.coder_stand.an) reiter.splice(5, 0, ['coder', 'Werkstatt-Coder']);
 
+  // Gleich hinter der Werkstatt (03.10.2026): was die Agenten getan haben und
+  // was an ein Sprachmodell ging. Jeder sieht das Eigene (audit.eigenes).
+  if (PU.darf('audit.eigenes')) {
+    reiter.splice(reiter.findIndex(r => r[0] === 'werkstatt') + 1, 0, ['audit', 'Audit-Trail']);
+  }
+
   // Reiter für die Verwaltung: jeder hängt an genau dem Recht, das die
   // Aktionen dahinter fordern. Was hier fehlt, gäbe hinterher 403.
   const tutorReiter = [
@@ -203,6 +209,7 @@ function inhaltZeichnen() {
     case 'urkunden':    PU.urkundenEinstZeichnen(ziel); break;
     case 'coder':       coderZeichnen(ziel);       break;
     case 'werkstatt':   werkstattZeichnen(ziel);   break;
+    case 'audit':       PU.auditZeichnen(ziel);    break;
     case 'sprache':     spracheZeichnen(ziel);     break;
     case 'profil':      profilZeichnen(ziel);      break;
     case 'ueber':       ueberZeichnen(ziel);       break;

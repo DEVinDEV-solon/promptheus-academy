@@ -438,6 +438,13 @@ function pu_protokoll(int $lernender, string $aktion, string $gegenstand, string
              VALUES (?, ?, ?, ?, ?)'
         );
         $st->execute([pu_jetzt(), $lernender ?: null, $aktion, $gegenstand, $notiz]);
+        // Derselbe Eintrag in den Audit-Trail (srv/audit.php): dort geschwärzt
+        // und hash-verkettet, damit niemand ihn später unbemerkt ändert.
+        if (function_exists('pu_audit')) {
+            pu_audit($lernender, $aktion . ($gegenstand !== '' ? '_' . $gegenstand : ''),
+                trim($aktion . ' ' . $gegenstand . ($notiz !== '' ? ' — ' . $notiz : '')),
+                ['metadata' => ['protokoll' => true]]);
+        }
     } catch (Throwable $e) {
         // Das Protokoll darf den Betrieb nicht anhalten. Es fällt aber auf:
         // die Fehlerdatei liegt daneben.

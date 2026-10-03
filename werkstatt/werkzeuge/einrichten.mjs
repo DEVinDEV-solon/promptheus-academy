@@ -25,6 +25,8 @@ import { appendFileSync, chmodSync, cpSync, existsSync, readFileSync } from 'nod
 import { dirname, join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
 import { fileURLToPath } from 'node:url'
+import { SCHUTZ_PORT } from './schutz/schutzschicht.mjs'
+import { arbeitsordnerBereinigen, profilAbsichern, profilPruefen, schluesselUmziehen } from './schutz/absichern.mjs'
 
 const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const ACADEMY = resolve(WURZEL, '..')
@@ -212,6 +214,28 @@ async function schluessel() {
 }
 
 // ── 6. Bauen ─────────────────────────────────────────────────────────────────
+/**
+ * Die Schutzschicht vorbereiten (werkzeuge/schutz/absichern.mjs) — dieselben
+ * Schritte wie bei jedem Start, hier schon beim Einrichten, damit eine neue
+ * Installation vom ersten Augenblick an geschützt ist: Zugriffsstufe mit
+ * Rückfrage, Anbieter über die Schutzschicht, Schlüssel in deren Ebene, die
+ * Academy kein Arbeitsordner.
+ */
+function absichern() {
+  const profil = join(WURZEL, '.dsh', 'profiles', 'promptheus', 'cordis.patch.yml')
+  for (const z of profilAbsichern(profil, SCHUTZ_PORT)) melde(`Profil: ${z}`)
+  const umzug = schluesselUmziehen(join(WURZEL, 'deepseek-harness', '.env'))
+  if (umzug.umgezogen) melde('Schlüssel in die Ebene der Schutzschicht umgezogen; der Harness behält einen Platzhalter.')
+  for (const t of arbeitsordnerBereinigen(join(WURZEL, '.dsh'))) melde(`Arbeitsordner „${t}“ entfernt (liegt in der Academy).`)
+  const befunde = profilPruefen(profil, SCHUTZ_PORT)
+  if (befunde.length > 0) {
+    for (const b of befunde) melde(`ACHTUNG: ${b}`)
+    melde('Die Werkstatt wird so nicht starten. Profil prüfen.')
+  } else {
+    melde(`Schutzschicht vorbereitet: alle Modellanfragen über 127.0.0.1:${SCHUTZ_PORT} ✓`)
+  }
+}
+
 function bauen() {
   melde('PROMPTHEUS-Pakete werden gebaut …')
   if (!lauf(process.execPath, [join(WURZEL, 'werkzeuge', 'bauen.mjs')], { shell: false })) {
@@ -232,6 +256,7 @@ abhaengigkeiten()
 profilAnlegen()
 await schluessel()
 bauen()
+absichern()
 console.log('')
 melde('fertig ✓')
 melde('Die Werkstatt öffnest du aus der Academy: Einstellungen → Werkstatt (frei ab Kurs 7).')

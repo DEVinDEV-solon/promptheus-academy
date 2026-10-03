@@ -207,6 +207,11 @@ secondbrain/90_Quellen/schulen/*.json
 # Der Harness ist ein eigenes Upstream-Repo und wird vom Installer geholt.
 werkstatt/.dsh/
 werkstatt/deepseek-harness/
+# Der persönliche Secondbrain je Konto (Plan 40_Werkstatt): Angaben von
+# Kindern und Jugendlichen. Nie ins Programm-Repo.
+werkstatt/secondbrain/
+# Sicherungen, die die Schutzschicht vor dem Umstellen anlegt.
+*.vor-schutzschicht
 
 # ── 11. Private Inhalte, aus Repo und Historie entfernt (30.09.2026)
 # Liegen nur lokal. Nicht wieder aufnehmen.

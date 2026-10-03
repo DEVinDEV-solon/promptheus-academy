@@ -38,6 +38,7 @@ import { hintergrundCss } from './hintergrund.ts'
 import { layerAus, Palettenwaehler, SCHICHT } from './farbkasten.ts'
 import { FarbkastenZeile } from './farbkasten-zeile.ts'
 import { BILDMARKE, MAEANDER } from './marke.ts'
+import { Schutzleiste } from './schutzleiste.ts'
 import { gespraech } from './woerter/gespraech.ts'
 import { ergebnisse } from './woerter/ergebnisse.ts'
 import { erweiterungen } from './woerter/erweiterungen.ts'
@@ -685,6 +686,15 @@ export function apply(ctx) {
     slots.register(
       { name: 'conversation.session.header.utilities', id: 'promptheus-community-kopf', order: 10 },
       GemeindeImKopf,
+    ))
+
+  // ── Schutzleiste über dem Eingabefeld (03.10.2026) ──────────────────────────
+  // Zeigt beim Tippen, was die Schutzschicht ersetzen würde, und hält vor dem
+  // Absenden an (schutzleiste.ts). Ganz oben im Dock: vor den Statistiken.
+  slots.inject('conversation.composer.dock', () =>
+    slots.register(
+      { name: 'conversation.composer.dock', id: 'promptheus-schutz', order: -10 },
+      Schutzleiste,
     ))
 }
 

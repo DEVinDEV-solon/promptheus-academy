@@ -7,6 +7,29 @@ var FAVICON_PFAD = "/favicon.svg";
 var FAVICON_DUNKEL_PFAD = "/favicon-dark.svg";
 var HINTERGRUND_PFAD = "/promptheus-hintergrund.jpg";
 var GEMEINDE_PFAD = "/promptheus-community";
+var SCHUTZ_PFAD = "/promptheus-schutz";
+function schutzAdresse(roh) {
+  return typeof roh === "string" && /^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(roh) ? roh : "http://127.0.0.1:3089";
+}
+function schutzWeiterreichen(req, res, ziel) {
+  const antwort = (code, text) => {
+    res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" });
+    res.end(text);
+  };
+  if (req.method !== "POST") return antwort(405, '{"fehler":"nur POST"}');
+  const site = String(req.headers?.["sec-fetch-site"] ?? "");
+  if (site !== "same-origin") return antwort(403, '{"fehler":"nur von der Werkstatt-Seite"}');
+  const teile = [];
+  let laenge = 0;
+  req.on("data", (c) => {
+    laenge += c.length;
+    if (laenge <= 65536) teile.push(c);
+  });
+  req.on("end", () => {
+    if (laenge > 65536) return antwort(413, '{"fehler":"zu gross"}');
+    fetch(ziel, { method: "POST", headers: { "content-type": "application/json" }, body: Buffer.concat(teile) }).then(async (r) => antwort(r.status, await r.text())).catch(() => antwort(503, '{"fehler":"Schutzschicht nicht erreichbar"}'));
+  });
+}
 var ACADEMY_VORGABE = "http://127.0.0.1:8801";
 var PALETTEN = ["schmiede", "pergament", "olymp", "marmor", "terrakotta", "funkenflug"];
 function academyAdresse(roh) {
@@ -75,6 +98,14 @@ function apply(ctx) {
       res.end();
     }
   }), `promptheus: Community ${GEMEINDE_PFAD}`);
+  const schutz = schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL);
+  for (const weg of ["pruefen", "entscheidung"]) {
+    ctx.effect(() => webServer.register({
+      kind: "exact",
+      path: `${SCHUTZ_PFAD}/${weg}`,
+      handler: (req, res) => schutzWeiterreichen(req, res, `${schutz}/schutz/${weg}`)
+    }), `promptheus: Schutz ${weg}`);
+  }
   ctx.effect(() => ctx.on("webserver/index-inject", (table) => {
     table.push({ kind: "script", placement: "head", text: UEBERSETZUNGS_SCHUTZ });
   }), "promptheus: Schutz gegen \xDCbersetzungserweiterungen");
@@ -134,9 +165,11 @@ export {
   GEMEINDE_PFAD,
   HINTERGRUND_PFAD,
   PRODUKT_TITEL,
+  SCHUTZ_PFAD,
   academyAdresse,
   apply,
   gemeindeZiel,
   inject,
-  name
+  name,
+  schutzAdresse
 };

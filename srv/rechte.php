@@ -183,6 +183,20 @@ const PU_RECHTE = [
      'was' => 'Datenschutz-, Widerrufs- und Protokoll-Einstellungen', 'nur_admin' => true,
      'aktionen' => []],
 
+    /* Audit-Trail (srv/audit.php): Jede Person sieht, was in ihrem Namen
+       geschah — auch, was die Werkstatt-Agenten getan haben (DSGVO Art. 15,
+       AI Act Art. 12/14). Den ganzen Trail sehen, die Kette prüfen und die
+       Werkstatt-Protokolle einlesen dürfen die Inhaber der Academy. */
+    ['name' => 'audit.eigenes', 'gruppe' => 'System & Dashboard',
+     'was' => 'Eigene Einträge im Audit-Trail sehen und exportieren',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     'aktionen' => ['audit_stand', 'audit_liste', 'audit_export']],
+
+    ['name' => 'audit.alles', 'gruppe' => 'System & Dashboard',
+     'was' => 'Den ganzen Audit-Trail sehen, die Kette prüfen, Werkstatt-Protokolle einlesen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
+     'aktionen' => ['audit_pruefen', 'audit_einlesen']],
+
     ['name' => 'login.einstellungen', 'gruppe' => 'System & Dashboard',
      'was' => 'Anmeldung und Erscheinungsbild der Academy', 'nur_admin' => true,
      'aktionen' => []],
