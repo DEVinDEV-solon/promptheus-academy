@@ -829,6 +829,73 @@ function Schutzleiste() {
   );
 }
 
+// pakete/dsh-client-ui-promptheus/src/client/ersteschritte.ts
+var MERKER = "promptheus.ersteSchritte.1";
+var PUNKTE = [
+  ["Hephaistos", "ist dein Werkstattleiter. Schreib ihm unten, was du bauen willst \u2014 ein Satz reicht f\xFCr den Anfang."],
+  ["R\xFCckfrage", "Bevor er etwas schreibt, verschiebt oder l\xF6scht, fragt er dich. Du entscheidest."],
+  ["Farben", "Unter \u201EEinstellungen\u201C \u203A \u201EAllgemein\u201C \u203A \u201EFarbkasten\u201C w\xE4hlst du eine von sechs Paletten: Schmiede, Pergament, Olymp, Marmor, Terrakotta, Funkenflug."],
+  ["Schutz", "Tippst du eine Telefonnummer, Mail-Adresse oder einen Namen, zeigt die Leiste \xFCber dem Eingabefeld, was durch einen Platzhalter ersetzt wird."],
+  ["Fragen", "Zur Werkstatt selbst \u2014 Zugang, Einstellungen, Community \u2014 fragst du Hephaistos."]
+];
+function gesehen() {
+  try {
+    return localStorage.getItem(MERKER) === "1";
+  } catch {
+    return false;
+  }
+}
+function merken() {
+  try {
+    localStorage.setItem(MERKER, "1");
+  } catch {
+  }
+}
+function ErsteSchritte() {
+  const React = require("react");
+  const [offen, setOffen] = React.useState(() => !gesehen());
+  if (!offen) return null;
+  const h = React.createElement;
+  return h(
+    "section",
+    {
+      "aria-label": "Erste Schritte in der Werkstatt",
+      style: {
+        margin: "0 0 8px",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        lineHeight: 1.5,
+        background: "var(--dsw-alias-bg-surface, rgba(20,14,10,.92))",
+        border: "1px solid var(--dsw-alias-border-default, rgba(255,255,255,.18))",
+        borderLeft: "3px solid var(--dsw-alias-text-accent, #ff7a1c)"
+      }
+    },
+    h("div", { style: { fontWeight: 600, marginBottom: "4px" } }, "Erste Schritte in der Werkstatt"),
+    h(
+      "ul",
+      { style: { margin: "0 0 8px", paddingLeft: "18px" } },
+      ...PUNKTE.map(([wort, satz]) => h("li", { key: wort }, h("b", null, wort), " ", satz))
+    ),
+    h("button", {
+      type: "button",
+      onClick: () => {
+        merken();
+        setOffen(false);
+      },
+      style: {
+        padding: "5px 12px",
+        borderRadius: "8px",
+        border: 0,
+        cursor: "pointer",
+        fontWeight: 600,
+        background: "var(--dsw-alias-text-accent, #ff7a1c)",
+        color: "var(--dsw-alias-bg-base, #14100c)"
+      }
+    }, "Verstanden")
+  );
+}
+
 // pakete/dsh-client-ui-promptheus/src/client/woerter/gespraech.ts
 var gespraech = {
   // ── Tastenkürzel und Hinweise ──────────────────────────────────────────────
@@ -3821,6 +3888,10 @@ function apply(ctx) {
   slots.inject("conversation.composer.dock", () => slots.register(
     { name: "conversation.composer.dock", id: "promptheus-schutz", order: -10 },
     Schutzleiste
+  ));
+  slots.inject("conversation.input.dock", () => slots.register(
+    { name: "conversation.input.dock", id: "promptheus-erste-schritte", order: -20 },
+    ErsteSchritte
   ));
 }
 var index_default = { apply, inject };

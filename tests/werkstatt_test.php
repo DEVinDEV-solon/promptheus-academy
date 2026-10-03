@@ -179,6 +179,57 @@ foreach (['http://boese.example:8801', 'http://127.0.0.1:8801/pfad', 'https://12
     pruefe('keine fremde Adresse: ' . addcslashes($fremd, "\r\n"), !isset(pu_werkstatt_ticket($chef, $fremd)['academy']));
 }
 
+// ================================================================ Zur Werkstatt
+gruppe('Adresse für „Zur Werkstatt“');
+
+// Ein erfundenes Token: Die Prüfung gilt der Form, nicht dem Wert.
+$probe = 'http://127.0.0.1:' . PU_WERKSTATT_PORT . '/?token=pu-test-' . bin2hex(random_bytes(8));
+$apfad = pu_werkstatt_adresse_pfad();
+gleich('liegt neben dem Ticket', dirname(pu_werkstatt_ticket_pfad()), dirname($apfad));
+$ablegen = function (array $j) use ($apfad): void { file_put_contents($apfad, json_encode($j)); };
+
+@unlink($apfad);
+gleich('Werkstatt aus: keine Adresse', ['adresse' => null, 'grund' => 'aus'], pu_werkstatt_adresse($chef, false));
+gleich('läuft, aber noch keine Datei', 'fehlt', pu_werkstatt_adresse($chef, true)['grund']);
+$ablegen(['adresse' => $probe, 'lernender' => $chef, 'port' => PU_WERKSTATT_PORT]);
+gleich('eigenes Konto: Adresse', ['adresse' => $probe, 'grund' => 'ok'], pu_werkstatt_adresse($chef, true));
+gleich('anderes Konto: nichts', ['adresse' => null, 'grund' => 'fremd'], pu_werkstatt_adresse($schueler, true));
+gleich('läuft nicht mehr: nichts, auch mit Datei', 'aus', pu_werkstatt_adresse($chef, false)['grund']);
+$ablegen(['adresse' => $probe, 'lernender' => null]);
+gleich('Start ohne Ticket gehört niemandem', 'fremd', pu_werkstatt_adresse($chef, true)['grund']);
+$ablegen(['adresse' => $probe, 'lernender' => (string)$chef]);
+gleich('Konto als Text zählt nicht', 'fremd', pu_werkstatt_adresse($chef, true)['grund']);
+foreach (['http://127.0.0.1:3082/?token=x', 'http://localhost:' . PU_WERKSTATT_PORT . '/?token=x',
+          'http://boese.example:' . PU_WERKSTATT_PORT . '/', 'javascript:alert(1)',
+          $probe . ' x', $probe . "\n", 'http://127.0.0.1:' . PU_WERKSTATT_PORT . '/' . str_repeat('a', 2100)] as $falsch) {
+    $ablegen(['adresse' => $falsch, 'lernender' => $chef]);
+    gleich('falsche Form abgelehnt: ' . addcslashes(substr($falsch, 0, 40), "\r\n"), 'ungueltig', pu_werkstatt_adresse($chef, true)['grund']);
+}
+file_put_contents($apfad, '{kein json');
+gleich('kaputte Datei: ungültig', 'ungueltig', pu_werkstatt_adresse($chef, true)['grund']);
+
+// Dieselbe Datei, wie starten.mjs sie schreibt (werkzeuge/adresse.mjs).
+@unlink($apfad);
+$modul = 'file:///' . str_replace('\\', '/', realpath(__DIR__ . '/../werkstatt/werkzeuge/adresse.mjs'));
+$js = 'const m = await import(process.argv[1]);'
+    . 'const a = m.adresseAusZeile("dsh web: " + process.argv[2], ' . PU_WERKSTATT_PORT . ');'
+    . 'm.adresseSchreiben(a, { lernender: Number(process.argv[3]), port: ' . PU_WERKSTATT_PORT . ' }, process.argv[4]);';
+$h = proc_open(['node', '--input-type=module', '-e', $js, $modul, $probe, (string)$chef, $apfad],
+    [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $rohr);
+if (is_resource($h)) {
+    stream_get_contents($rohr[1]); $fehlerText = stream_get_contents($rohr[2]);
+    fclose($rohr[1]); fclose($rohr[2]);
+    $rc = proc_close($h);
+    if ($rc === 0) {
+        gleich('Node schreibt, PHP liest: dieselbe Adresse', ['adresse' => $probe, 'grund' => 'ok'], pu_werkstatt_adresse($chef, true));
+    } else {
+        pruefe('Node schreibt die Datei', false, trim((string)$fehlerText));
+    }
+} else {
+    pruefe('node nicht gefunden — Gegenprobe übersprungen', true);
+}
+@unlink($apfad);
+
 // ================================================================ Neu starten
 gruppe('Werkstatt beenden (für den Neustart)');
 

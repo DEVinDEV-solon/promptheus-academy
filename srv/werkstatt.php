@@ -212,11 +212,50 @@ function pu_werkstatt_erster_start(): bool
     return true;
 }
 
+/** Wo `werkstatt/werkzeuge/adresse.mjs` die Adresse ablegt (neben dem Ticket). */
+function pu_werkstatt_adresse_pfad(): string
+{
+    return dirname(pu_werkstatt_ticket_pfad()) . '/adresse.json';
+}
+
+/**
+ * Die Adresse der laufenden Werkstatt mit Zugangstoken — nur für das Konto,
+ * das sie gestartet hat (Ticket → starten.mjs → adresse.json).
+ *
+ * Die Adresse ist ein Geheimnis: Wer sie hat, ist in der Werkstatt. Deshalb
+ * gibt es sie nur, wenn die Werkstatt wirklich läuft, die Datei zum Port passt
+ * und das Konto stimmt. Ein Start ohne Ticket (`--betreiber`) gehört niemandem.
+ * Geprüft wird die Form, nicht der Inhalt des Tokens.
+ *
+ * @param ?bool $laeuft Stand des Ports, falls schon bekannt (Tests).
+ * @return array{adresse:?string, grund:string}  grund: ok, aus (läuft nicht),
+ *         fehlt (noch keine Adresse, etwa kurz nach dem Start), fremd (ein
+ *         anderes Konto hat gestartet), ungueltig
+ */
+function pu_werkstatt_adresse(int $lernender, ?bool $laeuft = null): array
+{
+    $laeuft ??= pu_werkstatt_laeuft();
+    if (!$laeuft) return ['adresse' => null, 'grund' => 'aus'];
+
+    $pfad = pu_werkstatt_adresse_pfad();
+    $roh  = is_file($pfad) ? @file_get_contents($pfad, false, null, 0, 8192) : false;
+    if (!is_string($roh) || $roh === '') return ['adresse' => null, 'grund' => 'fehlt'];
+
+    $j = json_decode($roh, true);
+    $a = is_array($j) ? ($j['adresse'] ?? null) : null;
+    $muster = '#^http://127\.0\.0\.1:' . PU_WERKSTATT_PORT . '/[\x21-\x7e]{0,2000}\z#';
+    if (!is_string($a) || !preg_match($muster, $a)) return ['adresse' => null, 'grund' => 'ungueltig'];
+    if (($j['lernender'] ?? null) !== $lernender) return ['adresse' => null, 'grund' => 'fremd'];
+    return ['adresse' => $a, 'grund' => 'ok'];
+}
+
 /**
  * Startet die Werkstatt im eigenen Fenster (Windows) bzw. im Hintergrund.
  *
  * Der Harness öffnet danach selbst den Browser — mit seinem Zugangstoken in
- * der Adresse. Diese Adresse kennt nur er; die Academy öffnet deshalb nichts.
+ * der Adresse. `starten.mjs` legt diese Adresse zusätzlich für die Academy ab
+ * (pu_werkstatt_adresse), damit der Knopf „Zur Werkstatt“ sie wieder öffnen
+ * kann, wenn das Fenster weg ist.
  *
  * **Windows: ohne geerbte Handles.** Ein Kind von `popen`/`proc_open` erbt
  * alle vererbbaren Handles dieses PHP-Servers, auch den lauschenden Socket
@@ -308,6 +347,8 @@ PS;
     while (microtime(true) < $bis) {
         $s = @fsockopen('127.0.0.1', $port, $nr, $txt, 0.3);
         if ($s === false) {
+            // Hart beendet: starten.mjs räumt seine Adresse dann nicht mehr selbst weg.
+            @unlink(pu_werkstatt_adresse_pfad());
             return ['ok' => true, 'beendet' => true];
         }
         fclose($s);
