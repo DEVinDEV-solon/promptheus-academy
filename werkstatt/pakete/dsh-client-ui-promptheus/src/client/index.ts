@@ -40,7 +40,7 @@ import { hintergrundCss } from './hintergrund.ts'
 import { Bildstaerke } from './bildstaerke.ts'
 import { layerAus, Palettenwaehler, SCHICHT } from './farbkasten.ts'
 import { FarbkastenZeile } from './farbkasten-zeile.ts'
-import { BILDMARKE, MAEANDER } from './marke.ts'
+import { BILDMARKE } from './marke.ts'
 import { Schutzleiste } from './schutzleiste.ts'
 import { ErsteSchritte } from './ersteschritte.ts'
 import { gespraech } from './woerter/gespraech.ts'
@@ -112,12 +112,8 @@ export const inject = ['slots']
 /** Die Farben der Marke, die auch außerhalb des Themas gebraucht werden. */
 const GLUT = '#ff7a1c'
 const GLUT_HELL = '#ffa347'
-const GOLD = '#ffc94d'
 const SERIFE = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif'
 const SANS = '"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif'
-
-/** Der Mäander als CSS-Maske, einmal gesetzt. */
-const MAEANDER_MASKE = `url("data:image/svg+xml;utf8,${encodeURIComponent(MAEANDER)}")`
 
 /**
  * Die Höhe der Markenzeile — die eine Zahl, an der alles hängt.
@@ -178,9 +174,8 @@ function Marke(eigenschaften) {
  * hätte eigene Maße gebraucht und wäre bei jeder Änderung der Zeilenhöhe
  * auseinandergelaufen.
  *
- * Darunter sitzt der Mäander als 2-px-Kante: das EINE Ornament dieser Fläche
- * (BRAND.md §5). Er liegt auf einem eigenen Element, nicht über Text, und
- * färbt sich aus dem Gold-Token.
+ * Unter dem Zusatz sass bis 04.10.2026 der Mäander als 2-px-Kante. Er ist auf
+ * Wunsch entfernt: unter dem gesperrten Wort las er sich als Unterstrich.
  * @returns der Schriftzug.
  */
 function Wortmarke() {
@@ -189,22 +184,20 @@ function Wortmarke() {
   //
   // Der Harness gibt der Markenzeile genau **24 px** Höhe
   // (`SidebarRoot.module.css`: `.brandIdentity { height: 24px }`) und schneidet
-  // Überstand ab (`.logoRow { overflow: hidden }`). Für Marke, Name, Zusatz und
-  // Ornament stehen also zusammen 24 px zur Verfügung — und die Bildmarke daneben
-  // sitzt auf derselben Grundlinie.
+  // Überstand ab (`.logoRow { overflow: hidden }`). Für Name und Zusatz stehen
+  // also zusammen 24 px zur Verfügung — und die Bildmarke daneben sitzt auf
+  // derselben Grundlinie.
   //
-  // Drei Fassungen, damit die Rechnung nachvollziehbar bleibt:
+  // Fassungen, damit die Rechnung nachvollziehbar bleibt:
   //   1. 16,3 (1.02rem) + 8,8 (.55rem) + 6 (3+3) = 31,1 px  → abgeschnitten
   //   2. 12,2 (0.76rem) + 6,7 (.42rem) + 4 (2+2) = 22,9 px  → zu klein geraten
-  //   3. 13,1 (0.82rem) + 8,0 (.50rem) + 2 (2+0) = 23,1 px  → diese Fassung
-  //
-  // Fassung 3 erfüllt beide Wünsche: der Titel ist wieder größer als in 2, und
-  // der Zusatz ist um ein Punkt (1,333 px) gewachsen — von 6,7 auf 8,0 px.
-  //
-  // Der Mäander sitzt ohne Abstand direkt unter dem Zusatz (`marginTop: 0`).
-  // Das ist der Grund, warum die Vergrößerung überhaupt hineinpasst: die zwei
-  // Pixel Zwischenraum waren nicht nötig, weil die Kante auf der Grundlinie
-  // liegt.
+  //   3. 13,1 (0.82rem) + 8,0 (.50rem) + 2 (Mäander) = 23,1 px
+  //   4. 04.10.2026: beide je +2 pt (2,67 px), Mäander entfernt:
+  //      15,8 (0.99rem) + 10,7 (.67rem) = 26,6 px bei Zeilenhöhe 1 → zu hoch.
+  //      Beide Zeilen sind nur Großbuchstaben (der Zusatz über
+  //      `textTransform`), es gibt also keine Unterlängen. Mit Zeilenhöhe .86
+  //      sind es 13,6 + 9,2 = 22,8 px, und die Versalien bleiben ganz im Kasten.
+  //      → diese Fassung
   //
   // Wer hier etwas vergrößert, muss diese Rechnung neu machen.
   return React.createElement(
@@ -212,11 +205,11 @@ function Wortmarke() {
     { style: { display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 } },
     React.createElement(
       'span',
-      { style: { display: 'inline-flex', flexDirection: 'column', lineHeight: 1, whiteSpace: 'nowrap' } },
+      { style: { display: 'inline-flex', flexDirection: 'column', lineHeight: 0.86, whiteSpace: 'nowrap' } },
       React.createElement('span', {
         style: {
           fontFamily: SERIFE,
-          fontSize: '0.82rem',
+          fontSize: '0.99rem',
           fontWeight: 600,
           letterSpacing: '.05em',
           color: 'inherit',
@@ -225,10 +218,10 @@ function Wortmarke() {
       React.createElement('span', {
         style: {
           fontFamily: SANS,
-          fontSize: '.50rem',
+          fontSize: '.67rem',
           fontWeight: 500,
           // Der gewünschte Zeichenabstand: „- W E R K S T A T T -".
-          // .34em bei .50rem ≈ 2,7 px zwischen den Zeichen — sichtbar gesperrt,
+          // .34em bei .67rem ≈ 3,6 px zwischen den Zeichen — sichtbar gesperrt,
           // aber noch lesbar als Wort. (.22em waren zu eng dafür.)
           letterSpacing: '.34em',
           textTransform: 'uppercase',
@@ -237,18 +230,6 @@ function Wortmarke() {
         },
       }, '- Werkstatt -'),
     ),
-    React.createElement('span', {
-      'aria-hidden': 'true',
-      style: {
-        display: 'block',
-        height: '2px',
-        marginTop: '0',
-        background: GOLD,
-        opacity: '.5',
-        WebkitMask: `${MAEANDER_MASKE} repeat-x left center / 32px 32px`,
-        mask: `${MAEANDER_MASKE} repeat-x left center / 32px 32px`,
-      },
-    }),
   )
 }
 

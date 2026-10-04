@@ -734,7 +734,6 @@ var BILDMARKE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" rol
   </g>
   <path d="M32 14C32 14 21 26 21 37a11 11 0 0 0 22 0C43 30 36.5 27.5 36.5 21c0 0-4 4-4 9.5 0 0-4-4-4-10.5 0 0 3.5-6 3.5-6z" fill="url(#pu-flamme)"/>
 </svg>`;
-var MAEANDER = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"><path d="M0 28 H32"/><path d="M6 28 V6 H26 V22 H12 V16 H20"/></g></svg>`;
 
 // pakete/dsh-client-ui-promptheus/src/client/schutzleiste.ts
 var ART = {
@@ -3648,10 +3647,8 @@ function gemeindeKlick(ereignis) {
 var inject = ["slots"];
 var GLUT = "#ff7a1c";
 var GLUT_HELL = "#ffa347";
-var GOLD = "#ffc94d";
 var SERIFE2 = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
 var SANS2 = '"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif';
-var MAEANDER_MASKE = `url("data:image/svg+xml;utf8,${encodeURIComponent(MAEANDER)}")`;
 var ZEILENHOEHE = 13.1 + 8 + 2;
 function Marke(eigenschaften) {
   const React = require("react");
@@ -3677,11 +3674,11 @@ function Wortmarke() {
     { style: { display: "inline-flex", flexDirection: "column", justifyContent: "center", minWidth: 0 } },
     React.createElement(
       "span",
-      { style: { display: "inline-flex", flexDirection: "column", lineHeight: 1, whiteSpace: "nowrap" } },
+      { style: { display: "inline-flex", flexDirection: "column", lineHeight: 0.86, whiteSpace: "nowrap" } },
       React.createElement("span", {
         style: {
           fontFamily: SERIFE2,
-          fontSize: "0.82rem",
+          fontSize: "0.99rem",
           fontWeight: 600,
           letterSpacing: ".05em",
           color: "inherit"
@@ -3690,10 +3687,10 @@ function Wortmarke() {
       React.createElement("span", {
         style: {
           fontFamily: SANS2,
-          fontSize: ".50rem",
+          fontSize: ".67rem",
           fontWeight: 500,
           // Der gewünschte Zeichenabstand: „- W E R K S T A T T -".
-          // .34em bei .50rem ≈ 2,7 px zwischen den Zeichen — sichtbar gesperrt,
+          // .34em bei .67rem ≈ 3,6 px zwischen den Zeichen — sichtbar gesperrt,
           // aber noch lesbar als Wort. (.22em waren zu eng dafür.)
           letterSpacing: ".34em",
           textTransform: "uppercase",
@@ -3701,19 +3698,7 @@ function Wortmarke() {
           opacity: ".6"
         }
       }, "- Werkstatt -")
-    ),
-    React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        display: "block",
-        height: "2px",
-        marginTop: "0",
-        background: GOLD,
-        opacity: ".5",
-        WebkitMask: `${MAEANDER_MASKE} repeat-x left center / 32px 32px`,
-        mask: `${MAEANDER_MASKE} repeat-x left center / 32px 32px`
-      }
-    })
+    )
   );
 }
 function Gemeindeknopf(eigenschaften) {
