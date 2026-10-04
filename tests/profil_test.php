@@ -33,7 +33,10 @@ gruppe('Profilfelder setzen');
 
 $id = pu_lernenden_anlegen('kind', 'Marie Musterfrau', 'probe1234', 'schueler');
 
-gleich('Pseudonym wird gesetzt', 'Funkenflug', pu_profil_setzen($id, 'pseudonym', 'Funkenflug'));
+// Seit 04.10.2026: Unter 18 nur aus dem Baukasten, dazu die feste Kennung.
+$voll = pu_profil_setzen($id, 'pseudonym', 'Funkenfalke');
+pruefe('Pseudonym wird gesetzt (Baukasten + Kennung)', (bool)preg_match('/^Funkenfalke_[23456789BCDFGHJKMNPQRSTVWXZ]{5}$/', $voll), $voll);
+wirft('frei ausgedacht geht unter 18 nicht', fn() => pu_profil_setzen($id, 'pseudonym', 'Funkenflug'), 'Baukasten');
 // Das Pseudonym ist das Synonym der Gemeinde: kein echter Name (Runde 3b, E15).
 wirft('ein Vorname ist kein Pseudonym', fn() => pu_profil_setzen($id, 'pseudonym', 'Nele'), 'echter Name');
 wirft('der eigene Name auch nicht', fn() => pu_profil_setzen($id, 'pseudonym', 'Musterfrau'), 'echter Name');
@@ -41,7 +44,7 @@ gleich('Alter wird gesetzt',     '11',   pu_profil_setzen($id, 'lebensalter', '1
 gleich('Klasse wird gesetzt',    '6a',   pu_profil_setzen($id, 'gruppe', '6a'));
 
 $p = pu_profil($id);
-gleich('…und kommt so zurück', 'Funkenflug', $p['pseudonym']);
+gleich('…und kommt so zurück', $voll, $p['pseudonym']);
 gleich('Alter als Zahl',        11,     $p['lebensalter']);
 
 // Ohne Pseudonym tritt man unter dem Anzeigenamen auf — das ist eine
@@ -152,7 +155,8 @@ gleich('nichts bekannt → mittelstufe', 'mittelstufe', pu_altersband(prof('schu
 gruppe('Der Block für das Modell');
 
 $block = pu_profil_block(pu_profil($id));
-pruefe('nennt das Pseudonym',        str_contains($block, 'Funkenflug'));
+pruefe('nennt das Pseudonym',        str_contains($block, 'Anrede: **Funkenfalke**'));
+pruefe('nennt NICHT die Pseudonym-Kennung', !str_contains($block, $voll));
 pruefe('nennt Alter und Klasse',     str_contains($block, '11 Jahre') && str_contains($block, '6a'));
 pruefe('trägt die Sprachregel',      str_contains($block, 'Kurze Sätze'));
 pruefe('nennt NICHT den Klarnamen',  !str_contains($block, 'Musterfrau'));

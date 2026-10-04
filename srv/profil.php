@@ -25,6 +25,8 @@ declare(strict_types=1);
 const PU_PROFIL_FELDER = [
     // Das Pseudonym ist zugleich das Synonym in der Gemeinde (E15): ausgedacht,
     // kein Klarname, keine persönlichen Angaben — geprüft in pu_profil_setzen.
+    // Seit 04.10.2026 in fester Form `<Namensteil>_<Kennung>` (srv/pseudonym.php):
+    // gesetzt wird nur der Namensteil, die Kennung bleibt je Konto fest.
     'pseudonym'   => ['art' => 'text', 'max' => 24,
                       'was' => 'Dein Synonym: so heisst du in der Academy und in der Community (kein echter Name)'],
     'lebensalter' => ['art' => 'zahl', 'min' => 0, 'max' => 120,
@@ -89,6 +91,12 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
     $f = PU_PROFIL_FELDER[$feld];
     $wert = trim($wert);
 
+    // Das Pseudonym hat eigene Regeln: Baukasten unter 18, Kennung, 30-Tage-Frist.
+    if ($feld === 'pseudonym') {
+        require_once PU_ROOT . '/srv/pseudonym.php';
+        return pu_pseudo_setzen($id, $wert);
+    }
+
     if ($f['art'] === 'zahl') {
         if ($wert !== '' && !preg_match('/^\d{1,3}$/', $wert)) {
             throw new RuntimeException($feld . ' muss eine Zahl sein.');
@@ -110,17 +118,6 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
         }
         // Zeilenumbrüche nur in der Notiz — alles andere ist eine Zeile.
         if ($feld !== 'notiz') $wert = preg_replace('/\s+/u', ' ', $wert) ?? $wert;
-        // Das Synonym: dieselben Regeln wie auf dem Server, dazu der eigene
-        // Name und die Kennung, die nur hier bekannt sind.
-        if ($feld === 'pseudonym' && $wert !== '') {
-            require_once PU_ROOT . '/srv/gemeinde.php';
-            $st = pu_db()->prepare('SELECT anzeigename, kennung FROM lernende WHERE id = ?');
-            $st->execute([$id]);
-            $fehler = pu_synonym_fehler($wert, $st->fetch() ?: null);
-            if ($fehler !== null) {
-                throw new RuntimeException(pu_gem_grund_text($fehler));
-            }
-        }
     }
 
     $st = pu_db()->prepare("UPDATE lernende SET $feld = ? WHERE id = ?");
@@ -371,7 +368,9 @@ function pu_profil_block(array $profil): string
      * Kontos still weiter. Behoben wird er dort, wo er entsteht — `name_aendern`
      * in api.php legt es ab. Danach greift der Rückfall in `pu_profil()`, und
      * angesprochen wird mit dem Namen aus den Einstellungen. */
-    $z = ['## Mit wem du sprichst', '', 'Anrede: **' . $profil['pseudonym'] . '** — ' . $wer . '.'];
+    // Angesprochen wird nur mit dem Namensteil („Goldfänger"), ohne Kennung.
+    require_once PU_ROOT . '/srv/pseudonym.php';
+    $z = ['## Mit wem du sprichst', '', 'Anrede: **' . pu_pseudo_anrede($profil['pseudonym']) . '** — ' . $wer . '.'];
 
     if ($profil['lebensalter'] > 0) $z[] = 'Alter: ' . $profil['lebensalter'] . ' Jahre.';
     if ($profil['gruppe'] !== '')   $z[] = 'Klasse/Gruppe: ' . $profil['gruppe'] . '.';

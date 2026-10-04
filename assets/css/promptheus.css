@@ -2745,3 +2745,50 @@ body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
   .audit-felder { grid-template-columns: 1fr; }
   .audit-balken li { grid-template-columns: 6rem 1fr 2.5rem; }
 }
+
+/* ---------------------------------------------------------------- Name in der Academy
+   assets/js/pseudonym.js — Pflicht beim ersten Anmelden, sonst aus Einstellungen › Profil. */
+.ps-flaeche { max-width: 640px; }
+.ps { display: flex; flex-direction: column; gap: .9rem; }
+.ps-satz { margin: 0; line-height: 1.55; color: var(--schrift); }
+.ps-weg {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.6rem; list-style: none; margin: 0; padding: 0;
+}
+.ps-weg li {
+  position: relative; display: flex; flex-direction: column; padding: .45rem .8rem;
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein); background: var(--grund-2);
+}
+.ps-weg li + li::before {
+  content: '→'; position: absolute; left: -1.25rem; top: 50%; transform: translateY(-50%);
+  color: var(--gold);
+}
+.ps-weg b { font-family: var(--serif); color: var(--schrift); }
+.ps-weg span { font-size: .8rem; color: var(--schrift-2); }
+.ps-wahl {
+  border: 1px solid var(--rand); border-radius: var(--radius); padding: .8rem 1rem 1rem; margin: 0;
+  display: flex; flex-direction: column; gap: .7rem;
+}
+.ps-wahl legend { padding: 0 .3rem; font-weight: 600; color: var(--schrift); }
+.ps-vorschlaege { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ps-wuerfel {
+  font: inherit; font-family: var(--serif); font-size: 1.05rem; cursor: pointer;
+  padding: .55rem .9rem; border-radius: var(--radius-klein);
+  border: 1px solid var(--rand-hell); background: var(--grund-3); color: var(--schrift);
+}
+.ps-wuerfel:hover { border-color: var(--glut); }
+.ps-wuerfel[aria-pressed="true"] { border: 2px solid var(--glut); color: var(--glut-hell); }
+.ps-wuerfeln { align-self: flex-start; }
+.ps-eigen { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; color: var(--schrift-2); }
+.ps-eigen input { max-width: 18rem; }
+.ps-vorschau { margin: 0; font-size: 1.05rem; color: var(--schrift); }
+.ps-vorschau b { font-family: var(--serif); font-size: 1.25rem; color: var(--gold); }
+.ps-k { font-family: var(--mono); font-size: .85em; color: var(--schrift-3); }
+.ps-kennung, .ps-frist { margin: 0; font-size: .86rem; line-height: 1.5; color: var(--schrift-2); }
+.ps-ok { display: flex; gap: .5rem; align-items: flex-start; font-size: .9rem; color: var(--schrift); }
+.ps-ok input { margin-top: .2rem; }
+.ps-fuss { display: flex; justify-content: flex-end; }
+.ps-zeige b { font-family: var(--serif); }
+@media (max-width: 520px) {
+  .ps-weg { flex-direction: column; row-gap: 1.3rem; }
+  .ps-weg li + li::before { content: '↓'; left: 1rem; top: -1.15rem; transform: none; }
+}

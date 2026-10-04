@@ -215,6 +215,8 @@ $ohneWache = ['anmelden', 'einrichten', 'urkunde_pruefen', 'zustand', 'abmelden'
               'kennwort_aendern', 'name_aendern', 'einst_lesen', 'einst_setzen',
               'urkunde_html', 'abschluss_html', 'abschluss_gedruckt', 'profil_lesen', 'profil_setzen', 'sprache_stand',
               'rolle_zurueck',
+              // Der Name in der Academy: das eigene Konto, und Pflicht für jedes.
+              'pseudonym_stand', 'pseudonym_wuerfeln', 'pseudonym_setzen',
               // Rollen & Rechte zum Nachlesen: für jeden Angemeldeten, nur lesen.
               'rollen_erklaert',
               'werkstatt_oeffnen',

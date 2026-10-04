@@ -59,7 +59,7 @@ $vps = sodium_crypto_sign_keypair();
 $vps_pk = base64_encode(sodium_crypto_sign_publickey($vps));
 
 $ich = pu_lernenden_anlegen('nele', 'Nele Beispiel', 'geheim1234', 'schueler');
-pu_profil_setzen($ich, 'pseudonym', 'Funke');
+pu_profil_setzen($ich, 'pseudonym', 'Funkenfalke');
 
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Vor der Registrierung');
@@ -124,7 +124,7 @@ gleich('Konto als Pseudonym', 'L-' . $ich, $rumpf['nutzlast']['konto']);
 gleich('Systemtext und Frage als zwei Nachrichten', ['system', 'user'],
     array_column($rumpf['nutzlast']['nachrichten'], 'rolle'));
 pruefe('die Frage steht drin', str_contains($rumpf['nutzlast']['nachrichten'][1]['text'], 'Was ist ein Token?'));
-pruefe('angeredet wird mit dem Pseudonym', str_contains($rumpf['nutzlast']['nachrichten'][0]['text'], 'Funke'));
+pruefe('angeredet wird mit dem Pseudonym', str_contains($rumpf['nutzlast']['nachrichten'][0]['text'], 'Funkenfalke'));
 pruefe('der Klarname geht nicht mit', !str_contains($GLOBALS['rufe'][0]['rumpf'], 'Nele Beispiel'));
 pruefe('die Kennung geht nicht mit', !preg_match('/\bnele\b/', $GLOBALS['rufe'][0]['rumpf']));
 pruefe('kein Modell vorgegeben (der Tarif entscheidet)', !isset($rumpf['nutzlast']['modell']));

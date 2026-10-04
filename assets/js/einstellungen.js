@@ -2272,11 +2272,32 @@ function profilMalen(rahmen, j) {
     }
   };
 
-  // -------- Pseudonym
-  profilZeile(rahmen, 'Pseudonym', p.pseudonym,
-    'So sprechen dich die Tutoren an. Für Minderjährige ist das der Name, der die Academy ' +
-    'verlässt — der Klarname bleibt in der Klassenliste.',
-    (w, el) => speichern('pseudonym', w, el), 24);
+  // -------- Name in der Academy (Pseudonym, assets/js/pseudonym.js)
+  // Kein freies Feld mehr: gewählt wird im eigenen Fenster, mit Baukasten,
+  // Kennung und der 30-Tage-Frist (srv/pseudonym.php).
+  const ps = j.pseudonym_stand || {};
+  const psZeile = PU.el('div', 'einst-zeile');
+  psZeile.innerHTML = '<div class="titel">Name in der Academy</div>';
+  const psGruppe = PU.el('div', 'einst-gruppe');
+  psGruppe.appendChild(PU.el('span', 'ps-zeige',
+    ps.teil ? '<b>' + PU.h(ps.teil) + '</b><span class="ps-k">_' + PU.h(ps.kennung || '') + '</span>'
+            : 'noch nicht gewählt'));
+  const psKnopf = PU.el('button', 'knopf still', ps.teil ? 'Ändern' : 'Wählen');
+  psKnopf.type = 'button';
+  if (ps.aenderbar_ab) {
+    psKnopf.disabled = true;
+    psGruppe.appendChild(psKnopf);
+    psGruppe.appendChild(PU.el('span', 'klein', 'wieder ab ' +
+      PU.h(new Date(ps.aenderbar_ab).toLocaleDateString('de-DE'))));
+  } else {
+    psKnopf.addEventListener('click', () => PU.pseudonymFenster(false));
+    psGruppe.appendChild(psKnopf);
+  }
+  psZeile.appendChild(psGruppe);
+  psZeile.appendChild(PU.el('p', 'warum',
+    'So sprechen dich die Tutoren und Hephaistos an, und so heisst du in der Community. ' +
+    'Dein echter Name bleibt in der Klassenliste. Ändern geht nur alle ' + (ps.sperrtage || 30) + ' Tage.'));
+  rahmen.appendChild(psZeile);
 
   // -------- Alter
   const alterZeile = PU.el('div', 'einst-zeile');
