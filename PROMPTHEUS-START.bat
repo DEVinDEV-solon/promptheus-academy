@@ -157,7 +157,22 @@ rem   einfach weiter (srv\kursmedien_cli.php endet immer mit 0).
 if exist "srv\kursmedien_cli.php" "%RUN%" -r "require 'srv/kursmedien_cli.php';"
 
 rem --- Port freimachen (alten/defekten Server beenden) -----------
-powershell.exe -NoProfile -Command "$x=Get-NetTCPConnection -LocalPort %PORT% -State Listen -ErrorAction SilentlyContinue; if($x){$x.OwningProcess | Select -Unique | ForEach-Object { Stop-Process -Id $_ -Force } }" >nul 2>&1
+rem   Nur einen Server AUS DIESEM ORDNER beenden. Bis 1.0.1 wurde alles
+rem   beendet, was auf dem Port lauschte - so hat am 04.10.2026 ein Testordner
+rem   mit falscher Startdatei die eigentliche Academy auf 8801 abgeschossen.
+powershell.exe -NoProfile -Command "$d='%~dp0'; $x=Get-NetTCPConnection -LocalPort %PORT% -State Listen -ErrorAction SilentlyContinue; foreach($p in ($x.OwningProcess | Select-Object -Unique)){ $c=(Get-CimInstance Win32_Process -Filter ('ProcessId='+$p)).CommandLine; if($c -and $c.ToLower().Contains($d.ToLower())){ Stop-Process -Id $p -Force; Start-Sleep -Milliseconds 600 } }" >nul 2>&1
+
+rem --- Lauscht dort noch jemand? Dann ist es eine ANDERE Academy -----
+powershell.exe -NoProfile -Command "if(Get-NetTCPConnection -LocalPort %PORT% -State Listen -ErrorAction SilentlyContinue){exit 1}else{exit 0}" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo   Auf Port %PORT% laeuft schon eine andere Academy ^(aus einem anderen Ordner^).
+    echo   Diese hier startet deshalb nicht. Fuer einen zweiten Ordner eine Zeile
+    echo   PU_PORT=8802 in dessen Einstellungsdatei .env eintragen und neu starten.
+    echo.
+    pause
+    exit /b 1
+)
 
 rem --- Datenordner ----------------------------------------------
 if not exist "data\logs" mkdir "data\logs" >nul 2>&1
