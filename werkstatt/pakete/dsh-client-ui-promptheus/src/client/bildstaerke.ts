@@ -10,10 +10,11 @@
  *     Über 18 % geht es nicht — dort fällt der Zweittext durch die eigene
  *     Kontrastregel (BRAND.md §1). Wer mehr Bild will, bekommt weniger Lesbarkeit,
  *     und das bieten wir nicht an.
- *   * **Vorgabe 10 %** (schlechtester Zweittext-Kontrast 6,01:1) statt 18 %.
+ *   * **Vorgabe 7 %** (schlechtester Zweittext-Kontrast rund 6,6:1) statt 18 %.
+ *     Zuerst 10 %, am 04.10.2026 auf Wunsch auf 7 % gesenkt.
  *
  * Wirkung: zwei CSS-Variablen auf `<html>` (`--promptheus-bildstaerke`, z. B.
- * `0.1`, und `--promptheus-schleier`, z. B. `90%`). Das Stylesheet aus
+ * `0.07`, und `--promptheus-schleier`, z. B. `93%`). Das Stylesheet aus
  * `hintergrund.ts` liest nur diese Variablen; der Regler ändert also kein
  * Stylesheet, nur zwei Werte.
  *
@@ -29,8 +30,8 @@ export const BILD_SPEICHER = 'promptheus.bildstaerke.v1'
 /** Höchstwert in Prozent: darüber hält der Zweittext 4,5:1 nicht mehr. */
 export const BILD_HOECHST = 18
 
-/** Vorgabe in Prozent: Zweittext im schlechtesten Fall 6,01:1. */
-export const BILD_VORGABE = 10
+/** Vorgabe in Prozent: Zweittext im schlechtesten Fall rund 6,6:1. */
+export const BILD_VORGABE = 7
 
 /** Die Texte des Reglers (BRAND.md §8: deutsch, Duzform, kein Ausrufezeichen). */
 export const BILD_TEXTE = {

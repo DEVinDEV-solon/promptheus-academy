@@ -58,6 +58,7 @@ export const BILD_PFAD = '/promptheus-hintergrund.jpg'
  * am stärksten aufhellt (weiss) — für jede Stärke:
  *
  *     Bildstärke   schlechtester Zweittext-Kontrast
+ *         7 %      6,6:1    ← Vorgabe des Reglers
  *        10 %      6,01:1
  *        15 %      5,08:1
  *        18 %      4,57:1   ← hält die Schwelle 4,5:1
@@ -77,7 +78,7 @@ export const BILD_PFAD = '/promptheus-hintergrund.jpg'
  * Browser nach.
  *
  * **Seit 04.10.2026 einstellbar** (Regler im Farbkasten, `bildstaerke.ts`):
- * 0 bis 18 %, Vorgabe 10 %. Über unruhigen Bildstellen war 18 % im Alltag zu
+ * 0 bis 18 %, Vorgabe 7 %. Über unruhigen Bildstellen war 18 % im Alltag zu
  * viel. Hier steht nur noch die Vorgabe für das Stylesheet; der Regler setzt
  * die Variablen auf `<html>` und gewinnt damit.
  */
