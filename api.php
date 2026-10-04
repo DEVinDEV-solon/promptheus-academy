@@ -245,7 +245,9 @@ try {
                     'frei' => $k7 !== null && (pu_kurs_frei($ichId, $k7) || pu_recht_hat('lektionen.manage')),
                     'pfad' => $k7['pfad'] ?? '',
                 ],
-                'werkstatt' => $w,
+                // Der Ordner nur hier für die Anzeige, nicht im Stand (siehe
+                // pu_werkstatt_ordner_anzeige).
+                'werkstatt' => $w + ['ordner' => pu_werkstatt_ordner_anzeige()],
                 // Ohne Registrierung oder Abo zeigt das Fenster das Werbe-Modal (C1).
                 'zugang' => pu_gem_zugang($ichId, true),
             ]);
@@ -900,7 +902,8 @@ try {
 
             /* Die Werkstatt (eigene Anwendung, Port 3081): frei ab Kurs 7,
                Admins sofort. Auch gesperrt sichtbar — mit dem Stand in %. */
-            $aus['werkstatt_stand'] = pu_werkstatt_stand($ichId);
+            $aus['werkstatt_stand'] = pu_werkstatt_stand($ichId)
+                                    + ['ordner' => pu_werkstatt_ordner_anzeige()];
 
             /* Die Stimmen des festen Stimm-Modells — für jeden, weil jeder
                unter „Sprache & Stimme" seine eigene wählen darf. */
@@ -1070,6 +1073,23 @@ try {
         // Neu starten, wenn das Browserfenster der Werkstatt weg ist: Ihre
         // Adresse trägt ein Zugangstoken, das nur der Harness kennt — ohne
         // Neustart kommt man nicht mehr hinein. Dieselben Prüfungen wie oben.
+        /* Den Werkstatt-Ordner im Explorer zeigen, damit die Einrichtung am
+           richtigen Ort startet. Nur wer die Werkstatt frei hat; ohne Abo
+           auch, denn Einrichten schadet nicht und dauert ein paar Minuten. */
+        case 'werkstatt_ordner': {
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            pu_recht_fordern('dashboard.view');
+            if (!pu_werkstatt_stand($ichId)['frei']) pu_fehler('Die Werkstatt ist erst mit dem 7. Kurs frei.', 403);
+            $o = pu_werkstatt_ordner_oeffnen();
+            if (!$o['ok']) pu_fehler(match ($o['grund']) {
+                'nicht_windows' => 'Den Ordner kann die Academy nur unter Windows öffnen. Er liegt hier: ' . $o['ordner'],
+                'fehlt'         => 'Den Werkstatt-Ordner gibt es in dieser Academy nicht: ' . $o['ordner'],
+                default         => 'Der Explorer liess sich nicht öffnen. Der Ordner liegt hier: ' . $o['ordner'],
+            }, 409);
+            pu_protokoll($ichId, 'werkstatt', 'ordner', 'Explorer');
+            pu_json_out(['ok' => true, 'ordner' => $o['ordner']]);
+        }
+
         case 'werkstatt_oeffnen':
         case 'werkstatt_neustarten': {
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);

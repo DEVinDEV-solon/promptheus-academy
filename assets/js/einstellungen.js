@@ -1445,10 +1445,31 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
   if (!w.frei) return;
 
   if (!w.eingerichtet) {
-    const h = PU.el('p', 'merkzettel');
-    h.innerHTML = '<b>Noch nicht eingerichtet.</b> Auf diesem Rechner einmal ' +
-      '<code>werkstatt\\WERKSTATT-EINRICHTEN.bat</code> ausführen (braucht Node.js 22.19+ und Git). ' +
-      'Danach hier öffnen.';
+    /* Der volle Pfad dieser Academy, nicht nur „werkstatt\…“: Am 04.10.2026
+       lief die Datei aus dem Download-Ordner und fand ihr Werkzeug nicht. */
+    const bat = (w.ordner ? w.ordner + '\\' : 'werkstatt\\') + 'WERKSTATT-EINRICHTEN.bat';
+    const h = PU.el('div', 'merkzettel werkstatt-einrichten');
+    h.innerHTML = '<p><b>Noch nicht eingerichtet.</b> Auf diesem Rechner einmal diese Datei ' +
+      'starten (braucht Node.js 22.19+ und Git):</p>' +
+      '<p><code class="werkstatt-pfad">' + PU.h(bat) + '</code></p>' +
+      '<p class="klein">Nur aus diesem Ordner. Eine Kopie an anderer Stelle, etwa im ' +
+      'Download-Ordner, findet ihre Werkzeuge nicht. Danach hier öffnen.</p>';
+    const reihe = PU.el('p', 'werkstatt-knoepfe');
+    const oeffnen = PU.el('button', 'knopf', 'Ordner öffnen');
+    oeffnen.type = 'button';
+    oeffnen.title = 'Zeigt den Werkstatt-Ordner im Explorer. Dort WERKSTATT-EINRICHTEN.bat doppelt anklicken.';
+    oeffnen.addEventListener('click', async () => {
+      oeffnen.disabled = true;
+      try {
+        await PU.ruf('werkstatt_ordner');
+        PU.fensterInfo('Der Ordner ist im Explorer offen. Dort WERKSTATT-EINRICHTEN.bat ' +
+          'doppelt anklicken und warten, bis das Fenster „fertig“ meldet.', 'gut');
+      } catch (e) {
+        PU.fensterInfo(e.message, 'schlecht');
+      } finally { oeffnen.disabled = false; }
+    });
+    reihe.appendChild(oeffnen);
+    h.appendChild(reihe);
     ziel.appendChild(h);
     return;
   }
@@ -2662,10 +2683,6 @@ function wartungZeichnen(ziel) {
   [['punkte_neu', 'Punkte neu rechnen'],
    ['badges_neu', 'Abzeichen nachprüfen'],
    ['stoff',      'Lehrstoff prüfen'],
-   // Für Konten, die umbenannt wurden, bevor das Umbenennen das Pseudonym
-   // ablegte. Ein Knopf und kein Automatismus: Wer sich sein Pseudonym selbst
-   // ausgesucht hat, soll es nicht bei einer Wartung verlieren.
-   ['pseudonyme', 'Pseudonyme ablegen'],
    ['protokoll',  'Protokoll zeigen']
   ].forEach(w => {
     const k = PU.el('button', 'knopf still', w[1]);

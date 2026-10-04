@@ -214,6 +214,17 @@ pruefe('entpackt und geprüft unter <fassung>/neu', is_file($tmp . '/akt/9.1.0/n
 pruefe('die Paketadresse kam aus der eigenen Einstellung, nicht aus dem Feed',
        str_starts_with(end($gesendet)[0], PU_AKT_URL_VORGABE . 'paket.php?f=9.1.0'));
 
+// Ein gespeichertes Angebot, das der Server inzwischen zurückgezogen hat:
+// Laden fragt erst frisch nach und versucht kein Paket, das es nicht mehr gibt.
+$feed_jetzt = feed($sk, [eintrag('9.1.0', hash('sha256', $inhalt), 100, '0.0.0', false, strlen($inhalt))]);
+pu_akt_pruefen(true);
+$feed_jetzt = feed($sk, []);
+$anzahl = count($gesendet);
+$l = pu_akt_laden();
+pruefe('zurückgezogene Fassung: nicht geladen', !$l['ok'] && str_contains($l['meldung'], 'keine neuere'), $l['meldung']);
+gleich('… nur die frische Nachfrage, kein Paketruf', 1, count($gesendet) - $anzahl);
+pruefe('… und das alte Angebot ist weg', pu_akt_stand()['angebot'] === null);
+
 // Ein Paket, das signiert ist, aber einen Ausbruch enthält: das Entpacken hält.
 $boese = paket($tmp . '/b.zip', '9.2.0', ['index.php' => 'x', '../ausbruch.php' => 'x']);
 $e = pu_akt_entpacken($boese, $tmp . '/akt/probe', '9.2.0', '1.0.0');
