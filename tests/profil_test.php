@@ -217,6 +217,8 @@ foreach (['schueler', 'eltern', 'lehrer', 'verwaltung'] as $e) {
     pruefe("Für $e liegt Kontext bereit", pu_ebenen_kontext($e) !== '');
 }
 pruefe('Eine erfundene Ebene liefert nichts', pu_ebenen_kontext('hausmeister') === '');
+pruefe('admin hat keinen Kontext (interne Unterlagen gehen nicht ans Modell)', pu_ebenen_kontext('admin') === '');
+pruefe('der persönliche Ordner user geht nie als Ebenen-Kontext hinaus', pu_ebenen_kontext('user') === '');
 
 $lang = pu_ebenen_kontext('schueler', 200);
 pruefe('die Grenze wird eingehalten', mb_strlen($lang) <= 260, mb_strlen($lang) . ' Zeichen');

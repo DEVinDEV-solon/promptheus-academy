@@ -9,7 +9,6 @@ Hier steht, **in welcher Welt** die Menschen stehen, die diese Academy benutzen.
 
 | Ordner | Ebene im Programm | Wer das ist |
 |---|---|---|
-| `admin` | `admin` | Betrieb der Plattform |
 | `schule` | `verwaltung` | Schulleitung, Direktorat |
 | `lehrer` | `lehrer` | Unterrichtende |
 | `eltern` | `eltern` | Erziehungsberechtigte |
@@ -20,6 +19,12 @@ Hier steht, **in welcher Welt** die Menschen stehen, die diese Academy benutzen.
 Weil es sich ändert, ohne dass jemand programmieren können muss. Eine Schule, an der anders gesprochen wird, ändert eine Textdatei in diesem Ordner — und die Tutoren reden anders. Kein Neustart, kein Code.
 
 Gelesen wird das von `pu_ebenen_kontext()` in `srv/profil.php`.
+
+Die Ebene `admin` hat bewusst **keinen** Ordner: interne Unterlagen des Betriebs gehören nicht in einen Text, der an ein Sprachmodell geht. Sie liegen im privaten Plan-Ordner.
+
+## Der Ordner `user`
+
+`user\` ist keine Zugangsebene, sondern der Platz für den **persönlichen** Kontext. Er wird im 7. Kurs und im Onboarding-Interview gefüllt, liegt nicht im Repo und geht nicht als Ebenen-Kontext an die Tutoren. Mehr in `user\_index.md`.
 
 ## Was hineingehört
 
