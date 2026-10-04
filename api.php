@@ -250,6 +250,21 @@ try {
             ]);
         }
 
+        /* Die Adresse der laufenden Werkstatt mit Zugangstoken, für den Knopf
+           „Zur Werkstatt“ — nur an das Konto, das sie gestartet hat
+           (pu_werkstatt_adresse). Dieselben Bedingungen wie beim Öffnen.
+           Protokolliert wird, dass sie abgeholt wurde, nie die Adresse. */
+        case 'werkstatt_adresse': {
+            pu_recht_fordern('dashboard.view');
+            $st = pu_werkstatt_stand($ichId);
+            if (!$st['frei']) pu_fehler('Die Werkstatt ist erst mit dem 7. Kurs frei.', 403);
+            $zu = pu_gem_zugang($ichId, true);
+            if (!$zu['ok'])   pu_fehler(pu_gem_grund_text($zu['grund']) . ' Die Werkstatt gehört zum Abo.', 403);
+            $a = pu_werkstatt_adresse($ichId, $st['laeuft']);
+            if ($a['adresse'] !== null) pu_protokoll($ichId, 'werkstatt', 'adresse', 'Zur Werkstatt');
+            pu_json_out(['ok' => true] + $a);
+        }
+
         case 'kurs': {
             pu_recht_fordern('dashboard.view');
             $k = pu_kurs((string)d('pfad'));

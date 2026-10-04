@@ -1201,6 +1201,13 @@ body.mit-persona #knopf-persona {
   .start-glut::after, .start-schritte li.laeuft::before, .start-schritte li { animation: none; }
   .start-glut::after { left: 0; width: 100%; opacity: .5; }
 }
+/* Nach dem Start: wo die Farben gewählt werden, und der Weg in die Werkstatt. */
+.start-farben {
+  margin: 0 0 1rem; padding: .6rem .8rem; text-align: left; font-size: .88rem; line-height: 1.5;
+  color: var(--schrift-2); background: var(--grund-3); border-radius: var(--radius-klein);
+}
+.start-farben b { color: var(--schrift); }
+a.knopf.werkstatt-link { display: inline-block; margin: 0 .5rem .5rem 0; text-decoration: none; }
 
 /* ------------------------------------------------------ Das Schild beim Stopp
    Es steht in einem gewöhnlichen Modalfenster (PU.tokenSchild in app.js) und

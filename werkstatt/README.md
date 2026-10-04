@@ -20,6 +20,16 @@ Logo von PROMPTHEUS ACADEMY, bedienbar auf Deutsch.
 
 Danach ist die Werkstatt unter **http://127.0.0.1:3081** erreichbar.
 
+**Zur Werkstatt (seit 03.10.2026).** Hinein kommt nur, wer die Adresse mit
+Zugangstoken hat. `starten.mjs` liest sie aus der Startzeile `dsh web: …` mit
+(`werkzeuge/adresse.mjs`; die Ausgabe geht unverändert ins Fenster) und legt
+sie in `data\werkstatt\adresse.json` ab — mit dem Konto aus dem Ticket. Die
+Academy gibt sie nur diesem Konto heraus (`werkstatt_adresse`): In der
+Startkarte und im Werkstatt-Fenster steht dann „Zur Werkstatt“, auch wenn das
+Browserfenster weg ist. Die Datei wird vor jedem Start und beim Beenden
+gelöscht. Beim ersten Öffnen zeigt die Werkstatt über dem Eingabefeld die Karte
+„Erste Schritte“ (`ersteschritte.ts`). Prüfen: `node werkzeuge\adresse_pruefen.mjs`.
+
 Entwicklung ohne Academy (Warnung im Fenster):
 
 ```powershell

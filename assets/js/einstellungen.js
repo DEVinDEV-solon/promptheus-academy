@@ -1454,7 +1454,7 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
   }
 
   const reihe = PU.el('p', 'werkstatt-knoepfe');
-  const knopf = PU.el('button', 'knopf', w.laeuft ? 'Werkstatt läuft — Fenster suchen' : 'Werkstatt öffnen');
+  const knopf = PU.el('button', 'knopf', w.laeuft ? 'Zur Werkstatt' : 'Werkstatt öffnen');
   knopf.type = 'button';
 
   /* Neu starten: Das Browserfenster der Werkstatt trägt ein Zugangstoken, das
@@ -1474,7 +1474,7 @@ function werkstattZeichnen(ziel, frisch, knopfOrt) {
       const r = await werkstattStartBegleiten(neustart);
       if (r && (r.laeuft || r.gestartet)) {
         neu.hidden = false;
-        knopf.textContent = 'Werkstatt läuft — Fenster suchen';
+        knopf.textContent = 'Zur Werkstatt';
       }
     } finally {
       sperren(false);
@@ -1504,6 +1504,47 @@ const WERKSTATT_SCHRITTE = {
 };
 
 const werkstattPause = (ms) => new Promise((ok) => setTimeout(ok, ms));
+
+/* Wo man in der Werkstatt die Farben wählt (Paket dsh-client-ui-promptheus,
+   farbkasten-zeile.ts und paletten.ts). */
+const WERKSTATT_FARBEN = '<b>Deine Farben:</b> In der Werkstatt unter „Einstellungen“ › „Allgemein“ › ' +
+  '„Farbkasten“ wählst du eine von sechs Paletten — Schmiede, Pergament, Olymp, Marmor, Terrakotta, Funkenflug.';
+
+/* Holt die Adresse der Werkstatt mit Zugangstoken. Der Server gibt sie nur dem
+   Konto, das gestartet hat (api.php, werkstatt_adresse). Kurz nach dem Start
+   steht sie noch nicht bereit: Der Harness nennt sie erst, wenn alles geladen
+   ist — dann wird bis `wartenMs` nachgefragt. */
+async function werkstattAdresse(wartenMs) {
+  const bis = Date.now() + (wartenMs || 0);
+  for (;;) {
+    let r;
+    try { r = await PU.ruf('werkstatt_adresse'); } catch (e) { return { adresse: null, grund: 'fehler' }; }
+    if (r.adresse || r.grund !== 'fehlt' || Date.now() >= bis) return r;
+    await werkstattPause(1500);
+  }
+}
+
+/* Der Knopf „Zur Werkstatt“: ein Link in ein neues Fenster. Das neue Fenster
+   bekommt keinen Zugriff auf dieses und keine Herkunftsangabe. */
+function werkstattLink(adresse) {
+  const a = PU.el('a', 'knopf werkstatt-link', 'Zur Werkstatt');
+  a.href = adresse;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  return a;
+}
+
+/* Farbhinweis und Link in die Karte, vor ihren Schliessknopf. Mit Link ist der
+   Link der Hauptknopf und „Verstanden“ tritt zurück. */
+function werkstattKarteErgaenzen(info, adresse) {
+  if (!info || !info.offen()) return;
+  const farben = PU.el('p', 'start-farben');
+  farben.innerHTML = WERKSTATT_FARBEN;
+  info.karte.insertBefore(farben, info.knopf);
+  if (!adresse) return;
+  info.karte.insertBefore(werkstattLink(adresse), info.knopf);
+  info.knopf.classList.add('still');
+}
 
 /**
  * Startet (oder startet neu) und begleitet den Start im offenen Fenster.
@@ -1549,9 +1590,16 @@ async function werkstattStartBegleiten(neustart) {
   }
 
   if (r.laeuft) {
-    const t = 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
-              'Ist es weg, hilft „Neu starten“.';
+    const a = await werkstattAdresse(0);
+    const t = a.adresse
+      ? '<b>Die Werkstatt läuft bereits.</b> „Zur Werkstatt“ öffnet sie in einem neuen Fenster.'
+      : a.grund === 'fremd'
+        ? '<b>Die Werkstatt läuft</b>, aber ein anderes Konto hat sie gestartet. ' +
+          'Mit „Neu starten“ öffnest du deine eigene; was dort läuft, bricht dann ab.'
+        : 'Die Werkstatt läuft bereits. Nimm das Browserfenster, das sie geöffnet hat. ' +
+          'Ist es weg, hilft „Neu starten“.';
     abschliessen(t, 'gut');
+    werkstattKarteErgaenzen(info, a.adresse);
     return r;
   }
   if (!info) {
@@ -1599,9 +1647,14 @@ async function werkstattStartBegleiten(neustart) {
   }
 
   if (bereit) {
-    abschliessen('<b>Die Werkstatt ist bereit.</b> Sieh in deinem Browser nach: Sie öffnet sich ' +
-                 'in einem neuen Fenster, manchmal hinter diesem hier. Ist keins zu sehen, ' +
-                 'hilft „Neu starten“.', 'gut', true);
+    // Die Adresse kommt kurz nach dem Port: Der Harness nennt sie, wenn alles geladen ist.
+    const a = await werkstattAdresse(20000);
+    if (!info.offen()) return r;
+    abschliessen('<b>Die Werkstatt ist bereit.</b> Sie öffnet sich in einem neuen Browserfenster, ' +
+                 'manchmal hinter diesem hier. ' +
+                 (a.adresse ? 'Ist keins zu sehen, nimm „Zur Werkstatt“.' : 'Ist keins zu sehen, hilft „Neu starten“.'),
+                 'gut', true);
+    werkstattKarteErgaenzen(info, a.adresse);
   } else {
     abschliessen('<b>Die Werkstatt braucht länger als sonst.</b> In der Taskleiste steht ihr ' +
                  'Konsolenfenster „Werkstatt“; dort steht, woran es hängt.', 'warnung');
