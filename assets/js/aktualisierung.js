@@ -122,7 +122,8 @@ window.PU = window.PU || {};
     schleier.className = 'akt-schleier';
     schleier.setAttribute('role', 'alert');
     schleier.innerHTML = '<div><b>Die Academy startet neu.</b><p>Die Programmdateien werden getauscht. ' +
-      'Das dauert meist unter einer Minute. Bitte das schwarze Fenster nicht schliessen.</p></div>';
+      'Das dauert meist unter einer Minute. Bitte das Fenster „PROMPTHEUS“ in der Taskleiste ' +
+      '(die Eingabeaufforderung, in der die Academy läuft) nicht schliessen.</p></div>';
     document.body.appendChild(schleier);
     const bis = Date.now() + 180000;
     const versuch = async () => {
@@ -133,7 +134,8 @@ window.PU = window.PU || {};
       } catch (e) { /* Server noch weg */ }
       if (Date.now() < bis) setTimeout(versuch, 1500);
       else schleier.querySelector('p').textContent =
-        'Der Server antwortet noch nicht. Bitte im schwarzen Fenster nachsehen und die Seite dann neu laden.';
+        'Der Server antwortet noch nicht. Sieh im Fenster „PROMPTHEUS“ in der Taskleiste nach, ' +
+        'was dort steht, und lade die Seite dann neu.';
     };
     setTimeout(versuch, 2500);
   }
@@ -155,6 +157,9 @@ window.PU = window.PU || {};
 
   /* ------------------------------------------------------------ Wartung */
   let wartungZiel = null;
+  // Das Ergebnis der letzten Suche per Knopf. Es bleibt sichtbar, auch wenn
+  // der Abschnitt danach neu gezeichnet wird (eine Meldung allein verfliegt).
+  let letzteSuche = null;
 
   function wartungNeu() { if (wartungZiel && wartungZiel.isConnected) PU.aktWartung(wartungZiel, true); }
 
@@ -202,11 +207,16 @@ window.PU = window.PU || {};
       });
       reihe.appendChild(k);
     };
-    knopf('Jetzt nach Updates suchen', true, async () => {
+    // Der Sofort-Weg steht vorn und ist ein Hauptknopf: Niemand soll auf die
+    // automatische Prüfung warten müssen.
+    knopf('Jetzt nach Updates suchen', false, async () => {
       await holen('update_suchen');
-      PU.melden(stand && stand.angebot ? 'Neue Fassung ' + PU.h(stand.angebot.fassung) + ' gefunden.'
-                                       : (stand && stand.fehler ? PU.h(stand.fehler) : 'Keine neuere Fassung.'),
-                stand && stand.angebot ? 'gold' : '');
+      const text = stand && stand.angebot ? 'Neue Fassung ' + stand.angebot.fassung + ' gefunden.'
+                 : (stand && stand.fehler ? stand.fehler : 'Keine neuere Fassung.');
+      letzteSuche = { zeit: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                      text: text, gut: !!(stand && stand.angebot), fehler: !!(stand && stand.fehler) };
+      wartungNeu();
+      PU.melden(PU.h(text), stand && stand.angebot ? 'gold' : '');
     });
     if (a && s.bereit !== a.fassung) knopf('Laden und prüfen', true, async () => {
       const j = await PU.ruf('update_laden');
@@ -222,6 +232,11 @@ window.PU = window.PU || {};
       await neustarten('update_zurueck');
     });
     ziel.appendChild(reihe);
+    if (letzteSuche) {
+      ziel.appendChild(PU.el('p', 'akt-suche' + (letzteSuche.fehler ? ' fehler' : ''),
+        PU.h(letzteSuche.zeit) + ' · ' + (letzteSuche.gut ? '<b>' + PU.h(letzteSuche.text) + '</b>'
+                                                         : PU.h(letzteSuche.text))));
+    }
 
     if (!s.neustart) {
       ziel.appendChild(PU.el('p', 'hinweis', 'Diese Academy wurde nicht über PROMPTHEUS-START.bat gestartet. ' +

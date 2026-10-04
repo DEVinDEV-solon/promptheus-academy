@@ -298,6 +298,9 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
   background: var(--grund-2); border: 1px solid var(--gold); border-radius: var(--radius);
 }
 .akt-schleier b { font-family: var(--serif); font-size: 1.2rem; }
+/* Ergebnis der Suche per Knopf (Einstellungen › Wartung), bleibt stehen. */
+.akt-suche { margin: .4rem 0 0; font-size: .9rem; color: var(--schrift-2); }
+.akt-suche b { color: var(--gold); }
 .akt-wartung { margin-top: 1.6rem; }
 .akt-stunden { width: 5rem; display: inline-block; }
 
