@@ -96,27 +96,106 @@ html[lang="en"] span:has(> [data-slot="conversation.hero.brand.mark"]) + span::b
 `.trim();
 }
 
+// pakete/dsh-client-ui-promptheus/src/client/bildstaerke.ts
+var BILD_SPEICHER = "promptheus.bildstaerke.v1";
+var BILD_HOECHST = 18;
+var BILD_VORGABE = 10;
+var BILD_TEXTE = {
+  titel: "Hintergrundbild",
+  erklaerung: `Weniger Bild heisst ruhigere Schrift. Bei 0 % siehst du nur den Grundton; mehr als ${BILD_HOECHST} % l\xE4sst die Schrift nicht mehr sicher lesbar.`,
+  wert: (p) => p === 0 ? "aus" : `${p} %`
+};
+function bildBereinigen(wert) {
+  const n = typeof wert === "number" ? wert : Number.parseInt(String(wert ?? ""), 10);
+  if (!Number.isFinite(n)) return BILD_VORGABE;
+  return Math.min(BILD_HOECHST, Math.max(0, Math.round(n)));
+}
+function bildWerte(prozent) {
+  const p = bildBereinigen(prozent);
+  return { staerke: String(p / 100), schleier: `${100 - p}%` };
+}
+function lesen() {
+  if (typeof localStorage === "undefined") return BILD_VORGABE;
+  try {
+    const roh = localStorage.getItem(BILD_SPEICHER);
+    return roh === null ? BILD_VORGABE : bildBereinigen(roh);
+  } catch {
+    return BILD_VORGABE;
+  }
+}
+function schreiben(prozent) {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(BILD_SPEICHER, String(prozent));
+  } catch {
+  }
+}
+var Bildstaerke = class {
+  prozent;
+  zuhoerer = /* @__PURE__ */ new Set();
+  constructor() {
+    this.prozent = lesen();
+  }
+  getSnapshot() {
+    return this.prozent;
+  }
+  subscribe(zuhoerer) {
+    this.zuhoerer.add(zuhoerer);
+    return () => {
+      this.zuhoerer.delete(zuhoerer);
+    };
+  }
+  /** Trägt den Wert in die Seite ein. Beim Start einmal zu rufen. */
+  anwenden() {
+    if (typeof document === "undefined") return;
+    const { staerke, schleier } = bildWerte(this.prozent);
+    const wurzel = document.documentElement.style;
+    wurzel.setProperty("--promptheus-bildstaerke", staerke);
+    wurzel.setProperty("--promptheus-schleier", schleier);
+  }
+  /** Nimmt die eingetragenen Werte wieder heraus (beim Abräumen des Pakets). */
+  entfernen() {
+    if (typeof document === "undefined") return;
+    const wurzel = document.documentElement.style;
+    wurzel.removeProperty("--promptheus-bildstaerke");
+    wurzel.removeProperty("--promptheus-schleier");
+  }
+  /**
+   * Setzt einen neuen Wert (vom Regler).
+   * @returns der bereinigte Wert.
+   */
+  setzen(wert) {
+    const p = bildBereinigen(wert);
+    if (p === this.prozent) return p;
+    this.prozent = p;
+    schreiben(p);
+    this.anwenden();
+    for (const z of this.zuhoerer) z();
+    return p;
+  }
+};
+
 // pakete/dsh-client-ui-promptheus/src/client/hintergrund.ts
 var BILD_PFAD = "/promptheus-hintergrund.jpg";
-var BILDSTAERKE = 0.18;
+var BILDSTAERKE = BILD_VORGABE / 100;
 function hintergrundCss() {
-  const schleier = 1 - BILDSTAERKE;
-  const deckkraft = Math.round(schleier * 100);
+  const { staerke, schleier } = bildWerte(BILD_VORGABE);
   return `
 /* PROMPTHEUS Werkstatt \u2014 Hintergrundbild der Chatseite.
    Erzeugt von pakete/dsh-client-ui-promptheus/src/client/hintergrund.ts.
-   Nicht von Hand \xE4ndern: die Bildst\xE4rke steht dort als Zahl. */
+   Die Bildst\xE4rke stellt der Regler im Farbkasten ein (bildstaerke.ts). */
 :root {
   /* Als Marke ver\xF6ffentlicht, damit Pr\xFCfwerkzeuge dieselbe Zahl lesen statt
      eine eigene zu f\xFChren. Zwei Zahlen an zwei Orten laufen auseinander. */
-  --promptheus-bildstaerke: ${BILDSTAERKE};
+  --promptheus-bildstaerke: ${staerke};
+  --promptheus-schleier: ${schleier};
 }
 
 [data-slot="main"] [data-slot="main.conversation"] > * {
   background-image:
     linear-gradient(
-      color-mix(in srgb, var(--dsw-alias-bg-base) ${deckkraft}%, transparent),
-      color-mix(in srgb, var(--dsw-alias-bg-base) ${deckkraft}%, transparent)
+      color-mix(in srgb, var(--dsw-alias-bg-base) var(--promptheus-schleier), transparent),
+      color-mix(in srgb, var(--dsw-alias-bg-base) var(--promptheus-schleier), transparent)
     ),
     url("${BILD_PFAD}");
   background-size: cover, cover;
@@ -336,7 +415,7 @@ function wirksam(kennung, ton) {
   if (gewaehlt === void 0) return PALETTEN_VORGABE;
   return gewaehlt.grundton === ton ? gewaehlt.kennung : gewaehlt.partner;
 }
-function lesen() {
+function lesen2() {
   if (typeof localStorage === "undefined") return PALETTEN_VORGABE;
   try {
     return bereinigen(localStorage.getItem(SPEICHER));
@@ -344,7 +423,7 @@ function lesen() {
     return PALETTEN_VORGABE;
   }
 }
-function schreiben(kennung) {
+function schreiben2(kennung) {
   if (typeof localStorage === "undefined") return;
   try {
     localStorage.setItem(SPEICHER, kennung);
@@ -375,7 +454,7 @@ var Palettenwaehler = class {
   constructor(eintragen, schema) {
     this.eintragen = eintragen;
     this.ton = grundtonAus(schema);
-    this.kennung = lesen();
+    this.kennung = lesen2();
     this.letzteWirkung = wirksam(this.kennung, this.ton);
   }
   /**
@@ -434,7 +513,7 @@ var Palettenwaehler = class {
     const palette = paletteFinden(sauber);
     if (palette === void 0) throw new Error("waehlen: die bereinigte Palette fehlt in PALETTEN");
     this.kennung = sauber;
-    schreiben(sauber);
+    schreiben2(sauber);
     this.eintragen(sauber);
     this.ton = palette.grundton;
     const neu = wirksam(sauber, this.ton);
@@ -537,10 +616,59 @@ function Wuerfel(eigenschaften) {
     }, TEXTE.grundton[palette.grundton] ?? palette.grundton)
   );
 }
+function BildRegler(eigenschaften) {
+  const React = require("react");
+  const { wert, aufWert } = eigenschaften;
+  const h = React.createElement;
+  const kennung = "promptheus-bildstaerke";
+  return h(
+    "div",
+    { style: { display: "flex", flexDirection: "column", gap: ".35rem", marginTop: ".4rem" } },
+    h(
+      "label",
+      {
+        htmlFor: kennung,
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: ".5rem",
+          fontFamily: SANS,
+          fontSize: ".82rem",
+          fontWeight: 600,
+          color: "var(--dsw-alias-label-primary, #ede5db)"
+        }
+      },
+      h("span", null, BILD_TEXTE.titel),
+      h("span", { style: { fontWeight: 500, fontVariantNumeric: "tabular-nums" } }, BILD_TEXTE.wert(wert))
+    ),
+    h("input", {
+      id: kennung,
+      type: "range",
+      min: 0,
+      max: BILD_HOECHST,
+      step: 1,
+      value: wert,
+      "aria-valuetext": BILD_TEXTE.wert(wert),
+      onChange: (e) => {
+        aufWert(Number(e.target.value));
+      },
+      style: { width: "100%", accentColor: "var(--dsw-alias-brand-primary, #ff7a1c)", cursor: "pointer" }
+    }),
+    h("div", {
+      style: {
+        fontFamily: SANS,
+        fontSize: ".74rem",
+        lineHeight: 1.5,
+        color: "var(--dsw-alias-label-secondary, #b3a596)"
+      }
+    }, BILD_TEXTE.erklaerung)
+  );
+}
 function FarbkastenZeile(eigenschaften) {
   const React = require("react");
   const gewaehlt = eigenschaften.usePalette((s) => s);
   const aufWahl = eigenschaften.aufWahl;
+  const bild = typeof eigenschaften.useBild === "function" ? eigenschaften.useBild((s) => s) : null;
   return React.createElement(
     "div",
     { style: { display: "flex", flexDirection: "column", gap: ".6rem", minWidth: 0 } },
@@ -584,7 +712,8 @@ function FarbkastenZeile(eigenschaften) {
         fontSize: ".74rem",
         color: "var(--dsw-alias-label-secondary, #b3a596)"
       }
-    }, TEXTE.partnerHinweis)
+    }, TEXTE.partnerHinweis),
+    bild === null || typeof eigenschaften.aufBild !== "function" ? null : React.createElement(BildRegler, { wert: bild, aufWert: eigenschaften.aufBild })
   );
 }
 
@@ -3800,6 +3929,7 @@ var WOERTERBUECHER = [
 ];
 function apply(ctx) {
   const slots = ctx.slots;
+  const bild = new Bildstaerke();
   if (typeof document !== "undefined") {
     ctx.effect(() => {
       const marke = document.createElement("style");
@@ -3807,8 +3937,10 @@ function apply(ctx) {
       marke.dataset.pluginCss = "@promptheus/dsh-client-ui-promptheus/hintergrund.css";
       marke.textContent = hintergrundCss();
       document.head.appendChild(marke);
+      bild.anwenden();
       return () => {
         marke.remove();
+        bild.entfernen();
       };
     }, "promptheus: Hintergrundbild");
     ctx.effect(() => {
@@ -3862,7 +3994,9 @@ function apply(ctx) {
       id: "promptheus-farbkasten",
       order: 12,
       inject: () => ({
-        hooks: { palette: waehler },
+        // `bild` wird zum Haken `useBild`: der Regler für das Hintergrundbild.
+        hooks: { palette: waehler, bild },
+        aufBild: (wert) => bild.setzen(wert),
         aufWahl: (kennung) => {
           const schema = waehler.waehlen(kennung);
           try {

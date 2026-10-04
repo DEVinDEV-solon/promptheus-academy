@@ -37,6 +37,7 @@
 
 import { anpassungenCss } from './anpassungen.ts'
 import { hintergrundCss } from './hintergrund.ts'
+import { Bildstaerke } from './bildstaerke.ts'
 import { layerAus, Palettenwaehler, SCHICHT } from './farbkasten.ts'
 import { FarbkastenZeile } from './farbkasten-zeile.ts'
 import { BILDMARKE, MAEANDER } from './marke.ts'
@@ -523,6 +524,8 @@ const WOERTERBUECHER = [
  */
 export function apply(ctx) {
   const slots = ctx.slots
+  // Die Bildstärke des Hintergrunds (Regler im Farbkasten, bildstaerke.ts).
+  const bild = new Bildstaerke()
 
   // ── Hintergrundbild ────────────────────────────────────────────────────────
   //
@@ -539,7 +542,10 @@ export function apply(ctx) {
       marke.dataset.pluginCss = '@promptheus/dsh-client-ui-promptheus/hintergrund.css'
       marke.textContent = hintergrundCss()
       document.head.appendChild(marke)
-      return () => { marke.remove() }
+      // Die gespeicherte Bildstärke gleich mit eintragen, nicht erst beim Öffnen
+      // der Einstellungen.
+      bild.anwenden()
+      return () => { marke.remove(); bild.entfernen() }
     }, 'promptheus: Hintergrundbild')
 
     // ── Feinanpassungen ──────────────────────────────────────────────────────
@@ -645,7 +651,9 @@ export function apply(ctx) {
         id: 'promptheus-farbkasten',
         order: 12,
         inject: () => ({
-          hooks: { palette: waehler },
+          // `bild` wird zum Haken `useBild`: der Regler für das Hintergrundbild.
+          hooks: { palette: waehler, bild },
+          aufBild: (wert) => bild.setzen(wert),
           aufWahl: (kennung) => {
             // Erst eintragen, dann den Harness-Schalter auf das Farbschema der
             // gewählten Palette ziehen — sonst bliebe der Bildschirm auf der

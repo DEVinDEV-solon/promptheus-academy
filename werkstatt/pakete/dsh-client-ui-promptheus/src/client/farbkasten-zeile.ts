@@ -25,6 +25,7 @@
  */
 
 import { beschreiben, PALETTEN, TEXTE } from './farbkasten.ts'
+import { BILD_HOECHST, BILD_TEXTE } from './bildstaerke.ts'
 
 const SANS = '"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif'
 const SERIFE = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif'
@@ -106,6 +107,47 @@ function Wuerfel(eigenschaften) {
 }
 
 /**
+ * Der Regler für das Hintergrundbild (bildstaerke.ts): 0 bis 18 %, wirkt
+ * sofort, gilt für dieses Gerät.
+ * @param eigenschaften - `wert` in Prozent und `aufWert` zum Setzen.
+ * @returns der Regler mit Beschriftung.
+ */
+function BildRegler(eigenschaften) {
+  const React = require('react')
+  const { wert, aufWert } = eigenschaften
+  const h = React.createElement
+  const kennung = 'promptheus-bildstaerke'
+  return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '.35rem', marginTop: '.4rem' } },
+    h('label', {
+      htmlFor: kennung,
+      style: {
+        display: 'flex', justifyContent: 'space-between', gap: '.5rem',
+        fontFamily: SANS, fontSize: '.82rem', fontWeight: 600,
+        color: 'var(--dsw-alias-label-primary, #ede5db)',
+      },
+    },
+    h('span', null, BILD_TEXTE.titel),
+    h('span', { style: { fontWeight: 500, fontVariantNumeric: 'tabular-nums' } }, BILD_TEXTE.wert(wert))),
+    h('input', {
+      id: kennung,
+      type: 'range',
+      min: 0,
+      max: BILD_HOECHST,
+      step: 1,
+      value: wert,
+      'aria-valuetext': BILD_TEXTE.wert(wert),
+      onChange: (e) => { aufWert(Number(e.target.value)) },
+      style: { width: '100%', accentColor: 'var(--dsw-alias-brand-primary, #ff7a1c)', cursor: 'pointer' },
+    }),
+    h('div', {
+      style: {
+        fontFamily: SANS, fontSize: '.74rem', lineHeight: 1.5,
+        color: 'var(--dsw-alias-label-secondary, #b3a596)',
+      },
+    }, BILD_TEXTE.erklaerung))
+}
+
+/**
  * Die Einstellungszeile „Farbkasten".
  * @param eigenschaften - der zusammengesetzte Steckplatz-Anteil; `usePalette`
  *   kommt aus dem `hooks`-Fach und ist der einzige Zugang zur Wahl.
@@ -115,6 +157,9 @@ export function FarbkastenZeile(eigenschaften) {
   const React = require('react')
   const gewaehlt = eigenschaften.usePalette(s => s)
   const aufWahl = eigenschaften.aufWahl
+  // Der Regler kommt über dasselbe `hooks`-Fach (useBild). Fehlt er in einer
+  // anderen Zusammensetzung, bleibt die Zeile wie bisher.
+  const bild = typeof eigenschaften.useBild === 'function' ? eigenschaften.useBild(s => s) : null
   return React.createElement(
     'div',
     { style: { display: 'flex', flexDirection: 'column', gap: '.6rem', minWidth: 0 } },
@@ -159,5 +204,8 @@ export function FarbkastenZeile(eigenschaften) {
         color: 'var(--dsw-alias-label-secondary, #b3a596)',
       },
     }, TEXTE.partnerHinweis),
+    bild === null || typeof eigenschaften.aufBild !== 'function'
+      ? null
+      : React.createElement(BildRegler, { wert: bild, aufWert: eigenschaften.aufBild }),
   )
 }

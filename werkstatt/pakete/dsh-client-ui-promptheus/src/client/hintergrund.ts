@@ -43,6 +43,8 @@
  * @module @promptheus/dsh-client-ui-promptheus/hintergrund
  */
 
+import { BILD_VORGABE, bildWerte } from './bildstaerke.ts'
+
 /** Der Pfad, unter dem die Node-Hälfte das Bild ausliefert. */
 export const BILD_PFAD = '/promptheus-hintergrund.jpg'
 
@@ -70,10 +72,16 @@ export const BILD_PFAD = '/promptheus-hintergrund.jpg'
  * Kontrastregel hält.
  *
  * Die Wahl des Nutzers war 25 %. Dieser Wert lässt sich halten, wenn der
- * Zweittext über dem Bild nicht vorkommt — er kommt aber vor. Deshalb steht hier
- * 18 %, und `werkzeuge/hintergrund_kontrast.mjs` rechnet es im Browser nach.
+ * Zweittext über dem Bild nicht vorkommt — er kommt aber vor. Deshalb ist
+ * 18 % die Obergrenze, und `werkzeuge/hintergrund_kontrast.mjs` rechnet es im
+ * Browser nach.
+ *
+ * **Seit 04.10.2026 einstellbar** (Regler im Farbkasten, `bildstaerke.ts`):
+ * 0 bis 18 %, Vorgabe 10 %. Über unruhigen Bildstellen war 18 % im Alltag zu
+ * viel. Hier steht nur noch die Vorgabe für das Stylesheet; der Regler setzt
+ * die Variablen auf `<html>` und gewinnt damit.
  */
-export const BILDSTAERKE = 0.18
+export const BILDSTAERKE = BILD_VORGABE / 100
 
 /**
  * Baut das Stylesheet für das Hintergrundbild.
@@ -109,24 +117,26 @@ export const BILDSTAERKE = 0.18
  * @returns das CSS.
  */
 export function hintergrundCss(): string {
-  // Der Schleier: Grundton mit der Deckkraft `1 − Bildstärke`.
-  const schleier = 1 - BILDSTAERKE
-  const deckkraft = Math.round(schleier * 100)
+  // Der Schleier: Grundton mit der Deckkraft `1 − Bildstärke`. Die Zahlen hier
+  // sind nur die Vorgabe; der Regler (bildstaerke.ts) setzt beide Variablen
+  // auf <html>, und ein Wert dort gewinnt gegen :root aus einem Stylesheet.
+  const { staerke, schleier } = bildWerte(BILD_VORGABE)
   return `
 /* PROMPTHEUS Werkstatt — Hintergrundbild der Chatseite.
    Erzeugt von pakete/dsh-client-ui-promptheus/src/client/hintergrund.ts.
-   Nicht von Hand ändern: die Bildstärke steht dort als Zahl. */
+   Die Bildstärke stellt der Regler im Farbkasten ein (bildstaerke.ts). */
 :root {
   /* Als Marke veröffentlicht, damit Prüfwerkzeuge dieselbe Zahl lesen statt
      eine eigene zu führen. Zwei Zahlen an zwei Orten laufen auseinander. */
-  --promptheus-bildstaerke: ${BILDSTAERKE};
+  --promptheus-bildstaerke: ${staerke};
+  --promptheus-schleier: ${schleier};
 }
 
 [data-slot="main"] [data-slot="main.conversation"] > * {
   background-image:
     linear-gradient(
-      color-mix(in srgb, var(--dsw-alias-bg-base) ${deckkraft}%, transparent),
-      color-mix(in srgb, var(--dsw-alias-bg-base) ${deckkraft}%, transparent)
+      color-mix(in srgb, var(--dsw-alias-bg-base) var(--promptheus-schleier), transparent),
+      color-mix(in srgb, var(--dsw-alias-bg-base) var(--promptheus-schleier), transparent)
     ),
     url("${BILD_PFAD}");
   background-size: cover, cover;
