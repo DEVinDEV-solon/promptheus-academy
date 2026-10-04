@@ -95,7 +95,7 @@ gruppe('Synonym im Profil');
 wirft('ein Vorname als Pseudonym geht nicht', fn() => pu_profil_setzen($kind, 'pseudonym', 'Nele'), 'echter Name');
 wirft('der eigene Nachname auch nicht', fn() => pu_profil_setzen($kind, 'pseudonym', 'Beispiel99'), 'echter Name');
 wirft('länger als 24 Zeichen nicht', fn() => pu_profil_setzen($kind, 'pseudonym', str_repeat('x', 25)));
-gleich('ein ausgedachtes geht', 'Funkenflug', pu_profil_setzen($kind, 'pseudonym', 'Funkenflug'));
+pruefe('ein Name aus dem Baukasten geht', (bool)preg_match('/^Funkenfalke_[23456789BCDFGHJKMNPQRSTVWXZ]{5}$/', pu_profil_setzen($kind, 'pseudonym', 'Funkenfalke')));
 gleich('leer lassen geht (dann kein Beitrag)', '', pu_profil_setzen($lehrer, 'pseudonym', ''));
 
 // ─────────────────────────────────────────────────────────────────────────────

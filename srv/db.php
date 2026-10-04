@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 12;
+const PU_DB_VERSION = 13;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -31,6 +31,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 10) pu_db_v10($pdo);
     if ($ist < 11) pu_db_v11($pdo);
     if ($ist < 12) pu_db_v12($pdo);
+    if ($ist < 13) pu_db_v13($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -660,4 +661,33 @@ function pu_db_v12(PDO $pdo): void
             PRIMARY KEY (lehrer, gruppe)
         )
     ");
+}
+
+/**
+ * v13 — das Pseudonym in fester Form (srv/pseudonym.php, Entscheid 04.10.2026).
+ *
+ *   pseudonym_kennung  5 Zeichen, je Konto fest und auf dieser Installation
+ *                      eindeutig. Der volle Name ist `<Namensteil>_<Kennung>`.
+ *   pseudonym_seit     wann der Name zuletzt gewählt wurde; daraus folgt die
+ *                      30-Tage-Frist bis zur nächsten Änderung.
+ *
+ * Ein schon gesetztes Pseudonym alter Form bleibt stehen. Die Oberfläche
+ * verlangt beim nächsten Anmelden die Wahl in der neuen Form.
+ */
+function pu_db_v13(PDO $pdo): void
+{
+    $da = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='lernende'")
+              ->fetchColumn();
+    if ($da === false) return;
+
+    $spalten = [];
+    foreach ($pdo->query('PRAGMA table_info(lernende)') as $s) $spalten[] = (string)$s['name'];
+    if (!in_array('pseudonym_kennung', $spalten, true)) {
+        $pdo->exec("ALTER TABLE lernende ADD COLUMN pseudonym_kennung TEXT NOT NULL DEFAULT ''");
+    }
+    if (!in_array('pseudonym_seit', $spalten, true)) {
+        $pdo->exec("ALTER TABLE lernende ADD COLUMN pseudonym_seit TEXT NOT NULL DEFAULT ''");
+    }
+    $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS ux_lernende_pseudo_kennung
+                ON lernende(pseudonym_kennung) WHERE pseudonym_kennung <> ''");
 }

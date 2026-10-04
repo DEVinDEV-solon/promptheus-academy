@@ -38,6 +38,7 @@ require_once __DIR__ . '/srv/motivation.php';
 require_once __DIR__ . '/srv/tokenicer.php';
 require_once __DIR__ . '/srv/kursstand.php';
 require_once __DIR__ . '/srv/profil.php';
+require_once __DIR__ . '/srv/pseudonym.php';
 require_once __DIR__ . '/srv/abo.php';
 require_once __DIR__ . '/srv/glossar.php';
 require_once __DIR__ . '/srv/sprache.php';
@@ -968,12 +969,40 @@ try {
                 'felder'       => PU_PROFIL_FELDER,
                 'sprachstil'   => pu_sprachstil(pu_profil($ichId)),
                 'kontext_da'   => pu_ebenen_kontext($ebene) !== '',
+                'pseudonym_stand' => pu_pseudo_stand($ichId),
             ]);
 
         case 'profil_setzen': {
             $wert = pu_profil_setzen($ichId, (string)d('feld'), (string)d('wert'));
             pu_json_out(['ok' => true, 'wert' => $wert,
                          'sprachstil' => pu_sprachstil(pu_profil($ichId))]);
+        }
+
+        // ------------------------------------------------- Pseudonym (srv/pseudonym.php)
+        //
+        // Das eigene Konto, wie profil_setzen: ohne Recht aus der Matrix, weil
+        // jedes Konto seinen Namen wählen MUSS (Pflicht beim ersten Anmelden).
+        case 'pseudonym_stand':
+            pu_json_out(['ok' => true, 'stand' => pu_pseudo_stand($ichId),
+                         'vorschlaege' => pu_pseudo_vorschlaege(3)]);
+
+        case 'pseudonym_wuerfeln':
+            pu_json_out(['ok' => true, 'vorschlaege' => pu_pseudo_vorschlaege(3)]);
+
+        case 'pseudonym_setzen': {
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            // Wer wählt, hat gelesen, wohin der Name überall mitgeht.
+            if ((string)d('verstanden') !== '1') {
+                pu_fehler('Bestätige zuerst, dass du gelesen hast, wo dein Name erscheint.');
+            }
+            try {
+                $voll = pu_pseudo_setzen($ichId, (string)d('teil'));
+            } catch (RuntimeException $e) {
+                pu_fehler($e->getMessage());
+            }
+            if ($voll === '') pu_fehler('Wähle einen Namen.');
+            pu_protokoll($ichId, 'pseudonym', 'gewaehlt', $voll);
+            pu_json_out(['ok' => true, 'stand' => pu_pseudo_stand($ichId)]);
         }
 
         case 'profil_pflegen': {
@@ -1005,7 +1034,7 @@ try {
                mit dem Namen aus den Einstellungen, bis jemand ausdrücklich ein
                neues Pseudonym setzt. Die Zusage, dass ein selbst gewähltes
                Pseudonym den Klarnamen ersetzt, bleibt damit unberührt. */
-            $st = pu_db()->prepare("UPDATE lernende SET anzeigename = ?, pseudonym = '' WHERE id = ?");
+            $st = pu_db()->prepare("UPDATE lernende SET anzeigename = ?, pseudonym = '', pseudonym_seit = '' WHERE id = ?");
             $st->execute([$neu, $ichId]);
             pu_protokoll($ichId, 'name_geaendert', $neu, 'Pseudonym zurückgesetzt');
             pu_json_out(['ok' => true, 'anzeigename' => $neu]);

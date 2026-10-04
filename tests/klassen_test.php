@@ -43,7 +43,8 @@ $ids = static fn(array $liste) => array_map('intval', array_column($liste, 'id')
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Ohne Zuordnung');
 
-gleich('Schema ist auf Stand 12', 12, (int)pu_db()->query('PRAGMA user_version')->fetchColumn());
+$stand = (int)pu_db()->query('PRAGMA user_version')->fetchColumn();
+pruefe('Schema ist mindestens auf Stand 12 (lehrer_gruppen)', $stand >= 12, 'ist ' . $stand);
 gleich('Lehrkraft ohne Klasse: keine', [], pu_lehrer_gruppen($lehrerA));
 gleich('… sieht in der Klassenübersicht nur sich', [$lehrerA], $ids(pu_klasse($person($lehrerA))));
 gleich('Verwaltung sieht alle', 9, count(pu_klasse($person($schule))));

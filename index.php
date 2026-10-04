@@ -29,6 +29,7 @@ require_once __DIR__ . '/srv/varianten.php';
 require_once __DIR__ . '/srv/tutor.php';
 require_once __DIR__ . '/srv/kennzahlen.php';
 require_once __DIR__ . '/srv/persona.php';
+require_once __DIR__ . '/srv/pseudonym.php';
 
 $leer  = pu_leer();
 $wer   = pu_wer();
@@ -488,6 +489,11 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
           Noch kein Konto. Das erste Konto wird <strong>Tutor</strong> und darf
           danach weitere Konten anlegen.
         </p>
+        <p class="hinweis">
+          Gleich nach dem Einrichten wählt jedes Konto seinen <strong>Namen in der
+          Academy</strong>. Er geht mit in die Werkstatt und in die Community und
+          lässt sich danach nur alle 30 Tage ändern.
+        </p>
         <label>Kennung <input name="kennung" required minlength="3" maxlength="32"
                pattern="[a-z0-9][a-z0-9._-]{2,31}" placeholder="z. B. dan"></label>
         <label>Anzeigename <input name="anzeigename" required maxlength="60" placeholder="z. B. Dan"></label>
@@ -881,7 +887,10 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     // Die Wörter des Stils „Klar" (Stufe A). Gepflegt in srv/persona.php.
     worteKlar: <?= json_encode(PU_WORTE_KLAR, JSON_UNESCAPED_UNICODE) ?>,
     einst:  <?= json_encode($einst, JSON_UNESCAPED_UNICODE) ?>,
-    tutorBereit: <?= pu_tutor_bereit() ? 'true' : 'false' ?>
+    tutorBereit: <?= pu_tutor_bereit() ? 'true' : 'false' ?>,
+    // Der Name in der Academy (srv/pseudonym.php). `pflicht` heisst: vor allem
+    // anderen wählen. Er gehört zum echten Konto, nicht zur Persona-Sicht.
+    pseudonym: <?= json_encode(pu_pseudo_stand((int)$wer['id']), JSON_UNESCAPED_UNICODE) ?>
   };
 </script>
 <script src="<?= pu_v('assets/js/schale.js') ?>"></script>
@@ -890,6 +899,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <script src="<?= pu_v('assets/js/route.js') ?>"></script>
 <script src="<?= pu_v('assets/js/app.js') ?>"></script>
 <script src="<?= pu_v('assets/js/einstellungen.js') ?>"></script>
+<script src="<?= pu_v('assets/js/pseudonym.js') ?>"></script>
 <script src="<?= pu_v('assets/js/rollen.js') ?>"></script>
 <script src="<?= pu_v('assets/js/medien.js') ?>"></script>
 <script src="<?= pu_v('assets/js/aufgabe.js') ?>"></script>
@@ -937,7 +947,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
 <!-- Nur für Ebene 1: Ohne den Knopf im Kopf hätte die Datei nichts zu tun. -->
 <script src="<?= pu_v('assets/js/persona.js') ?>"></script>
 <?php endif; ?>
-<script>PU.start(); if (PU.personaStart) PU.personaStart(); if (PU.aktStart) PU.aktStart();</script>
+<script>PU.start(); if (PU.personaStart) PU.personaStart(); if (PU.aktStart) PU.aktStart(); if (PU.pseudonymStart) PU.pseudonymStart();</script>
 <?php endif; ?>
 
 </body>
