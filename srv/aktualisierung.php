@@ -559,10 +559,19 @@ function pu_akt_entpacken(string $zip_datei, string $ziel, string $fassung, stri
 /**
  * Lädt das angebotene Paket, prüft Grösse und SHA-256 gegen den signierten
  * Feed, entpackt und prüft jede Datei, legt `bereit.json` an.
+ *
+ * Vorher wird **frisch** nachgefragt: Der gespeicherte Stand kann einen Tag
+ * alt sein, und eine inzwischen zurückgezogene Fassung gibt der Server nicht
+ * mehr heraus. Am 04.10.2026 bot das Fenster so noch 1.0.1 an, obwohl 1.0.2
+ * im Feed stand, und das Laden endete mit „Antwort 404“.
  */
 function pu_akt_laden(): array
 {
-    $a = pu_akt_stand()['angebot'];
+    $s = pu_akt_pruefen(true);
+    if ($s['fehler'] !== '') {
+        return ['ok' => false, 'meldung' => pu_akt_grund_text((string)$s['fehler'])];
+    }
+    $a = $s['angebot'];
     if (!is_array($a)) {
         return ['ok' => false, 'meldung' => 'Es gibt gerade keine neuere Fassung.'];
     }

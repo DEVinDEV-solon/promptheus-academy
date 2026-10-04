@@ -80,6 +80,27 @@ function menueWegAnwenden(r) {
  * Öffnen. Gestartet wird nie schon beim Klick aufs Menü — das Fenster ist die
  * Frage, der Knopf die Antwort.
  */
+/**
+ * Die drei Bedingungen für das Werbe-Modal, mit Haken: 7. Kurs,
+ * Registrierung, Abo. Ohne Registrierung lässt sich das Abo nicht prüfen;
+ * es steht dann ohne Zusatz da.
+ */
+function werkstattWerbeWeg(r) {
+  const w = r.werkstatt || {};
+  const grund = (r.zugang || {}).grund || '';
+  const registriert = grund !== 'nicht_registriert';
+  return [
+    ['Den 7. Kurs abschliessen', !!w.frei,
+      w.grund === 'test' ? 'im Testbetrieb markiert'
+        : (w.grund === 'kurs_offen' ? 'Stand: ' + (w.prozent | 0) + ' %' : '')],
+    ['Die Academy registrieren', registriert, registriert ? '' : 'im Cockpit mit dem Code aus der Zahlung'],
+    ['Ein Abo, das läuft', false,
+      grund === 'kein_abo' ? 'fehlt oder ist beendet; gebucht wird im Cockpit unter „Pläne verwalten“' : '']
+  ];
+}
+
+PU.werkstattWerbeWeg = werkstattWerbeWeg;
+
 PU.werkstattFenster = async function () {
   const flaeche = PU.modalZeigen('Der Weg in die Werkstatt');
   if (!flaeche) return;
@@ -102,7 +123,7 @@ PU.werkstattFenster = async function () {
   if (r.zugang && !r.zugang.ok && PU.werbungSeite) {
     PU.fensterOffen = 'werbung-werkstatt';
     if (PU.routeSchreiben) PU.routeSchreiben(true);
-    PU.werbungSeite('werkstatt', r.zugang.grund);
+    PU.werbungSeite('werkstatt', r.zugang.grund, werkstattWerbeWeg(r));
     return;
   }
 

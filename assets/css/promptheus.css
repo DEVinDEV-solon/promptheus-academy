@@ -421,6 +421,8 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 }
 .werkstatt-weg li.fertig .weg-zeichen { color: var(--gut); border-color: var(--gut); }
 .werkstatt-weiter { margin: 0 0 1.4rem; }
+/* Derselbe Weg im Werbe-Modal (werbung.js), unter dem Satz im Kopf. */
+.werbung-weg { margin: 1rem 0 0; max-width: 34rem; }
 
 /* Das Fenster hinter dem Menüpunkt „Werkstatt" (werkstatt.js): breiter als
    das übliche, oben zwei Blöcke nebeneinander, darunter Mäanderband und Film.

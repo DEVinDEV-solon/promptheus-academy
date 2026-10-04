@@ -197,8 +197,12 @@ PU.WERBUNG_GRUND = {
  *
  * @param {string} art   'community' oder 'werkstatt'
  * @param {string} grund 'nicht_registriert' | 'kein_abo' | '' (dann ohne Satz)
+ * @param {Array<[string, boolean, string]>} [weg] Schritte mit Haken, etwa
+ *        7. Kurs, Registrierung, Abo. Wer den 7. Kurs fertig hat und hier
+ *        landet, soll sehen, dass er angekommen ist und nur noch eines fehlt
+ *        (Rückmeldung 04.10.2026: „trotz 7. Kurs nur die Werbeseite“).
  */
-PU.werbungSeite = function (art, grund) {
+PU.werbungSeite = function (art, grund, weg) {
   const k = PU.WERBUNG_KOPF[art] || PU.WERBUNG_KOPF.community;
   const flaeche = PU.modalVollbild(k.titel, 'Gehört zum Abo. Die Kurse 1 bis 6 kosten nichts.');
   if (!flaeche) return;
@@ -216,6 +220,23 @@ PU.werbungSeite = function (art, grund) {
     '<p class="ziel-vorspann">' + PU.h(k.vorspann) + '</p>' +
     '<p class="ziel-stand">' + PU.h(PU.WERBUNG_GRUND[grund] ||
       'Die Kurse 1 bis 6 kosten nichts. Werkstatt und Community gehören zum Abo.') + '</p>';
+  if (Array.isArray(weg) && weg.length) {
+    const liste = PU.el('ol', 'werkstatt-weg werbung-weg');
+    liste.setAttribute('aria-label', 'Dein Stand');
+    let dran = false;
+    weg.forEach(([titel, fertig, zusatz], i) => {
+      // Der erste offene Schritt ist dran, die danach warten.
+      const klasse = fertig ? 'fertig' : (dran ? '' : 'dran');
+      if (!fertig) dran = true;
+      const li = PU.el('li', klasse);
+      li.innerHTML = '<span class="weg-zeichen" role="img" aria-label="' + (fertig ? 'erledigt' : 'offen') + '">' +
+        (fertig ? '✓' : (i + 1)) + '</span>' +
+        '<span class="weg-text"><b>' + PU.h(titel) + '</b>' +
+        (zusatz ? '<span class="klein"> · ' + PU.h(zusatz) + '</span>' : '') + '</span>';
+      liste.appendChild(li);
+    });
+    text.appendChild(liste);
+  }
   kopf.appendChild(text);
   kopf.appendChild(werbungFigur(werbungClip(k.clip)));
   seite.appendChild(kopf);
@@ -265,4 +286,8 @@ PU.werbungAusAdresse = async function (art) {
   const grund = ((r && r.zugang) || {}).grund || '';
   const stand = document.querySelector('.werbung-seite .ziel-stand');
   if (stand && PU.WERBUNG_GRUND[grund]) stand.textContent = PU.WERBUNG_GRUND[grund];
+  // Für die Werkstatt den Weg mit Haken neu zeichnen (werkstatt.js).
+  if (art === 'werkstatt' && r && r.zugang && !r.zugang.ok && PU.werkstattWerbeWeg) {
+    PU.werbungSeite(art, grund, PU.werkstattWerbeWeg(r));
+  }
 };

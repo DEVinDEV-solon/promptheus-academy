@@ -611,35 +611,13 @@ function pu_wartung(string $was, int $durch): array
             return ['protokoll' => $rows];
         }
 
-        /* **Veraltete Pseudonyme ablegen.**
-         *
-         * Ein Pseudonym ist der Name, unter dem jemand nach aussen auftritt —
-         * auch gegenüber den Tutoren, damit der Klarname diesen Rechner nicht
-         * verlässt. Wird ein Konto aber umbenannt, gehört das alte Pseudonym
-         * zu jemandem, den es nicht mehr gibt: „Hallo, Daidalos" zu jemandem,
-         * der Alpay heisst.
-         *
-         * Beim Umbenennen wird es seither abgelegt (api.php, `name_aendern`).
-         * Für Konten, die vorher umbenannt wurden, gibt es diesen Knopf — und
-         * er ist ein Knopf und kein Automatismus: Wer sich sein Pseudonym
-         * selbst ausgesucht hat, soll es nicht bei einer Wartung verlieren,
-         * ohne dass jemand das entschieden hat.
-         *
-         * Danach greift der Rückfall in `pu_profil()`: Angesprochen wird mit
-         * dem Namen aus den Einstellungen.
+        /* „Pseudonyme ablegen“ gibt es seit 1.0.3 nicht mehr. Seit dem
+         * 04.10.2026 ist der Name in der Academy Pflicht (srv/pseudonym.php):
+         * Der Knopf hätte allen ihre Wahl genommen und sie beim nächsten
+         * Anmelden zur Wahl gezwungen, die dann 30 Tage gesperrt ist. Genau so
+         * ist es im Test passiert. Umbenennen legt das Pseudonym weiterhin
+         * einzeln ab (api.php, `name_aendern`).
          */
-        case 'pseudonyme': {
-            $st = pu_db()->query("SELECT COUNT(*) FROM lernende WHERE pseudonym <> ''");
-            $wieviele = (int)$st->fetchColumn();
-
-            pu_db()->exec("UPDATE lernende SET pseudonym = '' WHERE pseudonym <> ''");
-            pu_protokoll($durch, 'wartung', 'pseudonyme', $wieviele . ' abgelegt');
-
-            return ['getan' => $wieviele === 0
-                ? 'Es war kein Pseudonym gesetzt — alle werden bereits mit ihrem Namen angesprochen.'
-                : $wieviele . ' Pseudonym(e) abgelegt. Angesprochen wird jetzt mit dem Namen '
-                  . 'aus den Einstellungen. Wer wieder eines will, trägt es im Profil ein.'];
-        }
 
         case 'stand':
             return ['uni' => pu_uni_stand()];

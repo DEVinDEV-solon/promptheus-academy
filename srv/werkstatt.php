@@ -290,6 +290,54 @@ function pu_werkstatt_starten(): void
 }
 
 /**
+ * Der Werkstatt-Ordner so, wie man ihn im Explorer liest (C:\…\werkstatt).
+ *
+ * Nur für die Anzeige an der eigenen Oberfläche. Er steht bewusst NICHT in
+ * pu_werkstatt_stand(): Der Stand geht später als Kontext an Hephaistos, und
+ * ein Pfad trägt oft den Windows-Benutzernamen.
+ */
+function pu_werkstatt_ordner_anzeige(): string
+{
+    $w = realpath(pu_werkstatt_ordner());
+    if ($w === false) $w = pu_werkstatt_ordner();
+    return PHP_OS_FAMILY === 'Windows' ? str_replace('/', '\\', $w) : $w;
+}
+
+/**
+ * Öffnet den Werkstatt-Ordner im Explorer, auf diesem Rechner.
+ *
+ * Dort liegt `WERKSTATT-EINRICHTEN.bat`. Am 04.10.2026 wurde sie aus dem
+ * Download-Ordner gestartet und fand ihr Werkzeug nicht. Mit diesem Knopf
+ * steht man gleich am richtigen Ort.
+ *
+ * Feste Befehlsfolge, kein Teil aus einer Eingabe. Gestartet über
+ * `Start-Process` wie die Werkstatt selbst, damit der Explorer keinen
+ * Socket dieser Academy erbt (siehe pu_werkstatt_starten).
+ *
+ * @return array{ok:bool, grund:string, ordner:string}
+ */
+function pu_werkstatt_ordner_oeffnen(): array
+{
+    $ordner = pu_werkstatt_ordner_anzeige();
+    if (PHP_OS_FAMILY !== 'Windows') {
+        return ['ok' => false, 'grund' => 'nicht_windows', 'ordner' => $ordner];
+    }
+    if (!is_dir($ordner)) {
+        return ['ok' => false, 'grund' => 'fehlt', 'ordner' => $ordner];
+    }
+    $ps = "Start-Process -FilePath 'explorer.exe' -ArgumentList '\"" . str_replace("'", "''", $ordner) . "\"'";
+    $h = proc_open(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', $ps],
+        [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $rohr);
+    if (!is_resource($h)) {
+        return ['ok' => false, 'grund' => 'start', 'ordner' => $ordner];
+    }
+    fclose($rohr[1]);
+    fclose($rohr[2]);
+    proc_close($h);
+    return ['ok' => true, 'grund' => '', 'ordner' => $ordner];
+}
+
+/**
  * Beendet die laufende Werkstatt — und nur sie.
  *
  * Für den Fall, dass ihr Browserfenster weg ist: Die Adresse mit dem
