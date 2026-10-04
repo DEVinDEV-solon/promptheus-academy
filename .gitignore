@@ -219,6 +219,9 @@ secondbrain/.claudian/
 secondbrain/.obsidian/community-plugins.json
 secondbrain/okf.json
 secondbrain/000_Kontext/admin/
+# Persönlicher Kontext aus 7. Kurs und Onboarding: nur die Erklärung ist getrackt.
+secondbrain/000_Kontext/user/*
+!secondbrain/000_Kontext/user/_index.md
 secondbrain/90_Quellen/schulen/schulen_*
 secondbrain/Login-Level-Rechte-Plan.md
 secondbrain/Netzwerk-Vorplan.md

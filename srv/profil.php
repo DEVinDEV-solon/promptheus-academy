@@ -297,6 +297,9 @@ function pu_ebenen_kontext(string $ebene, int $grenze = 3500): string
     // Menschen schreiben, heisst es Schule. Diese eine Zeile hält beides
     // auseinander, statt eines von beiden umzubenennen.
     $ordnerName = ['verwaltung' => 'schule'][$ebene] ?? pu_slug($ebene);
+    // `user` ist der persönliche Kontext aus 7. Kurs und Onboarding, keine
+    // Ebene. Er geht nie als Ebenen-Kontext an ein Sprachmodell.
+    if ($ordnerName === 'user') return '';
     $ordner = PU_BRAIN . '/000_Kontext/' . $ordnerName;
     if (!is_dir($ordner)) return '';
 
