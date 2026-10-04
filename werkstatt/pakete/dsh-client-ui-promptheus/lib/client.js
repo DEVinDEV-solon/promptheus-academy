@@ -99,7 +99,7 @@ html[lang="en"] span:has(> [data-slot="conversation.hero.brand.mark"]) + span::b
 // pakete/dsh-client-ui-promptheus/src/client/bildstaerke.ts
 var BILD_SPEICHER = "promptheus.bildstaerke.v1";
 var BILD_HOECHST = 18;
-var BILD_VORGABE = 10;
+var BILD_VORGABE = 7;
 var BILD_TEXTE = {
   titel: "Hintergrundbild",
   erklaerung: `Weniger Bild heisst ruhigere Schrift. Bei 0 % siehst du nur den Grundton; mehr als ${BILD_HOECHST} % l\xE4sst die Schrift nicht mehr sicher lesbar.`,
