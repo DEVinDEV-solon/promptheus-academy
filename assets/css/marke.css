@@ -426,7 +426,7 @@ html[data-thema-effektiv="hell"] {
 .abschluss-urkunde .feldpaar { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: .8rem 0; }
 .abschluss-urkunde label { display: block; }
 .abschluss-urkunde label input:not([type="checkbox"]) { display: block; width: 100%; margin-top: .25rem; }
-.abschluss-urkunde .abschluss-name { font-family: var(--serif); font-size: 1.6rem; color: var(--gold); margin: .2rem 0 .9rem; }
+.abschluss-urkunde .abschluss-name { font-family: var(--serif); font-size: 1.6rem; color: var(--gold-schrift); margin: .2rem 0 .9rem; }
 .abschluss-urkunde .abschluss-kontrolle label { margin: .6rem 0; }
 @media (max-width: 600px) { .abschluss-urkunde .feldpaar { grid-template-columns: 1fr; } }
 
@@ -439,7 +439,7 @@ html[data-thema-effektiv="hell"] {
 }
 .urkunde-schritte li.jetzt { color: var(--schrift); font-weight: 600; }
 .urkunde-schritte li.jetzt span { border-color: var(--glut); color: var(--glut); }
-.urkunde-schritte li.fertig span { border-color: var(--gold); color: var(--gold); }
+.urkunde-schritte li.fertig span { border-color: var(--gold); color: var(--gold-schrift); }
 
 .urkunde-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; margin: .6rem 0 1.2rem; }
 .urkunde-muster {
@@ -461,7 +461,7 @@ html[data-thema-effektiv="hell"] {
 .urkunde-regler legend { color: var(--schrift-2); font-size: .9rem; padding: 0 .3rem; }
 .urkunde-regler label { display: block; margin: .45rem 0; font-size: .92rem; }
 .urkunde-regler select, .urkunde-regler input[type="range"] { display: block; width: 100%; margin-top: .2rem; }
-.urkunde-regler output { color: var(--gold); font-family: var(--mono); }
+.urkunde-regler output { color: var(--gold-schrift); font-family: var(--mono); }
 .urkunde-knoepfe { display: flex; flex-wrap: wrap; gap: .5rem; }
 .urkunde-vorschau iframe {
   width: 100%; aspect-ratio: 210 / 305; border: 1px solid var(--rand); border-radius: var(--radius-klein);
@@ -545,7 +545,7 @@ html[data-thema-effektiv="hell"] {
   color: var(--schrift-2); margin: 0 0 .9rem;
 }
 .ziel-stand { margin: 0; color: var(--schrift-3); font-size: .9rem; }
-.ziel-stand b { color: var(--gold); }
+.ziel-stand b { color: var(--gold-schrift); }
 
 .ziel-augenmerk {
   margin: 0; font-family: var(--sans); font-size: .74rem;
@@ -587,7 +587,7 @@ html[data-thema-effektiv="hell"] {
   gap: 1.2rem; flex-wrap: wrap;
 }
 .ziel-schluss p { margin: 0; max-width: 52ch; }
-.ziel-schluss b { color: var(--gold); }
+.ziel-schluss b { color: var(--gold-schrift); }
 
 /* Schmale Fenster: Das Beispiel rutscht unter seinen Text und hört auf zu
    kleben. Ein klebendes Bild auf einem Telefon nimmt die halbe Höhe, und der
@@ -629,7 +629,7 @@ html[data-thema-effektiv="hell"] {
 .werbung-zeile span:last-child { color: var(--schrift-3); }
 .werbung-muster .werbung-zeile .ok     { color: var(--gut); font-weight: 600; }
 .werbung-muster .werbung-zeile .warten { color: var(--warn); font-weight: 600; }
-.werbung-muster .werbung-zeile .gold   { color: var(--gold); font-weight: 600; }
+.werbung-muster .werbung-zeile .gold   { color: var(--gold-schrift); font-weight: 600; }
 .werbung-xxx { font-family: var(--mono); color: var(--schlecht); }
 .werbung-knoepfe { display: flex; gap: .5rem; flex-wrap: wrap; }
 .werbung-muster .werbung-knoepfe .knopf { pointer-events: none; }
@@ -691,7 +691,7 @@ blockquote { border-left-color: var(--lapis); }
 }
 /* Fällt der Verlauf aus (alte Browser, Druck), bleibt Gold statt nichts. */
 @supports not (background-clip: text) {
-  .wortmarke { background: none; color: var(--gold); }
+  .wortmarke { background: none; color: var(--gold-schrift); }
 }
 
 .wortmarke-fuss {
@@ -802,7 +802,7 @@ blockquote { border-left-color: var(--lapis); }
   display: flex; justify-content: space-between; align-items: baseline;
   font-size: .84rem; font-weight: 600;
 }
-.regler-kopf output { color: var(--gold); font-size: .82rem; }
+.regler-kopf output { color: var(--gold-schrift); font-size: .82rem; }
 .regler-was { color: var(--schrift-3); line-height: 1.35; }
 
 /* Die Bahn zeigt selbst, worum es geht: von deckend nach durchlässig. */

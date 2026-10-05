@@ -2202,7 +2202,7 @@ function kontenZeichnen(ziel) {
   form.innerHTML =
     '<h4>Neues Konto</h4>' +
     '<label class="klein">Kennung (klein, ohne Leerzeichen)' +
-    '<input name="kennung" required pattern="[a-z0-9][a-z0-9._-]{2,31}" placeholder="z.b. mia"></label>' +
+    '<input name="kennung" required pattern="[a-z0-9][a-z0-9._\\-]{2,31}" placeholder="z.b. mia"></label>' +
     '<label class="klein">Anzeigename<input name="anzeigename" required maxlength="60"></label>' +
     '<label class="klein">Kennwort (mindestens 8 Zeichen)' +
     '<input name="kennwort" type="password" required minlength="8"></label>' +

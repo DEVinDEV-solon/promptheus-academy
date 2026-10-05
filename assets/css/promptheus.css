@@ -33,6 +33,11 @@
      dasselbe Gold — dort leuchtet es. */
   --begriff:      var(--gold);
 
+  /* Gold als SCHRIFTFARBE (Reiter, Titel, Hover, Zahlen). Flächen, Rahmen und
+     Verläufe nehmen weiter `--gold`. Im Dunkeln dasselbe Gold; im Hellen das
+     abgedunkelte `--begriff` — `--gold` dort auf Beige kam nur auf 3,9:1. */
+  --gold-schrift: var(--gold);
+
   --gut:          #5fbf7a;
   --gut-grund:    #14301d;
   --schlecht:     #e8635a;
@@ -285,7 +290,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 }
 .akt-zu:hover { color: var(--schrift); background: var(--grund-3); }
 .akt-klein { margin: .15rem 0 .4rem; color: var(--schrift-3); font-size: .8rem; }
-.akt-wichtig { margin: .25rem 0 .2rem; color: var(--gold); font-size: .82rem; }
+.akt-wichtig { margin: .25rem 0 .2rem; color: var(--gold-schrift); font-size: .82rem; }
 .akt-neu { margin: 0 0 .55rem; }
 .akt-neu summary { cursor: pointer; color: var(--schrift-2); }
 .akt-neu > div { white-space: pre-wrap; max-height: 11rem; overflow: auto; margin-top: .35rem;
@@ -312,7 +317,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .akt-schleier b { font-family: var(--serif); font-size: 1.2rem; }
 /* Ergebnis der Suche per Knopf (Einstellungen › Wartung), bleibt stehen. */
 .akt-suche { margin: .4rem 0 0; font-size: .9rem; color: var(--schrift-2); }
-.akt-suche b { color: var(--gold); }
+.akt-suche b { color: var(--gold-schrift); }
 .akt-wartung { margin-top: 1.6rem; }
 .akt-stunden { width: 5rem; display: inline-block; }
 
@@ -391,7 +396,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .menue-wort { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menue-knopf:hover { color: var(--schrift); background: var(--grund-3); }
 .menue-knopf.aktiv {
-  color: var(--gold); background: var(--grund-3); border-color: var(--rand-hell);
+  color: var(--gold-schrift); background: var(--grund-3); border-color: var(--rand-hell);
 }
 .menue-knopf.schmal { padding: .3rem .6rem; font-size: .82rem; display: inline-flex; }
 
@@ -404,7 +409,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
   content: ''; position: absolute; top: 0; left: .6rem; right: .6rem;
   height: 1px; background: var(--rand);
 }
-.menue-geschenk:hover { color: var(--gold); }
+.menue-geschenk:hover { color: var(--gold-schrift); }
 
 /* Der 7. Kurs und die Werkstatt stehen immer da — gesperrt mit Schloss und
    gedämpft, frei ohne Schloss. Klickbar bleiben beide auch gesperrt: Das
@@ -413,7 +418,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .menue-knopf.gesperrt { color: var(--schrift-3); }
 .menue-knopf.gesperrt:hover { color: var(--schrift-2); }
 .menue-knopf.frei .menue-schloss { display: none; }
-.menue-werkstatt.frei { color: var(--gold); }
+.menue-werkstatt.frei { color: var(--gold-schrift); }
 
 /* Öffnen und Neu starten nebeneinander (einstellungen.js). */
 .werkstatt-knoepfe { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
@@ -475,7 +480,7 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
   text-transform: uppercase; letter-spacing: .06em;
 }
 .kennzahl.ton-normal .kz-wert { color: var(--schrift-2); font-weight: 600; }
-.kennzahl.ton-gold   .kz-wert { color: var(--gold); }
+.kennzahl.ton-gold   .kz-wert { color: var(--gold-schrift); }
 .kennzahl.ton-glut   .kz-wert { color: var(--glut-hell); }
 .kennzahl.ton-lapis  .kz-wert { color: var(--lapis-hell); }
 .kennzahl.ton-gut    .kz-wert { color: var(--gut); }
@@ -646,7 +651,7 @@ html[data-textschrift] .lektion blockquote p { font-size: 1.12rem; line-height: 
   padding: .25rem .7rem; border-radius: 999px;
   background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
 }
-.pfad-zurueck:hover:not(:disabled) { border-color: var(--glut); color: var(--gold); }
+.pfad-zurueck:hover:not(:disabled) { border-color: var(--glut); color: var(--gold-schrift); }
 /* Abgeschaltet statt versteckt: ein Knopf, der beim Laden erscheint und
    wieder verschwindet, lässt die ganze Zeile springen. */
 .pfad-zurueck:disabled { opacity: .38; cursor: default; }
@@ -661,7 +666,7 @@ html[data-textschrift] .lektion blockquote p { font-size: 1.12rem; line-height: 
 }
 a.pfad-glied { color: var(--schrift-2); text-decoration: none; }
 a.pfad-glied:hover,
-a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
+a.pfad-glied:focus-visible { color: var(--gold-schrift); text-decoration: underline; }
 /* Der Ort, an dem man steht, ist kein Link und sieht auch nicht so aus. */
 .pfad-glied.jetzt { color: var(--schrift); font-weight: 600; }
 
@@ -702,7 +707,7 @@ a.pfad-glied:focus-visible { color: var(--gold); text-decoration: underline; }
   color: var(--schrift-2); border: 1px solid var(--rand-hell); background: var(--grund-3);
 }
 .aufgabe.gelöst .aufgabe-punkte {
-  color: var(--gold); border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  color: var(--gold-schrift); border-color: color-mix(in srgb, var(--gold) 55%, transparent);
   background: color-mix(in srgb, var(--gold) 10%, transparent);
 }
 
@@ -841,7 +846,7 @@ html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
   margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--rand);
   font-size: .92rem; color: var(--schrift-2);
 }
-.anmerkung b { color: var(--gold); }
+.anmerkung b { color: var(--gold-schrift); }
 
 /* ============================================================ Fortschritt */
 .gitter-2 { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
@@ -860,7 +865,7 @@ html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
 
 .titelleiter { display: grid; gap: .3rem; margin-top: .8rem; }
 .titelstufe { display: flex; justify-content: space-between; font-size: .86rem; color: var(--schrift-3); }
-.titelstufe.erreicht { color: var(--gold); }
+.titelstufe.erreicht { color: var(--gold-schrift); }
 
 /* ============================================================ Bibliothek */
 .bib { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 1.4rem; align-items: start; }
@@ -872,7 +877,7 @@ html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
 .bib-ordner:hover { color: var(--glut-hell); }
 .bib-notiz-link { color: var(--schrift-3); cursor: pointer; display: block; padding: .1rem 0; }
 .bib-notiz-link:hover { color: var(--glut-hell); }
-.bib-notiz-link.aktiv { color: var(--gold); }
+.bib-notiz-link.aktiv { color: var(--gold-schrift); }
 .bib-inhalt { min-width: 0; max-width: 760px; }
 .verweise { margin-top: 2.5rem; border-top: 1px solid var(--rand); padding-top: 1rem; }
 .wikilink { cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--glut-hell); }
@@ -1073,7 +1078,7 @@ body.mit-persona #knopf-persona {
   padding: .5rem;
 }
 .persona-kopf {
-  font-family: var(--serif); color: var(--gold); font-size: .95rem;
+  font-family: var(--serif); color: var(--gold-schrift); font-size: .95rem;
   padding: .25rem .5rem 0;
 }
 .persona-warum {
@@ -1094,7 +1099,7 @@ body.mit-persona #knopf-persona {
 }
 .persona-zeile:hover        { background: var(--grund-3); }
 .persona-zeile.aktiv        { border-color: var(--glut); background: var(--grund-3); }
-.persona-name  { display: flex; align-items: baseline; gap: .5rem; color: var(--gold); }
+.persona-name  { display: flex; align-items: baseline; gap: .5rem; color: var(--gold-schrift); }
 .persona-alter { margin-left: auto; font-size: .74rem; color: var(--schrift-3); }
 .persona-was   { display: block; font-size: .78rem; color: var(--schrift-2); margin-top: .1rem; }
 .persona-zurueck {
@@ -1110,7 +1115,7 @@ body.mit-persona #knopf-persona {
   padding: .22rem .6rem; border-radius: 999px;
   background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
 }
-.anrede-knopf:hover { border-color: var(--gold); color: var(--gold); }
+.anrede-knopf:hover { border-color: var(--gold); color: var(--gold-schrift); }
 
 /* -------- Eingabe: eine Zeile, wächst mit dem Text
    Reihenfolge: Feld — Mikrofon — Abschicken. Das Mikrofon steht dazwischen und
@@ -1140,7 +1145,7 @@ body.mit-persona #knopf-persona {
   border-radius: var(--radius-klein); color: inherit;
 }
 .tutor-zeile:hover { border-color: var(--gold); }
-.tutor-zeile .name { font-family: var(--serif); font-weight: 600; color: var(--gold); }
+.tutor-zeile .name { font-family: var(--serif); font-weight: 600; color: var(--gold-schrift); }
 .tutor-zeile .klein { margin-top: .1rem; }
 
 /* Der Satz, der vorher fehlte: woran der Rang eigentlich hängt. */
@@ -1240,7 +1245,7 @@ a.knopf.werkstatt-link { display: inline-block; margin: 0 .5rem .5rem 0; text-de
    Untereinander gelesen wäre der zweite die Fussnote zum ersten — und das ist
    genau die falsche Aussage gegenüber jemandem, der kein Geld hat. */
 .nachlade-bilanz {
-  font-family: var(--serif); font-size: 1.05rem; color: var(--gold);
+  font-family: var(--serif); font-size: 1.05rem; color: var(--gold-schrift);
   margin: 0 0 .4rem;
 }
 .nachlade-grund { color: var(--schrift-2); margin: 0 0 1.2rem; }
@@ -1253,7 +1258,7 @@ a.knopf.werkstatt-link { display: inline-block; margin: 0 .5rem .5rem 0; text-de
   padding: .9rem 1rem; background: var(--grund-3);
   display: flex; flex-direction: column; gap: .45rem;
 }
-.nachlade-weg h4 { margin: 0; color: var(--gold); font-size: .98rem; }
+.nachlade-weg h4 { margin: 0; color: var(--gold-schrift); font-size: .98rem; }
 /* Volle Schriftfarbe, nicht die abgeschwächte: In diesen zwei Absätzen steht,
    wie es weitergeht. Mit `--schrift-2` lagen sie bei 6,71:1 und damit knapp
    unter den 7:1, die hier für Fliesstext gelten — gemessen auf `--grund-3`. */
@@ -1323,6 +1328,7 @@ html[data-thema-effektiv="hell"] {
      (Faktor .70 auf ihr eigenes Gold); hier steht sie fest, weil ohne
      eingeschaltete Varianten niemand sie ableitet. */
   --begriff:      #6c4a00;
+  --gold-schrift: var(--begriff);
 
   --gut:          #1c7a41;
   --gut-grund:    #e2f3e7;
@@ -1396,6 +1402,9 @@ html[data-thema-effektiv="hell"] .menue-knopf.aktiv {
 html[data-thema-effektiv="hell"] .menue-werkstatt.frei:not(.aktiv):not(:hover) {
   color: var(--schrift-2);
 }
+/* Im Hinweiskasten (z. B. Einstellungen → Profil) stand `--warn` auf dem
+   gelblich-grauen Grund bei 4,2:1. Das dunkle Text-Gold kommt auf über 6:1. */
+html[data-thema-effektiv="hell"] .hinweis-kasten b { color: var(--begriff); }
 
 /* ============================================================ Stellschrauben
    Schriftgrösse, Textschrift, Kontrast, Bewegung, Breite — alles über
@@ -1441,7 +1450,7 @@ html[data-breite="breit"]  { --breit: 1480px; }
   border: 1px solid transparent; border-radius: var(--radius-klein);
   padding: .3rem .5rem;
 }
-.kopf-symbol:hover { color: var(--gold); background: var(--grund-3); border-color: var(--rand); }
+.kopf-symbol:hover { color: var(--gold-schrift); background: var(--grund-3); border-color: var(--rand); }
 
 /* Sonne im Dunkeln, Mond im Hellen: das Symbol zeigt, wohin es GEHT, nicht
    wo man gerade ist. */
@@ -1457,7 +1466,7 @@ html[data-thema-effektiv="hell"]   .symbol-mond  { display: inline; }
   border: 1px solid var(--rand); border-radius: 999px;
   padding: .2rem .7rem; margin-right: .25rem;
 }
-.kopf-stil:hover { color: var(--gold); border-color: var(--gold); background: var(--grund-3); }
+.kopf-stil:hover { color: var(--gold-schrift); border-color: var(--gold); background: var(--grund-3); }
 .stil-academy, .stil-klar { display: none; }
 html:not([data-stil="klar"]) .stil-klar { display: inline; }
 html[data-stil="klar"] .stil-academy    { display: inline; }
@@ -1500,7 +1509,7 @@ html[data-stil="klar"] .stil-academy    { display: inline; }
   border-radius: var(--radius-klein); padding: .45rem .7rem;
 }
 .reiter-knopf:hover { background: var(--grund-3); color: var(--schrift); }
-.reiter-knopf.aktiv { background: var(--grund-3); color: var(--gold); border-color: var(--rand-hell); }
+.reiter-knopf.aktiv { background: var(--grund-3); color: var(--gold-schrift); border-color: var(--rand-hell); }
 .reiter-trenner {
   margin: .7rem .7rem .3rem; padding-top: .7rem; border-top: 1px solid var(--rand);
   font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--schrift-3);
@@ -1632,7 +1641,7 @@ html[data-stil="klar"] .stil-academy    { display: inline; }
    vorbelegt als ein <button> — sonst traegt die Pille einen Unterstrich und
    hat keine Hoehe. */
 a.einst-wahl {
-  display: inline-block; text-decoration: none; color: var(--gold);
+  display: inline-block; text-decoration: none; color: var(--gold-schrift);
   border-color: var(--rand-hell);
 }
 a.einst-wahl:hover,
@@ -1663,7 +1672,7 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
   background: var(--grund-2);
 }
 .rahmen-leiste .titel {
-  font-family: var(--serif); font-size: .95rem; color: var(--gold);
+  font-family: var(--serif); font-size: .95rem; color: var(--gold-schrift);
 }
 /* Der Rahmen traegt seinen eigenen Grund, damit beim Laden kein weisses Blatt
    aufblitzt: Die Seite darin ist fast schwarz, die Vorgabe eines iframe ist es
@@ -1686,7 +1695,7 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
   background: var(--grund-3); border: 1px solid var(--rand);
   border-radius: var(--radius-klein); padding: .6rem .8rem;
 }
-.stand-kachel .zahl { font-size: 1.3rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.stand-kachel .zahl { font-size: 1.3rem; font-weight: 700; color: var(--gold-schrift); font-variant-numeric: tabular-nums; }
 .stand-kachel .was  { font-size: .8rem; color: var(--schrift-3); }
 
 /* ============================================================ Lob-Fenster
@@ -1719,12 +1728,12 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
 .lob .lob-siegel {
   display: inline-flex; align-items: center; justify-content: center;
   width: 3.2rem; height: 3.2rem; border-radius: 50%;
-  border: 1px solid var(--gold); color: var(--gold);
+  border: 1px solid var(--gold); color: var(--gold-schrift);
 }
 .lob .lob-flamme { width: 1.7rem; height: 1.7rem; fill: currentColor; }
 .lob .lob-haken { font: 700 1.5rem/1 var(--sans); }
 .lob .lob-auge {
-  margin: .5rem 0 .5rem; color: var(--gold);
+  margin: .5rem 0 .5rem; color: var(--gold-schrift);
   font-family: var(--sans); font-size: .74rem; font-weight: 700;
   letter-spacing: .22em; text-transform: uppercase;
 }
@@ -1732,7 +1741,7 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
   font-family: var(--serif); font-size: 1.18rem; line-height: 1.4;
   color: var(--schrift); margin: 0 auto .5rem; max-width: 30ch;
 }
-.lob .lob-punkte { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+.lob .lob-punkte { color: var(--gold-schrift); font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
 .lob .lob-balken { height: 3px; background: var(--rand); border-radius: 2px; margin-top: 1.1rem; overflow: hidden; }
 .lob .lob-balken i { display: block; height: 100%; background: var(--gold); width: 100%; }
 @keyframes lob-schleier { from { opacity: 0; } }
@@ -1881,10 +1890,10 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
   border: 0; background: transparent; border-radius: var(--radius-klein);
   color: var(--schrift-3);
 }
-.pod-kette { color: var(--gold); opacity: .8; }
+.pod-kette { color: var(--gold-schrift); opacity: .8; }
 .pod-auto  { cursor: pointer; opacity: .45; transition: opacity .12s ease-out; }
 .pod-auto:hover, .pod-auto:focus-visible { opacity: .9; background: var(--grund-3); }
-.pod-auto.an { opacity: 1; color: var(--gold); background: var(--grund-3); }
+.pod-auto.an { opacity: 1; color: var(--gold-schrift); background: var(--grund-3); }
 .pod-stueck {
   display: flex; align-items: center; gap: .5rem; width: 100%;
   font: inherit; font-size: .87rem; text-align: left; cursor: pointer;
@@ -1892,7 +1901,7 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
   border: 1px solid transparent; border-radius: var(--radius-klein); padding: .35rem .5rem;
 }
 .pod-stueck:hover { background: var(--grund-3); color: var(--schrift); }
-.pod-stueck.aktiv { background: var(--grund-3); color: var(--gold); border-color: var(--rand-hell); }
+.pod-stueck.aktiv { background: var(--grund-3); color: var(--gold-schrift); border-color: var(--rand-hell); }
 .pod-stueck .nr { color: var(--schrift-3); font-variant-numeric: tabular-nums; min-width: 1.6rem; }
 .pod-stueck.gehoert .nr::after { content: "✓"; color: var(--gut); }
 
@@ -1948,7 +1957,7 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
 }
 .tok-zahl .zahl { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .tok-zahl .was  { font-size: .78rem; color: var(--schrift-3); }
-.tok-zahl.betont .zahl { color: var(--gold); }
+.tok-zahl.betont .zahl { color: var(--gold-schrift); }
 
 .tok-bloecke {
   font-family: var(--mono); font-size: .93rem; line-height: 2.1;
@@ -1973,8 +1982,8 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
 /* ============================================================ Tutorennamen
    Die Namen tragen die Glut, nicht die Fliesstextfarbe: in der Wahl der
    Karten sind sie das, wonach man sucht. */
-.tutor-zeile .name { color: var(--gold); font-weight: 700; }
-.nachricht.agent .von { color: var(--gold); font-weight: 600; }
+.tutor-zeile .name { color: var(--gold-schrift); font-weight: 700; }
+.nachricht.agent .von { color: var(--gold-schrift); font-weight: 600; }
 
 
 /* Der Tokenicer-Ruf im Fragetext. Klein und in der Textzeile mitlaufend —
@@ -1985,7 +1994,7 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
   background: var(--grund-3); border: 1px solid var(--rand);
   color: var(--schrift-3);
 }
-.tok-ruf:hover { color: var(--gold); border-color: var(--rand-hell); }
+.tok-ruf:hover { color: var(--gold-schrift); border-color: var(--rand-hell); }
 
 /* ============================================================ Rechte-Matrix
    Eine echte Tabelle (28.09.2026): eine Zeile je Recht, eine Spalte je Ebene,
@@ -2026,7 +2035,7 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
 .rechte-tabelle tbody tr:not(.rechte-gruppenzeile):hover { background: var(--grund-3); }
 .rechte-gruppenzeile th {
   text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--gold); background: var(--grund); padding: .7rem .6rem .35rem;
+  color: var(--gold-schrift); background: var(--grund); padding: .7rem .6rem .35rem;
 }
 .recht-was { color: var(--schrift); }
 .rechte-recht code { display: block; font-size: .74rem; color: var(--schrift-3); background: none; border: 0; padding: 0; margin-top: .1rem; }
@@ -2115,7 +2124,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem;
   padding: .9rem 1rem; border-bottom: 1px solid var(--rand);
 }
-.panel-kopf h3 { margin: 0; font-size: 1.05rem; color: var(--gold); }
+.panel-kopf h3 { margin: 0; font-size: 1.05rem; color: var(--gold-schrift); }
 
 /* „Neu" und „×" stehen zusammen rechts oben — beide räumen etwas weg, und was
    dieselbe Art von Handlung ist, gehört an dieselbe Stelle. Das × bleibt aussen:
@@ -2141,7 +2150,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
 }
 .panel-agent:hover { border-color: var(--rand-hell); color: var(--schrift); }
-.panel-agent.aktiv { border-color: var(--gold); color: var(--gold); }
+.panel-agent.aktiv { border-color: var(--gold); color: var(--gold-schrift); }
 
 .panel-regel {
   margin: .8rem 1rem 0; padding: .6rem .7rem; font-size: .82rem;
@@ -2158,7 +2167,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   padding: .5rem .7rem; border-radius: var(--radius-klein);
   background: var(--grund-3); border: 1px dashed var(--rand-hell); color: var(--schrift-2);
 }
-.panel-vorschlag:hover { border-style: solid; color: var(--gold); }
+.panel-vorschlag:hover { border-style: solid; color: var(--gold-schrift); }
 
 .panel-form { padding: .8rem 1rem 1rem; border-top: 1px solid var(--rand); }
 .panel-form textarea { width: 100%; resize: vertical; }
@@ -2179,7 +2188,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
 }
 .stand-frage:hover { border-color: var(--rand-hell); color: var(--schrift); }
-.stand-frage.aktiv { border-color: var(--gold); color: var(--gold); background: var(--grund-2); }
+.stand-frage.aktiv { border-color: var(--gold); color: var(--gold-schrift); background: var(--grund-2); }
 
 .stand-antwort:not(:empty) {
   margin-top: .7rem; padding-top: .7rem; border-top: 1px solid var(--rand);
@@ -2191,10 +2200,10 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
 .stand-liste li { display: flex; gap: .5rem; padding: .25rem 0; align-items: flex-start; }
 .stand-liste .zeichen { flex: none; width: 1.2em; text-align: center; }
 .stand-liste .zeichen.erfuellt { color: var(--gut); }
-.stand-liste .zeichen.teil     { color: var(--gold); }
+.stand-liste .zeichen.teil     { color: var(--gold-schrift); }
 .stand-liste .zeichen.offen    { color: var(--schrift-3); }
 
-.stand-link { cursor: pointer; color: var(--gold); font-size: .84rem; }
+.stand-link { cursor: pointer; color: var(--gold-schrift); font-size: .84rem; }
 .stand-link:hover { text-decoration: underline; }
 
 .tutorkarte .knopf { margin-top: .6rem; }
@@ -2209,7 +2218,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold) inset;
 }
-.hier-marke { color: var(--gold); margin-top: .4rem; }
+.hier-marke { color: var(--gold-schrift); margin-top: .4rem; }
 
 .lektion-fuss {
   margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--rand);
@@ -2257,7 +2266,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
 
 .preis-betrag {
   font-size: 1.9rem; font-weight: 700; line-height: 1.1;
-  color: var(--gold); font-variant-numeric: tabular-nums;
+  color: var(--gold-schrift); font-variant-numeric: tabular-nums;
 }
 .preis-takt { display: block; font-size: .78rem; font-weight: 400; color: var(--schrift-3); }
 .preis-kopf { font-size: .82rem; color: var(--gut); margin-top: .2rem; }
@@ -2270,7 +2279,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   font-size: .84rem; color: var(--schrift-2); padding: .18rem 0 .18rem 1.1rem;
   position: relative;
 }
-.preis-liste li::before { content: '·'; position: absolute; left: .3rem; color: var(--gold); }
+.preis-liste li::before { content: '·'; position: absolute; left: .3rem; color: var(--gold-schrift); }
 
 .preis-fuer { font-size: .8rem; color: var(--schrift-3); font-style: italic; margin: .2rem 0 .6rem; }
 
@@ -2338,7 +2347,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
   border-radius: var(--radius-klein);
 }
 .paket-name   { font-size: .82rem; color: var(--schrift-3); text-transform: uppercase; letter-spacing: .05em; }
-.paket-preis  { font-size: 1.5rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.paket-preis  { font-size: 1.5rem; font-weight: 700; color: var(--gold-schrift); font-variant-numeric: tabular-nums; }
 .paket-tokens { font-size: .88rem; color: var(--schrift-2); }
 .paket-mehr   { font-size: .78rem; color: var(--gut); margin-top: .2rem; }
 .paket .knopf { margin-top: .7rem; }
@@ -2369,7 +2378,7 @@ html[data-bewegung="wenig"] .schalter, html[data-bewegung="wenig"] .schalter::af
 
 .token-rest { text-align: center; padding: .8rem 0 .4rem; }
 .token-rest .zahl {
-  font-size: 2.1rem; font-weight: 700; color: var(--gold);
+  font-size: 2.1rem; font-weight: 700; color: var(--gold-schrift);
   font-variant-numeric: tabular-nums; line-height: 1.1;
 }
 .token-rest .was { font-size: .8rem; color: var(--schrift-3); }
@@ -2419,7 +2428,7 @@ tr.spaeter td { opacity: .5; }
   background: var(--grund-3); border: 1px solid var(--rand);
   color: var(--schrift-2);
 }
-.mikro-knopf:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.mikro-knopf:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-schrift); }
 .mikro-knopf:disabled { opacity: .6; cursor: default; }
 
 /* Warum das Mikro nicht geht — im Fenster, nicht als Kurzmeldung. Der Text
@@ -2539,7 +2548,7 @@ body.modal-voll { overflow: hidden; }
   max-height: none; min-height: 0; overscroll-behavior: contain;
 }
 .gl-kopftext { min-width: 0; }
-.gl-kopftext h2 { margin: 0; font-size: 1.15rem; color: var(--gold); }
+.gl-kopftext h2 { margin: 0; font-size: 1.15rem; color: var(--gold-schrift); }
 .gl-kopftext .klein { margin: .1rem 0 0; color: var(--schrift-3); }
 
 .gl-koerper {
@@ -2618,7 +2627,7 @@ body.modal-voll { overflow: hidden; }
   padding: .25rem .8rem; border-radius: 999px;
   background: var(--grund-3); border: 1px solid var(--rand); color: var(--schrift-2);
 }
-.gl-tiefe:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.gl-tiefe:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-schrift); }
 .gl-tiefe:disabled { opacity: .45; cursor: default; }
 
 .gl-emoji {
@@ -2797,7 +2806,7 @@ body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
 }
 .ps-weg li + li::before {
   content: '→'; position: absolute; left: -1.25rem; top: 50%; transform: translateY(-50%);
-  color: var(--gold);
+  color: var(--gold-schrift);
 }
 .ps-weg b { font-family: var(--serif); color: var(--schrift); }
 .ps-weg span { font-size: .8rem; color: var(--schrift-2); }
@@ -2818,7 +2827,7 @@ body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
 .ps-eigen { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; color: var(--schrift-2); }
 .ps-eigen input { max-width: 18rem; }
 .ps-vorschau { margin: 0; font-size: 1.05rem; color: var(--schrift); }
-.ps-vorschau b { font-family: var(--serif); font-size: 1.25rem; color: var(--gold); }
+.ps-vorschau b { font-family: var(--serif); font-size: 1.25rem; color: var(--gold-schrift); }
 .ps-k { font-family: var(--mono); font-size: .85em; color: var(--schrift-3); }
 .ps-kennung, .ps-frist { margin: 0; font-size: .86rem; line-height: 1.5; color: var(--schrift-2); }
 .ps-ok { display: flex; gap: .5rem; align-items: flex-start; font-size: .9rem; color: var(--schrift); }
