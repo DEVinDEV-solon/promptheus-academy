@@ -114,7 +114,7 @@ PU.klasseZeichnen = async function () {
   form.className = 'tor-form';
   form.style.maxWidth = '420px';
   form.innerHTML =
-    '<label>Kennung <input name="kennung" required pattern="[a-z0-9][a-z0-9._-]{2,31}"></label>' +
+    '<label>Kennung <input name="kennung" required pattern="[a-z0-9][a-z0-9._\\-]{2,31}"></label>' +
     '<label>Anzeigename <input name="anzeigename" required></label>' +
     '<label>Kennwort <input name="kennwort" type="password" required minlength="8"></label>' +
     '<label>Gruppe <input name="gruppe" placeholder="z. B. 8b (optional)"></label>' +

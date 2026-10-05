@@ -495,7 +495,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
           lässt sich danach nur alle 30 Tage ändern.
         </p>
         <label>Kennung <input name="kennung" required minlength="3" maxlength="32"
-               pattern="[a-z0-9][a-z0-9._-]{2,31}" placeholder="z. B. dan"></label>
+               pattern="[a-z0-9][a-z0-9._\-]{2,31}" placeholder="z. B. dan"></label>
         <label>Anzeigename <input name="anzeigename" required maxlength="60" placeholder="z. B. Dan"></label>
         <label>Kennwort <input name="kennwort" type="password" required minlength="8"></label>
         <button type="submit" class="knopf groß">Academy einrichten</button>
