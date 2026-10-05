@@ -22,7 +22,6 @@ require_once __DIR__ . '/lib.php';
 require_once __DIR__ . '/srv/db.php';
 require_once __DIR__ . '/srv/rechte.php';
 require_once __DIR__ . '/srv/abo.php';
-require_once __DIR__ . '/srv/preistafel.php';
 require_once __DIR__ . '/srv/lernende.php';
 require_once __DIR__ . '/srv/einstellungen.php';
 require_once __DIR__ . '/srv/varianten.php';
@@ -146,7 +145,7 @@ $kennzahlen = $offen ? [] : pu_kennzahlen($sicht);
 <link rel="stylesheet" href="<?= pu_v('assets/css/gemeinde.css') ?>">
 <?php endif; ?>
 <?php if ($offen): ?>
-<!-- Die Landingpage: die oeffentliche Startseite mit Login-Schirm und Preisen.
+<!-- Die Landingpage: die oeffentliche Startseite mit Login-Schirm.
      Nur vor der Anmeldung geladen, damit die Academy nichts Ueberfluessiges traegt. -->
 <link rel="stylesheet" href="<?= pu_v('assets/css/landing.css') ?>">
 <?php endif; ?>
@@ -185,6 +184,10 @@ $peakVideo = $offen && is_file(PU_ROOT . '/assets/video/peak.mp4');
 // Der sprechende Prometheus neben „So lernst du". Stumm gestartet; der Ton
 // wird im Bedienfeld des Videos zugeschaltet.
 $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp4');
+// Preise und die Community-Beschreibung pflegt die Webseite. Die Startseite
+// nennt keine Beträge mehr (zwei Orte für dieselben Preise wären zwei
+// Wahrheiten) und verweist dorthin — ein Link, nichts wird geladen.
+$webseite = 'https://promptheus-academy.de/';
 ?>
 <body class="<?= $offen ? ('landing' . ($peakVideo ? ' hat-peak-video' : '')) : 'uni' ?>">
 
@@ -193,7 +196,8 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
      Die öffentliche Startseite. Der Login steht NICHT hier — er ist ein eigener
      Schirm, der über den Knopf rechts oben erscheint. Die Seite ist eine
      Scroll-Folge mit wechselnden Mitteln: Held, angehaltene Frage, Aufdecken,
-     gestaffeltes Raster, Stufen-Zug, der Feuer-Höhepunkt, Preise, Abschluss. -->
+     gestaffeltes Raster, Stufen-Zug, der Feuer-Höhepunkt, Community, Abschluss.
+     Preise nennt sie nicht: die pflegt die Webseite. -->
 <header class="lp-bar" id="lp-bar">
   <a class="lp-wort" href="#">
     <span class="lp-flamme" aria-hidden="true">🔥</span><b>PROMPTHEUS</b><span>Academy</span>
@@ -201,7 +205,9 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
   <nav class="lp-bar-nav" aria-label="Abschnitte">
     <a class="lp-nav-fern" href="#methode">Methode</a>
     <a class="lp-nav-fern" href="#stufen">Stufen</a>
-    <a class="lp-nav-fern" href="#preise">Preise</a>
+    <a class="lp-nav-fern" href="#community">Community</a>
+    <a class="lp-nav-fern" href="<?= pu_h($webseite) ?>preise.php" target="_blank"
+       rel="noopener noreferrer">Preise ↗</a>
     <button class="knopf" type="button" data-login-auf><?= $leer ? 'Academy einrichten' : 'Anmelden' ?></button>
   </nav>
 </header>
@@ -229,7 +235,7 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
       </div>
       <p class="lp-mini">
         <span>🔒 Keine Cloud, kein fremder Server</span>
-        <span><b>✓</b> Preise ohne Konto sichtbar</span>
+        <span><b>✓</b> Kurse I bis VI frei</span>
         <span>🖥 Ohne Internet nutzbar</span>
       </p>
     </div>
@@ -373,63 +379,31 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     </div>
   </section>
 
-  <!-- 6.5 · Community-Netzwerk (Vorschau). Das Feuer, einmal gebracht, springt
-       weiter. Eine Vorschau, kein Versprechen mit Datum. -->
-  <section class="lp-community lp-sektion" aria-label="Community-Netzwerk">
+  <!-- 6.5 · Community. Sie läuft: Werkbank der Schulen, geöffnet nur aus der
+       Werkstatt einer registrierten Academy. Die Beschreibung folgt der
+       Webseite (community.php); Ausführliches steht dort, nicht hier. -->
+  <section class="lp-community lp-sektion" id="community" aria-label="Community">
     <div class="lp-mitte">
       <div class="lp-community-karte lp-auf"
            style="background-image:url('<?= pu_v('assets/img/community.jpg') ?>')">
         <div class="lp-community-inhalt">
-          <p class="lp-kicker">Bald · Netzwerk</p>
-          <h2>Ein Funke wird zum Lauffeuer.</h2>
-          <p class="lp-lead">Wir vernetzen deine Schule mit anderen Schulen und
-            Universitäten. Tausende Prompts, Skills und Plugins, geteilt von
-            kreativen Köpfen, frei für alle.</p>
+          <p class="lp-kicker">Community · aus der Werkstatt</p>
+          <h2>Die Werkbank der Schulen.</h2>
+          <p class="lp-lead">Hier zeigen Schulen, Lehrkräfte und Schüler, was sie
+            mit KI gebaut haben, und holen sich Rezepte für das Nächste. Anonym,
+            ohne Tracking, ohne Werbung.</p>
+          <ul class="lp-community-liste">
+            <li><b>157 Video-Rezepte</b>, jedes mit Auftrag und Videoprompt</li>
+            <li><b>Geprüfte Prompts</b>, nach Themen geordnet</li>
+            <li><b>Werke</b> aus den Werkstätten, anonym kommentiert</li>
+            <li><b>Likes werden zu Talenten</b>, Talente zu Token</li>
+          </ul>
+          <p class="lp-community-weg">Hinein geht es nur aus der Werkstatt einer
+            registrierten Academy: kein Login, kein Kennwort, kein offener Link.</p>
           <p class="lp-community-claim">Von Vielen, für Alle.</p>
-          <span class="lp-tag">In Vorbereitung</span>
+          <a class="knopf still lp-community-mehr" href="<?= pu_h($webseite) ?>community.php"
+             target="_blank" rel="noopener noreferrer">Mehr über die Community ↗</a>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7 · Preise (ruhiges Absetzen). Dieselbe Tafel wie im Cockpit, nur ohne
-       Buchen-Knöpfe: buchen kann man erst nach der Anmeldung. -->
-  <section class="lp-preise lp-sektion" id="preise">
-    <div class="lp-mitte">
-      <div class="lp-preise-kopf lp-auf">
-        <p class="lp-kicker">Zugang wählen</p>
-        <h2>Vier Wege in dieselbe Academy.</h2>
-        <p class="hinweis">Der Unterschied ist, für wie viele. <b>Je Student ist
-          die Schule am günstigsten.</b> Die Preise stehen offen, buchen kannst
-          du nach der Anmeldung. Jedes neue Konto startet mit
-          <b><?= number_format(PU_PROBE_TOKEN, 0, ',', '.') ?> Token zum
-          Ausprobieren</b>, geschenkt und ohne Verfallsdatum.</p>
-      </div>
-
-      <?= pu_preistafel_html() ?>
-
-      <!-- Die zwei Wege stehen direkt unter der Tafel: wer gerade einen Preis
-           gelesen hat, will als Nächstes wissen, was passiert, wenn er zugreift
-           — und die Antwort ist bei Abo und Token nicht dieselbe. -->
-      <?= pu_wege_html() ?>
-
-      <!-- Token stehen auf einer eigenen, deckenden Fläche: über dem Prometheus
-           wäre die feine Tabelle sonst kaum zu lesen. -->
-      <div class="lp-token">
-        <h3>Token nachlegen</h3>
-        <p class="hinweis">In jedem Plan steckt ein monatliches Token-Kontingent.
-          Wer mehr braucht, legt nach. <b>Token verfallen nie</b>, weder gekaufte
-          noch das Kontingent: Was 365 Tage nach der Buchung noch frei ist, wird
-          innerhalb der eigenen Einrichtung weiterverteilt.</p>
-        <?= pu_pakete_html() ?>
-
-        <h3>Was ein Token freischaltet</h3>
-        <?= pu_werkzeuge_html() ?>
-
-        <p class="klein" style="margin-top:1.2rem">Alle Beträge in Euro, brutto,
-          ohne ausgewiesene Umsatzsteuer. Gebucht wird in der Academy, bezahlt
-          wird auf Rechnung. Es ist kein Zahlungsdienst eingebunden, und es werden
-          keine Kartendaten erhoben.</p>
       </div>
     </div>
   </section>
@@ -444,7 +418,8 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
         : 'Melde dich an und mach dort weiter, wo du warst.' ?></p>
       <div class="lp-cta">
         <button class="knopf gross" type="button" data-login-auf><?= $leer ? 'Academy einrichten' : 'Anmelden' ?></button>
-        <a class="knopf still gross" href="#preise">Preise ansehen</a>
+        <a class="knopf still gross" href="<?= pu_h($webseite) ?>preise.php" target="_blank"
+           rel="noopener noreferrer">Preise auf der Webseite ↗</a>
       </div>
     </div>
     <!-- Der Fussteil: links das Zeichen, rechts das Rechtliche. Die Jahreszahl
