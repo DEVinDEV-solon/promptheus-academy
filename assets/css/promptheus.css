@@ -508,6 +508,11 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 .balken { height: 6px; background: var(--grund-3); border-radius: 99px; overflow: hidden; }
 .balken > i { display: block; height: 100%; background: linear-gradient(90deg, var(--glut-tief), var(--gold)); }
 .klein { font-size: .82rem; color: var(--schrift-3); }
+/* `.klein` steht hinter `.knopf` und nahm dem kleinen Hauptknopf die Schrift-
+   farbe: blasses `--schrift-3` auf der Glut-Fläche, unlesbar („Kurs bestanden
+   (Test)" unter Einstellungen → Urkunden). Der stille Knopf war nie betroffen,
+   `.knopf.still` wiegt schwerer. Im Hellen gewinnt weiter die weisse Regel. */
+.knopf.klein:not(.still) { color: var(--grund); }
 
 /* ============================================================ Lektion
    Satzbild für langen Lehrtext (28.09.2026). Drei Regeln:
