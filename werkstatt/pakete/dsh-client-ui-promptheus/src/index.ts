@@ -34,6 +34,12 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { cinemaPort, cinemaRouten } from './cinema.ts'
+
+export {
+  CINEMA_PFAD, cinemaOrdner, cinemaPort, cinemaRouten, starterUmgebung, ticketSchreiben,
+} from './cinema.ts'
+
 /** Der Produktname, den der Browser im Tab zeigt. */
 export const PRODUKT_TITEL = 'Werkstatt — Promptheus Academy'
 
@@ -272,6 +278,18 @@ export function apply(ctx: any): void {
     },
   }), `promptheus: Community ${GEMEINDE_PFAD}`)
 
+  // ── Der Weg ins Cinema Studio (06.10.2026) ─────────────────────────────────
+  // Startseite, Start mit Ticket und Stand (cinema.ts). Ebenfalls vor den
+  // Routen, die bei fehlenden Dateien früh aussteigen.
+  const cinema = cinemaRouten({
+    werkstatt: werkstattWurzel(),
+    ordnerRoh: process.env.PROMPTHEUS_CINEMA_DIR,
+    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT),
+  })
+  for (const [pfad, handler] of Object.entries(cinema)) {
+    ctx.effect(() => webServer.register({ kind: 'exact', path: pfad, handler }), `promptheus: Cinema Studio ${pfad}`)
+  }
+
   // ── Die Schutzleiste über dem Eingabefeld ──────────────────────────────────
   // Der Client fragt hier, die Node-Hälfte reicht an die Schutzschicht auf
   // 127.0.0.1 weiter (Adresse von werkzeuge/starten.mjs). Nur zwei feste Wege,
@@ -369,6 +387,21 @@ export function apply(ctx: any): void {
       res.end(bild)
     },
   }), `promptheus: Hintergrundbild ${HINTERGRUND_PFAD}`)
+}
+
+/**
+ * Die Werkstatt-Wurzel: der erste Ordner über dem gebauten `lib/index.js`, in
+ * dem `werkzeuge/starten.mjs` liegt. Gesucht statt gerechnet, weil das Paket
+ * über einen Verweis im Zuhause geladen wird (siehe {@link dateiLesen}).
+ */
+function werkstattWurzel(): string {
+  const start = dirname(fileURLToPath(import.meta.url))
+  let ordner = start
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(join(ordner, 'werkzeuge', 'starten.mjs'))) return ordner
+    ordner = join(ordner, '..')
+  }
+  return join(start, '..', '..', '..')
 }
 
 /** Escaped Text für die Einbettung in ein HTML-Element. */

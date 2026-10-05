@@ -26,6 +26,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // pakete/dsh-client-ui-promptheus/src/client/index.ts
 var index_exports = {};
 __export(index_exports, {
+  CINEMA_URL: () => CINEMA_URL,
   FASSUNG: () => FASSUNG,
   GEMEINDE_URL: () => GEMEINDE_URL,
   apply: () => apply,
@@ -3636,6 +3637,7 @@ var workspace = {
 // pakete/dsh-client-ui-promptheus/src/client/index.ts
 var FASSUNG = "0.1.0";
 var GEMEINDE_URL = "/promptheus-community";
+var CINEMA_URL = "/promptheus-cinema";
 var farbkastenWaehler = null;
 function gemeindeAdresse() {
   const v = farbkastenWaehler?.getSnapshot() ?? "";
@@ -3702,16 +3704,32 @@ function Wortmarke() {
   );
 }
 function Gemeindeknopf(eigenschaften) {
+  return Fussknopf(eigenschaften, {
+    href: GEMEINDE_URL,
+    onClick: gemeindeKlick,
+    title: "Zur Gemeinde der PROMPTHEUS Academy",
+    text: "Community"
+  });
+}
+function Cinemaknopf(eigenschaften) {
+  return Fussknopf(eigenschaften, {
+    href: CINEMA_URL,
+    title: "Cinema Studio \xF6ffnen: Bilder, Videos und Audio erzeugen",
+    text: "Cinema-Studio"
+  });
+}
+function Fussknopf(eigenschaften, art) {
   const React = require("react");
   const breit = eigenschaften?.wide !== false;
   return React.createElement(
     "a",
     {
-      href: GEMEINDE_URL,
-      onClick: gemeindeKlick,
+      href: art.href,
+      onClick: art.onClick,
       target: "_blank",
       rel: "noreferrer",
-      title: "Zur Gemeinde der PROMPTHEUS Academy",
+      title: art.title,
+      "aria-label": art.text,
       style: {
         display: "inline-flex",
         alignItems: "center",
@@ -3751,7 +3769,7 @@ function Gemeindeknopf(eigenschaften) {
         background: `linear-gradient(180deg, ${GLUT_HELL}, ${GLUT})`
       }
     }),
-    breit ? React.createElement("span", { style: { overflow: "hidden", textOverflow: "ellipsis" } }, "Community") : null
+    breit ? React.createElement("span", { style: { overflow: "hidden", textOverflow: "ellipsis" } }, art.text) : null
   );
 }
 function GemeindeImKopf() {
@@ -3999,6 +4017,10 @@ function apply(ctx) {
   slots.inject("sidebar.footer.action", () => slots.register(
     { name: "sidebar.footer.action", id: "promptheus-community", order: 10 },
     Gemeindeknopf
+  ));
+  slots.inject("sidebar.footer.action", () => slots.register(
+    { name: "sidebar.footer.action", id: "promptheus-cinema", order: 20 },
+    Cinemaknopf
   ));
   slots.inject("conversation.session.header.utilities", () => slots.register(
     { name: "conversation.session.header.utilities", id: "promptheus-community-kopf", order: 10 },

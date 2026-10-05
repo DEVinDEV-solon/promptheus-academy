@@ -30,6 +30,18 @@ Browserfenster weg ist. Die Datei wird vor jedem Start und beim Beenden
 gelöscht. Beim ersten Öffnen zeigt die Werkstatt über dem Eingabefeld die Karte
 „Erste Schritte“ (`ersteschritte.ts`). Prüfen: `node werkzeuge\adresse_pruefen.mjs`.
 
+**Cinema Studio (seit 06.10.2026).** Links unten unter „Community“ steht
+„Cinema-Studio“. Der Knopf öffnet `/promptheus-cinema` in einem neuen Tab
+(`pakete\dsh-client-ui-promptheus\src\cinema.ts`). Die Seite erklärt die drei
+Schritte, legt ein Ticket in den Programmordner (`zugang\ticket.json`, zwei
+Minuten, einmalig) und startet `CINEMA-STUDIO-START.bat` in einem eigenen
+Fenster. Cinema Studio prüft das Ticket selbst (`zugang.py`); ohne Ticket
+startet es nicht, auch nicht für Betreiber. Die Werkstatt sucht das Programm
+in `scripts\CINEMA-STUDIO` und am heutigen Ort darunter (`CINEMA_ORTE`);
+`PROMPTHEUS_CINEMA_DIR` und `PROMPTHEUS_CINEMA_PORT` (Vorgabe 8796) gehen vor.
+Der Platzhalter-Schlüssel der Werkstatt geht nicht mit (`starterUmgebung`).
+Prüfen: `node werkzeuge\cinema_pruefen.mjs`.
+
 Entwicklung ohne Academy (Warnung im Fenster):
 
 ```powershell

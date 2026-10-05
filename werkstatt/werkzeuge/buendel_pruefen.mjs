@@ -347,6 +347,30 @@ function paketPruefen(paket) {
     beanstandungen.push(`${paket.name}: gemeindeAdresse() fehlt oder liefert eine fremde Adresse (ist: ${String(adresse)})`)
   }
 
+  // ── 8. Der Weg ins Cinema Studio (06.10.2026) ──────────────────────────────
+  //
+  // Der Knopf zeigt auf die eigene Route der Werkstatt, die das Start-Ticket
+  // ablegt (`cinema.ts`). Eine direkte Adresse auf 127.0.0.1:8796 wäre der Weg
+  // an der Startsperre vorbei.
+  if (rumpf.CINEMA_URL !== '/promptheus-cinema') {
+    beanstandungen.push(
+      `${paket.name}: CINEMA_URL zeigt nicht auf die eigene Route /promptheus-cinema (ist: ${String(rumpf.CINEMA_URL)})`,
+    )
+  }
+  const cinemaKnopf = belegt.find(b => b.name === 'sidebar.footer.action' && b.id === 'promptheus-cinema')
+  if (cinemaKnopf === undefined) {
+    beanstandungen.push(`${paket.name}: kein Knopf „Cinema-Studio" im Fuß der linken Spalte (id promptheus-cinema)`)
+  } else {
+    try {
+      const element = cinemaKnopf.baustein({ wide: true })
+      if (element?.props?.href !== '/promptheus-cinema') {
+        beanstandungen.push(`${paket.name}: der Knopf „Cinema-Studio" zeigt auf ${String(element?.props?.href)}`)
+      }
+    } catch (fehler) {
+      beanstandungen.push(`${paket.name}: der Knopf „Cinema-Studio" stürzte ab — ${fehler.message}`)
+    }
+  }
+
   return beanstandungen
 }
 
