@@ -755,8 +755,14 @@ $methodeVideo = $offen && is_file(PU_ROOT . '/assets/video/methode-prometheus.mp
     <div class="akt-notiz" id="akt-notiz" role="status" aria-live="polite" hidden<?= $sichtAttr('aktualisierung.verwalten') ?>></div>
     <?php endif; ?>
 
-    <button class="menue-knopf schmal" id="knopf-abmelden"
-            title="<?= pu_h($wer['anzeigename']) ?> abmelden">Abmelden</button>
+    <!-- Der Ausgang: eigene Zeile ganz unten links, ein richtiger Knopf statt
+         Menütext. Daneben die Fassung, kurz — bei einer Rückfrage soll sie
+         niemand erst in den Einstellungen suchen müssen. -->
+    <div class="leiste-ausgang">
+      <button class="knopf still klein" id="knopf-abmelden" type="button"
+              title="<?= pu_h($wer['anzeigename']) ?> abmelden">Abmelden</button>
+      <span class="leiste-fassung" title="PROMPTHEUS Academy, Fassung <?= pu_h(pu_fassung()) ?>">v<?= pu_h(pu_fassung()) ?></span>
+    </div>
   </div>
 
   <!-- Der Ziehgriff sitzt AUF der Kante, nicht daneben: eine eigene Spalte
