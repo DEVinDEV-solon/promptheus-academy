@@ -6,7 +6,7 @@
  *   sidebar.brand.mark                     die Bildmarke (Flamme im Mäanderring)
  *   sidebar.brand.name                     der Schriftzug PROMPTHEUS · Werkstatt
  *   conversation.hero.brand.mark           dieselbe Marke auf der Startseite
- *   sidebar.footer.action                  der Weg in die Gemeinde (Community)
+ *   sidebar.footer.action                  der Weg in die Gemeinde (Community) und ins Cinema Studio
  *   conversation.session.header.utilities  derselbe Weg im Sitzungskopf
  *   conversation.composer.dock             die Schutzleiste (schutzleiste.ts)
  *   conversation.input.dock                die Karte „Erste Schritte“ (ersteschritte.ts)
@@ -83,6 +83,13 @@ export const FASSUNG = '0.1.0'
  * (Plan 30_Community, C2).
  */
 export const GEMEINDE_URL = '/promptheus-community'
+
+/**
+ * Der Weg ins Cinema Studio (06.10.2026): eine Route der Werkstatt selbst
+ * (Node-Hälfte, `cinema.ts`). Sie zeigt Schritt für Schritt, was passiert,
+ * legt das Start-Ticket ab, startet Cinema Studio und leitet dann weiter.
+ */
+export const CINEMA_URL = '/promptheus-cinema'
 
 /** Der Farbkasten, sobald er steht — für die Palette im Gemeindeknopf. */
 let farbkastenWaehler: Palettenwaehler | null = null
@@ -245,16 +252,46 @@ function Wortmarke() {
  * @returns der Gemeindeknopf.
  */
 function Gemeindeknopf(eigenschaften) {
+  return Fussknopf(eigenschaften, {
+    href: GEMEINDE_URL,
+    onClick: gemeindeKlick,
+    title: 'Zur Gemeinde der PROMPTHEUS Academy',
+    text: 'Community',
+  })
+}
+
+/**
+ * Der Knopf ins Cinema Studio, direkt unter dem Gemeindeknopf. Gleiche Form,
+ * gleicher Glutpunkt: auch er führt weiter (BRAND.md §1).
+ * @param eigenschaften - `wide` sagt, ob der breite Zustand gilt.
+ * @returns der Cinema-Studio-Knopf.
+ */
+function Cinemaknopf(eigenschaften) {
+  return Fussknopf(eigenschaften, {
+    href: CINEMA_URL,
+    title: 'Cinema Studio öffnen: Bilder, Videos und Audio erzeugen',
+    text: 'Cinema-Studio',
+  })
+}
+
+/**
+ * Ein Knopf im Fuß der linken Spalte, der in einem neuen Tab weiterführt.
+ * @param eigenschaften - `wide` sagt, ob der breite Zustand gilt.
+ * @param art - Ziel, Klick, Hinweis und Beschriftung.
+ * @returns der Knopf.
+ */
+function Fussknopf(eigenschaften, art: { href: string, onClick?: (e: any) => void, title: string, text: string }) {
   const React = require('react')
   const breit = eigenschaften?.wide !== false
   return React.createElement(
     'a',
     {
-      href: GEMEINDE_URL,
-      onClick: gemeindeKlick,
+      href: art.href,
+      onClick: art.onClick,
       target: '_blank',
       rel: 'noreferrer',
-      title: 'Zur Gemeinde der PROMPTHEUS Academy',
+      title: art.title,
+      'aria-label': art.text,
       style: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -294,7 +331,7 @@ function Gemeindeknopf(eigenschaften) {
         background: `linear-gradient(180deg, ${GLUT_HELL}, ${GLUT})`,
       },
     }),
-    breit ? React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, 'Community') : null,
+    breit ? React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, art.text) : null,
   )
 }
 
@@ -673,6 +710,12 @@ export function apply(ctx) {
     slots.register(
       { name: 'sidebar.footer.action', id: 'promptheus-community', order: 10 },
       Gemeindeknopf,
+    ))
+  // Cinema Studio direkt darunter (06.10.2026), ebenfalls eingereiht.
+  slots.inject('sidebar.footer.action', () =>
+    slots.register(
+      { name: 'sidebar.footer.action', id: 'promptheus-cinema', order: 20 },
+      Cinemaknopf,
     ))
   slots.inject('conversation.session.header.utilities', () =>
     slots.register(
