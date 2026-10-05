@@ -245,6 +245,18 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 }
 .leiste-fuss .menue-knopf { width: auto; }
 
+/* Unterste Zeile: „Abmelden“ links als stiller Knopf, daneben die Fassung.
+   Volle Breite, damit sie nie neben die Symbole rutscht. */
+.leiste-ausgang {
+  flex-basis: 100%; display: flex; align-items: center; gap: .6rem;
+  margin-top: .3rem;
+}
+.leiste-ausgang .knopf { padding: .35rem .9rem; }
+.leiste-fassung {
+  font: .75rem/1 var(--mono); color: var(--schrift-3);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
 /* Die Farbliste klappt im Fuss nach OBEN auf. Nach unten läge sie unter dem
    Fensterrand — und sie ist breiter als die Leiste, deshalb steht sie über
    deren Kante hinaus statt sich hineinzuquetschen. */
