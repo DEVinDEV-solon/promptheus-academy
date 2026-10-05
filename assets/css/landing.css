@@ -68,7 +68,25 @@ body.zeigt-login .lp-bar { display: none; }
 .lp-bar-nav a:hover { color: var(--schrift); }
 .lp-bar-nav a:hover::after { right: 0; }
 .lp-bar-nav .lp-nav-fern { display: none; }
-@media (min-width: 720px) { .lp-bar-nav .lp-nav-fern { display: inline; } }
+/* Vier Abschnitte plus Knopf brauchen Platz: erst ab 960 px, darunter
+   drängten sie den Anmeldeknopf über den Rand. */
+@media (min-width: 960px) { .lp-bar-nav .lp-nav-fern { display: inline; } }
+/* Auf dem Handy schob die Wortmarke den Anmeldeknopf über den rechten Rand:
+   „ACADEMY" fällt weg, der Knopf wird kompakter und bleibt ganz sichtbar. */
+@media (max-width: 560px) {
+  .lp-wort { letter-spacing: .08em; }
+  .lp-wort b { letter-spacing: .08em; }
+  .lp-wort span:not(.lp-flamme) { display: none; }
+  .lp-bar-nav .knopf { padding: .45rem .8rem; font-size: .88rem; white-space: nowrap; }
+}
+@media (max-width: 420px) {
+  .lp-bar { gap: .5rem; padding-inline: .8rem; }
+  .lp-wort { font-size: .98rem; letter-spacing: .03em; gap: .35rem; }
+  .lp-wort b { letter-spacing: .03em; }
+  .lp-bar-nav .knopf { padding: .4rem .6rem; font-size: .8rem; }
+}
+/* Ganz schmal bleibt nur das Wort; die Flamme ist dort Zierde, der Knopf nicht. */
+@media (max-width: 360px) { .lp-wort .lp-flamme { display: none; } }
 
 /* ============================================================ Grundraster */
 .lp { position: relative; z-index: 1; }
@@ -393,60 +411,7 @@ body.hat-peak-video .lp-peak-bild { display: none; }
   color: var(--glut); font-weight: 700; letter-spacing: -.01em;
 }
 
-/* ============================================================ 7 · Preise (ruhiges Absetzen) */
-.lp-preise { background: rgb(var(--karte-schleier) / .5); }
-.lp-preise-kopf { text-align: center; max-width: 60ch; margin: 0 auto 1.4rem; }
-.lp-preise .preistafel { margin-top: 1.6rem; }
-.lp-preise h3 { margin-top: 3rem; }
-.lp-preise .hinweis { max-width: 60ch; }
-
-/* Die deckende Fläche für die Token-Preise: die Pläne dürfen über dem
-   Prometheus schweben, die feingliedrige Token-Tabelle braucht festen Grund. */
-/* ============================================================ 7.5 · Die zwei Wege
-   Steht zwischen Preistafel und Token-Tafel. Zwei Karten nebeneinander, weil
-   der Unterschied nur nebeneinander zu sehen ist — untereinander liest man die
-   zweite als Fortsetzung der ersten, und genau das ist sie nicht. */
-.wege {
-  margin-top: 2.4rem; padding: clamp(1.3rem, 3vw, 2.2rem);
-  background: var(--grund); border: 1px solid var(--rand);
-  border-radius: var(--radius); box-shadow: var(--schatten);
-}
-.wege > h3 { margin: 0 0 .3rem; }
-.wege > .hinweis { margin: 0 0 1.4rem; }
-
-.weg-reihe { display: grid; gap: 1rem; }
-@media (min-width: 760px) { .weg-reihe { grid-template-columns: 1fr 1fr; } }
-
-.weg-karte {
-  display: flex; flex-direction: column; gap: .5rem;
-  padding: 1.2rem 1.3rem;
-  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
-  background: var(--grund-2);
-}
-.weg-nr {
-  margin: 0; font-family: var(--sans); font-size: .72rem;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--glut);
-}
-.weg-karte h4 { margin: 0; font-family: var(--serif); font-size: 1.15rem; color: var(--schrift); }
-.weg-was   { margin: 0; color: var(--schrift-2); font-size: .92rem; }
-.weg-folge { margin: .2rem 0 0; color: var(--gold-schrift); font-size: .92rem; }
-.weg-karte .klein { margin: 0; color: var(--schrift-3); }
-/* Der Knopf sitzt unten, damit beide Karten ihn auf derselben Linie tragen —
-   sonst sieht der kuerzere Weg aus wie der wichtigere. */
-.weg-karte .knopf { margin-top: auto; align-self: flex-start; }
-
-.weg-fuss { margin: 1.3rem 0 0; }
-.weg-fuss a { color: var(--gold-schrift); }
-
-.lp-token {
-  margin-top: 2.4rem; padding: clamp(1.3rem, 3vw, 2.2rem);
-  background: var(--grund); border: 1px solid var(--rand);
-  border-radius: var(--radius); box-shadow: var(--schatten);
-}
-.lp-token h3 { margin-top: 2.4rem; }
-.lp-token h3:first-child { margin-top: 0; }
-
-/* ============================================================ 6.5 · Community (Vorschau) */
+/* ============================================================ 6.5 · Community */
 .lp-community-karte {
   position: relative; isolation: isolate; overflow: hidden;
   min-height: min(64vh, 520px);
@@ -465,17 +430,28 @@ body.hat-peak-video .lp-peak-bild { display: none; }
     rgb(var(--bild-schleier) / .28) 76%,
     transparent 100%);
 }
+/* Schmal steht der Text über dem ganzen Bild, auch über dem hellen Jubel
+   rechts: dann ein gleichmässiger Schleier statt des Verlaufs. */
+@media (max-width: 640px) {
+  .lp-community-karte::before { background: rgb(var(--bild-schleier) / .86); }
+}
 .lp-community-inhalt { max-width: 34rem; }
 .lp-community-claim {
   margin: .7rem 0 0; font-family: var(--serif); font-style: italic;
   font-size: clamp(1.2rem, 3vw, 1.65rem); color: var(--gold-schrift);
 }
-.lp-tag {
-  display: inline-block; margin-top: 1.1rem;
-  font-family: var(--sans); font-size: .74rem; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--gold-schrift);
-  padding: .3rem .8rem; border: 1px solid var(--gold); border-radius: 999px;
+/* Was drin ist: vier Zeilen statt Fliesstext, je ein Stern davor. */
+.lp-community-liste {
+  list-style: none; padding: 0; margin: 1.1rem 0 0;
+  display: grid; gap: .5rem;
 }
+.lp-community-liste li { position: relative; padding-left: 1.5rem; color: var(--schrift-2); }
+.lp-community-liste li::before {
+  content: '✦'; position: absolute; left: 0; top: .05em; color: var(--glut);
+}
+.lp-community-liste b { color: var(--schrift); font-weight: 600; }
+.lp-community-weg { margin: 1rem 0 0; font-size: .92rem; color: var(--schrift-2); }
+.lp-community-mehr { display: inline-block; margin-top: 1.2rem; text-decoration: none; }
 
 /* ============================================================ 8 · Abschluss (fest, kein Ausklang) */
 .lp-close { }
