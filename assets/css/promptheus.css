@@ -1382,6 +1382,21 @@ html[data-thema-effektiv="hell"] .knopf.still:hover {
   color: var(--glut);
 }
 
+/* Der aktive Menüpunkt im Hellen: Gold auf `--grund-3` war ein blasser
+   Strich auf Beige. Jetzt dunkler Grund (die Tinte der Palette) und darauf
+   ein aufgehelltes Gold — aus dem Gold der Palette gemischt, damit auch eine
+   eigene Akzentfarbe trägt. Im Dunkeln bleibt es beim alten Bild. */
+html[data-thema-effektiv="hell"] .menue-knopf.aktiv {
+  background: var(--schrift); border-color: var(--schrift);
+  color: color-mix(in srgb, var(--gold) 55%, var(--grund-2));
+}
+/* Die freie Werkstatt war im Hellen immer gold und sah damit aktiv aus,
+   obwohl sie es nicht war. Sie färbt sich jetzt wie jeder andere Punkt;
+   „frei" zeigt das fehlende Schloss. */
+html[data-thema-effektiv="hell"] .menue-werkstatt.frei:not(.aktiv):not(:hover) {
+  color: var(--schrift-2);
+}
+
 /* ============================================================ Stellschrauben
    Schriftgrösse, Textschrift, Kontrast, Bewegung, Breite — alles über
    Merkmale am <html>. Kein zweites Stylesheet, kein Umhängen von Klassen im
