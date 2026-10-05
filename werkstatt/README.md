@@ -50,7 +50,8 @@ deshalb dem Verwalter-Konto, nicht dem Schülerkonto.
 | `deepseek-harness\` | **der Harness selbst** — wird bei der Einrichtung geholt (nicht im Repo) |
 | `.dsh\` | **das eigene Zuhause** — Profil, Sitzungen, Einstellungen, Zugangsdaten (lokal, nicht im Repo) |
 | `vorlage\profil-promptheus\` | die Profilvorlage, aus der `WERKSTATT-EINRICHTEN.bat` das Profil anlegt |
-| `pakete\` | die PROMPTHEUS-Pakete — Marke, Palette, deutsche Texte |
+| `pakete\` | die PROMPTHEUS-Pakete — Marke, Palette, deutsche Texte; `dsh-client-ui-audio\` ist die Begrüssung oben |
+| `assets\audio\` | die Aufnahme der Begrüssung (`hephaistos-begruessung-werkstatt.mp3`) |
 | `werkzeuge\` | Bauen, Prüfen, Zählen, Starten |
 | `patches\` | die vier Sprachzeilen, als Anleitung |
 | `abnahmen\` | die Abnahmen, mit Messwerten |
@@ -156,6 +157,16 @@ Tabelle im Kit gehört berichtigt — Einzelheiten in `abnahmen\runde-1.md` §3.
 | `node werkzeuge\woerter_pruefen.mjs` | deutsche Texte gegen den Harness zählen |
 | `node werkzeuge\kontrast_pruefen.mjs` | Farben messen (22 Messungen, AA und AAA) |
 | `node werkzeuge\starten.mjs` | starten auf Port 3081 (`--open` öffnet den Browser, `--port` ändert ihn) |
+| `node werkzeuge\begruessung.mjs aus` | die Begrüssung oben entfernen; bleibt auch nach Updates weg (`an` holt sie zurück, `stand` zeigt den Stand) |
+
+**Die Begrüssung oben („HEPHAISTOS meint…“).** Ein Miniplayer in der Kopfzeile
+der Werkstatt (`pakete\dsh-client-ui-audio\`, gebaut vom Werkstatt-Agenten am
+04.10.2026). `starten.mjs` hängt ihn vor jedem Start ins Profil ein — über
+`dsh.profile.bundles` in der `package.json` des Profils; die `cordis.patch.yml`
+des Profils bleibt unberührt. Wer ihn nicht mehr will, sagt es Hephaistos: Er
+führt nach Rückfrage `begruessung.mjs aus` aus (Persona, Abschnitt „Die
+Begrüssung oben“). Die Abwahl steht als `.dsh\begruessung-aus.txt` im Zuhause
+und überlebt damit jedes Update. Sichtbar nach einem Neustart der Werkstatt.
 
 ## Regeln, die binden
 
