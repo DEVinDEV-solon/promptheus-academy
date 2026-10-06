@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 // pakete/dsh-client-ui-promptheus/src/cinema.ts
 import { spawn } from "node:child_process";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 var CINEMA_PFAD = "/promptheus-cinema";
@@ -61,6 +61,20 @@ function ticketSchreiben(ordner, jetzt = Date.now()) {
   renameSync(zwischen, ziel);
   return ziel;
 }
+var EINLASS_SEKUNDEN = 60;
+function einlassAusstellen(ordner, jetzt = Date.now()) {
+  const zugang = join(ordner, "zugang");
+  mkdirSync(zugang, { recursive: true });
+  const marke = randomBytes(32).toString("base64url");
+  const daten = {
+    hash: createHash("sha256").update(marke).digest("hex"),
+    ablauf: Math.floor(jetzt / 1e3) + EINLASS_SEKUNDEN
+  };
+  const zwischen = join(zugang, `einlass.${randomBytes(4).toString("hex")}.tmp`);
+  writeFileSync(zwischen, JSON.stringify(daten), "utf8");
+  renameSync(zwischen, join(zugang, "einlass.json"));
+  return marke;
+}
 function starterUmgebung(umgebung) {
   const weg = /^(OPENROUTER_|DEEPSEEK_|ANTHROPIC_|OPENAI_|DSH_|PROMPTHEUS_|CLAUDE_CODE_|BILDGEN_)|^NODE_OPTIONS$/i;
   const sauber = {};
@@ -93,7 +107,7 @@ function cinemaRouten(u) {
   const starten = u.starten ?? starterAufrufen;
   const laeuftPruefen = u.laeuftPruefen ?? laeuft;
   const jetzt = u.jetzt ?? Date.now;
-  const adresse = `http://127.0.0.1:${u.port}/`;
+  const weiter = (ordner) => `http://127.0.0.1:${u.port}/#e=${einlassAusstellen(ordner, jetzt())}`;
   let letzterStart = 0;
   return {
     [CINEMA_PFAD]: (req, res) => {
@@ -114,7 +128,13 @@ function cinemaRouten(u) {
       void (async () => {
         const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh);
         if (ordner === void 0) return json(res, 404, { fehler: "nicht-eingerichtet" });
-        if (await laeuftPruefen(u.port)) return json(res, 200, { stand: "laeuft", adresse });
+        if (await laeuftPruefen(u.port)) {
+          try {
+            return json(res, 200, { stand: "laeuft", adresse: weiter(ordner) });
+          } catch {
+            return json(res, 500, { fehler: "start" });
+          }
+        }
         if (jetzt() - letzterStart < WARTEN_SEKUNDEN * 1e3) return json(res, 200, { stand: "startet" });
         if (!pfadSicherFuerCmd(ordner)) return json(res, 500, { fehler: "pfad" });
         try {
@@ -130,7 +150,16 @@ function cinemaRouten(u) {
     [`${CINEMA_PFAD}/stand`]: (req, res) => {
       if (req?.method !== "GET") return json(res, 405, { fehler: "nur GET" });
       if (!eigeneSeite(req)) return json(res, 403, { fehler: "fremd" });
-      void laeuftPruefen(u.port).then((ja) => json(res, 200, ja ? { stand: "laeuft", adresse } : { stand: "startet" }));
+      void (async () => {
+        if (!await laeuftPruefen(u.port)) return json(res, 200, { stand: "startet" });
+        const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh);
+        if (ordner === void 0) return json(res, 404, { fehler: "nicht-eingerichtet" });
+        try {
+          return json(res, 200, { stand: "laeuft", adresse: weiter(ordner) });
+        } catch {
+          return json(res, 500, { fehler: "start" });
+        }
+      })();
     }
   };
 }
@@ -224,7 +253,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   }
   function weiter(adresse) {
     schritt(4);
-    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/#e=[A-Za-z0-9_-]{43}$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    else melden('start');
   }
   function abfragen() {
     fetch('${CINEMA_PFAD}/stand', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -442,6 +472,7 @@ export {
   cinemaOrdner,
   cinemaPort,
   cinemaRouten,
+  einlassAusstellen,
   gemeindeZiel,
   inject,
   name,

@@ -37,7 +37,7 @@ import { fileURLToPath } from 'node:url'
 import { cinemaPort, cinemaRouten } from './cinema.ts'
 
 export {
-  CINEMA_PFAD, cinemaOrdner, cinemaPort, cinemaRouten, starterUmgebung, ticketSchreiben,
+  CINEMA_PFAD, cinemaOrdner, cinemaPort, cinemaRouten, einlassAusstellen, starterUmgebung, ticketSchreiben,
 } from './cinema.ts'
 
 /** Der Produktname, den der Browser im Tab zeigt. */
