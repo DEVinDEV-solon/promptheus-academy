@@ -32,7 +32,7 @@
 
 import { spawn } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 
 /** Die Route der Werkstatt, auf die der Knopf zeigt. */
@@ -163,6 +163,57 @@ export function einlassAusstellen(ordner: string, jetzt: number = Date.now()): s
 }
 
 /**
+ * Der Arbeitsordner der Werkstatt: der als Vorgabe eingetragene Arbeitsbereich
+ * aus `$DSH_HOME/storages/workspace.json` (dieselbe Datei, die
+ * `werkzeuge/schutz/absichern.mjs` pflegt). Gibt es keine Vorgabe, gilt der
+ * erste. Nur ein vorhandener, absoluter Ordner zählt.
+ * @returns der Ordner, oder undefined.
+ */
+export function arbeitsordnerFinden(dshHome: string): string | undefined {
+  let j: any
+  try {
+    j = JSON.parse(readFileSync(join(dshHome, 'storages', 'workspace.json'), 'utf8'))
+  } catch {
+    return undefined
+  }
+  const tabelle = j?.tables?.workspaces ?? {}
+  const ids: string[] = [j?.global?.defaultWorkspaceId, ...(Array.isArray(j?.global?.workspaceIds) ? j.global.workspaceIds : [])]
+  for (const id of ids) {
+    const pfad = typeof id === 'string' ? tabelle[id]?.path : undefined
+    if (typeof pfad === 'string' && isAbsolute(pfad) && existsSync(pfad)) return pfad
+  }
+  return undefined
+}
+
+/**
+ * Bindet Cinema Studio an die Werkstatt (`zugang/werkstatt.json`, gelesen in
+ * `zugang.py`, `bindung`):
+ *
+ *   arbeitsordner  Bilder, Videos und Audio landen in `<arbeitsordner>\Cinema-Studio`,
+ *                  geordnet nach Bilder|Videos|Audio und Monat — nicht tief im Programmordner.
+ *   schutzschicht  Alle OpenRouter-Aufrufe gehen über die Schutzschicht der Werkstatt.
+ *                  Sie setzt den Schlüssel der Werkstatt ein; Cinema Studio braucht keinen
+ *                  eigenen und sieht den echten nie (der Weg, den der Plan für die Werkstatt
+ *                  vorschreibt: README §2).
+ *
+ * Geschrieben vor jedem Start und bei jedem Klick — ein neuer Arbeitsordner gilt
+ * damit auch, wenn Cinema Studio schon läuft.
+ */
+export function bindungSchreiben(ordner: string, bindung: { arbeitsordner?: string, schutzschicht?: string }): void {
+  const zugang = join(ordner, 'zugang')
+  mkdirSync(zugang, { recursive: true })
+  const daten = {
+    arbeitsordner: bindung.arbeitsordner ?? null,
+    schutzschicht: typeof bindung.schutzschicht === 'string' && /^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(bindung.schutzschicht)
+      ? bindung.schutzschicht
+      : null,
+  }
+  const zwischen = join(zugang, `werkstatt.${randomBytes(4).toString('hex')}.tmp`)
+  writeFileSync(zwischen, JSON.stringify(daten), 'utf8')
+  renameSync(zwischen, join(zugang, 'werkstatt.json'))
+}
+
+/**
  * Die Umgebung für Cinema Studio — ohne die Werte der Werkstatt.
  *
  * Wichtig: Die Werkstatt trägt `OPENROUTER_API_KEY` als **Platzhalter** für die
@@ -205,6 +256,10 @@ export interface CinemaUmgebung {
   werkstatt: string
   ordnerRoh?: string
   port: number
+  /** Das Zuhause der Werkstatt (`DSH_HOME`) — dort steht der Arbeitsordner. */
+  dshHome?: string
+  /** Die Schutzschicht der Werkstatt, z. B. `http://127.0.0.1:3089`. */
+  schutz?: string
   starten?: (ordner: string) => void
   laeuftPruefen?: (port: number) => Promise<boolean>
   jetzt?: () => number
@@ -228,8 +283,16 @@ export function cinemaRouten(u: CinemaUmgebung): Record<string, (req: any, res: 
   const starten = u.starten ?? starterAufrufen
   const laeuftPruefen = u.laeuftPruefen ?? laeuft
   const jetzt = u.jetzt ?? Date.now
+  const binden = (ordner: string) => bindungSchreiben(ordner, {
+    arbeitsordner: u.dshHome === undefined ? undefined : arbeitsordnerFinden(u.dshHome),
+    schutzschicht: u.schutz,
+  })
   // Die Adresse trägt die frische Einlassmarke hinter `#e=` (siehe einlassAusstellen).
-  const weiter = (ordner: string) => `http://127.0.0.1:${u.port}/#e=${einlassAusstellen(ordner, jetzt())}`
+  // Vorher die Bindung erneuern: ein neuer Arbeitsordner gilt dann sofort.
+  const weiter = (ordner: string) => {
+    binden(ordner)
+    return `http://127.0.0.1:${u.port}/#e=${einlassAusstellen(ordner, jetzt())}`
+  }
   // Zwei Klicks kurz hintereinander starten nur ein Fenster.
   let letzterStart = 0
 
@@ -265,6 +328,7 @@ export function cinemaRouten(u: CinemaUmgebung): Record<string, (req: any, res: 
         if (jetzt() - letzterStart < WARTEN_SEKUNDEN * 1000) return json(res, 200, { stand: 'startet' })
         if (!pfadSicherFuerCmd(ordner)) return json(res, 500, { fehler: 'pfad' })
         try {
+          binden(ordner)
           ticketSchreiben(ordner, jetzt())
           starten(ordner)
         } catch {

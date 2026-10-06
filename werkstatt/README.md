@@ -39,7 +39,11 @@ Fenster. Cinema Studio prüft das Ticket selbst (`zugang.py`); ohne Ticket
 startet es nicht, auch nicht für Betreiber. Eine Anmeldung gibt es in Cinema
 Studio nicht mehr: Bei jedem Klick legt die Werkstatt eine Einlassmarke ab
 (`zugang\einlass.json`, nur sha256, 60 s, einmalig) und hängt sie hinter
-`#e=` an die Adresse (`einlassAusstellen`). Die Werkstatt sucht das Programm
+`#e=` an die Adresse (`einlassAusstellen`). Zugleich bindet sie Cinema Studio
+an sich (`zugang\werkstatt.json`, `bindungSchreiben`): Bilder, Videos und
+Audio landen im Vorgabe-Arbeitsordner der Werkstatt unter `Cinema-Studio\`,
+und alle OpenRouter-Aufrufe laufen über die Schutzschicht — mit dem Schlüssel
+der Werkstatt, den Cinema Studio nie sieht. Die Werkstatt sucht das Programm
 in `scripts\CINEMA-STUDIO` und am heutigen Ort darunter (`CINEMA_ORTE`);
 `PROMPTHEUS_CINEMA_DIR` und `PROMPTHEUS_CINEMA_PORT` (Vorgabe 8796) gehen vor.
 Der Platzhalter-Schlüssel der Werkstatt geht nicht mit (`starterUmgebung`).
