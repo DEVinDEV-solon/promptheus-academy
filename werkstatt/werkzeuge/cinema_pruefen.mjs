@@ -10,11 +10,15 @@
  *   3. Umgebung: der Platzhalter-Schlüssel der Werkstatt geht nicht mit.
  *   4. Wege: nur von der eigenen Seite, Start legt Ticket ab und startet einmal,
  *      Doppelklick startet kein zweites Fenster, laufendes Studio wird erkannt.
+ *   4b. Einlassmarke: Adresse mit `#e=`, abgelegt nur ihr sha256, 60 s.
  *   5. Erkennung am Server-Kopf: ein fremdes Programm auf dem Port zählt nicht.
+ *   6. Bindung: Vorgabe-Arbeitsordner und Schutzschicht gehen nach zugang\werkstatt.json,
+ *      nie ein Schlüssel, nie eine fremde Adresse.
  *
  * Aufruf:  node werkzeuge\cinema_pruefen.mjs
  */
 
+import { createHash } from 'node:crypto'
 import { createServer } from 'node:http'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -120,9 +124,21 @@ try {
   laeuftJetzt = true
   r = await rufe(stand, 'GET', 'same-origin')
   const d = JSON.parse(r.rumpf)
-  pruefe(d.stand === 'laeuft' && d.adresse === 'http://127.0.0.1:8796/', '4: Stand erkennt laufendes Studio nicht')
+  const treffer = /^http:\/\/127\.0\.0\.1:8796\/#e=([A-Za-z0-9_-]{43})$/.exec(d.adresse ?? '')
+  pruefe(d.stand === 'laeuft' && treffer !== null, `4: Stand liefert keine Adresse mit Einlassmarke (ist: ${String(d.adresse)})`)
+
+  // ── 4b. Einlassmarke: nur ihr sha256 liegt ab, 60 s, eine neue ersetzt die alte
+  const einlassPfad = join(ziel, 'zugang', 'einlass.json')
+  const einlass = existsSync(einlassPfad) ? JSON.parse(readFileSync(einlassPfad, 'utf8')) : {}
+  const marke = treffer?.[1] ?? ''
+  pruefe(einlass.hash === createHash('sha256').update(marke).digest('hex'), '4b: abgelegter Wert ist nicht sha256 der Marke')
+  pruefe(!readFileSync(einlassPfad, 'utf8').includes(marke) || marke === '', '4b: die Marke selbst liegt im Klartext ab')
+  pruefe(einlass.ablauf === Math.floor(uhr / 1000) + 60, '4b: Marke gilt nicht genau 60 s')
+
   r = await rufe(starten, 'POST', 'same-origin')
-  pruefe(JSON.parse(r.rumpf).stand === 'laeuft' && gestartet === 2, '4: läuft schon, darf aber nicht neu starten')
+  const d2 = JSON.parse(r.rumpf)
+  pruefe(d2.stand === 'laeuft' && gestartet === 2, '4: läuft schon, darf aber nicht neu starten')
+  pruefe(typeof d2.adresse === 'string' && !d2.adresse.endsWith(marke), '4b: zweiter Klick bekommt keine neue Marke')
   r = await rufe(stand, 'GET', 'cross-site')
   pruefe(r.code === 403, '4: fremde Seite darf den Stand lesen')
 
@@ -139,6 +155,33 @@ try {
     pruefe((JSON.parse(w.rumpf).stand === 'laeuft') === erwartet, `5: Server-Kopf „${kopf}“ falsch erkannt`)
     await new Promise(f => srv.close(f))
   }
+
+  // ── 6. Bindung: Arbeitsordner der Werkstatt und Schutzschicht ──────────────
+  const zuhause = join(tmp, '.dsh')
+  const arbeitsordner = join(tmp, 'mein-arbeitsordner')
+  mkdirSync(join(zuhause, 'storages'), { recursive: true })
+  mkdirSync(arbeitsordner)
+  writeFileSync(join(zuhause, 'storages', 'workspace.json'), JSON.stringify({
+    global: { defaultWorkspaceId: 'b', workspaceIds: ['a', 'b'] },
+    tables: { workspaces: { a: { path: join(tmp, 'gibt-es-nicht') }, b: { path: arbeitsordner } } },
+  }))
+  pruefe(lib.arbeitsordnerFinden(zuhause) === arbeitsordner, '6: Vorgabe-Arbeitsordner wird nicht gefunden')
+  pruefe(lib.arbeitsordnerFinden(join(tmp, 'leer')) === undefined, '6: ohne workspace.json darf nichts herauskommen')
+
+  const gebunden = lib.cinemaRouten({
+    werkstatt, port: 8796, dshHome: zuhause, schutz: 'http://127.0.0.1:3089',
+    starten: () => {}, laeuftPruefen: async () => true,
+  })
+  const bindungPfad = join(ziel, 'zugang', 'werkstatt.json')
+  rmSync(bindungPfad, { force: true })
+  await rufe(gebunden['/promptheus-cinema/stand'], 'GET', 'same-origin')
+  const bindung = existsSync(bindungPfad) ? JSON.parse(readFileSync(bindungPfad, 'utf8')) : {}
+  pruefe(bindung.arbeitsordner === arbeitsordner, `6: Arbeitsordner nicht an Cinema Studio gegeben (ist: ${String(bindung.arbeitsordner)})`)
+  pruefe(bindung.schutzschicht === 'http://127.0.0.1:3089', '6: Schutzschicht nicht an Cinema Studio gegeben')
+  pruefe(!readFileSync(bindungPfad, 'utf8').toLowerCase().includes('key'), '6: in der Bindung steht etwas von einem Schlüssel')
+
+  lib.bindungSchreiben(ziel, { schutzschicht: 'https://openrouter.ai' })
+  pruefe(JSON.parse(readFileSync(bindungPfad, 'utf8')).schutzschicht === null, '6: fremde Adresse als Schutzschicht angenommen')
 } finally {
   rmSync(tmp, { recursive: true, force: true })
 }

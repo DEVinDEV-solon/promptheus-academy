@@ -37,7 +37,8 @@ import { fileURLToPath } from 'node:url'
 import { cinemaPort, cinemaRouten } from './cinema.ts'
 
 export {
-  CINEMA_PFAD, cinemaOrdner, cinemaPort, cinemaRouten, starterUmgebung, ticketSchreiben,
+  CINEMA_PFAD, arbeitsordnerFinden, bindungSchreiben, cinemaOrdner, cinemaPort, cinemaRouten, einlassAusstellen,
+  starterUmgebung, ticketSchreiben,
 } from './cinema.ts'
 
 /** Der Produktname, den der Browser im Tab zeigt. */
@@ -281,10 +282,13 @@ export function apply(ctx: any): void {
   // ── Der Weg ins Cinema Studio (06.10.2026) ─────────────────────────────────
   // Startseite, Start mit Ticket und Stand (cinema.ts). Ebenfalls vor den
   // Routen, die bei fehlenden Dateien früh aussteigen.
+  // Cinema Studio wird an den Arbeitsordner und die Schutzschicht der Werkstatt gebunden.
   const cinema = cinemaRouten({
     werkstatt: werkstattWurzel(),
     ordnerRoh: process.env.PROMPTHEUS_CINEMA_DIR,
     port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT),
+    dshHome: process.env.DSH_HOME || join(werkstattWurzel(), '.dsh'),
+    schutz: schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL),
   })
   for (const [pfad, handler] of Object.entries(cinema)) {
     ctx.effect(() => webServer.register({ kind: 'exact', path: pfad, handler }), `promptheus: Cinema Studio ${pfad}`)

@@ -13,7 +13,9 @@
  *      verbraucht es. Ohne Ticket beendet es sich — einen Start ohne Ticket gibt
  *      es bewusst nicht (Entscheidung vom 06.10.2026).
  *   4. Die Seite fragt {@link CINEMA_PFAD}`/stand`, bis Cinema Studio antwortet,
- *      und leitet dann weiter.
+ *      und leitet dann weiter — mit einer frischen Einlassmarke hinter `#e=`
+ *      ({@link einlassAusstellen}). Eine Anmeldung gibt es in Cinema Studio
+ *      nicht mehr; ohne Marke kommt niemand hinein (06.10.2026).
  *
  * Die Kette ist damit Academy → Werkstatt → Cinema Studio: Die Werkstatt
  * startet nur mit dem Ticket der Academy (`werkzeuge/starten.mjs`), Cinema
@@ -29,8 +31,8 @@
  */
 
 import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
+import { createHash, randomBytes } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 
 /** Die Route der Werkstatt, auf die der Knopf zeigt. */
@@ -132,6 +134,85 @@ export function ticketSchreiben(ordner: string, jetzt: number = Date.now()): str
   return ziel
 }
 
+/** So lange gilt eine Einlassmarke — wortgleich mit `EINLASS_SEKUNDEN` in `zugang.py`. */
+export const EINLASS_SEKUNDEN = 60
+
+/**
+ * Stellt eine Einlassmarke aus (06.10.2026, Vorlage COMMUNITY-ONLINE-EINLASS-PLAN.md §1).
+ *
+ * Cinema Studio hat keine Anmeldung mehr. Bei jedem Klick auf „Cinema-Studio“
+ * entsteht eine Marke aus 32 Zufallsbytes; in `zugang/einlass.json` liegt nur
+ * ihr sha256 und der Ablauf (60 s). Die Marke selbst geht nur an die eigene
+ * Seite und von dort hinter `#e=` an Cinema Studio — der Teil hinter `#` geht
+ * nie an einen Server. Cinema Studio löst sie genau einmal ein (`zugang.py`).
+ * Eine neue Marke ersetzt die vorige.
+ * @returns die Marke (43 Zeichen base64url).
+ */
+export function einlassAusstellen(ordner: string, jetzt: number = Date.now()): string {
+  const zugang = join(ordner, 'zugang')
+  mkdirSync(zugang, { recursive: true })
+  const marke = randomBytes(32).toString('base64url')
+  const daten = {
+    hash: createHash('sha256').update(marke).digest('hex'),
+    ablauf: Math.floor(jetzt / 1000) + EINLASS_SEKUNDEN,
+  }
+  const zwischen = join(zugang, `einlass.${randomBytes(4).toString('hex')}.tmp`)
+  writeFileSync(zwischen, JSON.stringify(daten), 'utf8')
+  renameSync(zwischen, join(zugang, 'einlass.json'))
+  return marke
+}
+
+/**
+ * Der Arbeitsordner der Werkstatt: der als Vorgabe eingetragene Arbeitsbereich
+ * aus `$DSH_HOME/storages/workspace.json` (dieselbe Datei, die
+ * `werkzeuge/schutz/absichern.mjs` pflegt). Gibt es keine Vorgabe, gilt der
+ * erste. Nur ein vorhandener, absoluter Ordner zählt.
+ * @returns der Ordner, oder undefined.
+ */
+export function arbeitsordnerFinden(dshHome: string): string | undefined {
+  let j: any
+  try {
+    j = JSON.parse(readFileSync(join(dshHome, 'storages', 'workspace.json'), 'utf8'))
+  } catch {
+    return undefined
+  }
+  const tabelle = j?.tables?.workspaces ?? {}
+  const ids: string[] = [j?.global?.defaultWorkspaceId, ...(Array.isArray(j?.global?.workspaceIds) ? j.global.workspaceIds : [])]
+  for (const id of ids) {
+    const pfad = typeof id === 'string' ? tabelle[id]?.path : undefined
+    if (typeof pfad === 'string' && isAbsolute(pfad) && existsSync(pfad)) return pfad
+  }
+  return undefined
+}
+
+/**
+ * Bindet Cinema Studio an die Werkstatt (`zugang/werkstatt.json`, gelesen in
+ * `zugang.py`, `bindung`):
+ *
+ *   arbeitsordner  Bilder, Videos und Audio landen in `<arbeitsordner>\Cinema-Studio`,
+ *                  geordnet nach Bilder|Videos|Audio und Monat — nicht tief im Programmordner.
+ *   schutzschicht  Alle OpenRouter-Aufrufe gehen über die Schutzschicht der Werkstatt.
+ *                  Sie setzt den Schlüssel der Werkstatt ein; Cinema Studio braucht keinen
+ *                  eigenen und sieht den echten nie (der Weg, den der Plan für die Werkstatt
+ *                  vorschreibt: README §2).
+ *
+ * Geschrieben vor jedem Start und bei jedem Klick — ein neuer Arbeitsordner gilt
+ * damit auch, wenn Cinema Studio schon läuft.
+ */
+export function bindungSchreiben(ordner: string, bindung: { arbeitsordner?: string, schutzschicht?: string }): void {
+  const zugang = join(ordner, 'zugang')
+  mkdirSync(zugang, { recursive: true })
+  const daten = {
+    arbeitsordner: bindung.arbeitsordner ?? null,
+    schutzschicht: typeof bindung.schutzschicht === 'string' && /^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(bindung.schutzschicht)
+      ? bindung.schutzschicht
+      : null,
+  }
+  const zwischen = join(zugang, `werkstatt.${randomBytes(4).toString('hex')}.tmp`)
+  writeFileSync(zwischen, JSON.stringify(daten), 'utf8')
+  renameSync(zwischen, join(zugang, 'werkstatt.json'))
+}
+
 /**
  * Die Umgebung für Cinema Studio — ohne die Werte der Werkstatt.
  *
@@ -175,6 +256,10 @@ export interface CinemaUmgebung {
   werkstatt: string
   ordnerRoh?: string
   port: number
+  /** Das Zuhause der Werkstatt (`DSH_HOME`) — dort steht der Arbeitsordner. */
+  dshHome?: string
+  /** Die Schutzschicht der Werkstatt, z. B. `http://127.0.0.1:3089`. */
+  schutz?: string
   starten?: (ordner: string) => void
   laeuftPruefen?: (port: number) => Promise<boolean>
   jetzt?: () => number
@@ -198,7 +283,16 @@ export function cinemaRouten(u: CinemaUmgebung): Record<string, (req: any, res: 
   const starten = u.starten ?? starterAufrufen
   const laeuftPruefen = u.laeuftPruefen ?? laeuft
   const jetzt = u.jetzt ?? Date.now
-  const adresse = `http://127.0.0.1:${u.port}/`
+  const binden = (ordner: string) => bindungSchreiben(ordner, {
+    arbeitsordner: u.dshHome === undefined ? undefined : arbeitsordnerFinden(u.dshHome),
+    schutzschicht: u.schutz,
+  })
+  // Die Adresse trägt die frische Einlassmarke hinter `#e=` (siehe einlassAusstellen).
+  // Vorher die Bindung erneuern: ein neuer Arbeitsordner gilt dann sofort.
+  const weiter = (ordner: string) => {
+    binden(ordner)
+    return `http://127.0.0.1:${u.port}/#e=${einlassAusstellen(ordner, jetzt())}`
+  }
   // Zwei Klicks kurz hintereinander starten nur ein Fenster.
   let letzterStart = 0
 
@@ -224,10 +318,17 @@ export function cinemaRouten(u: CinemaUmgebung): Record<string, (req: any, res: 
       void (async () => {
         const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh)
         if (ordner === undefined) return json(res, 404, { fehler: 'nicht-eingerichtet' })
-        if (await laeuftPruefen(u.port)) return json(res, 200, { stand: 'laeuft', adresse })
+        if (await laeuftPruefen(u.port)) {
+          try {
+            return json(res, 200, { stand: 'laeuft', adresse: weiter(ordner) })
+          } catch {
+            return json(res, 500, { fehler: 'start' })
+          }
+        }
         if (jetzt() - letzterStart < WARTEN_SEKUNDEN * 1000) return json(res, 200, { stand: 'startet' })
         if (!pfadSicherFuerCmd(ordner)) return json(res, 500, { fehler: 'pfad' })
         try {
+          binden(ordner)
           ticketSchreiben(ordner, jetzt())
           starten(ordner)
         } catch {
@@ -241,7 +342,16 @@ export function cinemaRouten(u: CinemaUmgebung): Record<string, (req: any, res: 
     [`${CINEMA_PFAD}/stand`]: (req, res) => {
       if (req?.method !== 'GET') return json(res, 405, { fehler: 'nur GET' })
       if (!eigeneSeite(req)) return json(res, 403, { fehler: 'fremd' })
-      void laeuftPruefen(u.port).then(ja => json(res, 200, ja ? { stand: 'laeuft', adresse } : { stand: 'startet' }))
+      void (async () => {
+        if (!(await laeuftPruefen(u.port))) return json(res, 200, { stand: 'startet' })
+        const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh)
+        if (ordner === undefined) return json(res, 404, { fehler: 'nicht-eingerichtet' })
+        try {
+          return json(res, 200, { stand: 'laeuft', adresse: weiter(ordner) })
+        } catch {
+          return json(res, 500, { fehler: 'start' })
+        }
+      })()
     },
   }
 }
@@ -341,7 +451,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   }
   function weiter(adresse) {
     schritt(4);
-    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/#e=[A-Za-z0-9_-]{43}$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    else melden('start');
   }
   function abfragen() {
     fetch('${CINEMA_PFAD}/stand', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {

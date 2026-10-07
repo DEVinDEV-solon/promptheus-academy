@@ -1,12 +1,12 @@
 // pakete/dsh-client-ui-promptheus/src/index.ts
-import { existsSync as existsSync2, readFileSync } from "node:fs";
+import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
 import { dirname, join as join2 } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // pakete/dsh-client-ui-promptheus/src/cinema.ts
 import { spawn } from "node:child_process";
-import { randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { createHash, randomBytes } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 var CINEMA_PFAD = "/promptheus-cinema";
 var CINEMA_PORT_VORGABE = 8796;
@@ -61,6 +61,46 @@ function ticketSchreiben(ordner, jetzt = Date.now()) {
   renameSync(zwischen, ziel);
   return ziel;
 }
+var EINLASS_SEKUNDEN = 60;
+function einlassAusstellen(ordner, jetzt = Date.now()) {
+  const zugang = join(ordner, "zugang");
+  mkdirSync(zugang, { recursive: true });
+  const marke = randomBytes(32).toString("base64url");
+  const daten = {
+    hash: createHash("sha256").update(marke).digest("hex"),
+    ablauf: Math.floor(jetzt / 1e3) + EINLASS_SEKUNDEN
+  };
+  const zwischen = join(zugang, `einlass.${randomBytes(4).toString("hex")}.tmp`);
+  writeFileSync(zwischen, JSON.stringify(daten), "utf8");
+  renameSync(zwischen, join(zugang, "einlass.json"));
+  return marke;
+}
+function arbeitsordnerFinden(dshHome) {
+  let j;
+  try {
+    j = JSON.parse(readFileSync(join(dshHome, "storages", "workspace.json"), "utf8"));
+  } catch {
+    return void 0;
+  }
+  const tabelle = j?.tables?.workspaces ?? {};
+  const ids = [j?.global?.defaultWorkspaceId, ...Array.isArray(j?.global?.workspaceIds) ? j.global.workspaceIds : []];
+  for (const id of ids) {
+    const pfad = typeof id === "string" ? tabelle[id]?.path : void 0;
+    if (typeof pfad === "string" && isAbsolute(pfad) && existsSync(pfad)) return pfad;
+  }
+  return void 0;
+}
+function bindungSchreiben(ordner, bindung) {
+  const zugang = join(ordner, "zugang");
+  mkdirSync(zugang, { recursive: true });
+  const daten = {
+    arbeitsordner: bindung.arbeitsordner ?? null,
+    schutzschicht: typeof bindung.schutzschicht === "string" && /^http:\/\/127\.0\.0\.1:\d{1,5}$/.test(bindung.schutzschicht) ? bindung.schutzschicht : null
+  };
+  const zwischen = join(zugang, `werkstatt.${randomBytes(4).toString("hex")}.tmp`);
+  writeFileSync(zwischen, JSON.stringify(daten), "utf8");
+  renameSync(zwischen, join(zugang, "werkstatt.json"));
+}
 function starterUmgebung(umgebung) {
   const weg = /^(OPENROUTER_|DEEPSEEK_|ANTHROPIC_|OPENAI_|DSH_|PROMPTHEUS_|CLAUDE_CODE_|BILDGEN_)|^NODE_OPTIONS$/i;
   const sauber = {};
@@ -93,7 +133,14 @@ function cinemaRouten(u) {
   const starten = u.starten ?? starterAufrufen;
   const laeuftPruefen = u.laeuftPruefen ?? laeuft;
   const jetzt = u.jetzt ?? Date.now;
-  const adresse = `http://127.0.0.1:${u.port}/`;
+  const binden = (ordner) => bindungSchreiben(ordner, {
+    arbeitsordner: u.dshHome === void 0 ? void 0 : arbeitsordnerFinden(u.dshHome),
+    schutzschicht: u.schutz
+  });
+  const weiter = (ordner) => {
+    binden(ordner);
+    return `http://127.0.0.1:${u.port}/#e=${einlassAusstellen(ordner, jetzt())}`;
+  };
   let letzterStart = 0;
   return {
     [CINEMA_PFAD]: (req, res) => {
@@ -114,10 +161,17 @@ function cinemaRouten(u) {
       void (async () => {
         const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh);
         if (ordner === void 0) return json(res, 404, { fehler: "nicht-eingerichtet" });
-        if (await laeuftPruefen(u.port)) return json(res, 200, { stand: "laeuft", adresse });
+        if (await laeuftPruefen(u.port)) {
+          try {
+            return json(res, 200, { stand: "laeuft", adresse: weiter(ordner) });
+          } catch {
+            return json(res, 500, { fehler: "start" });
+          }
+        }
         if (jetzt() - letzterStart < WARTEN_SEKUNDEN * 1e3) return json(res, 200, { stand: "startet" });
         if (!pfadSicherFuerCmd(ordner)) return json(res, 500, { fehler: "pfad" });
         try {
+          binden(ordner);
           ticketSchreiben(ordner, jetzt());
           starten(ordner);
         } catch {
@@ -130,7 +184,16 @@ function cinemaRouten(u) {
     [`${CINEMA_PFAD}/stand`]: (req, res) => {
       if (req?.method !== "GET") return json(res, 405, { fehler: "nur GET" });
       if (!eigeneSeite(req)) return json(res, 403, { fehler: "fremd" });
-      void laeuftPruefen(u.port).then((ja) => json(res, 200, ja ? { stand: "laeuft", adresse } : { stand: "startet" }));
+      void (async () => {
+        if (!await laeuftPruefen(u.port)) return json(res, 200, { stand: "startet" });
+        const ordner = cinemaOrdner(u.werkstatt, u.ordnerRoh);
+        if (ordner === void 0) return json(res, 404, { fehler: "nicht-eingerichtet" });
+        try {
+          return json(res, 200, { stand: "laeuft", adresse: weiter(ordner) });
+        } catch {
+          return json(res, 500, { fehler: "start" });
+        }
+      })();
     }
   };
 }
@@ -224,7 +287,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   }
   function weiter(adresse) {
     schritt(4);
-    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    if (/^http:\\/\\/127\\.0\\.0\\.1:\\d{1,5}\\/#e=[A-Za-z0-9_-]{43}$/.test(adresse)) setTimeout(function () { location.replace(adresse); }, 600);
+    else melden('start');
   }
   function abfragen() {
     fetch('${CINEMA_PFAD}/stand', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -313,7 +377,7 @@ function dateiLesen(relativ) {
   for (const basis of kandidaten) {
     for (const teil of [relativ, ["werkstatt", ...relativ]]) {
       const pfad = join2(basis, ...teil);
-      if (existsSync2(pfad)) return readFileSync(pfad);
+      if (existsSync2(pfad)) return readFileSync2(pfad);
     }
   }
   return void 0;
@@ -354,7 +418,9 @@ function apply(ctx) {
   const cinema = cinemaRouten({
     werkstatt: werkstattWurzel(),
     ordnerRoh: process.env.PROMPTHEUS_CINEMA_DIR,
-    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT)
+    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT),
+    dshHome: process.env.DSH_HOME || join2(werkstattWurzel(), ".dsh"),
+    schutz: schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL)
   });
   for (const [pfad, handler] of Object.entries(cinema)) {
     ctx.effect(() => webServer.register({ kind: "exact", path: pfad, handler }), `promptheus: Cinema Studio ${pfad}`);
@@ -439,9 +505,12 @@ export {
   SCHUTZ_PFAD,
   academyAdresse,
   apply,
+  arbeitsordnerFinden,
+  bindungSchreiben,
   cinemaOrdner,
   cinemaPort,
   cinemaRouten,
+  einlassAusstellen,
   gemeindeZiel,
   inject,
   name,
