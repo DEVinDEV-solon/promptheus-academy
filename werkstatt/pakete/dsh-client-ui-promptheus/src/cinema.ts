@@ -51,15 +51,16 @@ export const TICKET_SEKUNDEN = 120
 export const WARTEN_SEKUNDEN = 60
 
 /**
- * Wo Cinema Studio liegen kann, gesehen von der Werkstatt-Wurzel aus.
+ * Wo Cinema Studio liegt, gesehen von der Werkstatt-Wurzel aus.
  *
- * Der erste Ort ist das Ziel. Der zweite ist der heutige Ort (06.10.2026): eine
- * Arbeitskopie, die tief im Ordner `CINEMA-STUDIO` steckt. Wird das Programm
- * an das Ziel gelegt, gilt automatisch der erste Ort.
+ * Ein fester Ort: `werkstatt\scripts\CINEMA-STUDIO` mit `server.py` direkt
+ * darin (in git ausgeschlossen, dort liegen `.env` und die Ablage). Bis zum
+ * 07.10.2026 stand hier zusätzlich eine Arbeitskopie tief in einem fremden,
+ * nicht versionierten Worktree — sie verschwand mit jedem Aufräumen dieses
+ * Worktrees. Ein anderer Ort geht über `PROMPTHEUS_CINEMA_DIR`.
  */
 export const CINEMA_ORTE: readonly string[][] = [
   ['scripts', 'CINEMA-STUDIO'],
-  ['scripts', 'CINEMA-STUDIO', '.claude', 'worktrees', 'image-generator-dashboard-aff1bf', 'scripts', 'cinemastudio'],
 ]
 
 /** Ein Ordner gilt nur, wenn Server, Sperre und Startdatei darin liegen. */
@@ -82,10 +83,46 @@ export function cinemaOrdner(werkstatt: string, roh?: string): string | undefine
   return undefined
 }
 
-/** Der Port aus `PROMPTHEUS_CINEMA_PORT`, sonst die Vorgabe. */
-export function cinemaPort(roh?: string): number {
-  const zahl = typeof roh === 'string' && /^\d{4,5}$/.test(roh) ? Number(roh) : NaN
-  return zahl >= 1024 && zahl <= 65535 ? zahl : CINEMA_PORT_VORGABE
+/** Eine Portangabe, wenn sie eine ist (1024 bis 65535), sonst undefined. */
+function portLesen(roh?: string): number | undefined {
+  const zahl = typeof roh === 'string' && /^\d{4,5}$/.test(roh.trim()) ? Number(roh.trim()) : NaN
+  return zahl >= 1024 && zahl <= 65535 ? zahl : undefined
+}
+
+/**
+ * Der Port, den Cinema Studio selbst nimmt: `BILDGEN_PORT` aus seiner `.env`.
+ * Gelesen wird nur diese eine Zeile und nur eine Zahl — die Datei trägt auch
+ * Schlüssel, die die Werkstatt nichts angehen.
+ * @returns der Port, oder undefined, wenn keiner eingetragen ist.
+ */
+export function cinemaEnvPort(ordner: string): number | undefined {
+  let text: string
+  try {
+    text = readFileSync(join(ordner, '.env'), 'utf8')
+  } catch {
+    return undefined
+  }
+  const treffer = /^[ \t]*BILDGEN_PORT[ \t]*=[ \t]*["']?(\d{4,5})["']?[ \t]*$/m.exec(text)
+  return treffer === null ? undefined : portLesen(treffer[1])
+}
+
+/**
+ * Der Port von Cinema Studio.
+ *
+ * Beide Seiten müssen denselben meinen: Cinema Studio (`server.py`, die
+ * Startdatei) liest `BILDGEN_PORT` aus seiner `.env`, die Werkstatt kannte nur
+ * `PROMPTHEUS_CINEMA_PORT`. Stand dort etwas anderes als 8796, wartete die
+ * Werkstatt auf dem falschen Port. Reihenfolge deshalb:
+ *   1. `PROMPTHEUS_CINEMA_PORT` (ausdrücklich für die Werkstatt gesetzt),
+ *   2. `BILDGEN_PORT` aus der `.env` im Programmordner,
+ *   3. die Vorgabe 8796 — dieselbe wie in `server.py`.
+ * `BILDGEN_*` aus der Umgebung der Werkstatt geht nicht mit (`starterUmgebung`),
+ * Cinema Studio nimmt also genau den Wert aus seiner `.env`.
+ * @param roh - `PROMPTHEUS_CINEMA_PORT`.
+ * @param ordner - der Programmordner, falls gefunden.
+ */
+export function cinemaPort(roh?: string, ordner?: string): number {
+  return portLesen(roh) ?? (ordner === undefined ? undefined : cinemaEnvPort(ordner)) ?? CINEMA_PORT_VORGABE
 }
 
 /**

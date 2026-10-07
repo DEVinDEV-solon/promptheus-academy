@@ -34,10 +34,11 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { cinemaPort, cinemaRouten } from './cinema.ts'
+import { cinemaOrdner, cinemaPort, cinemaRouten } from './cinema.ts'
 
 export {
-  CINEMA_PFAD, arbeitsordnerFinden, bindungSchreiben, cinemaOrdner, cinemaPort, cinemaRouten, einlassAusstellen,
+  CINEMA_PFAD, arbeitsordnerFinden, bindungSchreiben, cinemaEnvPort, cinemaOrdner, cinemaPort, cinemaRouten,
+  einlassAusstellen,
   starterUmgebung, ticketSchreiben,
 } from './cinema.ts'
 
@@ -283,10 +284,12 @@ export function apply(ctx: any): void {
   // Startseite, Start mit Ticket und Stand (cinema.ts). Ebenfalls vor den
   // Routen, die bei fehlenden Dateien früh aussteigen.
   // Cinema Studio wird an den Arbeitsordner und die Schutzschicht der Werkstatt gebunden.
+  // Der Port folgt Cinema Studio selbst (BILDGEN_PORT in dessen .env), wenn
+  // PROMPTHEUS_CINEMA_PORT nicht gesetzt ist.
   const cinema = cinemaRouten({
     werkstatt: werkstattWurzel(),
     ordnerRoh: process.env.PROMPTHEUS_CINEMA_DIR,
-    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT),
+    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT, cinemaOrdner(werkstattWurzel(), process.env.PROMPTHEUS_CINEMA_DIR)),
     dshHome: process.env.DSH_HOME || join(werkstattWurzel(), '.dsh'),
     schutz: schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL),
   })

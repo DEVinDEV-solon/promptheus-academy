@@ -14,8 +14,7 @@ var STARTER = "CINEMA-STUDIO-START.bat";
 var TICKET_SEKUNDEN = 120;
 var WARTEN_SEKUNDEN = 60;
 var CINEMA_ORTE = [
-  ["scripts", "CINEMA-STUDIO"],
-  ["scripts", "CINEMA-STUDIO", ".claude", "worktrees", "image-generator-dashboard-aff1bf", "scripts", "cinemastudio"]
+  ["scripts", "CINEMA-STUDIO"]
 ];
 function istCinemaOrdner(ordner) {
   return ["server.py", "zugang.py", STARTER].every((datei) => existsSync(join(ordner, datei)));
@@ -28,9 +27,22 @@ function cinemaOrdner(werkstatt, roh) {
   }
   return void 0;
 }
-function cinemaPort(roh) {
-  const zahl = typeof roh === "string" && /^\d{4,5}$/.test(roh) ? Number(roh) : NaN;
-  return zahl >= 1024 && zahl <= 65535 ? zahl : CINEMA_PORT_VORGABE;
+function portLesen(roh) {
+  const zahl = typeof roh === "string" && /^\d{4,5}$/.test(roh.trim()) ? Number(roh.trim()) : NaN;
+  return zahl >= 1024 && zahl <= 65535 ? zahl : void 0;
+}
+function cinemaEnvPort(ordner) {
+  let text;
+  try {
+    text = readFileSync(join(ordner, ".env"), "utf8");
+  } catch {
+    return void 0;
+  }
+  const treffer = /^[ \t]*BILDGEN_PORT[ \t]*=[ \t]*["']?(\d{4,5})["']?[ \t]*$/m.exec(text);
+  return treffer === null ? void 0 : portLesen(treffer[1]);
+}
+function cinemaPort(roh, ordner) {
+  return portLesen(roh) ?? (ordner === void 0 ? void 0 : cinemaEnvPort(ordner)) ?? CINEMA_PORT_VORGABE;
 }
 function pfadSicherFuerCmd(pfad) {
   return !/["%^&|<>!\r\n]/.test(pfad);
@@ -418,7 +430,7 @@ function apply(ctx) {
   const cinema = cinemaRouten({
     werkstatt: werkstattWurzel(),
     ordnerRoh: process.env.PROMPTHEUS_CINEMA_DIR,
-    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT),
+    port: cinemaPort(process.env.PROMPTHEUS_CINEMA_PORT, cinemaOrdner(werkstattWurzel(), process.env.PROMPTHEUS_CINEMA_DIR)),
     dshHome: process.env.DSH_HOME || join2(werkstattWurzel(), ".dsh"),
     schutz: schutzAdresse(process.env.PROMPTHEUS_SCHUTZ_URL)
   });
@@ -507,6 +519,7 @@ export {
   apply,
   arbeitsordnerFinden,
   bindungSchreiben,
+  cinemaEnvPort,
   cinemaOrdner,
   cinemaPort,
   cinemaRouten,

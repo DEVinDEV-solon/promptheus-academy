@@ -44,8 +44,10 @@ an sich (`zugang\werkstatt.json`, `bindungSchreiben`): Bilder, Videos und
 Audio landen im Vorgabe-Arbeitsordner der Werkstatt unter `Cinema-Studio\`,
 und alle OpenRouter-Aufrufe laufen über die Schutzschicht — mit dem Schlüssel
 der Werkstatt, den Cinema Studio nie sieht. Die Werkstatt sucht das Programm
-in `scripts\CINEMA-STUDIO` und am heutigen Ort darunter (`CINEMA_ORTE`);
-`PROMPTHEUS_CINEMA_DIR` und `PROMPTHEUS_CINEMA_PORT` (Vorgabe 8796) gehen vor.
+an einem festen Ort, `werkstatt\scripts\CINEMA-STUDIO` (`CINEMA_ORTE`, in git
+ausgeschlossen); `PROMPTHEUS_CINEMA_DIR` geht vor. Den Port nimmt sie aus
+`PROMPTHEUS_CINEMA_PORT`, sonst aus `BILDGEN_PORT` in der `.env` von Cinema
+Studio (nur diese Zeile), sonst 8796 — so meinen beide Seiten denselben.
 Der Platzhalter-Schlüssel der Werkstatt geht nicht mit (`starterUmgebung`).
 Prüfen: `node werkzeuge\cinema_pruefen.mjs`.
 
