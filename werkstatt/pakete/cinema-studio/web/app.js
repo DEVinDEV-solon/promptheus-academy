@@ -1590,9 +1590,17 @@ async function verbrauchZeigen() {
 }
 
 // ------------------------------------------------------------------ Einstellungen
+// Auswahl für die Claude-CLI. Die Liste führt der Server (assistent.CLAUDE_MODELLE, über
+// assistent/status); diese zwei Aliase gelten, solange er nicht antwortet. Fehlte die Konstante,
+// öffnete der Dialog gar nicht („CLAUDE_WAHL is not defined“, 07.10.2026).
+let CLAUDE_WAHL = [['opus', 'Opus – immer die neueste Version'], ['sonnet', 'Sonnet – immer die neueste Version']];
 async function einstellungenDialog() {
   let d;
   try { d = await api('einstellungen'); } catch (e) { return fehler(e); }
+  try {
+    const liste = (await api('assistent/status')).modelle_claude;
+    if (Array.isArray(liste) && liste.length) CLAUDE_WAHL = liste.filter(e => Array.isArray(e) && e.length === 2).map(([id, t]) => [esc(id), esc(t)]);
+  } catch { /* bei den Aliasen bleiben */ }
   await Promise.all([K.daten ? null : katalogHolen(), A.modelle.length ? null : audioKatalogLaden()].filter(Boolean)).catch(() => {});
   const s = d.einstellungen, adm = d.admin;
   const dis = adm ? '' : 'disabled';
