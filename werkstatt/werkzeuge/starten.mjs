@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url'
 import { SCHUTZ_PORT, schluesselLesen, schutzschichtStarten } from './schutz/schutzschicht.mjs'
 import { arbeitsordnerBereinigen, laufMerken, profilAbsichern, profilPruefen, schluesselUmziehen, schutzAdresse } from './schutz/absichern.mjs'
 import { profilHephaistos } from './hephaistos/persona.mjs'
+import { begruessungAbgleichen } from './begruessung.mjs'
 import { adresseAusZeile, adresseLoeschen, adresseSchreiben, ausgabeMitlesen } from './adresse.mjs'
 
 /** Wurzel dieses Werkzeugs (…/werkstatt). */
@@ -290,6 +291,12 @@ if (umzug.umgezogen) console.log('starten: Schlüssel in die Schutzschicht umgez
 const hephaistos = profilHephaistos(PROFIL)
 for (const z of hephaistos.geaendert) console.log(`starten: Profil    ${z}`)
 for (const f of hephaistos.fehler) console.warn(`starten: Hinweis   ${f}`)
+
+// Die Begrüssung oben (werkzeuge/begruessung.mjs): eingehängt, solange
+// niemand sie abgewählt hat. Ein Fehler hier hält den Start nicht auf.
+const begruessung = begruessungAbgleichen(ZUHAUSE)
+for (const z of begruessung.geaendert) console.log(`starten: Profil    ${z}`)
+for (const f of begruessung.fehler) console.warn(`starten: Hinweis   ${f}`)
 
 // Startsperre: Ein Modellweg, der nicht über die Schutzschicht geht, wäre ein
 // Loch im Riegel. Dann startet die Werkstatt nicht.

@@ -131,7 +131,9 @@ export function presetUmschreiben(text, prefix) {
  * @returns {{zeilen:string[], presets:string[], fehler:string[]}}
  */
 export function hephaistosBlock({ presetOrdner = PRESET_ORDNER, personaDatei = PERSONA_DATEI } = {}) {
-  const prefix = personaLesen(personaDatei)
+  // `%WERKSTATT%` steht für den Ordner dieser Werkstatt — der Befehl für die
+  // Begrüssung braucht ihn, und er ist auf jedem Rechner ein anderer.
+  const prefix = personaLesen(personaDatei).replaceAll('%WERKSTATT%', WERKSTATT)
   const fehler = fremdeVariablen(prefix).map(n => `Persona: unbekannte Variable {{${n}}}`)
   const zeilen = [
     ANFANG,

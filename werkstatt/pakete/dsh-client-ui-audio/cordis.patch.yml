@@ -1,0 +1,8 @@
+# PROMPTHEUS Werkstatt — der Miniplayer für die Begrüssung.
+#
+# Eine Zeile: die Node-Hälfte hängt die Route für die Audiodatei ein, die
+# Client-Hälfte meldet den Player oben im Rahmen an — rechts der Mitte, damit
+# die Anzeige der laufenden Sitzung frei bleibt.
+- insert:
+    - id: promptheus-audio
+      name: '@promptheus/dsh-client-ui-audio'
