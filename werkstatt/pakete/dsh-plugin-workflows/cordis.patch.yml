@@ -1,0 +1,3 @@
+- insert:
+    - id: workflows-karte
+      name: '@promptheus/dsh-plugin-workflows'

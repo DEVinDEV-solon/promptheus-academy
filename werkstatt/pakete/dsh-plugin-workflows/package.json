@@ -1,0 +1,30 @@
+{
+  "name": "@promptheus/dsh-plugin-workflows",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Das Agenten-Team der Werkstatt: ein Knopf öffnet ein grosses Fenster mit den Schritten 1 bis 10 als Karten, Onboarding, Beratung zu Modellen und MCP, dazu eine Leiste am unteren Rand. Am Ende geht der fertige Auftrag ins Eingabefeld.",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/de.json": "./locale/de.json",
+    "./locale/en.json": "./locale/en.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/de.json",
+    "locale/en.json",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+    }
+  }
+}
