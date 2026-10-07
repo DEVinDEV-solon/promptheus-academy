@@ -210,6 +210,9 @@ werkstatt/deepseek-harness/
 # Der persönliche Secondbrain je Konto (Plan 40_Werkstatt): Angaben von
 # Kindern und Jugendlichen. Nie ins Programm-Repo.
 werkstatt/secondbrain/
+# Eigene Apps je Konto (Masterplan Workflow-Modalseite, 5.1): Tresor-Schlüssel,
+# verschlüsselte Zugangsdaten, Protokolle und Ausgabe-Abbilder. Nie ins Repo.
+werkstatt/eigene_workflows/
 # Sicherungen, die die Schutzschicht vor dem Umstellen anlegt.
 *.vor-schutzschicht
 # Cinema Studio (eigenes Programm, Python) liegt am festen Ort

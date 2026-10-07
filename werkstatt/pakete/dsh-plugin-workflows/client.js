@@ -54,6 +54,8 @@ window.__ModuleLoader__.load({
       button: 'Vorlage einsetzen',
       draft: 'Programmiere mir einen Workflow: [hier die Aufgabe einsetzen]. Fasse am Ende zusammen, was jede Phase ergeben hat.',
       team: 'Agenten-Team',
+      apps: 'Meine Apps',
+      appsTitel: 'Meine Apps: eigene Abläufe nach Kategorien, mit Protokoll',
       modalTitle: 'Agenten-Team',
       modalHint: 'Wähle je Schritt die Bausteine. Grün heisst an, grau heisst aus.',
       auftragLabel: 'Auftrag in einem Satz',
@@ -140,6 +142,8 @@ window.__ModuleLoader__.load({
       button: 'Insert template',
       draft: 'Program a workflow: [put the task here]. Summarize at the end what each phase produced.',
       team: 'Agent team',
+      apps: 'My apps',
+      appsTitel: 'My apps: your own workflows by category, with log',
       modalTitle: 'Agent team',
       modalHint: 'Pick the building blocks per step. Green is on, grey is off.',
       auftragLabel: 'Task in one sentence',
@@ -400,6 +404,7 @@ window.__ModuleLoader__.load({
     const bruecke = {
       offen: false,
       mail: false,
+      apps: false,
       text: null,
       schreiber: false,
       session: undefined,
@@ -417,6 +422,8 @@ window.__ModuleLoader__.load({
     }
     function oeffnen() { bruecke.offen = true; melden(); }
     function schliessen() { bruecke.offen = false; melden(); }
+    function appsOeffnen() { bruecke.apps = true; bruecke.offen = false; bruecke.mail = false; melden(); }
+    function appsSchliessen() { bruecke.apps = false; melden(); }
     function auftragEinsetzen(text) { bruecke.text = text; bruecke.offen = false; melden(); }
     function textAbholen() { const text = bruecke.text; bruecke.text = null; return text; }
 
@@ -1415,7 +1422,7 @@ window.__ModuleLoader__.load({
      * Menüs der Leiste selbst zählen nicht.
      */
     function overlayOffen() {
-      if (bruecke.offen || bruecke.mail) return true;
+      if (bruecke.offen || bruecke.mail || bruecke.apps) return true;
       const kandidaten = document.querySelectorAll(
         '[role="dialog"], [role="alertdialog"], [aria-modal="true"], [role="menu"], [role="listbox"]',
       );
@@ -1716,13 +1723,13 @@ window.__ModuleLoader__.load({
       // Eigenes Fenster auf → Leiste fährt ein. Wieder zu → ab jetzt der Nachlauf.
       const warFenster = useRef(false);
       useEffect(() => {
-        const auf = bruecke.offen || bruecke.mail;
+        const auf = bruecke.offen || bruecke.mail || bruecke.apps;
         if (auf && lage.current.modus !== 'fest') verbergen();
         if (!auf && warFenster.current) {
           lage.current.sperreBis = Math.max(lage.current.sperreBis, Date.now() + NACHLAUF_MS);
         }
         warFenster.current = auf;
-      }, [bruecke.offen, bruecke.mail]);
+      }, [bruecke.offen, bruecke.mail, bruecke.apps]);
 
       // Zeiger, Maustasten und Tastatur.
       useEffect(() => {
@@ -1898,7 +1905,7 @@ window.__ModuleLoader__.load({
       // Fest: die Chat-Fläche bekommt unten Platz in Höhe der Leiste, damit
       // nichts mehr unter ihr liegt.
       useEffect(() => {
-        if (modus !== 'fest' || bruecke.offen || bruecke.mail) return undefined;
+        if (modus !== 'fest' || bruecke.offen || bruecke.mail || bruecke.apps) return undefined;
         const flaeche = chatFlaecheFinden(seitenleisteFinden());
         if (!flaeche || !knoten.current) return undefined;
         const vorher = flaeche.style.paddingBottom;
@@ -1909,7 +1916,7 @@ window.__ModuleLoader__.load({
           flaeche.style.paddingBottom = vorher;
           flaeche.style.boxSizing = vorherGroesse;
         };
-      }, [modus, links, spalte.rechts, bruecke.offen, bruecke.mail]);
+      }, [modus, links, spalte.rechts, bruecke.offen, bruecke.mail, bruecke.apps]);
 
       // Per Tastatur geöffnet: der Fokus geht auf den ersten Knopf. Erst nach
       // dem Zeichnen — vorher ist die Leiste noch unsichtbar und nimmt keinen Fokus.
@@ -1929,7 +1936,7 @@ window.__ModuleLoader__.load({
         return () => window.removeEventListener('pointerdown', weg, true);
       }, [menue]);
 
-      if (bruecke.offen || bruecke.mail) return null;
+      if (bruecke.offen || bruecke.mail || bruecke.apps) return null;
 
       const modusSetzen = (naechster) => {
         setModus(naechster);
@@ -2017,6 +2024,12 @@ window.__ModuleLoader__.load({
             title: t('leisteTeamTitel'),
             onClick: () => fensterAuf('team'),
           }, t('team')),
+          h('button', {
+            type: 'button',
+            style: leistenKnopf,
+            title: t('appsTitel'),
+            onClick: appsOeffnen,
+          }, h(AppsZeichen), t('apps')),
           h('button', {
             type: 'button',
             style: leistenKnopf,
@@ -2140,6 +2153,106 @@ window.__ModuleLoader__.load({
      * Der Schalter eines Workflows: grün heisst ein, rot heisst aus.
      * Ein Klick schaltet um.
      */
+    /* ---------- Meine Apps (Masterplan Workflow-Modalseite, 9.4–9.7) ----------
+       Die Übersicht ist eine eigene Seite unter /promptheus-apps (apps/seite). Sie
+       läuft hier als Rahmen in einem grossen Fenster: Sie kommt von derselben
+       Herkunft, trägt also das Zugangs-Cookie der Werkstatt mit, und lässt sich
+       ohne Werkstatt in der Vorschau prüfen (werkzeuge/workflows/apps_vorschau.mjs).
+       Die Seite meldet sich per postMessage: „bereit“ → die Werkstatt schickt ihre
+       Farben, „schliessen“ → das Fenster geht zu. Nur Nachrichten derselben
+       Herkunft und aus genau diesem Rahmen zählen. */
+
+    function AppsZeichen() {
+      return h('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, 'aria-hidden': 'true' },
+        h('rect', { x: 4, y: 4, width: 7, height: 7, rx: 1.5 }),
+        h('rect', { x: 13, y: 4, width: 7, height: 7, rx: 1.5 }),
+        h('rect', { x: 4, y: 13, width: 7, height: 7, rx: 1.5 }),
+        h('rect', { x: 13, y: 13, width: 7, height: 7, rx: 1.5 }));
+    }
+
+    /** Der Eintrag „Meine Apps“ im Fuss der linken Spalte, unter Community und Cinema-Studio. */
+    function MeineAppsKnopf(props) {
+      const breit = !props || props.wide !== false;
+      return h('button', {
+        type: 'button',
+        onClick: appsOeffnen,
+        title: t('appsTitel'),
+        'aria-label': t('apps'),
+        style: {
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-start', gap: '.45rem',
+          height: '34px', padding: breit ? '0 .7rem' : '0', margin: '0 2px 6px', boxSizing: 'border-box',
+          border: '1px solid var(--dsw-alias-border-l2, rgba(255,255,255,.14))', borderRadius: '10px',
+          background: 'transparent', color: 'var(--dsw-alias-label-primary, #ede5db)',
+          font: 'inherit', fontSize: '.8rem', fontWeight: 500, lineHeight: 1, textAlign: 'left',
+          cursor: 'pointer', whiteSpace: 'nowrap', flex: '1', minWidth: 0, overflow: 'hidden',
+        },
+      }, h(AppsZeichen), breit ? h('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, t('apps')) : null);
+    }
+
+    /** Die Farben der Werkstatt für die Seite im Rahmen (Namen wie in apps/seite/app.css). */
+    function werkstattFarben() {
+      const s = getComputedStyle(document.documentElement);
+      const v = (n) => s.getPropertyValue(n).trim();
+      const paare = {
+        '--grund': '--dsw-alias-bg-base', '--grund-2': '--dsw-alias-bg-layer-1', '--grund-3': '--dsw-alias-bg-layer-2',
+        '--rand': '--dsw-alias-border-l1', '--rand-hell': '--dsw-alias-border-l2',
+        '--schrift': '--dsw-alias-label-primary', '--schrift-2': '--dsw-alias-label-secondary', '--schrift-3': '--dsw-alias-label-tertiary',
+        '--glut': '--dsw-alias-brand-primary',
+      };
+      const werte = {};
+      for (const [ziel, quelle] of Object.entries(paare)) { const w = v(quelle); if (w) werte[ziel] = w; }
+      // Hell oder dunkel nach der Helligkeit des Grundes.
+      let hell = false;
+      const m = /^#([0-9a-f]{6})$/i.exec(werte['--grund'] || '');
+      if (m) {
+        const n = parseInt(m[1], 16);
+        hell = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) > 150;
+      }
+      return { werte, hell };
+    }
+
+    function AppsFenster() {
+      useBruecke();
+      const rahmen = useRef(null);
+
+      useEffect(() => {
+        if (!bruecke.apps) return undefined;
+        const post = (ev) => {
+          if (ev.origin !== window.location.origin || !rahmen.current || ev.source !== rahmen.current.contentWindow) return;
+          const art = ev.data && ev.data.art;
+          if (art === 'promptheus-apps:schliessen') appsSchliessen();
+          if (art === 'promptheus-apps:bereit') {
+            const f = werkstattFarben();
+            rahmen.current.contentWindow.postMessage({ art: 'promptheus-apps:farben', werte: f.werte, hell: f.hell }, window.location.origin);
+          }
+        };
+        const taste = (e) => { if (e.key === 'Escape') appsSchliessen(); };
+        window.addEventListener('message', post);
+        window.addEventListener('keydown', taste);
+        return () => { window.removeEventListener('message', post); window.removeEventListener('keydown', taste); };
+      }, [bruecke.apps]);
+
+      useEffect(() => {
+        if (bruecke.apps && rahmen.current) rahmen.current.focus();
+      }, [bruecke.apps]);
+
+      if (!bruecke.apps) return null;
+      return h('div', { style: huelleStil },
+        h('div', { style: scrimStil, onClick: appsSchliessen }),
+        h('div', {
+          role: 'dialog',
+          'aria-modal': 'true',
+          'aria-label': t('apps'),
+          style: Object.assign({}, fensterStil, { padding: 0, gap: 0, overflow: 'hidden' }),
+        },
+          h('iframe', {
+            ref: rahmen,
+            src: '/promptheus-apps/',
+            title: t('apps'),
+            style: { flex: '1 1 auto', width: '100%', height: '100%', border: 0, borderRadius: '14px', background: 'var(--dsw-alias-bg-base)' },
+          })));
+    }
+
     function MailSchalter(props) {
       const an = props.an === true;
       return h('button', {
@@ -2497,6 +2610,17 @@ window.__ModuleLoader__.load({
           id: 'mail-fenster',
           order: 20,
         }, KoerperHuelle(MailFenster)));
+        ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+          name: 'shell.overlay',
+          id: 'meine-apps-fenster',
+          order: 25,
+        }, KoerperHuelle(AppsFenster)));
+        // Unter Community (10) und Cinema-Studio (20), an der Stelle des alten Agenten-Team-Eintrags (Plan 9.2).
+        ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
+          name: 'sidebar.footer.action',
+          id: 'meine-apps',
+          order: 30,
+        }, MeineAppsKnopf));
       },
     };
   },

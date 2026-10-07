@@ -20,6 +20,8 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PFAD as APPS_PFAD, appsHandler } from './apps/routen.mjs';
+import { spoolSchreiben } from '../../werkzeuge/schutz/spool.mjs';
 
 /** Ein Ordner ist die Werkstatt, wenn ihr Startwerkzeug darin liegt. */
 function istWerkstatt(ordner) {
@@ -380,9 +382,18 @@ async function modellEinschaetzung(ctx, frage, signal) {
   return { fehler: letzterFehler };
 }
 
-export const inject = ['commands'];
+export const inject = ['commands', 'webServer'];
 
 export function apply(ctx) {
+  // „Meine Apps“ (Masterplan Workflow-Modalseite, 9.4–9.7): Seite und API unter
+  // /promptheus-apps. Das Fenster in client.js zeigt die Seite als Rahmen.
+  // Workflow-Läufe gehen als Quelle `workflow` in den Audit-Trail der Academy.
+  ctx.effect(() => ctx.webServer.register({
+    kind: 'prefix',
+    path: APPS_PFAD,
+    handler: appsHandler({ werkstatt: werkstattOrdner(), audit: (eintrag) => spoolSchreiben('workflow', eintrag) }),
+  }), 'agenten-team: meine apps');
+
   ctx.effect(() => ctx.commands.register({
     name: 'team-beratung',
     description: 'Berät zum gewählten Workflow-Plan: Modelle, Helfer, MCP und Kosten.',
