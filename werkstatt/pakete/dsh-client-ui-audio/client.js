@@ -39,6 +39,23 @@ window.__ModuleLoader__.load({
     const React = require('react')
     const h = React.createElement
 
+    /**
+     * Der Player hängt am Seitenkörper, wie die Fenster des Agenten-Teams.
+     * In `shell.overlay` lag er in einer Ebene über deren Fenster (z-index
+     * 9000 am Seitenkörper) und blieb darauf sichtbar. Am Seitenkörper mit
+     * z-index 30 liegt er über der Werkstatt, aber unter jedem Fenster.
+     * Fehlt ReactDOM, bleibt er dort, wo der Platz ihn zeichnet.
+     */
+    const anBody = (() => {
+      try {
+        const rd = require('react-dom')
+        if (rd && typeof rd.createPortal === 'function') return knoten => rd.createPortal(knoten, document.body)
+      } catch {
+        // ohne ReactDOM: an Ort und Stelle zeichnen
+      }
+      return knoten => knoten
+    })()
+
     /** Woher der Ton kommt — die Route der Node-Hälfte. */
     const QUELLE = '/promptheus-begruessung.mp3'
 
@@ -257,7 +274,7 @@ window.__ModuleLoader__.load({
         ? Math.min(1, Math.max(0, stellung / dauer))
         : 0
 
-      return h(React.Fragment, null,
+      return anBody(h(React.Fragment, null,
         // Ohne `controls`: die Bedienung ist unsere Leiste. Das Element bleibt
         // unsichtbar, weil es keine Steuerleiste zeichnet.
         h('audio', { ref: ton, src: QUELLE, preload: 'metadata' }),
@@ -274,7 +291,7 @@ window.__ModuleLoader__.load({
             h('span', { style: { ...FUELLUNG, width: `${Math.round(anteil * 100)}%` } })),
           h('span', { style: ZEIT }, `${alsZeit(stellung)} / ${alsZeit(dauer)}`),
         ),
-      )
+      ))
     }
 
     return {
