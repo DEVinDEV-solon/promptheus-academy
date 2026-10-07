@@ -63,6 +63,15 @@ try {
   pruefe(lib.cinemaOrdner(werkstatt, 'relativ\\pfad') === ziel, '1: relativer PROMPTHEUS_CINEMA_DIR muss verworfen werden')
   pruefe(lib.cinemaPort('80') === 8796 && lib.cinemaPort('8797') === 8797 && lib.cinemaPort('x') === 8796,
     '1: Port-Regel stimmt nicht')
+  // Port aus der .env von Cinema Studio (BILDGEN_PORT), PROMPTHEUS_CINEMA_PORT geht vor.
+  pruefe(lib.cinemaPort(undefined, ziel) === 8796, '1: ohne .env muss die Vorgabe gelten')
+  writeFileSync(join(ziel, '.env'), 'ANDERER_WERT=abc\r\nBILDGEN_PORT = "8799"\r\n')
+  pruefe(lib.cinemaEnvPort(ziel) === 8799, '1: BILDGEN_PORT aus der .env wird nicht gelesen')
+  pruefe(lib.cinemaPort(undefined, ziel) === 8799, '1: Port folgt nicht der .env von Cinema Studio')
+  pruefe(lib.cinemaPort('8797', ziel) === 8797, '1: PROMPTHEUS_CINEMA_PORT muss vor der .env gelten')
+  writeFileSync(join(ziel, '.env'), 'BILDGEN_PORT=80\n')
+  pruefe(lib.cinemaPort(undefined, ziel) === 8796, '1: unzulässiger Port aus der .env muss verworfen werden')
+  rmSync(join(ziel, '.env'))
 
   // ── 2. Ticket ───────────────────────────────────────────────────────────────
   const jetzt = 1_800_000_000_000

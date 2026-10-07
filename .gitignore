@@ -212,6 +212,10 @@ werkstatt/deepseek-harness/
 werkstatt/secondbrain/
 # Sicherungen, die die Schutzschicht vor dem Umstellen anlegt.
 *.vor-schutzschicht
+# Cinema Studio (eigenes Programm, Python) liegt am festen Ort
+# werkstatt\scripts\CINEMA-STUDIO — mit .env, zugang\ und der Ablage der
+# erzeugten Bilder, Videos und Audios. Nichts davon gehört ins Repo.
+werkstatt/scripts/
 
 # ── 11. Private Inhalte, aus Repo und Historie entfernt (30.09.2026)
 # Liegen nur lokal. Nicht wieder aufnehmen.
