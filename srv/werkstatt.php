@@ -265,15 +265,26 @@ function pu_werkstatt_adresse(int $lernender, ?bool $laeuft = null): array
  * (gemessen am 03.10.2026). `Start-Process` ohne Umleitung startet über die
  * Shell, und dabei erbt das Kind nichts. Die PowerShell dazwischen erbt den
  * Socket zwar auch, ist aber nach einem Augenblick wieder weg.
+ *
+ * **Windows: ohne Konsolenfenster.** `-WindowStyle Minimized` half nicht:
+ * Unter Windows 11 übernimmt das Terminal die Konsole und öffnet sie als
+ * normales schwarzes Fenster, das neben der Werkstatt offen stehen blieb
+ * (07.10.2026). `Hidden` reicht das Terminal nicht weiter, das Fenster
+ * bleibt unsichtbar. `PROMPTHEUS_STILL` sagt der Batch-Datei, dass niemand
+ * ihr `pause` sehen würde. Beendet wird über die Academy (pu_werkstatt_beenden).
+ * Fehlt der Harness noch, läuft zuerst die Einrichtung; dann bleibt das
+ * Fenster sichtbar, damit man ihren Fortschritt und Fehler sieht.
  */
 function pu_werkstatt_starten(): void
 {
     $w = pu_werkstatt_ordner();
     if (PHP_OS_FAMILY === 'Windows') {
         $bat = str_replace('/', '\\', $w . '/WERKSTATT-START.bat');
+        $eingerichtet = is_file($w . '/deepseek-harness/apps/cli/src/bin.ts');
         // Einfache Anführungszeichen sind in PowerShell der einzige Sonderfall
         // in '…': verdoppeln. Den Fenstertitel setzt die Batch-Datei selbst.
-        $ps = "Start-Process -FilePath 'cmd.exe' -WindowStyle Minimized "
+        $ps = ($eingerichtet ? '$env:PROMPTHEUS_STILL = \'1\'; ' : '')
+            . "Start-Process -FilePath 'cmd.exe' -WindowStyle " . ($eingerichtet ? 'Hidden ' : 'Normal ')
             . "-WorkingDirectory '" . str_replace("'", "''", str_replace('/', '\\', $w)) . "' "
             . "-ArgumentList '/c', '\"" . str_replace("'", "''", $bat) . "\"'";
         $h = proc_open(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', $ps],

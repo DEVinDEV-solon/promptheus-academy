@@ -9,6 +9,8 @@ rem  Geoeffnet wird sie normalerweise AUS DER ACADEMY
 rem  (Einstellungen - Werkstatt), frei ab Kurs 7. Die Academy legt
 rem  dafuer ein Ticket ab; ohne Ticket startet sie nicht.
 rem  Entwicklung ohne Academy:  WERKSTATT-START.bat --betreiber
+rem  Aus der Academy startet sie ohne sichtbares Fenster
+rem  (PROMPTHEUS_STILL=1): dann wartet kein "pause" auf eine Taste.
 rem
 rem  Der Ordner wird aus der Lage dieser Datei bestimmt - kein
 rem  fester Pfad, laeuft in jeder Installation.
@@ -28,7 +30,7 @@ if errorlevel 1 (
   echo  FEHLER: Node.js fehlt. Bitte Node 22.19 oder neuer installieren:
   echo    winget install OpenJS.NodeJS.LTS
   echo.
-  pause
+  if not defined PROMPTHEUS_STILL pause
   exit /b 1
 )
 
@@ -54,7 +56,7 @@ node werkzeuge\starten.mjs %*
 
 echo.
 echo  Werkstatt beendet.
-pause
+if not defined PROMPTHEUS_STILL pause
 exit /b 0
 
 rem --- Falscher Ort (ohne Klammerblock: ein Pfad mit "(x86)" braeche ihn)
@@ -69,5 +71,5 @@ echo  So geht es: In der Academy unter Einstellungen - Werkstatt
 echo  auf "Ordner oeffnen" klicken und die Datei dort starten.
 echo  Diese Kopie hier kann geloescht werden.
 echo.
-pause
+if not defined PROMPTHEUS_STILL pause
 exit /b 1
