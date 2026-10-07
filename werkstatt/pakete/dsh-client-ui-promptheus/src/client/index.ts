@@ -204,6 +204,10 @@ function Wortmarke() {
   //      Beide Zeilen sind nur Großbuchstaben (der Zusatz über
   //      `textTransform`), es gibt also keine Unterlängen. Mit Zeilenhöhe .86
   //      sind es 13,6 + 9,2 = 22,8 px, und die Versalien bleiben ganz im Kasten.
+  //   5. 07.10.2026: Der Zusatz klebte zu dicht unter dem Namen. 3 px Abstand
+  //      dazu: 22,8 + 3 = 25,8 px. Das ragt je 0,9 px über den 24-px-Kasten
+  //      hinaus, wird aber nicht abgeschnitten: Abschneiden tut erst
+  //      `.logoRow` mit 60 px Höhe (`overflow: hidden`), der Kasten selbst nicht.
   //      → diese Fassung
   //
   // Wer hier etwas vergrößert, muss diese Rechnung neu machen.
@@ -227,6 +231,8 @@ function Wortmarke() {
           fontFamily: SANS,
           fontSize: '.67rem',
           fontWeight: 500,
+          // Luft zwischen Name und Zusatz (Fassung 5 der Rechnung oben).
+          marginTop: '3px',
           // Der gewünschte Zeichenabstand: „- W E R K S T A T T -".
           // .34em bei .67rem ≈ 3,6 px zwischen den Zeichen — sichtbar gesperrt,
           // aber noch lesbar als Wort. (.22em waren zu eng dafür.)
