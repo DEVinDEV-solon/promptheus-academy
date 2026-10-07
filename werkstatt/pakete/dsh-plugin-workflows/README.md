@@ -5,15 +5,64 @@ Fenster; darin wird in zehn Schritten zusammengestellt, was ein Ablauf tun soll.
 Am Ende geht der fertige Auftrag ins Eingabefeld, und Hephaistos baut daraus den
 Workflow.
 
-## Die fünf Plätze
+## Wo es liegt
+
+Seit dem 07.10.2026 im PROMPTHEUS-Repo unter `werkstatt\pakete\dsh-plugin-workflows\`
+(vorher ausserhalb von git unter `deepseek-harness\plugins\eigene\`).
+`node werkzeuge\bauen.mjs` prüft `client.js` und `index.js` mit `node --check`
+und legt die Verweise an: im flachen Rückfall `.dsh\profiles\node_modules\@promptheus\`
+und — falls das Paket über die Plugin-Verwaltung angemeldet ist — im Profil
+selbst (`profiles\promptheus\package.json` und dessen `node_modules`).
+
+## Die vier Plätze
 
 | Platz | Kennung | Was dort steht |
 |---|---|---|
 | `conversation.input.dock` | `workflows-karte` | Die Zeile über dem Eingabefeld, mittig in Eingabefeldbreite: `Vorlage einsetzen` und `Fenster` |
-| `sidebar.footer.action` | `agenten-team` | Die Knopfreihe in der Seitenleiste, unter Community und Cinema: `Agenten-Team` und der Briefumschlag für den Mail-Abruf |
 | `shell.overlay` | `agenten-team-fenster` | Das grosse Fenster des Agenten-Teams |
 | `shell.overlay` | `mail-fenster` | Das grosse Fenster `Mail-Abruf` |
-| `shell.overlay` | `agenten-team-leiste` | Die flache Leiste am unteren Rand, über die ganze Fensterbreite, mit Logo, Schrittzeichen und zwei Knöpfen |
+| `shell.overlay` | `agenten-team-leiste` | Die Taskleiste am unteren Rand, über der Chat-Spalte |
+
+Die Seitenleiste trägt seit dem 07.10.2026 kein „Agenten-Team“ und keinen
+Briefumschlag mehr; beides steht in der Taskleiste. Community und Cinema-Studio
+bleiben im Menü (Paket `dsh-client-ui-promptheus`) und stehen zusätzlich in der
+Leiste.
+
+## Die Taskleiste
+
+Von links: Logo, `Agenten-Team` (öffnet das Fenster), `Mail` (öffnet den
+Mail-Abruf), `Community` und `Cinema-Studio` — dieselben Routen der Werkstatt
+wie im Menü (`/promptheus-community`, `/promptheus-cinema`), also dieselbe
+Herkunftsprüfung und derselbe Einlass. Community läuft über den Knopf der
+Seitenleiste, damit die Palette (`?v=`) mitgeht. Danach Platz für angeheftete
+Workflows (Phase F), rechts das ⋯-Menü und der Pinn zum Feststellen. Wird das
+Fenster schmal, scrollt die Mitte waagrecht; ⋯ und Pinn bleiben stehen.
+
+Die Leiste beginnt rechts neben der Seitenleiste und endet vor einer rechten
+Spalte; gemessen wird die Chat-Spalte per `ResizeObserver`. So bleibt der Fuss
+der Seitenleiste immer klickbar. Sie liegt mit z-index 15 über dem Chat und
+unter der Überlagerungsschicht des Harness (20) und den eigenen Fenstern.
+
+**Einblenden** (Masterplan Workflow-Modalseite, 3.4):
+
+| Weg | Regel |
+|---|---|
+| Kante mit Verweilen | Zeiger in den untersten 3 px über der Chat-Spalte, 180 ms |
+| Kante mit Schwung | Ankommen an der Kante mit mehr als 0,6 px/ms abwärts (letzte drei Bewegungen); auch beim Verlassen des Fensters nach unten |
+| Griff | Klick oder Tippen auf die Pille (48×4 px) unten in der Mitte |
+| Tastatur | `Alt+T` blendet ein und aus, der Fokus geht auf den ersten Knopf; `Esc` schliesst |
+
+**Nie über die Kante**, solange ein Eingabefeld Fokus hat und der Zeiger in
+dessen Kasten plus 32 px ist, eine Maustaste gedrückt ist, ein Fenster, Dialog
+oder Menü offen ist, und 400 ms nach dem Schliessen eines Fensters oder dem
+Loslassen der Maustaste. Zeigerereignisse ohne Bewegung zählen nicht, Touch an
+der Kante auch nicht (dafür gibt es den Griff).
+
+**Ausblenden** 600 ms, nachdem der Zeiger die Leiste plus 24 px verlassen hat —
+nicht, solange das ⋯-Menü offen ist oder der Tastaturfokus in der Leiste liegt.
+
+**Arten** (⋯-Menü): `automatisch`, `immer sichtbar` (dann bekommt die
+Chat-Spalte `padding-bottom` in Höhe der Leiste) und `nur per Griff`.
 
 ## Was im Fenster steckt
 
@@ -37,11 +86,13 @@ Farbwert steht in der Datei.
 
 ## Der Mail-Abruf
 
-Der Briefumschlag in der Seitenleiste öffnet ein zweites grosses Fenster. Es sammelt
+Der Knopf `Mail` in der Taskleiste öffnet ein zweites grosses Fenster. Es sammelt
 die Wünsche an einer Stelle:
 
 - **Abruf**: Quelle, Zeitplan, Zeitraum, was nach dem Abruf geschieht, und die Ablage.
-  Bleibt die Quelle leer, steht darunter ein Warnhinweis.
+  Bleibt die Quelle leer, steht darunter ein Warnhinweis. Bleibt die Ablage leer,
+  setzt die Host-Hälfte `<Zuhause der Werkstatt>\mailposten` ein (`DSH_HOME`, also
+  `werkstatt\.dsh` — nicht in git).
 - **Mail-Workflows**: eine Zeile je Workflow mit Name, Zielordner und Regel. Rechts in
   der Zeile der Schalter — grün heisst ein, rot heisst aus, untereinander. Ein neuer
   Workflow startet grün. `Plugin erzeugen` ist gesperrt, solange der Workflow aus ist.
@@ -50,7 +101,8 @@ die Wünsche an einer Stelle:
   Knopf gedrückt wird.
 
 `Plugin erzeugen` ruft den Befehl `mail-erzeugen` der Host-Hälfte. Der schreibt für den
-Workflow ein eigenes Bündel nach `…\werkstatt\deepseek-harness\plugins\eigene\<kennung>-mail\`:
+Workflow ein eigenes Bündel nach `<Werkstatt>\deepseek-harness\plugins\eigene\<kennung>-mail\`
+(die Werkstatt ergibt sich aus `DSH_HOME`, sonst aus dem Ort dieses Pakets):
 `package.json`, `cordis.patch.yml`, `index.js`, `README.md`. Das Bündel meldet einen
 eigenen Befehl `/<kennung>-abruf` an, der seine Einstellungen ausgibt — samt
 Schalterzustand. Der Abruf selbst fehlt noch: dafür braucht es die Mailquelle. Umlaute
@@ -61,18 +113,10 @@ werden in der Kennung umgeschrieben (`ä` → `ae`), ein leerer Name wird abgewi
 Alle stehen im Kopf von `client.js` und sind zum Ändern gedacht:
 
 - `SPALTE`: Höchstbreite der Zeile über dem Eingabefeld — ungefähr die Breite des
-  Eingabefelds. Die Leiste dagegen läuft über die **ganze Fensterbreite**
-  (`left: 0; right: 0`).
-- `LINKS_ANTEIL` (0,2), `UNTEN_ANTEIL` (0,2) und `WARTEZEIT_MS` (300) im Abschnitt
-  Taskleiste: die **Auslösefläche unten links** — ein Fünftel der Fensterbreite mal
-  ein Fünftel der Fensterhöhe. Nur wenn der Zeiger in dieser Fläche ist, fährt die
-  Leiste hoch; die Mitte bleibt frei, damit sie nicht aufspringt, wenn man zum
-  Eingabefeld fährt. `WARTEZEIT_MS` ist der Nachlauf, bis sie wieder einfährt.
-
-Die Leiste hat zwei Sperren: sie fährt **nicht** hoch, solange ein Fenster offen ist,
-und sie ignoriert Zeigerereignisse **ohne Bewegung**. Solche Ereignisse schickt der
-Browser, wenn unter dem Zeiger etwas abgebaut wird — früher sprang die Leiste deshalb
-beim Schliessen eines Fensters auf.
+  Eingabefelds.
+- Im Abschnitt Taskleiste: `KANTE_PX` (3), `VERWEILEN_MS` (180), `SCHWUNG_PX_MS`
+  (0,6), `EINGABE_RAND_PX` (32), `NACHLAUF_MS` (400), `AUSBLENDEN_MS` (600),
+  `HYSTERESE_PX` (24).
 
 ## Die Host-Hälfte
 
@@ -93,7 +137,9 @@ Im lokalen Speicher des Browsers, unter dem Schlüssel `agenten-team-auswahl`:
 
 - die gewählten Karten,
 - die Antworten aus dem Onboarding,
-- ob die Leiste festgehalten wird (`fest` oder `hover`).
+- die Art der Leiste unter `leiste`: `auto`, `fest` oder `griff` (das frühere
+  `hover` gilt als `auto`),
+- die Eintragungen des Mail-Abrufs unter `mail`.
 
 **Nicht** gespeichert wird der frei eingetippte Auftrag. Er kann persönliche
 Dinge enthalten und soll nicht liegen bleiben.

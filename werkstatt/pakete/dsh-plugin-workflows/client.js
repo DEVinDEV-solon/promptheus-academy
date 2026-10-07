@@ -1,10 +1,13 @@
 /**
  * Client half of @promptheus/dsh-plugin-workflows.
  *
- * Three seats:
+ * Two seats:
  *   conversation.input.dock  - the line above the composer (template button)
- *   sidebar.footer.action    - the button "Agenten-Team"
- *   shell.overlay            - the large window the button opens
+ *   shell.overlay            - the Agenten-Team window, the mail window and
+ *                              the taskbar at the bottom edge, which opens both
+ *
+ * Since 07.10.2026 the sidebar no longer carries "Agenten-Team" and the
+ * envelope; both live in the taskbar (Masterplan Workflow-Modalseite, 3.2).
  *
  * The window runs at root scope and therefore receives no composer actions.
  * It hands its finished request to the composer line through `bruecke`, which
@@ -93,7 +96,7 @@ window.__ModuleLoader__.load({
       mailDanachB: 'in die Ablage verschieben',
       mailDanachC: 'als gelesen markieren',
       mailAblage: 'Ablage',
-      mailAblagePlatz: 'Ordner für Mails und Einstellungen',
+      mailAblagePlatz: 'leer: mailposten im Zuhause der Werkstatt (.dsh)',
       mailKategorien: 'Mail-Workflows',
       mailName: 'Name',
       mailZiel: 'Zielordner',
@@ -106,11 +109,24 @@ window.__ModuleLoader__.load({
       mailQuelleFehlt: 'Die Mailquelle ist noch offen. Trage sie oben ein — dann baue ich den Abruf.',
       mailLeer: 'Noch keine Kategorie. Mit «+ Kategorie» anfangen.',
       mailKeinChat: 'Kein Chat offen: das Plugin kann erst erzeugt werden, wenn ein Chat läuft.',
-      leisteHinweis: 'Unten links öffnet sie. Sie bleibt, solange du sie berührst.',
-      leisteFest: 'Festhalten',
-      leisteLose: 'Loslassen',
+      leisteName: 'Taskleiste',
+      leisteTeamTitel: 'Agenten-Team öffnen: Workflows zusammenstellen',
+      leisteMail: 'Mail',
+      leisteCommunity: 'Community',
+      leisteCommunityTitel: 'Zur Gemeinde der PROMPTHEUS Academy',
+      leisteCinema: 'Cinema-Studio',
+      leisteCinemaTitel: 'Cinema Studio öffnen: Bilder, Videos und Audio erzeugen',
+      leisteAngeheftet: 'Angeheftete Workflows',
+      leisteMehr: 'Taskleiste einstellen',
+      leisteModus: 'Taskleiste',
+      modusAuto: 'automatisch',
+      modusFest: 'immer sichtbar',
+      modusGriff: 'nur per Griff',
+      leisteTaste: 'Alt+T blendet ein und aus.',
+      leisteFest: 'Feststellen',
+      leisteLose: 'Lösen',
+      griff: 'Taskleiste einblenden (Alt+T)',
       fenster: 'Fenster',
-      bausteineAn: 'Bausteine an',
       vorlesen: 'Vorlesen',
       stoppen: 'Stopp',
       sprichtNicht: 'Dieser Browser kann nicht sprechen.',
@@ -166,7 +182,7 @@ window.__ModuleLoader__.load({
       mailDanachB: 'move them into the store',
       mailDanachC: 'mark them as read',
       mailAblage: 'Store',
-      mailAblagePlatz: 'folder for mails and settings',
+      mailAblagePlatz: 'empty: mailposten in the workshop home (.dsh)',
       mailKategorien: 'Mail workflows',
       mailName: 'Name',
       mailZiel: 'Target folder',
@@ -179,11 +195,24 @@ window.__ModuleLoader__.load({
       mailQuelleFehlt: 'The mail source is still open. Enter it above and I will build the fetch.',
       mailLeer: 'No category yet. Start with «+ category».',
       mailKeinChat: 'No chat open: the plugin can only be created while a chat runs.',
-      leisteHinweis: 'Bottom left opens it. It stays while you touch it.',
-      leisteFest: 'Pin open',
+      leisteName: 'Taskbar',
+      leisteTeamTitel: 'Open the agent team: put workflows together',
+      leisteMail: 'Mail',
+      leisteCommunity: 'Community',
+      leisteCommunityTitel: 'To the PROMPTHEUS Academy community',
+      leisteCinema: 'Cinema Studio',
+      leisteCinemaTitel: 'Open Cinema Studio: create images, videos and audio',
+      leisteAngeheftet: 'Pinned workflows',
+      leisteMehr: 'Taskbar settings',
+      leisteModus: 'Taskbar',
+      modusAuto: 'automatic',
+      modusFest: 'always visible',
+      modusGriff: 'handle only',
+      leisteTaste: 'Alt+T shows and hides it.',
+      leisteFest: 'Pin',
       leisteLose: 'Unpin',
+      griff: 'Show the taskbar (Alt+T)',
       fenster: 'Window',
-      bausteineAn: 'building blocks on',
       vorlesen: 'Read aloud',
       stoppen: 'Stop',
       sprichtNicht: 'This browser cannot speak.',
@@ -440,21 +469,6 @@ window.__ModuleLoader__.load({
       color: 'var(--dsw-alias-label-primary)',
       font: 'inherit',
       fontSize: '13px',
-      cursor: 'pointer',
-    };
-    const randStil = {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      width: '100%',
-      padding: '6px 8px',
-      border: 'none',
-      borderRadius: '8px',
-      background: 'transparent',
-      color: 'var(--dsw-alias-label-primary)',
-      font: 'inherit',
-      fontSize: '13px',
-      textAlign: 'left',
       cursor: 'pointer',
     };
     /** Quadratischer Knopf für ein Zeichen statt eines Wortes. */
@@ -1015,27 +1029,6 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function TeamKnopf() {
-      return h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', width: '100%' } },
-        h('button', {
-          type: 'button',
-          style: Object.assign({}, randStil, { flex: '1 1 auto' }),
-          onClick: () => (bruecke.offen ? schliessen() : oeffnen()),
-        }, t('team')),
-        h('button', {
-          type: 'button',
-          style: Object.assign({}, zeichenKnopf, { width: '30px', height: '30px' }),
-          title: t('mail'),
-          'aria-label': t('mail'),
-          onClick: () => {
-            bruecke.mail = !bruecke.mail;
-            if (bruecke.mail) bruecke.offen = false;
-            melden();
-          },
-        }, h(MailZeichen)),
-      );
-    }
-
     function TeamFenster() {
       useBruecke();
       const [gemerkt] = useState(() => laden());
@@ -1343,247 +1336,794 @@ window.__ModuleLoader__.load({
 
     /* ---------- Taskleiste am unteren Rand ---------- */
 
-    /**
-     * Die Auslösefläche liegt unten links: ein Fünftel der Fensterbreite mal
-     * ein Fünftel der Fensterhöhe. Die Mitte bleibt frei, damit die Leiste
-     * nicht aufspringt, wenn man zum Eingabefeld fährt.
+    /*
+     * Wann die Leiste kommt (Masterplan Workflow-Modalseite, 3.4).
+     *
+     * Grundgedanke ist die „unendlich tiefe“ Bildschirmkante nach Fitts: den
+     * untersten Rand trifft man mit Schwung, ohne zu zielen. Darum zählt die
+     * ganze Breite der Leiste, aber nur ein schmaler Streifen ganz unten, und
+     * dazu kommt eine Absichtsprüfung — Verweilen oder Schwung. Die frühere
+     * Fünftel-Zone unten links ist weg: sie lag über dem Fuss der Seitenleiste
+     * und sprang trotzdem auf, wenn man zum Eingabefeld fuhr.
      */
-    const LINKS_ANTEIL = 0.2;
-    /** Höhe der Auslösefläche, als Anteil der Fensterhöhe, von unten gemessen. */
-    const UNTEN_ANTEIL = 0.2;
-    /** Nachlauf in Millisekunden, bevor die Leiste wieder einfährt. */
-    const WARTEZEIT_MS = 300;
 
-    /** Die Leiste liest die zuletzt gemerkte Auswahl; persönlichen Text speichert sie nie. */
-    function standLesen() {
+    /** So viele Pixel über der unteren Fensterkante zählen als Kante. */
+    const KANTE_PX = 3;
+    /** So lange muss der Zeiger an der Kante bleiben. */
+    const VERWEILEN_MS = 180;
+    /** Ab dieser Abwärtsgeschwindigkeit (px/ms, aus den letzten drei Bewegungen) reicht das Ankommen. */
+    const SCHWUNG_PX_MS = 0.6;
+    /** Rand um ein Eingabefeld mit Fokus, in dem die Leiste nie aufspringt. */
+    const EINGABE_RAND_PX = 32;
+    /** Sperre nach dem Schliessen eines Fensters und nach dem Loslassen der Maustaste. */
+    const NACHLAUF_MS = 400;
+    /** Nachlauf, bevor die Leiste wieder einfährt. */
+    const AUSBLENDEN_MS = 600;
+    /** So weit darf der Zeiger die Leiste verlassen, ohne dass sie einfährt. */
+    const HYSTERESE_PX = 24;
+    /** Die drei Arten der Leiste, gespeichert unter `leiste`. */
+    const MODI = ['auto', 'fest', 'griff'];
+
+    /** Kennzeichen am Knoten der Leiste — damit ihre eigenen Knöpfe nicht für fremde gehalten werden. */
+    const LEISTE_MARKE = 'data-agenten-team-leiste';
+
+    /** Die gemerkte Art. `hover` (bis 06.10.2026) heisst heute `auto`. */
+    function modusLesen() {
       const gemerkt = laden();
-      const gewaehlt = Object.assign({}, START, gemerkt && gemerkt.gewaehlt ? gemerkt.gewaehlt : {});
-      let an = 0;
-      const schritte = SCHRITTE.map((schritt) => {
-        const zahl = schritt.karten.filter((karte) => gewaehlt[karte.id]).length;
-        an += zahl;
-        return { nr: schritt.nr, name: schritt.name, an: zahl, gesamt: schritt.karten.length };
-      });
-      return { an: an, schritte: schritte };
+      const wert = gemerkt ? gemerkt.leiste : undefined;
+      return MODI.indexOf(wert) >= 0 ? wert : 'auto';
+    }
+    function modusSichern(modus) {
+      sichern(Object.assign({}, laden() || {}, { leiste: modus }));
+    }
+
+    /** Liegt ein Knoten in der Leiste (oder ist er sie)? */
+    function inLeiste(knoten) {
+      return !!(knoten && knoten.closest && knoten.closest('[' + LEISTE_MARKE + ']'));
+    }
+
+    /**
+     * Liegt der Tastaturfokus in der Leiste? Nur er hält sie offen. Ein
+     * Mausklick auf einen Knopf lässt den Fokus ebenfalls dort, soll die Leiste
+     * aber nicht festhalten — deshalb zählt nur `:focus-visible`.
+     */
+    function tastaturFokusInLeiste() {
+      const fokus = document.activeElement;
+      if (!inLeiste(fokus)) return false;
+      try {
+        return fokus.matches(':focus-visible');
+      } catch {
+        return true;
+      }
+    }
+
+    /** Ein Element, das tatsächlich gezeichnet wird. */
+    function sichtbar(knoten) {
+      return knoten.getClientRects().length > 0;
+    }
+
+    /**
+     * Ist irgendein Fenster, Dialog oder Menü offen — eigenes oder des Harness?
+     * Menüs der Leiste selbst zählen nicht.
+     */
+    function overlayOffen() {
+      if (bruecke.offen || bruecke.mail) return true;
+      const kandidaten = document.querySelectorAll(
+        '[role="dialog"], [role="alertdialog"], [aria-modal="true"], [role="menu"], [role="listbox"]',
+      );
+      for (const knoten of kandidaten) {
+        if (!inLeiste(knoten) && sichtbar(knoten)) return true;
+      }
+      return false;
+    }
+
+    /** Ein Feld, in das man schreibt. */
+    function istEingabe(knoten) {
+      if (!knoten || knoten === document.body) return false;
+      if (knoten.isContentEditable) return true;
+      if (knoten.tagName === 'TEXTAREA') return true;
+      if (knoten.tagName !== 'INPUT') return false;
+      return ['button', 'checkbox', 'radio', 'submit', 'reset', 'range', 'color', 'file', 'image']
+        .indexOf(String(knoten.type).toLowerCase()) < 0;
+    }
+
+    /**
+     * Der Kasten eines Eingabefelds. Beim Chat ist der Editor oft nur eine
+     * Zeile hoch; zählen soll aber der ganze Eingabekasten mit Knöpfen. Gesucht
+     * wird deshalb der äusserste Vorfahr (höchstens sechs Stufen), der noch
+     * klein ist: höchstens 40 % der Fensterhöhe und schmaler als das Fenster.
+     */
+    function eingabeKasten(feld) {
+      let kasten = feld.getBoundingClientRect();
+      let knoten = feld.parentElement;
+      for (let stufe = 0; knoten && knoten !== document.body && stufe < 6; stufe += 1) {
+        const r = knoten.getBoundingClientRect();
+        // `display: contents` hat keinen Kasten; darüber wird weitergesucht.
+        if (r.width > 0 || r.height > 0) {
+          if (r.height > window.innerHeight * 0.4 || r.width >= window.innerWidth * 0.95) break;
+          kasten = r;
+        }
+        knoten = knoten.parentElement;
+      }
+      return kasten;
+    }
+
+    /** Hat ein Eingabefeld Fokus, und ist der Zeiger in dessen Kasten plus Rand? */
+    function eingabeSperrt(x, y) {
+      const feld = document.activeElement;
+      if (!istEingabe(feld) || inLeiste(feld)) return false;
+      const r = eingabeKasten(feld);
+      return x >= r.left - EINGABE_RAND_PX && x <= r.right + EINGABE_RAND_PX &&
+        y >= r.top - EINGABE_RAND_PX && y <= r.bottom + EINGABE_RAND_PX;
+    }
+
+    /** Ein Kasten, der am linken Rand beginnt und fast so hoch ist wie das Fenster. */
+    function istSeitenleiste(knoten) {
+      const r = knoten.getBoundingClientRect();
+      return r.left <= 1 && r.height >= window.innerHeight * 0.8 && r.width > 0 && r.width < window.innerWidth * 0.6;
+    }
+
+    /**
+     * Die Seitenleiste. Gefunden über ihren Fuss: dort stehen Community und
+     * Cinema-Studio (Paket `dsh-client-ui-promptheus`). Von dort aus nach oben
+     * bis zum äussersten Kasten, der noch wie eine Seitenleiste aussieht — das
+     * ist die Spalte des Rahmens, deren Geschwister die Chat-Spalte ist.
+     */
+    function seitenleisteFinden() {
+      const anker = document.querySelectorAll('a[href^="/promptheus-community"], a[href^="/promptheus-cinema"]');
+      for (const link of anker) {
+        if (inLeiste(link)) continue;
+        let treffer = null;
+        for (let knoten = link.parentElement; knoten && knoten !== document.body; knoten = knoten.parentElement) {
+          const r = knoten.getBoundingClientRect();
+          if (r.width === 0 && r.height === 0) continue;
+          if (istSeitenleiste(knoten)) treffer = knoten;
+          else if (treffer) break;
+        }
+        if (treffer) return treffer;
+      }
+      return null;
+    }
+
+    /**
+     * Die Chat-Spalte: das Geschwister der Seitenleiste, das breit ist und bis
+     * an den unteren Rand reicht. Über ihr liegt die Leiste, und sie bekommt
+     * im festen Zustand `padding-bottom`.
+     */
+    function chatFlaecheFinden(seitenleiste) {
+      if (!seitenleiste || !seitenleiste.parentElement) return null;
+      for (const geschwister of seitenleiste.parentElement.children) {
+        if (geschwister === seitenleiste || inLeiste(geschwister) || !sichtbar(geschwister)) continue;
+        const r = geschwister.getBoundingClientRect();
+        if (r.width > window.innerWidth * 0.3 && r.width < window.innerWidth - 1 && r.bottom >= window.innerHeight - 2) {
+          return geschwister;
+        }
+      }
+      return null;
     }
 
     const leisteStil = {
       position: 'fixed',
-      left: 0,
       right: 0,
       bottom: 0,
-      zIndex: 500,
-      width: '100%',
-      minHeight: '44px',
+      // Über dem Chat, unter allen Fenstern und Dialogen: die Überlagerungsschicht
+      // des Harness liegt bei 20, die eigenen Fenster bei 8900/9000. Ist ein
+      // Dialog offen, fährt die Leiste ohnehin ein.
+      zIndex: 15,
+      minHeight: '48px',
       display: 'flex',
       alignItems: 'center',
-      gap: '10px',
+      gap: '8px',
       flexWrap: 'nowrap',
       boxSizing: 'border-box',
-      padding: '6px 14px',
-      border: '1px solid var(--dsw-alias-border-l2)',
-      borderRadius: 0,
+      padding: '6px 12px',
+      borderTop: '1px solid var(--dsw-alias-border-l2)',
+      borderLeft: '1px solid var(--dsw-alias-border-l2)',
+      borderRadius: '10px 0 0 0',
       background: 'var(--dsw-alias-bg-layer-1)',
       color: 'var(--dsw-alias-label-primary)',
       font: 'inherit',
       fontSize: '13px',
-      transition: 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)',
     };
 
-    /** Quadratischer Knopf für ein Zeichen statt eines Wortes. */
+    /** Ein Knopf der Leiste: Zeichen und Wort. */
+    const leistenKnopf = {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      flex: '0 0 auto',
+      height: '32px',
+      padding: '0 10px',
+      boxSizing: 'border-box',
+      border: '1px solid var(--dsw-alias-border-l2)',
+      borderRadius: '8px',
+      background: 'transparent',
+      color: 'var(--dsw-alias-label-primary)',
+      font: 'inherit',
+      fontSize: '13px',
+      lineHeight: 1,
+      textDecoration: 'none',
+      whiteSpace: 'nowrap',
+      cursor: 'pointer',
+    };
+    const leistenTrenner = {
+      flex: '0 0 auto',
+      width: '1px',
+      alignSelf: 'stretch',
+      margin: '4px 2px',
+      background: 'var(--dsw-alias-border-l2)',
+    };
+
+    /** Ein Pinn: die Leiste steht fest. */
+    function PinnZeichen(props) {
+      return h('svg', { viewBox: '0 0 16 16', width: 16, height: 16, 'aria-hidden': true },
+        h('path', {
+          d: 'M6 1.5h4l-.6 4 2.6 2.5v1.2H8.6V14L8 15l-.6-1V9.2H4V8l2.6-2.5z',
+          fill: props.fest ? 'currentColor' : 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.2,
+          strokeLinejoin: 'round',
+        }));
+    }
+
+    /** Drei Punkte: das ⋯-Menü der Leiste. */
+    function MehrZeichen() {
+      return h('svg', { viewBox: '0 0 16 16', width: 16, height: 16, 'aria-hidden': true },
+        h('circle', { cx: 3, cy: 8, r: 1.4, fill: 'currentColor' }),
+        h('circle', { cx: 8, cy: 8, r: 1.4, fill: 'currentColor' }),
+        h('circle', { cx: 13, cy: 8, r: 1.4, fill: 'currentColor' }));
+    }
 
     /**
-     * The bottom bar. It rides up when the pointer reaches the bottom edge, stays
-     * while the pointer is on it, and slides back {@link WARTEZEIT_MS} after the
-     * pointer leaves. "Festhalten" keeps it open regardless.
+     * Community über den Knopf der Seitenleiste öffnen, wenn es ihn gibt: der
+     * hängt die wirksame Palette an (`?v=`), damit die Community in denselben
+     * Farben aufgeht. Sonst folgt der Link seiner eigenen Adresse — dieselbe
+     * Route der Werkstatt, also dieselbe Herkunftsprüfung und derselbe Einlass.
+     */
+    function communityKlick(ereignis) {
+      const anker = document.querySelectorAll('a[href^="/promptheus-community"]');
+      for (const link of anker) {
+        if (inLeiste(link)) continue;
+        ereignis.preventDefault();
+        link.click();
+        return;
+      }
+    }
+
+    /**
+     * The bottom bar.
+     *
+     * Fixed knobs from the left: logo, Agenten-Team, Mail, Community,
+     * Cinema-Studio; then room for pinned workflows (phase F); on the right the
+     * ⋯ menu (mode) and the pin. It starts right of the sidebar, so the sidebar
+     * foot stays clickable.
      */
     function Taskleiste() {
       useBruecke();
+      const [modus, setModus] = useState(() => modusLesen());
       const [offen, setOffen] = useState(false);
-      const [fest, setFest] = useState(() => {
-        const gemerkt = laden();
-        return !!(gemerkt && gemerkt.leiste === 'fest');
+      const [menue, setMenue] = useState(false);
+      /** Die Lage der Chat-Spalte: dort liegt die Leiste, links und rechts frei. */
+      const [spalte, setSpalte] = useState({ links: 0, rechts: 0 });
+      const links = spalte.links;
+      const knoten = useRef(null);
+
+      /**
+       * Alles, was die Ereignisse brauchen, in einem Halter: die Horcher hängen
+       * nur einmal, und ein Neuzeichnen verliert keinen Zeitgeber.
+       */
+      const lage = useRef({
+        offen: false,
+        modus: modus,
+        menue: false,
+        links: 0,
+        rechts: 0,
+        proben: [],
+        letzter: { x: -1, y: -1 },
+        anKante: false,
+        verweilen: null,
+        ausblenden: null,
+        sperreBis: 0,
+        warOverlay: false,
+        perTaste: false,
+        fokusRein: false,
+        zurueck: null,
       });
-      const [stand, setStand] = useState(() => standLesen());
-      const schwebt = useRef(false);
-      const liegtOffen = useRef(false);
-      const wecker = useRef(null);
-      /** Die letzte Zeigerstellung; sie unterscheidet echte Bewegung von einem Umbau. */
-      const letzterZeiger = useRef({ x: -1, y: -1 });
-      /** Der eigene Knoten und die angewandte Verschiebung, für die Breite. */
-      const leisteKnoten = useRef(null);
-      const versatz = useRef(0);
-      const [korrektur, setKorrektur] = useState(null);
+      lage.current.modus = modus;
+      lage.current.menue = menue;
+      lage.current.links = links;
+      lage.current.rechts = spalte.rechts;
 
-      const aufraeumen = () => {
-        if (wecker.current) {
-          window.clearTimeout(wecker.current);
-          wecker.current = null;
+      const sichtbarJetzt = modus === 'fest' || offen;
+
+      const zeitgeberWeg = (name) => {
+        const l = lage.current;
+        if (l[name]) {
+          window.clearTimeout(l[name]);
+          l[name] = null;
         }
       };
-      useEffect(() => aufraeumen, []);
+      /** Misst die Chat-Spalte neu; gesetzt vom Mess-Effekt unten. */
+      const messenRef = useRef(() => {});
 
-      const hoch = () => {
-        aufraeumen();
-        if (!liegtOffen.current) {
-          liegtOffen.current = true;
-          setStand(standLesen());
+      const zeigen = (perTaste) => {
+        const l = lage.current;
+        messenRef.current();
+        zeitgeberWeg('ausblenden');
+        zeitgeberWeg('verweilen');
+        l.perTaste = !!perTaste;
+        if (!l.offen) {
+          l.offen = true;
+          setOffen(true);
         }
-        setOffen(true);
-        // Ist der Zeiger nicht auf der Leiste, fährt sie nach der Wartezeit wieder
-        // ein. Ohne das bliebe sie hängen, sobald man in der Auslösefläche arbeitet.
-        if (!schwebt.current && !fest) spaeterRunter();
       };
-      const runter = () => {
-        liegtOffen.current = false;
-        setOffen(false);
-      };
-      const spaeterRunter = () => {
-        aufraeumen();
-        wecker.current = window.setTimeout(() => {
-          wecker.current = null;
-          if (!schwebt.current && !fest) runter();
-        }, WARTEZEIT_MS);
+      const verbergen = () => {
+        const l = lage.current;
+        zeitgeberWeg('ausblenden');
+        zeitgeberWeg('verweilen');
+        l.perTaste = false;
+        setMenue(false);
+        if (l.offen) {
+          l.offen = false;
+          setOffen(false);
+        }
+        // Lag der Fokus in der Leiste, geht er dorthin zurück, wo er herkam.
+        if (inLeiste(document.activeElement)) {
+          const ziel = l.zurueck;
+          l.zurueck = null;
+          if (ziel && ziel.isConnected && typeof ziel.focus === 'function') ziel.focus();
+          // Nimmt das Ziel keinen Fokus (etwa der Seitenkörper), wird er nur abgegeben.
+          if (inLeiste(document.activeElement)) document.activeElement.blur();
+        }
       };
 
+      /** Sperren, die jedes Einblenden über die Kante verhindern. */
+      const gesperrt = (x, y, tasten) => {
+        const l = lage.current;
+        const jetzt = Date.now();
+        if (tasten) return true;
+        if (overlayOffen()) {
+          l.warOverlay = true;
+          return true;
+        }
+        if (l.warOverlay) {
+          // Gerade geschlossen: ab jetzt läuft der Nachlauf.
+          l.warOverlay = false;
+          l.sperreBis = Math.max(l.sperreBis, jetzt + NACHLAUF_MS);
+        }
+        if (jetzt < l.sperreBis) return true;
+        return eingabeSperrt(x, y);
+      };
+
+      /** Abwärtsgeschwindigkeit aus den letzten drei Bewegungen, in px/ms. */
+      const schwung = () => {
+        const proben = lage.current.proben;
+        if (proben.length < 2) return 0;
+        const erste = proben[0];
+        const letzte = proben[proben.length - 1];
+        const dauer = letzte.t - erste.t;
+        return dauer > 0 ? (letzte.y - erste.y) / dauer : 0;
+      };
+
+      // Eigenes Fenster auf → Leiste fährt ein. Wieder zu → ab jetzt der Nachlauf.
+      const warFenster = useRef(false);
       useEffect(() => {
-        // Solange ein Fenster offen ist, bleibt die Leiste unten und hört nicht zu.
-        if (bruecke.offen || bruecke.mail) {
-          runter();
-          return undefined;
+        const auf = bruecke.offen || bruecke.mail;
+        if (auf && lage.current.modus !== 'fest') verbergen();
+        if (!auf && warFenster.current) {
+          lage.current.sperreBis = Math.max(lage.current.sperreBis, Date.now() + NACHLAUF_MS);
         }
-        if (fest) {
-          hoch();
-          return undefined;
-        }
-        const beiBewegung = (ereignis) => {
-          const vorher = letzterZeiger.current;
-          const bewegt = ereignis.clientX !== vorher.x || ereignis.clientY !== vorher.y;
-          letzterZeiger.current = { x: ereignis.clientX, y: ereignis.clientY };
-          // Baut der Browser unter dem Zeiger etwas um, schickt er ein Ereignis
-          // ohne Bewegung. Das darf die Leiste nicht hochfahren.
-          if (!bewegt) return;
-          const links = ereignis.clientX <= window.innerWidth * LINKS_ANTEIL;
-          const unten = ereignis.clientY >= window.innerHeight * (1 - UNTEN_ANTEIL);
-          if (links && unten) {
-            hoch();
+        warFenster.current = auf;
+      }, [bruecke.offen, bruecke.mail]);
+
+      // Zeiger, Maustasten und Tastatur.
+      useEffect(() => {
+        const l = lage.current;
+
+        const pruefeAusblenden = (x, y) => {
+          if (!l.offen || l.modus === 'fest' || l.menue || l.perTaste) return;
+          if (tastaturFokusInLeiste()) return;
+          const kasten = knoten.current ? knoten.current.getBoundingClientRect() : null;
+          const drin = kasten && x >= kasten.left - HYSTERESE_PX && x <= kasten.right + HYSTERESE_PX &&
+            y >= kasten.top - HYSTERESE_PX && y <= kasten.bottom + HYSTERESE_PX;
+          if (drin) {
+            zeitgeberWeg('ausblenden');
             return;
           }
-          // Zeiger ist weg von der Auslösefläche: die Leiste darf wieder einfahren.
-          if (!schwebt.current) spaeterRunter();
+          if (l.ausblenden) return;
+          l.ausblenden = window.setTimeout(() => {
+            l.ausblenden = null;
+            if (!l.menue && !tastaturFokusInLeiste()) verbergen();
+          }, AUSBLENDEN_MS);
         };
-        window.addEventListener('mousemove', beiBewegung);
-        return () => window.removeEventListener('mousemove', beiBewegung);
-      }, [fest, bruecke.offen, bruecke.mail]);
 
-      // Die Leiste soll am linken Fensterrand beginnen und bis zum rechten reichen.
-      // Sitzt sie in einem eingerückten Rahmen, wird sie hier darauf umgerechnet.
-      // Stimmt die Breite schon, passiert nichts.
-      useEffect(() => {
-        const messen = () => {
-          const knoten = leisteKnoten.current;
-          if (!knoten) return;
-          const kasten = knoten.getBoundingClientRect();
-          const breite = document.documentElement.clientWidth;
-          // Die schon angewandte Verschiebung herausrechnen, sonst misst man sie mit.
-          const links = kasten.left - versatz.current;
-          if (Math.abs(links) < 0.5 && Math.abs(kasten.width - breite) < 1) {
-            versatz.current = 0;
-            setKorrektur(null);
+        /** Die Kante zählt nur, wo die Leiste liegt: über der Chat-Spalte. */
+        const ueberSpalte = (x) => x >= l.links && x <= window.innerWidth - l.rechts;
+
+        const ankommen = (x, y, tasten) => {
+          if (l.offen || l.modus !== 'auto') return;
+          messenRef.current();
+          if (!ueberSpalte(x)) return;
+          if (gesperrt(x, y, tasten)) return;
+          if (schwung() > SCHWUNG_PX_MS) {
+            zeigen(false);
             return;
           }
-          versatz.current = -links;
-          setKorrektur({ marginLeft: versatz.current + 'px', width: breite + 'px' });
+          zeitgeberWeg('verweilen');
+          l.verweilen = window.setTimeout(() => {
+            l.verweilen = null;
+            const p = l.letzter;
+            if (!l.anKante || l.offen || l.modus !== 'auto') return;
+            if (gesperrt(p.x, p.y, false)) return;
+            zeigen(false);
+          }, VERWEILEN_MS);
         };
+
+        const beiBewegung = (e) => {
+          if (e.pointerType === 'touch') return;
+          // Baut der Browser unter dem Zeiger etwas um, kommt ein Ereignis ohne
+          // Bewegung. Das darf nichts auslösen.
+          if (e.clientX === l.letzter.x && e.clientY === l.letzter.y) return;
+          l.letzter = { x: e.clientX, y: e.clientY };
+          l.proben.push({ y: e.clientY, t: e.timeStamp });
+          if (l.proben.length > 3) l.proben.shift();
+          if (l.offen && l.perTaste && inLeiste(e.target)) l.perTaste = false;
+
+          const kante = e.clientY >= window.innerHeight - KANTE_PX;
+          // Nur das Ankommen an der Kante zählt, nicht das Bleiben nach einer
+          // Textauswahl, die dort endete.
+          if (kante && !l.anKante) ankommen(e.clientX, e.clientY, e.buttons !== 0);
+          if (!kante) zeitgeberWeg('verweilen');
+          if (kante && e.buttons !== 0) zeitgeberWeg('verweilen');
+          l.anKante = kante;
+          pruefeAusblenden(e.clientX, e.clientY);
+        };
+
+        // Ist das Fenster nicht maximiert oder liegt die Windows-Taskleiste
+        // darunter, fährt ein schneller Wurf über die Kante hinaus, ohne dass
+        // ein Ereignis im untersten Streifen ankommt. Dann zählt das Verlassen.
+        const beimVerlassen = (e) => {
+          if (e.relatedTarget !== null) return;
+          if (e.clientY < window.innerHeight - KANTE_PX) return;
+          l.anKante = false;
+          messenRef.current();
+          if (l.offen || l.modus !== 'auto' || !ueberSpalte(e.clientX)) return;
+          if (gesperrt(e.clientX, e.clientY, e.buttons !== 0)) return;
+          if (schwung() > SCHWUNG_PX_MS) zeigen(false);
+        };
+
+        const beiTaste = (e) => {
+          if (e.pointerType === 'touch') return;
+          zeitgeberWeg('verweilen');
+        };
+        const beimLoslassen = () => {
+          l.sperreBis = Math.max(l.sperreBis, Date.now() + NACHLAUF_MS);
+        };
+
+        const beiTastatur = (e) => {
+          const istT = e.code === 'KeyT' || e.key === 't' || e.key === 'T';
+          if (e.altKey && !e.ctrlKey && !e.metaKey && istT) {
+            e.preventDefault();
+            if (l.modus === 'fest') {
+              // Fest: Alt+T springt in die Leiste und wieder heraus.
+              if (inLeiste(document.activeElement)) {
+                const ziel = l.zurueck;
+                l.zurueck = null;
+                if (ziel && ziel.isConnected) ziel.focus();
+                if (inLeiste(document.activeElement)) document.activeElement.blur();
+              } else {
+                l.zurueck = document.activeElement;
+                const erster = knoten.current && knoten.current.querySelector('button, a');
+                if (erster) erster.focus();
+              }
+              return;
+            }
+            if (l.offen) {
+              verbergen();
+              return;
+            }
+            l.zurueck = document.activeElement;
+            // Den ersten Knopf fokussieren, sobald die Leiste gezeichnet ist (Effekt unten).
+            l.fokusRein = true;
+            zeigen(true);
+            return;
+          }
+          if (e.key === 'Escape' && l.offen && inLeiste(document.activeElement)) {
+            if (l.menue) setMenue(false);
+            else if (l.modus !== 'fest') verbergen();
+          }
+        };
+
+        window.addEventListener('pointermove', beiBewegung, { passive: true });
+        document.addEventListener('mouseout', beimVerlassen, { passive: true });
+        window.addEventListener('pointerdown', beiTaste, { passive: true, capture: true });
+        window.addEventListener('pointerup', beimLoslassen, { passive: true, capture: true });
+        window.addEventListener('keydown', beiTastatur);
+        return () => {
+          window.removeEventListener('pointermove', beiBewegung);
+          document.removeEventListener('mouseout', beimVerlassen);
+          window.removeEventListener('pointerdown', beiTaste, { capture: true });
+          window.removeEventListener('pointerup', beimLoslassen, { capture: true });
+          window.removeEventListener('keydown', beiTastatur);
+          zeitgeberWeg('verweilen');
+          zeitgeberWeg('ausblenden');
+        };
+      }, []);
+
+      // Die Leiste beginnt rechts neben der Seitenleiste. Gemessen wird bei
+      // jeder Grössenänderung von Seitenleiste, Chat-Fläche und Fenster.
+      useEffect(() => {
+        let beobachtet = [];
+        const beobachter = typeof ResizeObserver === 'function' ? new ResizeObserver(() => messen()) : null;
+        function messen() {
+          const seitenleiste = seitenleisteFinden();
+          const flaeche = chatFlaecheFinden(seitenleiste);
+          // Liegt die Chat-Spalte vor, gilt genau sie (auch eine rechte Spalte
+          // bleibt dann frei). Sonst zählt nur die Seitenleiste; ist sie
+          // eingeklappt oder fehlt, reicht die Leiste über die ganze Breite.
+          const r = flaeche ? flaeche.getBoundingClientRect() : null;
+          const s = seitenleiste ? seitenleiste.getBoundingClientRect() : null;
+          const naechste = r
+            ? { links: Math.max(0, Math.round(r.left)), rechts: Math.max(0, Math.round(window.innerWidth - r.right)) }
+            : { links: s && s.width > 0 ? Math.round(s.right) : 0, rechts: 0 };
+          lage.current.links = naechste.links;
+          lage.current.rechts = naechste.rechts;
+          setSpalte((vorher) => (vorher.links === naechste.links && vorher.rechts === naechste.rechts ? vorher : naechste));
+          if (!beobachter) return;
+          const ziele = [document.documentElement, seitenleiste, flaeche].filter(Boolean);
+          if (ziele.length === beobachtet.length && ziele.every((z, i) => z === beobachtet[i])) return;
+          beobachter.disconnect();
+          for (const ziel of ziele) beobachter.observe(ziel);
+          beobachtet = ziele;
+        }
         messen();
+        // Auch die Ereignisse messen nach: nicht jede Umstellung (eingeklappte
+        // Seitenleiste, geänderte Ansicht) meldet sich beim Beobachter.
+        messenRef.current = messen;
         window.addEventListener('resize', messen);
-        return () => window.removeEventListener('resize', messen);
-      }, [offen, fest]);
+        return () => {
+          window.removeEventListener('resize', messen);
+          if (beobachter) beobachter.disconnect();
+        };
+      }, []);
+
+      // Fest: die Chat-Fläche bekommt unten Platz in Höhe der Leiste, damit
+      // nichts mehr unter ihr liegt.
+      useEffect(() => {
+        if (modus !== 'fest' || bruecke.offen || bruecke.mail) return undefined;
+        const flaeche = chatFlaecheFinden(seitenleisteFinden());
+        if (!flaeche || !knoten.current) return undefined;
+        const vorher = flaeche.style.paddingBottom;
+        const vorherGroesse = flaeche.style.boxSizing;
+        flaeche.style.boxSizing = 'border-box';
+        flaeche.style.paddingBottom = Math.ceil(knoten.current.getBoundingClientRect().height) + 'px';
+        return () => {
+          flaeche.style.paddingBottom = vorher;
+          flaeche.style.boxSizing = vorherGroesse;
+        };
+      }, [modus, links, spalte.rechts, bruecke.offen, bruecke.mail]);
+
+      // Per Tastatur geöffnet: der Fokus geht auf den ersten Knopf. Erst nach
+      // dem Zeichnen — vorher ist die Leiste noch unsichtbar und nimmt keinen Fokus.
+      useEffect(() => {
+        const l = lage.current;
+        if (!offen || !l.fokusRein) return;
+        l.fokusRein = false;
+        const erster = knoten.current && knoten.current.querySelector('button, a');
+        if (erster) erster.focus();
+      }, [offen]);
+
+      // Ein Klick ausserhalb schliesst das ⋯-Menü.
+      useEffect(() => {
+        if (!menue) return undefined;
+        const weg = (e) => { if (!inLeiste(e.target)) setMenue(false); };
+        window.addEventListener('pointerdown', weg, true);
+        return () => window.removeEventListener('pointerdown', weg, true);
+      }, [menue]);
 
       if (bruecke.offen || bruecke.mail) return null;
 
-      const umschaltenFest = () => {
-        const naechster = !fest;
-        setFest(naechster);
-        sichern(Object.assign({}, laden() || {}, { leiste: naechster ? 'fest' : 'hover' }));
-        if (naechster) hoch();
-        else spaeterRunter();
+      const modusSetzen = (naechster) => {
+        setModus(naechster);
+        modusSichern(naechster);
+        setMenue(false);
+        if (naechster === 'fest') zeigen(false);
+        else if (naechster === 'griff') verbergen();
+      };
+      const umschaltenFest = () => modusSetzen(modus === 'fest' ? 'auto' : 'fest');
+      const fensterAuf = (welches) => {
+        if (welches === 'mail') {
+          bruecke.mail = true;
+          bruecke.offen = false;
+          melden();
+        } else {
+          oeffnen();
+        }
       };
 
-      return h('div', {
-        ref: leisteKnoten,
-        style: Object.assign({}, leisteStil, korrektur || {}, {
-          transform: offen ? 'translateY(0)' : 'translateY(100%)',
-          pointerEvents: offen ? 'auto' : 'none',
-        }),
-        onMouseEnter: () => { schwebt.current = true; hoch(); },
-        onMouseLeave: () => { schwebt.current = false; spaeterRunter(); },
+      const modusZeile = (wert, wort) => h('button', {
+        key: wert,
+        type: 'button',
+        role: 'menuitemradio',
+        'aria-checked': modus === wert,
+        onClick: () => modusSetzen(wert),
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          width: '100%',
+          padding: '6px 10px',
+          border: 'none',
+          borderRadius: '6px',
+          background: modus === wert ? 'var(--dsw-alias-bg-layer-2)' : 'transparent',
+          color: 'var(--dsw-alias-label-primary)',
+          font: 'inherit',
+          fontSize: '13px',
+          textAlign: 'left',
+          cursor: 'pointer',
+        },
       },
-        h(Logo, { kante: 30 }),
-        h('span', { style: { width: '8px', flex: '0 0 auto' } }),
-        h('span', { style: { fontWeight: 600, flex: '0 0 auto' } }, t('team')),
-        h('span', { style: { color: 'var(--dsw-alias-label-secondary)', flex: '0 0 auto' } },
-          stand.an + ' ' + t('bausteineAn')),
+        h(Punkt, {
+          farbe: modus === wert ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-state-idle-primary)',
+        }),
+        wort);
+
+      const leiste = h('div', {
+        ref: knoten,
+        id: 'agenten-team-leiste',
+        role: 'toolbar',
+        'aria-label': t('leisteName'),
+        'aria-hidden': sichtbarJetzt ? undefined : true,
+        [LEISTE_MARKE]: '',
+        style: Object.assign({}, leisteStil, {
+          left: links + 'px',
+          right: spalte.rechts + 'px',
+          borderLeft: links > 0 ? leisteStil.borderLeft : 'none',
+          borderRadius: links > 0 ? leisteStil.borderRadius : 0,
+          transform: sichtbarJetzt ? 'translateY(0)' : 'translateY(100%)',
+          visibility: sichtbarJetzt ? 'visible' : 'hidden',
+          pointerEvents: sichtbarJetzt ? 'auto' : 'none',
+          transition: sichtbarJetzt
+            ? 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s'
+            : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 220ms',
+        }),
+      },
+        h(Logo, { kante: 26 }),
+        // Die Mitte scrollt waagrecht, wenn das Fenster schmal ist; ⋯ und der
+        // Pinn rechts bleiben immer sichtbar.
         h('div', {
           style: {
             display: 'flex',
-            flexWrap: 'nowrap',
-            gap: '6px',
+            alignItems: 'center',
+            gap: '8px',
             flex: '1 1 auto',
             minWidth: 0,
             overflowX: 'auto',
             overflowY: 'hidden',
+            scrollbarWidth: 'thin',
           },
         },
-          ...stand.schritte.map((schritt) => h('button', {
-            key: schritt.nr,
-            type: 'button',
-            title: schritt.name + ': ' + schritt.an + ' von ' + schritt.gesamt,
-            style: Object.assign({}, schalterStil, {
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '5px',
-              padding: '3px 8px',
-            }),
-            onClick: () => { hoch(); oeffnen(); },
-          },
-            h(Punkt, {
-              farbe: schritt.an > 0
-                ? 'var(--dsw-alias-state-success-primary)'
-                : 'var(--dsw-alias-state-idle-primary)',
-            }),
-            h('span', null, String(schritt.nr)),
-            h('span', { style: { color: 'var(--dsw-alias-label-secondary)' } }, schritt.an + '/' + schritt.gesamt),
-          )),
-        ),
-        h('span', {
-          style: {
-            color: 'var(--dsw-alias-label-secondary)',
-            fontSize: SCHRIFT.klein,
-            flex: '0 1 auto',
-            minWidth: 0,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          },
-        }, t('leisteHinweis')),
-        h('div', { style: { display: 'flex', gap: '8px', flex: '0 0 auto' } },
           h('button', {
             type: 'button',
-            style: Object.assign({}, zeichenKnopf, { width: '30px', height: '30px' }),
-            title: t('fenster'),
-            'aria-label': t('fenster'),
-            onClick: () => { hoch(); oeffnen(); },
-          }, h(FensterZeichen)),
+            style: leistenKnopf,
+            title: t('leisteTeamTitel'),
+            onClick: () => fensterAuf('team'),
+          }, t('team')),
           h('button', {
             type: 'button',
-            style: Object.assign({}, zeichenKnopf, { width: '30px', height: '30px' }),
-            title: fest ? t('leisteLose') : t('leisteFest'),
-            'aria-label': fest ? t('leisteLose') : t('leisteFest'),
-            onClick: umschaltenFest,
-          }, h(PfeilZeichen, { richtung: fest ? 'runter' : 'hoch' })),
+            style: leistenKnopf,
+            title: t('mail'),
+            onClick: () => fensterAuf('mail'),
+          }, h(MailZeichen), t('leisteMail')),
+          h('a', {
+            href: '/promptheus-community',
+            target: '_blank',
+            rel: 'noreferrer',
+            style: leistenKnopf,
+            title: t('leisteCommunityTitel'),
+            onClick: communityKlick,
+          }, h(Punkt, { farbe: 'var(--dsw-alias-brand-primary)' }), t('leisteCommunity')),
+          h('a', {
+            href: '/promptheus-cinema',
+            target: '_blank',
+            rel: 'noreferrer',
+            style: leistenKnopf,
+            title: t('leisteCinemaTitel'),
+          }, h(Punkt, { farbe: 'var(--dsw-alias-brand-primary)' }), t('leisteCinema')),
+          h('span', { style: leistenTrenner, 'aria-hidden': true }),
+          // Platz für angeheftete Workflows (Phase F, höchstens sechs).
+          h('div', {
+            'data-angeheftete-workflows': '',
+            role: 'group',
+            'aria-label': t('leisteAngeheftet'),
+            style: { display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 auto', minWidth: 0 },
+          }),
         ),
+        h('div', { style: { position: 'relative', flex: '0 0 auto' } },
+          h('button', {
+            type: 'button',
+            style: Object.assign({}, zeichenKnopf, { width: '32px', height: '32px' }),
+            title: t('leisteMehr'),
+            'aria-label': t('leisteMehr'),
+            'aria-haspopup': 'menu',
+            'aria-expanded': menue,
+            onClick: () => setMenue(!menue),
+          }, h(MehrZeichen)),
+          menue && h('div', {
+            role: 'menu',
+            'aria-label': t('leisteModus'),
+            style: {
+              position: 'absolute',
+              right: 0,
+              bottom: 'calc(100% + 8px)',
+              minWidth: '210px',
+              padding: '6px',
+              boxSizing: 'border-box',
+              border: '1px solid var(--dsw-alias-border-l2)',
+              borderRadius: '10px',
+              background: 'var(--dsw-alias-bg-layer-1)',
+              boxShadow: '0 6px 24px var(--dsw-alias-shadow-l2, rgba(0,0,0,.25))',
+            },
+          },
+            h('div', {
+              style: { padding: '4px 10px 6px', color: 'var(--dsw-alias-label-secondary)', fontSize: SCHRIFT.klein },
+            }, t('leisteModus')),
+            modusZeile('auto', t('modusAuto')),
+            modusZeile('fest', t('modusFest')),
+            modusZeile('griff', t('modusGriff')),
+            h('div', {
+              style: { padding: '6px 10px 2px', color: 'var(--dsw-alias-label-secondary)', fontSize: SCHRIFT.min },
+            }, t('leisteTaste')),
+          ),
+        ),
+        h('button', {
+          type: 'button',
+          style: Object.assign({}, zeichenKnopf, { width: '32px', height: '32px' }),
+          title: modus === 'fest' ? t('leisteLose') : t('leisteFest'),
+          'aria-label': modus === 'fest' ? t('leisteLose') : t('leisteFest'),
+          'aria-pressed': modus === 'fest',
+          onClick: umschaltenFest,
+        }, h(PinnZeichen, { fest: modus === 'fest' })),
       );
+
+      // Der Griff: dezent sichtbar, unten in der Mitte der Leistenfläche.
+      const griff = !sichtbarJetzt && h('button', {
+        type: 'button',
+        [LEISTE_MARKE]: '',
+        title: t('griff'),
+        'aria-label': t('griff'),
+        'aria-keyshortcuts': 'Alt+T',
+        'aria-controls': 'agenten-team-leiste',
+        'aria-expanded': false,
+        onClick: () => zeigen(false),
+        style: {
+          position: 'fixed',
+          bottom: 0,
+          left: 'calc(' + links + 'px + (100% - ' + (links + spalte.rechts) + 'px) / 2 - 28px)',
+          zIndex: 15,
+          width: '56px',
+          height: '12px',
+          padding: '0 0 3px',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          border: 'none',
+          background: 'transparent',
+          cursor: 'pointer',
+        },
+      }, h('span', {
+        'aria-hidden': true,
+        style: {
+          display: 'block',
+          width: '48px',
+          height: '4px',
+          borderRadius: '2px',
+          background: 'var(--dsw-alias-label-secondary)',
+          opacity: 0.45,
+        },
+      }));
+
+      return h(React.Fragment, null, leiste, griff);
     }
 
     /* ---------- Mail-Abruf: das grosse Fenster ---------- */
@@ -1628,23 +2168,32 @@ window.__ModuleLoader__.load({
       }));
     }
 
-    /** Die Vorgaben; alles Weitere trägt man im Fenster ein. */
+    /**
+     * Die Vorgaben; alles Weitere trägt man im Fenster ein. Eine leere Ablage
+     * setzt die Host-Hälfte auf `<Zuhause der Werkstatt>\mailposten` — der
+     * Browser kennt keinen Laufwerkspfad.
+     */
     const MAIL_VORGABE = {
       quelle: '',
       zeitplan: 'täglich um 7 Uhr',
       zeitraum: 'seit dem letzten Lauf',
       danach: 'liegen',
-      ablage: 'D:\\zarbot\\tenants\\admin\\plugins\\EIGENE\\mailposten',
+      ablage: '',
       kategorien: [],
     };
+
+    /** Die frühere feste Vorgabe der Ablage; gemerkt zählt sie als „nichts eingetragen“. */
+    const ALTE_ABLAGE = /[\\/]plugins[\\/]EIGENE[\\/]mailposten$/i;
 
     /** Die gemerkten Wünsche lesen. */
     function mailLaden() {
       const gemerkt = laden();
       const roh = gemerkt && gemerkt.mail && typeof gemerkt.mail === 'object' ? gemerkt.mail : {};
-      return Object.assign({}, MAIL_VORGABE, roh, {
+      const stand = Object.assign({}, MAIL_VORGABE, roh, {
         kategorien: Array.isArray(roh.kategorien) ? roh.kategorien : [],
       });
+      if (ALTE_ABLAGE.test(String(stand.ablage))) stand.ablage = '';
+      return stand;
     }
 
     /**
@@ -1926,11 +2475,6 @@ window.__ModuleLoader__.load({
           id: 'workflows-karte',
           order: 30,
         }, WorkflowKarte));
-        ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
-          name: 'sidebar.footer.action',
-          id: 'agenten-team',
-          order: 30,
-        }, TeamKnopf));
         ctx.slots.inject('shell.overlay', () => ctx.slots.register({
           name: 'shell.overlay',
           id: 'agenten-team-fenster',
