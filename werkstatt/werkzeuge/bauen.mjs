@@ -225,6 +225,11 @@ async function main() {
   }
   console.log('  ✓ Titel gesetzt (in den Client-Bündeln und in apps/web/dist)')
 
+  // Cinema Studio: Code aus pakete\cinema-studio an den festen Ort, an dem es
+  // mit seiner .env und der Ablage läuft.
+  const { cinemaSpiegeln, ZIEL } = await import('./cinema_spiegeln.mjs')
+  console.log(`  ✓ Cinema Studio gespiegelt (${cinemaSpiegeln()} Teile nach ${ZIEL})`)
+
   console.log('')
   console.log('bauen: fertig. Starten mit:  node werkzeuge/starten.mjs')
 }

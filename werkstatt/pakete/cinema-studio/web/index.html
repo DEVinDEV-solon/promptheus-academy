@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROMPTHEUS · Cinema Studio</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<!-- ============ Zugang: keine Anmeldung, Einlass nur aus der Werkstatt (zugang.py) ============ -->
+<section id="login" class="login-wrap hidden">
+  <div class="login-card zugang" aria-live="polite">
+    <div class="login-marke"><img src="/static/favicon.svg" alt="" width="44" height="44"><h1 class="wortmarke"><span class="wm-name">PROMPTHEUS</span><span class="wm-zusatz">- Cinema Studio -</span></h1></div>
+    <h2 id="zgTitel">Cinema Studio öffnest du über die Werkstatt</h2>
+    <p id="zgText">Eine Anmeldung brauchst du hier nicht. Der Weg hinein führt immer über die Werkstatt:</p>
+    <ol class="zugang-schritte">
+      <li>Die Werkstatt aus der Academy öffnen: Einstellungen → Werkstatt → „Werkstatt öffnen“.</li>
+      <li>In der Werkstatt links unten auf „Cinema-Studio“ klicken.</li>
+      <li>Cinema Studio öffnet sich in einem neuen Tab. Diesen Tab hier kannst du schliessen.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ App ============ -->
+<div id="app" class="app hidden">
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <button class="rail-toggle" id="railToggle" data-tip="Menü ein-/ausklappen" aria-label="Menü ein-/ausklappen"></button>
+      <img class="rail-logo" src="/static/favicon.svg" alt="" width="28" height="28">
+      <span class="rail-title wortmarke" aria-label="PROMPTHEUS Cinema Studio"><span class="wm-name">PROMPTHEUS</span><span class="wm-zusatz">- Cinema Studio -</span></span>
+    </div>
+    <nav class="rail-nav" id="railNav" aria-label="Hauptmenü"></nav>
+    <div class="spacer"></div>
+    <div class="konto" id="kontoBox" data-tip="Guthaben deines OpenRouter-Schlüssels"></div>
+    <div class="profile-wrap">
+      <button class="profile" id="profileBtn" data-tip="Profil, Einstellungen, Abmelden" aria-haspopup="menu">
+        <span class="avatar" id="avatar">?</span>
+        <span class="lbl"><b id="profName">–</b><small id="profRolle"></small></span>
+        <span class="chev"></span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <header class="top">
+      <h2 id="viewTitel">Erstellen</h2>
+      <span class="count" id="viewCount"></span>
+      <div class="top-tools">
+        <div class="filter" id="typFilter" role="tablist" aria-label="Medien filtern">
+          <button data-typ="" class="an" data-tip="Bilder, Videos und Audios">Alle</button>
+          <button data-typ="bild" data-tip="Nur Bilder">Bilder</button>
+          <button data-typ="video" data-tip="Nur Videos">Videos</button>
+          <button data-typ="audio" data-tip="Nur Audios">Audios</button>
+        </div>
+        <label class="suche" data-tip="Beschreibungen und Modelle durchsuchen">
+          <span class="ico" data-i="suche"></span>
+          <input id="suche" type="search" placeholder="Suchen …" aria-label="Suchen">
+        </label>
+        <button class="icon-btn" id="btnAuswahl" data-tip="Mehrere Bilder auswählen" aria-label="Auswählen"><span data-i="haken"></span></button>
+        <button class="icon-btn" id="btnGroesse" data-tip="Bildgröße der Wand umschalten" aria-label="Rastergröße"><span data-i="raster"></span></button>
+        <button class="icon-btn" id="btnChat" data-tip="Assistent ein-/ausblenden (Prompts, Drehbuch)" aria-label="Assistent"><span data-i="zauber"></span></button>
+        <button class="icon-btn hidden" id="btnLeeren" data-tip="Papierkorb endgültig leeren" aria-label="Papierkorb leeren"><span data-i="muell"></span></button>
+      </div>
+    </header>
+
+    <div class="wand" id="wand" tabindex="-1"></div>
+
+    <div class="auswahlleiste hidden" id="auswahlLeiste" role="toolbar" aria-label="Auswahl">
+      <span id="auswahlZahl">0 ausgewählt</span>
+      <button data-sammel="herunterladen" data-tip="Ausgewählte Bilder herunterladen"><span data-i="download"></span>Herunterladen</button>
+      <button data-sammel="favorit" data-tip="Als Favoriten markieren"><span data-i="herz"></span>Favorit</button>
+      <button data-sammel="ordner" data-tip="In einen Ordner verschieben"><span data-i="ordner"></span>In Ordner</button>
+      <button data-sammel="papierkorb" class="gefahr" data-tip="In den Papierkorb legen"><span data-i="muell"></span>Papierkorb</button>
+      <button data-sammel="wiederherstellen" class="hidden" data-tip="Aus dem Papierkorb zurückholen"><span data-i="zurueck"></span>Wiederherstellen</button>
+      <button data-sammel="abbrechen" data-tip="Auswahl beenden">Abbrechen</button>
+    </div>
+
+    <!-- Eingabefeld -->
+    <div class="composer" id="composer">
+      <div class="refs" id="refs"></div>
+      <div class="comp-row1">
+        <button class="plus" id="btnPlus" data-tip="Referenzbild oder Element hinzufügen" aria-label="Referenz hinzufügen"><span data-i="plus"></span></button>
+        <button class="plus" id="btnVerbessern" data-tip="Mit Assistent verbessern – öffnet den Chat rechts" aria-label="Mit Assistent verbessern"><span data-i="zauber"></span></button>
+        <textarea id="prompt" rows="1" placeholder="Beschreibe die Szene, die du dir vorstellst" aria-label="Bildbeschreibung" maxlength="8000"></textarea>
+      </div>
+      <div class="comp-row2">
+        <div class="modus" id="modus" role="tablist" aria-label="Was erzeugen?">
+          <button data-modus="bild" role="tab" data-tip="Bilder erzeugen"><span data-i="bilder"></span>Bild</button>
+          <button data-modus="video" role="tab" data-tip="Videos erzeugen"><span data-i="video"></span>Video</button>
+          <button data-modus="audio" role="tab" data-tip="Text sprechen lassen (Stimmen, eigene geklonte Stimmen)"><span data-i="ton"></span>Audio</button>
+        </div>
+        <div class="chips hidden" id="vchips">
+          <button class="chip modell" id="vChipModell" data-tip="Videomodell wählen" aria-haspopup="listbox">
+            <span class="mono" id="vChipModellIco"></span><span id="vChipModellTxt">Modell</span><span class="pfeil" data-i="rechts"></span>
+          </button>
+          <button class="chip" id="vChipSeite" data-tip="Seitenverhältnis des Videos" aria-haspopup="listbox"><span class="form" id="vChipSeiteIco"></span><span id="vChipSeiteTxt">16:9</span></button>
+          <button class="chip" id="vChipAufl" data-tip="Auflösung – höher kostet mehr" aria-haspopup="listbox"><span data-i="diamant"></span><span id="vChipAuflTxt">720p</span></button>
+          <button class="chip" id="vChipDauer" data-tip="Länge des Videos in Sekunden" aria-haspopup="listbox"><span data-i="uhr"></span><span id="vChipDauerTxt">5 s</span></button>
+          <button class="chip" id="vChipTon" data-tip="Ton erzeugen (Geräusche, Musik, Sprache) – kostet meist mehr"><span id="vChipTonIco" data-i="ton"></span><span id="vChipTonTxt">Ton</span></button>
+          <div class="chip anzahl" data-tip="Anzahl der Videos je Auftrag">
+            <button id="vAnzMinus" aria-label="Weniger Videos"><span data-i="minus"></span></button>
+            <span id="vAnzTxt">1/4</span>
+            <button id="vAnzPlus" aria-label="Mehr Videos"><span data-i="plus"></span></button>
+          </div>
+        </div>
+        <div class="chips hidden" id="achips">
+          <button class="chip modell" id="aChipModell" data-tip="Sprachmodell wählen" aria-haspopup="listbox">
+            <span class="mono" id="aChipModellIco"></span><span id="aChipModellTxt">Modell</span><span class="pfeil" data-i="rechts"></span>
+          </button>
+          <button class="chip" id="aChipStimme" data-tip="Stimme, Stimmprofil oder eigene (geklonte) Stimme wählen" aria-haspopup="menu"><span data-i="profil"></span><span id="aChipStimmeTxt">Stimme</span></button>
+          <button class="chip" id="aChipKlang" data-tip="Klang: Tempo, Tiefe, Klarheit, Lautstärke" aria-haspopup="dialog"><span data-i="regler"></span><span>Klang</span></button>
+          <button class="chip" id="aChipMikro" data-tip="Eigene Stimme aufnehmen oder hochladen, um sie zu klonen"><span data-i="mikro"></span><span>Stimme klonen</span></button>
+        </div>
+        <div class="chips" id="chips">
+          <button class="chip modell" id="chipModell" data-tip="Bildmodell wählen" aria-haspopup="listbox">
+            <span class="mono" id="chipModellIco"></span><span id="chipModellTxt">Modell</span><span class="pfeil" data-i="rechts"></span>
+          </button>
+          <button class="chip" id="chipSeite" data-tip="Seitenverhältnis" aria-haspopup="listbox"><span class="form" id="chipSeiteIco"></span><span id="chipSeiteTxt">Auto</span></button>
+          <button class="chip" id="chipQual" data-tip="Qualität – höher kostet mehr" aria-haspopup="listbox"><span data-i="diamant"></span><span id="chipQualTxt">Hoch</span></button>
+          <button class="chip" id="chipAufl" data-tip="Auflösung des Ergebnisses" aria-haspopup="listbox"><span data-i="diamant"></span><span id="chipAuflTxt">2K</span></button>
+          <div class="chip anzahl" data-tip="Anzahl der Bilder je Auftrag">
+            <button id="anzMinus" aria-label="Weniger Bilder"><span data-i="minus"></span></button>
+            <span id="anzTxt">1/4</span>
+            <button id="anzPlus" aria-label="Mehr Bilder"><span data-i="plus"></span></button>
+          </div>
+        </div>
+        <button class="generate" id="btnGen" data-tip="Bilder erzeugen (Strg+Enter)">
+          <b>Erzeugen</b>
+          <span class="preis"><span data-i="funke"></span><span id="genPreis">–</span></span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Seitenchat rechts -->
+  <aside class="seitenchat zu" id="seitenchat" aria-label="Assistent">
+    <div class="chat-kopf">
+      <div class="chat-titelzeile">
+        <button class="icon-btn klein" id="chatVerlauf" data-tip="Chatverlauf, umbenennen, leeren, löschen" aria-label="Chatverlauf"><span data-i="menue"></span></button>
+        <b id="chatTitel">Assistent</b>
+        <button class="icon-btn klein" id="chatNeu" data-tip="Neuer Chat" aria-label="Neuer Chat"><span data-i="plus"></span></button>
+        <button class="icon-btn klein" id="chatZu" data-tip="Chat einklappen" aria-label="Chat einklappen"><span data-i="x"></span></button>
+      </div>
+      <div class="chat-zeile2">
+        <div class="filter" id="chatModus" role="tablist" aria-label="Chat-Modus">
+          <button data-m="assistent" class="an" data-tip="Prompts für Bild und Video schreiben lassen">Assistent</button>
+          <button data-m="drehbuch" data-tip="Geführt vom Briefing bis zur Szenenliste – jede Szene wird ein Video-Prompt">Drehbuch</button>
+          <button data-m="klon" data-tip="Referenzvideo (Link oder eigene Datei) analysieren und seinen Aufbau für deine Marke nachbauen">Video-Clone</button>
+        </div>
+        <label class="auto" data-tip="Den letzten Vorschlag jeder Antwort automatisch ins Eingabefeld eintragen"><input type="checkbox" id="chatAuto"> automatisch eintragen</label>
+      </div>
+      <div class="chat-status" id="chatStatus"></div>
+    </div>
+    <div class="chat-nachrichten" id="chatNachrichten" aria-live="polite"></div>
+    <div class="chat-eingabe">
+      <div class="refs hidden" id="chatAnhaenge"></div>
+      <div class="chat-feld">
+        <button class="plus" id="chatAnhang" data-tip="Bild anhängen – der Assistent sieht es über ein Vision-Modell" aria-label="Bild anhängen"><span data-i="plus"></span></button>
+        <textarea id="chatText" rows="1" placeholder="Idee beschreiben …" aria-label="Nachricht an den Assistenten" maxlength="20000"></textarea>
+        <button class="senden" id="chatSenden" data-tip="Senden (Enter) – Umschalt+Enter für neue Zeile" aria-label="Senden"><span data-i="senden"></span></button>
+      </div>
+      <input type="file" id="chatDatei" accept="image/png,image/jpeg,image/webp" multiple hidden>
+    </div>
+  </aside>
+</div>
+
+<div id="pop" class="pop hidden" role="menu"></div>
+<div id="flyout" class="pop flyout hidden" role="menu"></div>
+<div id="tip" class="tip" role="tooltip"></div>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card" id="modalCard"></div></div>
+<div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true"></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<input type="file" id="fileIn" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+
+<script src="/static/app.js"></script>
+<script src="/static/medien.js"></script>
+<script src="/static/chat.js"></script>
+</body>
+</html>
