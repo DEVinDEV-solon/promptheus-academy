@@ -208,6 +208,131 @@ function hintergrundCss() {
 `.trim();
 }
 
+// pakete/dsh-client-ui-promptheus/src/client/stundenvideo.ts
+var VIDEO_PFAD = "/promptheus-stundenvideo.mp4";
+var FLAECHE = '[data-slot="main"] [data-slot="main.conversation"] > *';
+var BLENDE_MS = 700;
+var VERSPAETUNG_MS = 2 * 60 * 1e3;
+var HOECHSTENS_MS = 60 * 1e3;
+var KLASSE_FLAECHE = "promptheus-stundenvideo-flaeche";
+var KLASSE_VIDEO = "promptheus-stundenvideo";
+var KLASSE_RELATIV = "promptheus-stundenvideo-relativ";
+function stundenvideoCss() {
+  return `
+/* PROMPTHEUS Werkstatt \u2014 Stundenvideo (stundenvideo.ts). */
+.${KLASSE_FLAECHE} {
+  isolation: isolate;
+}
+.${KLASSE_RELATIV} {
+  position: relative;
+}
+.${KLASSE_VIDEO} {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity ${BLENDE_MS}ms ease;
+  background: transparent;
+}
+.${KLASSE_VIDEO}.ist-sichtbar {
+  opacity: 1;
+}
+.${KLASSE_VIDEO}::-webkit-media-controls,
+.${KLASSE_VIDEO}::-webkit-media-controls-enclosure,
+.${KLASSE_VIDEO}::-webkit-media-controls-panel,
+.${KLASSE_VIDEO}::-webkit-media-controls-overlay-play-button,
+.${KLASSE_VIDEO}::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .${KLASSE_VIDEO} { transition: none; }
+}
+`.trim();
+}
+function bisZurVollenStunde(jetzt) {
+  const naechste = new Date(jetzt.getTime());
+  naechste.setMinutes(60, 0, 0);
+  return Math.max(1, naechste.getTime() - jetzt.getTime());
+}
+function stundenvideoAbspielen() {
+  const flaeche = document.querySelector(FLAECHE);
+  if (flaeche === null || flaeche.querySelector(`.${KLASSE_VIDEO}`) !== null) {
+    return Promise.resolve();
+  }
+  const video = document.createElement("video");
+  video.className = KLASSE_VIDEO;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.preload = "auto";
+  video.controls = false;
+  video.loop = false;
+  video.disablePictureInPicture = true;
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+  video.setAttribute("disablepictureinpicture", "");
+  video.setAttribute("disableremoteplayback", "");
+  video.setAttribute("controlslist", "nodownload nofullscreen noremoteplayback noplaybackrate");
+  video.setAttribute("aria-hidden", "true");
+  video.tabIndex = -1;
+  return new Promise((fertig) => {
+    let vorbei = false;
+    const notbremse = window.setTimeout(() => aufraeumen(), HOECHSTENS_MS);
+    function aufraeumen() {
+      if (vorbei) return;
+      vorbei = true;
+      window.clearTimeout(notbremse);
+      video.classList.remove("ist-sichtbar");
+      window.setTimeout(() => {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+        video.remove();
+        flaeche.classList.remove(KLASSE_FLAECHE, KLASSE_RELATIV);
+        fertig();
+      }, BLENDE_MS);
+    }
+    video.addEventListener("ended", aufraeumen, { once: true });
+    video.addEventListener("error", aufraeumen, { once: true });
+    video.addEventListener("playing", () => video.classList.add("ist-sichtbar"), { once: true });
+    flaeche.classList.add(KLASSE_FLAECHE);
+    if (getComputedStyle(flaeche).position === "static") flaeche.classList.add(KLASSE_RELATIV);
+    flaeche.prepend(video);
+    video.src = VIDEO_PFAD;
+    video.play().catch(() => aufraeumen());
+  });
+}
+function stundenvideoStarten() {
+  let wecker = 0;
+  let soll = 0;
+  function stellen() {
+    const warten = bisZurVollenStunde(/* @__PURE__ */ new Date());
+    soll = Date.now() + warten;
+    wecker = window.setTimeout(schlagen, warten);
+  }
+  function schlagen() {
+    const verspaetet = Date.now() - soll > VERSPAETUNG_MS;
+    const ruhig = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+    if (!verspaetet && !ruhig && document.visibilityState === "visible") {
+      void stundenvideoAbspielen();
+    }
+    stellen();
+  }
+  stellen();
+  return () => {
+    window.clearTimeout(wecker);
+    document.querySelectorAll(`.${KLASSE_VIDEO}`).forEach((v) => {
+      v.parentElement?.classList.remove(KLASSE_FLAECHE, KLASSE_RELATIV);
+      v.remove();
+    });
+  };
+}
+
 // pakete/dsh-client-ui-promptheus/src/client/paletten.ts
 var ZUSTANDSFARBEN = {
   dunkel: { fehler: "#e8635a", erfolg: "#5fbf7a", warnung: "#e5b34a" },
@@ -3691,6 +3816,8 @@ function Wortmarke() {
           fontFamily: SANS2,
           fontSize: ".67rem",
           fontWeight: 500,
+          // Luft zwischen Name und Zusatz (Fassung 5 der Rechnung oben).
+          marginTop: "3px",
           // Der gewünschte Zeichenabstand: „- W E R K S T A T T -".
           // .34em bei .67rem ≈ 3,6 px zwischen den Zeichen — sichtbar gesperrt,
           // aber noch lesbar als Wort. (.22em waren zu eng dafür.)
@@ -3946,6 +4073,18 @@ function apply(ctx) {
         bild.entfernen();
       };
     }, "promptheus: Hintergrundbild");
+    ctx.effect(() => {
+      const marke = document.createElement("style");
+      marke.dataset.plugin = "@promptheus/dsh-client-ui-promptheus";
+      marke.dataset.pluginCss = "@promptheus/dsh-client-ui-promptheus/stundenvideo.css";
+      marke.textContent = stundenvideoCss();
+      document.head.appendChild(marke);
+      const abstellen = stundenvideoStarten();
+      return () => {
+        abstellen();
+        marke.remove();
+      };
+    }, "promptheus: Stundenvideo");
     ctx.effect(() => {
       const marke = document.createElement("style");
       marke.dataset.plugin = "@promptheus/dsh-client-ui-promptheus";
