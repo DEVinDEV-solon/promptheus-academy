@@ -501,6 +501,14 @@ window.__ModuleLoader__.load({
       color: 'var(--dsw-alias-label-primary)',
       cursor: 'pointer',
     };
+    /**
+     * Die Hülle um Schleier und Fenster. `position: fixed` bildet immer eine eigene
+     * Stapelebene: Ohne eigenen z-index lag sie auf Stufe 0, und die 9000 des
+     * Fensters galten nur innerhalb der Hülle. Der Audioplayer (z-index 30 am
+     * Seitenkörper) lag deshalb über dem Fenster (07.10.2026).
+     */
+    const huelleStil = { position: 'fixed', inset: 0, zIndex: 8900, pointerEvents: 'auto' };
+
     const scrimStil = {
       position: 'fixed',
       inset: 0,
@@ -1122,7 +1130,7 @@ window.__ModuleLoader__.load({
         }
       };
 
-      return h('div', { style: { position: 'fixed', inset: 0, pointerEvents: 'auto' } },
+      return h('div', { style: huelleStil },
         h('div', { style: scrimStil, onClick: schliessen }),
         h('div', { style: fensterStil },
           h('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' } },
@@ -2284,7 +2292,7 @@ window.__ModuleLoader__.load({
 
       const schliessenMail = () => { bruecke.mail = false; melden(); };
 
-      return h('div', { style: { position: 'fixed', inset: 0, pointerEvents: 'auto' } },
+      return h('div', { style: huelleStil },
         h('div', { style: scrimStil, onClick: schliessenMail }),
         h('div', { style: fensterStil },
           h('div', { style: Object.assign({}, mailZeile, { justifyContent: 'center' }) },
