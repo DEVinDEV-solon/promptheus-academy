@@ -294,10 +294,12 @@ async function angemeldet(nutzer, csrf) {
 // ------------------------------------------------------------------ Begrüssung
 // Grosses Fenster beim Aufruf, bis „Nicht mehr anzeigen“ gesetzt ist. Der Haken gilt für jeden Weg
 // hinaus (Verstanden, X, Esc, Klick daneben) – wer ihn setzt und dann X drückt, meint dasselbe.
+// Aus dem Profilmenü („Begrüssung zeigen“) kommt es immer; der Haken steht dann so, wie er gespeichert
+// ist, und wer ihn abwählt, bekommt die Begrüssung beim nächsten Aufruf wieder.
 const BEGRUESSUNG_AUS = 'begruessungAus';
-async function begruessungZeigen() {
-  if (speicher.lies(BEGRUESSUNG_AUS, false)) return;
-  let aus = false;
+async function begruessungZeigen(immer = false) {
+  let aus = speicher.lies(BEGRUESSUNG_AUS, false) === true;
+  if (aus && !immer) return;
   await modal(`
     <button type="button" class="begr-zu icon-btn" data-zu="null" aria-label="Schliessen" data-tip="Schliessen"><span data-i="x"></span></button>
     <div class="begr-kopf">
@@ -320,7 +322,7 @@ async function begruessungZeigen() {
         Eingabefeld ein. Die Erklärung dazu bekommst du weiter auf Deutsch.</li>
     </ol>
     <div class="begr-fuss">
-      <label class="haken-zeile"><input type="checkbox" id="begrAus"> Nicht mehr anzeigen</label>
+      <label class="haken-zeile"><input type="checkbox" id="begrAus" ${aus ? 'checked' : ''}> Nicht mehr anzeigen</label>
       <button type="button" class="btn primaer" data-zu="ok">Verstanden</button>
     </div>`, {
     breit: true,
@@ -332,7 +334,7 @@ async function begruessungZeigen() {
       setTimeout(() => card.querySelector('[data-zu="ok"]').focus(), 30);
     },
   });
-  if (aus) speicher.setz(BEGRUESSUNG_AUS, true);
+  speicher.setz(BEGRUESSUNG_AUS, aus);
 }
 
 function profilZeigen() {
@@ -411,6 +413,7 @@ $('#profileBtn').onclick = () => {
   menue(b, [
     { kopf: 'PROMPTHEUS Cinema Studio' },
     { ico: 'zahnrad', txt: 'Einstellungen', klein: 'Anschluss, Modelle, Audio, Ablage', fn: einstellungenDialog },
+    { ico: 'funke', txt: 'Begrüssung zeigen', klein: 'Erklärung und Tipps vom Start', fn: () => begruessungZeigen(true).then(() => pr.focus()) },
     { ico: 'ordnerAuf', txt: 'Ablage öffnen', klein: 'Alle Bilder, Videos und Audios im Explorer', fn: () => imOrdnerZeigen(null) },
   ], { seite: 'oben' });
 };
