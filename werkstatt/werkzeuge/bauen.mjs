@@ -59,6 +59,21 @@ const PROFIL_MODULE = join(ZUHAUSE, 'profiles', 'node_modules')
 const PAKETE = ['dsh-client-ui-promptheus']
 
 /**
+ * Pakete ohne Bauschritt. Sie liegen schon in der Form vor, die der Harness
+ * lädt (`client.js` in Trägerform, `index.js` als ES-Modul), und bekommen nur
+ * die Prüfung mit `node --check` und den Verweis.
+ *
+ * `dsh-plugin-workflows` (Agenten-Team, Taskleiste, Mail-Abruf) lag bis zum
+ * 07.10.2026 ausserhalb von git unter `deepseek-harness\plugins\eigene`.
+ * Mittelfristig zieht es nach TypeScript unter `src\` und wird dann gebaut wie
+ * die Maske (Masterplan Workflow-Modalseite, 3.1).
+ */
+const FERTIGE_PAKETE = ['dsh-plugin-workflows']
+
+/** Das Profil der Werkstatt; dort meldet die Plugin-Verwaltung eigene Pakete an. */
+const PROFIL = join(ZUHAUSE, 'profiles', 'promptheus')
+
+/**
  * Sucht esbuild so, wie es im Harness installiert ist.
  *
  * Der Harness legt seine Abhängigkeiten unter `node_modules/.pnpm` ab. Der
@@ -157,7 +172,8 @@ async function paketBauen(esbuild, name) {
 async function verweisen(id, paketDir) {
   const { mkdirSync: mk, rmSync, symlinkSync, lstatSync } = await import('node:fs')
   const ziel = join(PROFIL_MODULE, id)
-  mk(PROFIL_MODULE, { recursive: true })
+  // Bis zum Scope-Ordner (`@promptheus`) anlegen — in einem frischen Zuhause fehlt er.
+  mk(dirname(ziel), { recursive: true })
   try {
     const stat = lstatSync(ziel)
     if (stat.isSymbolicLink()) rmSync(ziel, { force: true })
@@ -167,6 +183,64 @@ async function verweisen(id, paketDir) {
   }
   symlinkSync(paketDir, ziel, 'junction')
   return ziel
+}
+
+/** Prüft eine Datei mit `node --check`; wirft, wenn sie sich nicht übersetzen lässt. */
+function syntaxPruefen(datei) {
+  const lauf = spawnSync(process.execPath, ['--check', datei], { encoding: 'utf8' })
+  if (lauf.status !== 0) throw new Error(`bauen: node --check ${datei}\n${lauf.stderr}`)
+}
+
+/**
+ * Legt den Verweis im Profil selbst auf den Paketordner um.
+ *
+ * **Warum der Verweis in der Profil-Ablage allein nicht reicht.** Ein Paket, das
+ * über die Plugin-Verwaltung des Harness ins Profil kam, steht als
+ * `"link:<pfad>"` in `profiles/promptheus/package.json` und hat einen eigenen
+ * Verweis unter `profiles/promptheus/node_modules`. Der liegt näher als der
+ * flache Rückfall und gewinnt — er zeigte nach dem Umzug weiter auf den alten
+ * Ordner. Umgelegt wird nur, was schon angemeldet ist; hinzugefügt wird nichts.
+ * @returns was geändert wurde (leer, wenn nichts zu tun war).
+ */
+async function profilVerweisUmlegen(id, paketDir) {
+  const { existsSync, lstatSync, mkdirSync: mk, realpathSync, rmSync, symlinkSync } = await import('node:fs')
+  const manifestPfad = join(PROFIL, 'package.json')
+  if (!existsSync(manifestPfad)) return []
+  const manifest = JSON.parse(readFileSync(manifestPfad, 'utf8'))
+  const eintrag = manifest.dependencies?.[id]
+  if (typeof eintrag !== 'string') return []
+
+  const geaendert = []
+  const soll = `link:${paketDir.replaceAll('\\', '/')}`
+  if (eintrag !== soll) {
+    manifest.dependencies[id] = soll
+    writeFileSync(manifestPfad, `${JSON.stringify(manifest, null, 2)}\n`)
+    geaendert.push(`package.json  ${soll}`)
+  }
+
+  const verweis = join(PROFIL, 'node_modules', ...id.split('/'))
+  let alt
+  try {
+    alt = lstatSync(verweis)
+  } catch (fehler) {
+    if (fehler.code !== 'ENOENT') throw fehler
+  }
+  if (alt !== undefined && !alt.isSymbolicLink()) {
+    throw new Error(`bauen: ${verweis} ist kein Verweis — bitte von Hand entfernen`)
+  }
+  let richtig = false
+  try {
+    richtig = alt !== undefined && realpathSync(verweis) === realpathSync(paketDir)
+  } catch {
+    // Ein Verweis ins Leere (alter Ordner gelöscht) wird ersetzt.
+  }
+  if (!richtig) {
+    if (alt !== undefined) rmSync(verweis, { force: true })
+    mk(dirname(verweis), { recursive: true })
+    symlinkSync(paketDir, verweis, 'junction')
+    geaendert.push(`Verweis      ${verweis}`)
+  }
+  return geaendert
 }
 
 /** Baut alle Pakete und legt die Verweise an. */
@@ -186,6 +260,17 @@ async function main() {
     console.log(`  ✓ ${id}`)
     console.log(`      Client-Bündel  ${groesse} Bytes`)
     console.log(`      Verweis        ${ziel}`)
+  }
+
+  for (const name of FERTIGE_PAKETE) {
+    const paketDir = join(WURZEL, 'pakete', name)
+    for (const datei of ['index.js', 'client.js']) syntaxPruefen(join(paketDir, datei))
+    const { name: id } = JSON.parse(readFileSync(join(paketDir, 'package.json'), 'utf8'))
+    const ziel = await verweisen(id, paketDir)
+    console.log(`  ✓ ${id}`)
+    console.log('      node --check   index.js, client.js')
+    console.log(`      Verweis        ${ziel}`)
+    for (const zeile of await profilVerweisUmlegen(id, paketDir)) console.log(`      Profil         ${zeile}`)
   }
 
   // ── Der Browser-Titel ──────────────────────────────────────────────────────

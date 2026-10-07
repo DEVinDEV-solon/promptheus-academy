@@ -16,12 +16,51 @@
  * reason is named.
  */
 
+import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+/** Ein Ordner ist die Werkstatt, wenn ihr Startwerkzeug darin liegt. */
+function istWerkstatt(ordner) {
+  return existsSync(join(ordner, 'werkzeuge', 'starten.mjs'));
+}
+
+/**
+ * Der Werkstatt-Ordner, ohne festen Laufwerkspfad.
+ *
+ * `werkzeuge/starten.mjs` setzt `DSH_HOME` auf `<werkstatt>\.dsh`; dessen
+ * Elternordner ist die Werkstatt. Fehlt die Angabe (oder zeigt sie auf das
+ * globale `~\.dsh`), gilt der Ort dieses Pakets: `<werkstatt>\pakete\dsh-plugin-workflows`.
+ * @param umgebung - die Prozessumgebung.
+ * @param hier - der Ordner dieser Datei.
+ * @returns der Werkstatt-Ordner.
+ */
+export function werkstattOrdner(umgebung = process.env, hier = dirname(fileURLToPath(import.meta.url))) {
+  const zuhause = umgebung.DSH_HOME;
+  if (typeof zuhause === 'string' && isAbsolute(zuhause)) {
+    const oben = dirname(resolve(zuhause));
+    if (istWerkstatt(oben)) return oben;
+  }
+  return resolve(hier, '..', '..');
+}
+
+/** Das Zuhause des Harness: `DSH_HOME`, sonst `<werkstatt>\.dsh` wie in `starten.mjs`. */
+export function zuhauseOrdner(umgebung = process.env) {
+  const zuhause = umgebung.DSH_HOME;
+  if (typeof zuhause === 'string' && isAbsolute(zuhause)) return resolve(zuhause);
+  return join(werkstattOrdner(umgebung), '.dsh');
+}
 
 /** Wohin neue Kategorie-Plugins geschrieben werden. */
-const EIGENE_PLUGINS =
-  'D:\\zarbot\\tenants\\admin\\scripts\\PROMPTHEUS\\werkstatt\\deepseek-harness\\plugins\\eigene';
+const EIGENE_PLUGINS = join(werkstattOrdner(), 'deepseek-harness', 'plugins', 'eigene');
+
+/**
+ * Die Ablage für Mails, wenn im Fenster keine eingetragen ist. Sie liegt im
+ * Zuhause der Werkstatt (`.dsh`, nicht in git), damit keine Mail versehentlich
+ * in einen Commit gerät.
+ */
+const MAIL_ABLAGE = join(zuhauseOrdner(), 'mailposten');
 
 /** Ein Name, der als Ordner- und Paketname taugt. */
 export function kennung(name) {
@@ -387,6 +426,7 @@ export function apply(ctx) {
           text: 'Ohne Kategorienamen geht es nicht. Trage im Fenster «Mail-Abruf» einen Namen ein.',
         };
       }
+      if (!daten.ablage.trim()) daten.ablage = MAIL_ABLAGE;
       try {
         const bau = geruest(daten);
         const ordner = join(EIGENE_PLUGINS, bau.kennung + '-mail');
