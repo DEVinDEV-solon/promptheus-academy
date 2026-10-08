@@ -9,8 +9,11 @@
  *   id, art, titel, icon, kurz
  *   gutFuer, daten  zwei Sätze für den Tooltip der Werkbank (4.6): wofür, was mit den Daten passiert
  *   braucht, liefert  welche Art Daten der Schritt erwartet und weitergibt; die Werkbank
- *                bietet nur passende Kacheln an, der Server prüft die Kette (ketteBruch)
- *   felder       [{ name, typ, titel, werte?, vorgabe, beimStart?, pflicht?, hilfe? }]  → Formular und Bedienfläche (9.5)
+ *                bietet nur passende Kacheln an, der Server prüft die Kette (ketteBruch).
+ *                `braucht` darf eine Liste sein: dann passt jede dieser Arten.
+ *   felder       [{ name, typ, titel, werte?, worte?, vorgabe, beimStart?, pflicht?, hilfe?, ki?, laenge? }]
+ *                → Formular und Bedienfläche (9.5). `ki: true` zeigt in der Werkbank „KI fragen“
+ *                (Plan 11.2), `laenge` begrenzt Texte (Vorgabe 200, mehrzeilig 4000).
  *   kennzahlen   Namen der Zahlen, die der Schritt ins Protokoll meldet (9.6)
  *   ausfuehren(eingabe, kontext) → { daten, kennzahlen, ausgabe? }
  *
@@ -46,7 +49,8 @@ const KATALOG = [
     daten: 'Nur Name, Grösse und Datum. Was in den Dateien steht, bleibt zu.',
     liefert: 'dateien',
     felder: [
-      { name: 'ordner', typ: 'wahl', titel: 'Ordner', werte: ['downloads', 'dokumente', 'desktop', 'import'], vorgabe: 'downloads', beimStart: true,
+      { name: 'ordner', typ: 'wahl', titel: 'Ordner', werte: ['downloads', 'dokumente', 'desktop', 'import'],
+        worte: { downloads: 'Downloads', dokumente: 'Dokumente', desktop: 'Desktop', import: 'Secondbrain · 50_Import' }, vorgabe: 'downloads', beimStart: true,
         hilfe: 'Nur diese festen Ordner sind möglich, damit keine App in fremde Ordner schaut.' },
       { name: 'nurNeue', typ: 'schalter', titel: 'Nur neue seit dem letzten Lauf', vorgabe: false, beimStart: true,
         hilfe: 'Beim nächsten Lauf kommen nur Dateien, die seitdem dazugekommen sind.' },
@@ -81,14 +85,20 @@ const KATALOG = [
       { name: 'endungen', typ: 'text', titel: 'Endungen (leer = alle)', vorgabe: '', beimStart: true,
         hilfe: 'Zum Beispiel „pdf“ oder „jpg, png“. Leer heisst: alle Dateien.' },
       { name: 'hoechstens', typ: 'zahl', titel: 'Höchstens', vorgabe: 50, min: 1, max: 500, beimStart: true,
-        hilfe: 'So viele Dateien bleiben höchstens übrig, die neuesten zuerst.' },
+        hilfe: 'So viele Dateien bleiben höchstens übrig, in der gewählten Reihenfolge.' },
+      { name: 'mindestMb', typ: 'zahl', titel: 'Mindestens so gross (MB, 0 = egal)', vorgabe: 0, min: 0, max: 100000, beimStart: true,
+        hilfe: 'Nur Dateien ab dieser Grösse. Gut, um Speicherfresser zu finden.' },
+      { name: 'reihenfolge', typ: 'wahl', titel: 'Reihenfolge', werte: ['neueste', 'groesste'], worte: { neueste: 'die neuesten zuerst', groesste: 'die grössten zuerst' }, vorgabe: 'neueste', beimStart: true,
+        hilfe: 'Was oben stehen soll.' },
     ],
     kennzahlen: ['behalten', 'verworfen'],
     async ausfuehren(e, k) {
       const erlaubt = String(k.einst.endungen || '').toLowerCase().split(/[\s,;]+/).map((x) => x.replace(/^\./, '')).filter(Boolean);
       const max = Math.min(500, Math.max(1, Number(k.einst.hoechstens) || 50));
+      const ab = Math.max(0, Number(k.einst.mindestMb) || 0) * 1048576;
       const alle = e.dateien || [];
-      const passend = erlaubt.length ? alle.filter((d) => erlaubt.includes(d.endung)) : alle;
+      const passend = alle.filter((d) => (!erlaubt.length || erlaubt.includes(d.endung)) && d.groesse >= ab);
+      if (k.einst.reihenfolge === 'groesste') passend.sort((a, b) => b.groesse - a.groesse);
       const behalten = passend.slice(0, max);
       return { daten: { ...e, dateien: behalten }, kennzahlen: { behalten: behalten.length, verworfen: alle.length - behalten.length } };
     },
@@ -179,24 +189,152 @@ const KATALOG = [
   },
 ];
 
-/** Bausteine, die geplant sind, aber noch nicht laufen (Phase C/G). */
+/** Anbieter für Mail (4.3); Server, Port und Verschlüsselung trägt Phase C aus der Anbieterliste ein. */
+const ANBIETER = {
+  werte: ['webde', 'gmx', 'gmail', 'outlook', 'tonline', 'eigener'],
+  worte: { webde: 'web.de', gmx: 'GMX', gmail: 'Gmail (App-Passwort)', outlook: 'Outlook', tonline: 'T-Online', eigener: 'Eigener Server' },
+};
+
+/**
+ * Bausteine, die geplant sind, aber noch nicht laufen (Phase C/G). Sie tragen
+ * schon ihre Felder: Vorlagen und Werkbank füllen sie aus, der Server prüft
+ * die Werte, und die App bleibt Entwurf, bis der Baustein gebaut ist.
+ */
 const FOLGT = [
   { id: 'quelle/imap', art: 'quelle', titel: 'E-Mail (IMAP)', icon: 'mail', phase: 'C', liefert: 'mails',
-    kurz: 'Holt neue Mails aus deinem Postfach (web.de, GMX, Gmail …). Die Mails bleiben ungelesen.' },
+    kurz: 'Holt neue Mails aus deinem Postfach (web.de, GMX, Gmail …). Die Mails bleiben ungelesen.',
+    gutFuer: 'Ein Überblick über dein Postfach, ohne es zu öffnen.',
+    daten: 'Das Passwort liegt verschlüsselt im Tresor. Die Mails werden nur gelesen, nie gelöscht.',
+    felder: [
+      { name: 'anbieter', typ: 'wahl', titel: 'Anbieter', ...ANBIETER, vorgabe: 'webde',
+        hilfe: 'Server, Port und Verschlüsselung trägt die Werkstatt selbst ein. Das Passwort kommt in Phase C in den Tresor, nie in die App.' },
+      { name: 'ordner', typ: 'text', titel: 'Postfach-Ordner', vorgabe: 'INBOX', hilfe: 'Meist „INBOX“, also der Posteingang.' },
+      { name: 'nurUngelesen', typ: 'schalter', titel: 'Nur ungelesene', vorgabe: true, hilfe: 'Gelesene Mails bleiben aussen vor. Die App selbst markiert nichts als gelesen.' },
+    ] },
   { id: 'quelle/pop3', art: 'quelle', titel: 'E-Mail (POP3)', icon: 'mail', phase: 'C', liefert: 'mails',
-    kurz: 'Holt neue Mails per POP3. Es wird nichts gelöscht.' },
-  { id: 'verarbeitung/ki-zusammenfassung', art: 'verarbeitung', titel: 'KI-Zusammenfassung', icon: 'funke', phase: 'C', braucht: 'mails', liefert: 'ausgabe',
-    kurz: 'Ein Sprachmodell fasst die Mails kurz zusammen, durch die Schutzschicht der Werkstatt.' },
-  { id: 'ziel/telegram', art: 'ziel', titel: 'Telegram', icon: 'senden', phase: 'C', braucht: 'ausgabe',
-    kurz: 'Schickt das Ergebnis an deinen eigenen, verknüpften Telegram-Bot.' },
-  { id: 'quelle/rss', art: 'quelle', titel: 'RSS-Feed', icon: 'feed', phase: 'G', liefert: 'artikel',
-    kurz: 'Liest neue Beiträge aus einem Nachrichten-Feed.' },
+    kurz: 'Holt neue Mails per POP3. Es wird nichts gelöscht.',
+    gutFuer: 'Postfächer, die kein IMAP anbieten.',
+    daten: 'Das Passwort liegt verschlüsselt im Tresor. Es wird nichts gelöscht.',
+    felder: [{ name: 'anbieter', typ: 'wahl', titel: 'Anbieter', ...ANBIETER, vorgabe: 'webde',
+      hilfe: 'Server, Port und Verschlüsselung trägt die Werkstatt selbst ein.' }] },
+  { id: 'quelle/rss', art: 'quelle', titel: 'Nachrichten-Feed (RSS)', icon: 'feed', phase: 'G', liefert: 'artikel',
+    kurz: 'Liest neue Beiträge aus Nachrichten-Feeds, zum Beispiel von Fachseiten.',
+    gutFuer: 'Täglich die Neuigkeiten zu einem Thema, ohne zehn Seiten zu öffnen.',
+    daten: 'Die Werkstatt ruft nur die Feeds ab. Dabei gehen keine Angaben über dich hinaus.',
+    felder: [
+      { name: 'paket', typ: 'wahl', titel: 'Quellen', werte: ['ki-de', 'ki-en', 'technik-de', 'eigene'],
+        worte: { 'ki-de': 'KI-Nachrichten, deutsch', 'ki-en': 'KI-Nachrichten, englisch', 'technik-de': 'Technik allgemein, deutsch', eigene: 'Eigene Feed-Adressen' }, vorgabe: 'ki-de',
+        hilfe: 'Die Pakete enthalten bekannte Fachseiten; ihre Adressen prüft die Werkstatt in Phase G. Mit „Eigene“ trägst du Adressen selbst ein.' },
+      { name: 'feeds', typ: 'mehrzeilig', titel: 'Eigene Feed-Adressen', vorgabe: '', laenge: 2000,
+        hilfe: 'Nur bei „Eigene Feed-Adressen“: je Zeile eine Adresse, die mit https:// beginnt.' },
+      { name: 'stichworte', typ: 'text', titel: 'Stichworte (leer = alles)', vorgabe: '', ki: true,
+        hilfe: 'Nur Beiträge, in denen eines dieser Wörter vorkommt, mit Komma getrennt.' },
+      { name: 'zeitraum', typ: 'wahl', titel: 'Zeitraum', werte: ['24h', '7t'], worte: { '24h': 'letzte 24 Stunden', '7t': 'letzte 7 Tage' }, vorgabe: '24h',
+        hilfe: 'Wie weit die App zurückschaut.' },
+    ] },
   { id: 'quelle/web', art: 'quelle', titel: 'Webseite', icon: 'web', phase: 'G', liefert: 'seite',
-    kurz: 'Prüft eine Webseite auf Änderungen.' },
+    kurz: 'Prüft eine Webseite auf Änderungen.',
+    gutFuer: 'Preise, Termine oder Ankündigungen im Blick behalten.',
+    daten: 'Die Werkstatt ruft nur diese eine Seite ab, mit Abstand und nach den Regeln der Seite (robots.txt).',
+    felder: [
+      { name: 'adresse', typ: 'text', titel: 'Adresse der Seite', vorgabe: '', pflicht: true, laenge: 500,
+        hilfe: 'Beginnt mit https://. Adressen aus dem eigenen Heimnetz sind gesperrt.' },
+      { name: 'achten', typ: 'text', titel: 'Worauf achten', vorgabe: '', ki: true, laenge: 300,
+        hilfe: 'Zum Beispiel „Preis unter 300 €“ oder „neue Termine im Oktober“. Leer heisst: jede Änderung.' },
+    ] },
+  { id: 'quelle/ebay', art: 'quelle', titel: 'eBay-Suche', icon: 'lupe', phase: 'G', liefert: 'angebote',
+    kurz: 'Sucht über die offizielle eBay-Schnittstelle nach Angeboten, die zu deinen Filtern passen.',
+    gutFuer: 'Ein bestimmtes Produkt finden, ohne jeden Tag selbst zu suchen.',
+    daten: 'Suchbegriff und Filter gehen an eBay. Dafür brauchst du einmal einen kostenlosen eBay-Entwicklerzugang; der Schlüssel liegt im Tresor.',
+    felder: [
+      { name: 'suchbegriff', typ: 'text', titel: 'Was suchst du?', vorgabe: '', pflicht: true, ki: true, laenge: 120,
+        hilfe: 'Möglichst genau: Marke, Modell, Grösse. „KI fragen“ hilft beim Schärfen.' },
+      { name: 'zustand', typ: 'wahl', titel: 'Zustand', werte: ['egal', 'neu', 'gebraucht', 'generalueberholt', 'defekt'],
+        worte: { egal: 'egal', neu: 'neu', gebraucht: 'gebraucht', generalueberholt: 'generalüberholt', defekt: 'defekt / für Bastler' }, vorgabe: 'egal' },
+      { name: 'preisBis', typ: 'zahl', titel: 'Höchstpreis in € (0 = egal)', vorgabe: 0, min: 0, max: 100000,
+        hilfe: 'Mit Versand gerechnet, so weit eBay es angibt.' },
+      { name: 'angebot', typ: 'wahl', titel: 'Angebotsart', werte: ['alle', 'sofortkauf', 'auktion'],
+        worte: { alle: 'alle', sofortkauf: 'nur Sofort-Kaufen', auktion: 'nur Auktionen' }, vorgabe: 'alle' },
+      { name: 'versand', typ: 'wahl', titel: 'Versand', werte: ['egal', 'versand', 'abholung'],
+        worte: { egal: 'egal', versand: 'nur mit Versand', abholung: 'nur Abholung' }, vorgabe: 'egal' },
+      { name: 'standort', typ: 'wahl', titel: 'Artikelstandort', werte: ['de', 'eu', 'welt'],
+        worte: { de: 'Deutschland', eu: 'EU', welt: 'weltweit' }, vorgabe: 'de',
+        hilfe: 'Ausserhalb der EU können Zoll und Einfuhrsteuer dazukommen.' },
+      { name: 'verkaeufer', typ: 'wahl', titel: 'Verkäufer', werte: ['alle', 'privat', 'gewerblich'],
+        worte: { alle: 'alle', privat: 'nur privat', gewerblich: 'nur gewerblich' }, vorgabe: 'alle',
+        hilfe: 'Bei gewerblichen Verkäufern hast du in der Regel 14 Tage Widerrufsrecht und Gewährleistung.' },
+      { name: 'nurNeue', typ: 'schalter', titel: 'Nur neue Angebote seit dem letzten Lauf', vorgabe: true },
+    ] },
+  { id: 'filter/mails', art: 'filter', titel: 'Mails auswählen', icon: 'filter', phase: 'C', braucht: 'mails', liefert: 'mails',
+    kurz: 'Behält nur Mails bestimmter Absender, mit bestimmten Wörtern im Betreff oder aus einem Zeitraum.',
+    gutFuer: 'Nur das, was wirklich zählt: Chefin, Schule, Rechnungen.',
+    daten: 'Bleibt auf deinem Rechner.',
+    felder: [
+      { name: 'absender', typ: 'text', titel: 'Absender (leer = alle)', vorgabe: '', laenge: 300,
+        hilfe: 'Adressen oder Namensteile, mit Komma getrennt.' },
+      { name: 'betreff', typ: 'text', titel: 'Wörter im Betreff (leer = alle)', vorgabe: '', ki: true,
+        hilfe: 'Zum Beispiel „Rechnung, Frist, Termin“.' },
+      { name: 'zeitraum', typ: 'wahl', titel: 'Zeitraum', werte: ['24h', '7t', '30t'],
+        worte: { '24h': 'letzte 24 Stunden', '7t': 'letzte 7 Tage', '30t': 'letzte 30 Tage' }, vorgabe: '24h' },
+    ] },
+  { id: 'verarbeitung/ki-zusammenfassung', art: 'verarbeitung', titel: 'KI-Zusammenfassung', icon: 'funke', phase: 'C',
+    braucht: ['mails', 'artikel', 'seite'], liefert: 'ausgabe',
+    kurz: 'Ein Sprachmodell fasst Mails, Beiträge oder eine Webseite kurz zusammen, durch die Schutzschicht der Werkstatt.',
+    gutFuer: 'Briefings, Nachrichten-Überblicke, „Was hat sich geändert?“.',
+    daten: 'Der Text geht maskiert über die Schutzschicht an das KI-Modell (OpenRouter, möglicherweise ausserhalb der EU).',
+    felder: [
+      { name: 'format', typ: 'wahl', titel: 'Format', werte: ['stichpunkte', 'tagesbriefing', 'ampel', 'tabelle', 'wichtig'],
+        worte: { stichpunkte: 'Stichpunkte', tagesbriefing: 'Tagesbriefing', ampel: 'Prioritäten-Ampel', tabelle: 'Tabelle', wichtig: 'Nur Wichtiges' }, vorgabe: 'stichpunkte',
+        hilfe: 'Wie das Ergebnis aussieht. Die Vorschau zeigt die Kachel in der Werkbank.' },
+      { name: 'fokus', typ: 'text', titel: 'Worauf achten', vorgabe: '', ki: true, laenge: 300,
+        hilfe: 'Was dir besonders wichtig ist, zum Beispiel „neue Werkzeuge für Lehrkräfte“.' },
+      { name: 'sprache', typ: 'wahl', titel: 'Sprache', werte: ['de', 'en'], worte: { de: 'Deutsch', en: 'Englisch' }, vorgabe: 'de' },
+      { name: 'laenge', typ: 'wahl', titel: 'Länge', werte: ['kurz', 'mittel', 'ausfuehrlich'],
+        worte: { kurz: 'kurz (bis 5 Punkte)', mittel: 'mittel (bis 10 Punkte)', ausfuehrlich: 'ausführlich' }, vorgabe: 'kurz' },
+      { name: 'datensparsam', typ: 'schalter', titel: 'Datensparsam (nur Betreff und Absender)', vorgabe: false,
+        hilfe: 'Bei Mails geht dann kein Mailtext an das Modell. Für Konten unter 18 ist das die Vorgabe.' },
+    ] },
+  { id: 'verarbeitung/ki-pruefen', art: 'verarbeitung', titel: 'KI prüft Angebote', icon: 'funke', phase: 'G',
+    braucht: 'angebote', liefert: 'ausgabe',
+    kurz: 'Ein Sprachmodell prüft jedes Angebot gegen deine Kriterien und sortiert in passt, unsicher und passt nicht.',
+    gutFuer: 'Kriterien, die kein Filter kennt: „mit Originalrechnung“, „Akku über 85 %“.',
+    daten: 'Titel und Beschreibung der Angebote gehen über die Schutzschicht an das KI-Modell, deine Kriterien auch. Über dich selbst geht nichts mit.',
+    felder: [
+      { name: 'kriterien', typ: 'mehrzeilig', titel: 'Woran erkennst du ein gutes Angebot?', vorgabe: '', pflicht: true, ki: true, laenge: 1500,
+        hilfe: 'Je Zeile ein Punkt. „KI fragen“ ergänzt, woran man bei diesem Produkt oft nicht denkt.' },
+      { name: 'nurPassende', typ: 'schalter', titel: 'Nur passende melden', vorgabe: true,
+        hilfe: 'Aus: „unsicher“ kommt mit, damit du selbst entscheidest.' },
+    ] },
+  { id: 'ziel/telegram', art: 'ziel', titel: 'Telegram', icon: 'senden', phase: 'C', braucht: 'ausgabe',
+    kurz: 'Schickt das Ergebnis an deinen eigenen, verknüpften Telegram-Bot, privat oder in ein Thema einer Gruppe.',
+    gutFuer: 'Ergebnisse unterwegs auf dem Handy.',
+    daten: 'Telegram ist ein Dienst eines Drittanbieters; die Nachricht liegt dort im Klartext. Gesendet wird nur an Chats, die du selbst verknüpft hast.',
+    felder: [
+      { name: 'empfaenger', typ: 'wahl', titel: 'Wohin', werte: ['privat', 'gruppe'],
+        worte: { privat: 'privater Chat mit meinem Bot', gruppe: 'Thema in einer Gruppe (ab 18)' }, vorgabe: 'privat',
+        hilfe: 'Gruppe: Du fügst deinen Bot der Gruppe hinzu und postest den Einmalcode der Werkstatt in genau dem Thema, in das die Nachrichten sollen. Nur für Konten ab 18.' },
+      { name: 'thema', typ: 'text', titel: 'Thema in der Gruppe', vorgabe: '', laenge: 60,
+        hilfe: 'Nur bei „Gruppe“: der Name des Themas, zum Beispiel „News“. Er dient dir zur Wiedererkennung; massgeblich ist, wo du den Code postest.' },
+    ] },
+  { id: 'ziel/smtp', art: 'ziel', titel: 'E-Mail an mich', icon: 'mail', phase: 'G', braucht: 'ausgabe',
+    kurz: 'Schickt das Ergebnis an deine eigene, im Konto bestätigte Adresse.',
+    gutFuer: 'Wer kein Telegram nutzt.',
+    daten: 'Versand über dein eigenes Postfach; das Passwort liegt im Tresor.',
+    felder: [] },
 ];
 
 /** Die Art Daten in Worten, für Tooltips und Fehlersätze. */
-export const DATEN_WORT = { dateien: 'Dateien', liste: 'eine Liste', ausgabe: 'ein Ergebnis', mails: 'Mails', artikel: 'Beiträge', seite: 'eine Webseite' };
+export const DATEN_WORT = { dateien: 'Dateien', liste: 'eine Liste', ausgabe: 'ein Ergebnis', mails: 'Mails', artikel: 'Beiträge', seite: 'eine Webseite', angebote: 'Angebote' };
+
+/** Passt, was ankommt, zu dem, was ein Baustein braucht? `braucht` darf eine Liste sein. */
+export function brauchtPasst(braucht, fliesst) {
+  if (!braucht) return true;
+  return Array.isArray(braucht) ? braucht.includes(fliesst) : braucht === fliesst;
+}
+/** `braucht` in Worten: „Mails oder Beiträge“. */
+export function brauchtWort(braucht) {
+  return (Array.isArray(braucht) ? braucht : [braucht]).map((x) => DATEN_WORT[x] || x).join(' oder ');
+}
 
 /** Ergebnis als Markdown, für `ziel/datei`. */
 export function markdown(a) {
@@ -224,7 +362,8 @@ export function folgt(id) { return FOLGT.find((b) => b.id === id) || null; }
  */
 export function einstellungenPruefen(id, roh) {
   const e = roh && typeof roh === 'object' && !Array.isArray(roh) ? roh : {};
-  const b = baustein(id);
+  const f0 = folgt(id);
+  const b = baustein(id) || (f0?.felder?.length ? f0 : null);
   if (!b) {
     const aus = {};
     for (const [k, v] of Object.entries(e).slice(0, 10)) {
@@ -242,8 +381,8 @@ export function einstellungenPruefen(id, roh) {
       const n = Number(v);
       aus[f.name] = Number.isFinite(n) && v !== '' && v !== null ? Math.min(f.max ?? n, Math.max(f.min ?? n, Math.round(n))) : f.vorgabe;
     } else if (f.typ === 'schalter') aus[f.name] = typeof v === 'boolean' ? v : f.vorgabe;
-    else if (f.typ === 'mehrzeilig') aus[f.name] = typeof v === 'string' ? v.slice(0, 4000) : f.vorgabe;
-    else aus[f.name] = typeof v === 'string' ? v.slice(0, 200) : f.vorgabe;
+    else if (f.typ === 'mehrzeilig') aus[f.name] = typeof v === 'string' ? v.slice(0, f.laenge ?? 4000) : f.vorgabe;
+    else aus[f.name] = typeof v === 'string' ? v.replace(/[\r\n]+/g, ' ').slice(0, f.laenge ?? 200) : f.vorgabe;
   }
   return aus;
 }
@@ -266,9 +405,9 @@ export function ketteBruch(schritte) {
     const b = baustein(schritte[i].baustein) || folgt(schritte[i].baustein);
     if (!b) return { schritt: i, text: `Unbekannter Baustein „${schritte[i].baustein}“` };
     if (b.art === 'quelle' && i > 0) return { schritt: i, text: 'Eine Quelle steht nur am Anfang' };
-    if (b.braucht && b.braucht !== fliesst) {
+    if (!brauchtPasst(b.braucht, fliesst)) {
       return { schritt: i, text: vorher
-        ? `„${b.titel}“ braucht ${DATEN_WORT[b.braucht] || b.braucht}, „${vorher.titel}“ liefert ${DATEN_WORT[fliesst] || 'nichts davon'}`
+        ? `„${b.titel}“ braucht ${brauchtWort(b.braucht)}, „${vorher.titel}“ liefert ${DATEN_WORT[fliesst] || 'nichts davon'}`
         : `„${b.titel}“ braucht davor eine Quelle` };
     }
     if (b.liefert) fliesst = b.liefert;
@@ -297,7 +436,7 @@ export function kategorieVorschlag(schritte) {
   const ids = (schritte || []).map((s) => s.baustein);
   if (ids.some((x) => x.includes('imap') || x.includes('pop3'))) return 'post';
   if (ids.some((x) => x.includes('rss'))) return 'nachrichten';
-  if (ids.includes('quelle/web')) return 'beobachten';
+  if (ids.includes('quelle/web') || ids.includes('quelle/ebay')) return 'beobachten';
   if (ids.includes('verarbeitung/tageskarte')) return 'lernen';
   if (ids.includes('quelle/ordner')) return 'dateien';
   return 'sonstiges';

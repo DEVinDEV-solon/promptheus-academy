@@ -27,6 +27,8 @@
 .ls-ok .ls-wort { color: var(--schrift-2); }
 .ls-fehlt .ls-nr { border-color: var(--schlecht); color: var(--schlecht); }
 .ls-ueber .ls-nr { border-style: dashed; }
+/* Baustein folgt in einer späteren Phase: hält nicht auf, ist aber nicht fertig. */
+.ls-spaeter .ls-nr { border-style: dashed; border-color: var(--warn); color: var(--warn); }
 .schrittleiste button:not(:disabled):hover .ls-nr { border-color: var(--glut-hell); }
 .schrittleiste button:disabled .ls-nr, .schrittleiste button:disabled .ls-wort { opacity: .55; }
 
@@ -125,6 +127,7 @@ textarea { resize: vertical; }
 .st-ok .st-zeichen { color: var(--gold); }
 .st-fehlt .st-zeichen { color: var(--schlecht); }
 .st-frei .st-zeichen { color: var(--schrift-3); }
+.st-spaeter .st-zeichen { color: var(--warn); }
 .st-zustand { font-size: 11px; color: var(--schrift-3); }
 .st-fuss { margin: 14px 0 0; text-align: center; color: var(--schrift-2); font-size: 12px; }
 
@@ -193,4 +196,104 @@ textarea { resize: vertical; }
 @media (prefers-reduced-motion: reduce) {
   .pfeil { animation: none; }
   .kachel:hover, .start-karte:hover { transform: none; }
+}
+
+/* ---------- Startseite: Wunsch, Zwecke, Vorlagen (Plan 11.1) ----------
+   Die KI-Hilfe trägt Lapis: Glut bleibt „hier geht es weiter“, Gold „geschafft“. */
+/* Über dem Wunschfeld sitzt der Pfeil; er wippt 7 px nach oben. */
+.start .start-unter { margin-bottom: 46px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wunsch-zeile { display: flex; gap: 8px; max-width: 720px; margin-bottom: 12px; }
+.wunsch-zeile input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; font-size: 15px; }
+.wunsch-zeile .knopf { height: 40px; }
+.wunsch-zeile .knopf .ico { color: inherit; }
+.zweck-leiste { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 14px; }
+.zweck { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--rand); border-radius: 15px; background: var(--grund-2); color: var(--schrift-2); cursor: pointer; font-size: 12.5px; }
+.zweck .ico { width: 15px; height: 15px; }
+.zweck:hover { border-color: var(--rand-hell); }
+.zweck[aria-pressed="true"] { border-color: var(--glut); color: var(--schrift); box-shadow: inset 0 0 0 1px var(--glut); }
+.zweck[aria-pressed="true"] .ico { color: var(--glut); }
+.zweck-zahl { font-size: 11px; color: var(--schrift-3); font-variant-numeric: tabular-nums; }
+.raster-leer { grid-column: 1 / -1; margin: 6px 0 0; color: var(--schrift-3); }
+#kiStart:empty { display: none; }
+#kiStart .ki-panel { max-width: 720px; margin: 0 0 6px; }
+
+/* ---------- KI fragen (Plan 11.2) ---------- */
+.ki-knopf { flex: none; }
+.ki-knopf .ico { color: var(--lapis); }
+.ki-knopf[aria-expanded="true"] { border-color: var(--lapis); }
+.ki-ort:empty { display: none; }
+.ki-panel { margin-top: 10px; padding: 12px 14px; border: 1px solid var(--rand); border-left: 3px solid var(--lapis); border-radius: 10px; background: var(--grund-3); }
+.ki-kopf { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.ki-kopf .ico { width: 16px; height: 16px; color: var(--lapis); }
+.ki-kopf .knopf { margin-left: auto; }
+.ki-kopf .knopf .ico { color: inherit; }
+.ki-panel h4 { margin: 14px 0 8px; font-size: 12.5px; font-weight: 600; color: var(--schrift); }
+.ki-unter { margin: 0 0 8px; color: var(--schrift-2); font-size: 13px; }
+.ki-denkt { margin: 4px 0; color: var(--schrift-2); animation: ki-atmen 1.6s ease-in-out infinite; }
+@keyframes ki-atmen { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.ki-fehler { margin: 4px 0 6px; color: var(--schlecht); }
+.ki-rf { margin-bottom: 10px; }
+.ki-rf-frage { display: block; margin-bottom: 6px; font-size: 13px; }
+.chips, .wahl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wahl-chip { height: 32px; padding: 0 12px; border: 1px solid var(--rand); border-radius: 16px; background: var(--grund-2); color: var(--schrift-2); cursor: pointer; font-size: 13px; }
+.wahl-chip.klein { height: 28px; padding: 0 10px; font-size: 12.5px; }
+.wahl-chip:hover { border-color: var(--rand-hell); color: var(--schrift); }
+.wahl-chip[aria-checked="true"], .wahl-chip[aria-pressed="true"] { border-color: var(--glut); color: var(--schrift); box-shadow: inset 0 0 0 1px var(--glut); }
+/* Nie nur Farbe: gewählt trägt ein Häkchen. */
+.wahl-chip[aria-checked="true"]::before, .wahl-chip[aria-pressed="true"]::before { content: '✓ '; color: var(--glut); font-weight: 700; }
+.ki-punkte { display: flex; flex-direction: column; gap: 6px; }
+.ki-punkt { display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px; border: 1px solid var(--rand); border-radius: 8px; background: var(--grund-2); color: var(--schrift-2); text-align: left; cursor: pointer; font-size: 13px; }
+.ki-punkt:hover { border-color: var(--rand-hell); color: var(--schrift); }
+.ki-punkt[aria-pressed="true"] { border-color: var(--glut); color: var(--schrift); }
+.ki-punkt-zeichen { flex: none; width: 16px; font-weight: 700; color: var(--schrift-3); text-align: center; }
+.ki-punkt[aria-pressed="true"] .ki-punkt-zeichen { color: var(--glut); }
+.ki-los { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 0 0; }
+/* Über „Einverstanden“ sitzt der Pfeil. */
+.ki-zustimmen { margin: 40px 0 0; }
+.ki-vorschlag { white-space: pre-line; padding: 10px 12px; border: 1px solid var(--rand); border-radius: 8px; background: var(--grund-2); }
+.ki-daten { display: flex; align-items: flex-start; gap: 6px; margin: 12px 0 0; font-size: 11.5px; color: var(--schrift-3); }
+.ki-daten .ico { flex: none; width: 13px; height: 13px; margin-top: 1px; color: var(--lapis); }
+/* Platz über dem ersten Vorschlag: dort sitzt der Pfeil „Einrichten“. */
+.ki-treffer .ki-treffer-zeile:first-of-type { margin-top: 34px; }
+.ki-treffer-zeile { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--rand); }
+.ki-treffer-zeile > .ico { flex: none; width: 24px; height: 24px; color: var(--schrift-2); }
+.ki-treffer-text { flex: 1; min-width: 0; }
+.ki-treffer-text span { display: block; margin-top: 2px; color: var(--schrift-3); font-size: 12.5px; }
+
+/* ---------- Fragebogen einer Vorlage ---------- */
+.fragebogen { max-width: 780px; }
+.fb-kopf { display: flex; gap: 14px; align-items: flex-start; }
+.fb-ico { flex: none; width: 36px; height: 36px; color: var(--glut); margin-top: 8px; }
+.fb-kopf h2 { margin: 4px 0; font: 600 1.45rem/1.25 var(--serife); outline: none; }
+.fb-unter { margin: 14px 0 12px; color: var(--schrift-2); }
+.fb-liste { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.fb-frage { display: flex; gap: 12px; padding: 14px; border: 1px solid var(--rand); border-radius: 10px; background: var(--grund-2); }
+.fb-nr { flex: none; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--rand-hell); font-size: 12px; font-weight: 700; color: var(--schrift-2); }
+.fb-frage.beantwortet .fb-nr { border-color: var(--gold); color: var(--gold); }
+.fb-inhalt { flex: 1; min-width: 0; }
+.fb-label { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 3px 0 10px; font-weight: 600; font-size: 14px; }
+/* Die Frage, auf die der Pfeil zeigt: Platz zwischen Frage und Feld, damit er nichts verdeckt. */
+.fb-frage.pfeil-hier .fb-label { margin-bottom: 44px; }
+.fb-feld { display: flex; gap: 8px; align-items: center; }
+.fb-feld.hoch { align-items: flex-start; }
+.fb-feld > input[type="text"], .fb-feld > textarea, .fb-feld > .wahl-chips { flex: 1; min-width: 0; }
+.fb-feld input, .fb-feld textarea, .fb-feld select { font-size: 14px; }
+.fb-feld input[type="time"] { background: var(--grund-3); border: 1px solid var(--rand); border-radius: 8px; padding: 6px 9px; outline: none; }
+.fb-zahl { display: inline-flex; align-items: center; gap: 6px; }
+.fb-zahl input { width: 72px; }
+.fb-fuss { display: flex; align-items: center; gap: 10px; margin-top: 38px; padding-top: 14px; border-top: 1px solid var(--rand); }
+.feld-ki { grid-column: 1 / -1; }
+.feld-ki > .feld > .fb-feld { margin-top: 2px; }
+
+@media (max-width: 560px) {
+  .wunsch-zeile { flex-wrap: wrap; }
+  .fb-feld, .fb-feld.hoch { flex-direction: column; align-items: stretch; }
+  .fb-feld .ki-knopf { align-self: flex-start; }
+  .wunsch-zeile .knopf { width: 100%; justify-content: center; }
+  .fb-fuss { flex-wrap: wrap; }
+  .fb-fuss .wb-fehlt { order: -1; flex-basis: 100%; text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ki-denkt { animation: none; }
 }
