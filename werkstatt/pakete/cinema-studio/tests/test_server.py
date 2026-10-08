@@ -1063,6 +1063,7 @@ class Influencer(unittest.TestCase):
         self.assertEqual(len({v["id"] for v in j["vorlagen"]}), len(j["vorlagen"]), "IDs eindeutig")
         self.assertEqual(self.req("/static/influencer.js")[0], 200)
         self.assertEqual(self.req("/static/muster_haupttaenzer.webp")[0], 200)
+        self.assertEqual(self.req("/static/bewegung.js")[0], 200)
 
     def test_vorlagen_ordner(self):
         a, ca = self.a, self.csrf_a

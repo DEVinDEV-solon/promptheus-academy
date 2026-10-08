@@ -22,12 +22,11 @@ const IF_TYPEN = [
 const ifTyp = k => IF_TYPEN.find(t => t[0] === k) || IF_TYPEN[0];
 const IF_CHAT_VORSCHLAEGE = ['Gib mir 3 virale Influencer-Ideen', 'Mach meine Figur skurriler', 'Passendes Outfit für TikTok', 'Was mache ich als Nächstes?'];
 const IF_FORMATE = ['3:4', '4:5', '9:16', '1:1'];
-// Bewegung: Muster-Rezepte. @Video 1 wird nicht hochgeladen, sondern per Video-Clone ausgelesen (Plan, Phase 2: nur 2 Bilder).
+// Bewegung: Muster-Rezepte. Der Assistent (web/bewegung.js) fragt Schritt für Schritt: @Bild 1, Bewegung/Kulisse, Musik, Prompt.
+// Ein Video ist nicht Pflicht – Beschreibung oder Video-Clone-Analyse reichen (Plan, Phase 2: nur 2 Bilder).
 const IF_MUSTER = [{
   id: 'M-01', name: 'Haupttänzer ersetzen', bild: '/static/muster_haupttaenzer.webp',
-  kurz: 'Deine Figur tanzt in der Mitte. Choreografie, Gruppe, Kamera und Ort bleiben wie im Vorbild.',
-  bild1: 'Deine Figur, Ganzkörper und gut ausgeleuchtet – so wie das Beispielbild.',
-  prompt: 'Put @Image 1 as the main dancer in the middle, instead of the main dancer in the middle of @Video 1. Everything else stays the same as in @Video 1.',
+  kurz: 'Deine Figur tanzt in der Mitte. Kulisse und Bewegung beschreibst du – oder übernimmst sie aus einem Vorbild-Video und mischst sie.',
 }];
 // Musikstil: [Anzeige, englisch für den Prompt]
 const IF_MUSIK = [['Hip-Hop', 'hip-hop'], ['K-Pop', 'K-pop'], ['Afrobeats', 'Afrobeats'], ['Techno', 'techno'], ['Reggaeton', 'reggaeton'],
@@ -39,7 +38,6 @@ const IF = {
   reiter: 'entdecken', pille: 'vorlagen', erzeugt: false, busy: false,
   gen: Object.assign({ modell: '', seitenverhaeltnis: '3:4', anzahl: 1, spar: false }, speicher.lies('igen', {})),
   lotse: Object.assign({ aus: false }, speicher.lies('lotse.influencer', {})), quittiert: 0,
-  muster: { id: 'M-01', musik: 'Hip-Hop', eigen: '', text: {} },
   vorlagen: null, vfilter: 'alle',
 };
 const ifSpeichern = () => speicher.setz('igen', IF.gen);
@@ -211,7 +209,7 @@ function ifPanelZeichnen() {
       `<button role="radio" aria-checked="${IF.typGewaehlt && IF.typ === k}" class="${IF.typGewaehlt && IF.typ === k ? 'an' : ''}" data-iftyp="${k}" data-tip="${esc(t)}"><span>${s}</span>${n}</button>`).join('')}</div>
     ${IF.vorlage ? `<div class="if-vorlage" data-tip="${esc(IF.vorlage.kurz || IF.vorlage.prompt.slice(0, 200))}">Vorlage: <b>${esc(IF.vorlage.name)}</b><button class="x" id="ifVorlageWeg" aria-label="Vorlage entfernen" data-tip="Vorlage entfernen">✕</button></div>` : ''}
     <div class="feld"><label for="ifText">Besonderheiten <small>optional</small></label>
-      <textarea id="ifText" rows="3" maxlength="600" placeholder="z. B. pinke Lederjacke, Riesenschnurrbart, Sonnenbrille">${esc(IF.text)}</textarea></div>
+      <textarea id="ifText" rows="3" maxlength="1500" placeholder="z. B. pinke Lederjacke, Riesenschnurrbart, Sonnenbrille">${esc(IF.text)}</textarea></div>
     <div class="if-chips">
       <button class="chip" id="ifModell" data-tip="Bildmodell wählen${m ? `\nAktuell: ${esc(m.name)}` : ''}" ${IF.gen.spar ? 'disabled' : ''}><span class="txt">${esc(m?.name || 'Modell')}</span></button>
       <button class="chip" id="ifFormat" data-tip="Seitenverhältnis – 3:4 passt zu den Karten">${formIcon(IF.gen.seitenverhaeltnis)}<span>${esc(IF.gen.seitenverhaeltnis)}</span></button>
@@ -308,39 +306,23 @@ function ifHauptZeichnen() {
     </div>` + pillen + mauer;
 }
 // ------------------------------------------------------------------ Bewegung (Muster)
-const ifMuster = () => IF_MUSTER.find(m => m.id === IF.muster.id) || IF_MUSTER[0];
-const ifMusterText = m => IF.muster.text[m.id] ?? m.prompt;
-function ifMusikEn() {
-  const eigen = IF.muster.eigen.trim();
-  return eigen || (IF_MUSIK.find(x => x[0] === IF.muster.musik) || IF_MUSIK[0])[1];
-}
-function ifMusterPrompt(m) {
-  return `${ifMusterText(m).trim()}\nMusic style: ${ifMusikEn()} – the dance moves and the soundtrack match this style.`;
-}
 function ifBewegungZeichnen() {
-  const m = ifMuster(), mu = IF.muster;
+  const laeuft = BW.bild || BW.quelle;
   $('#wand').innerHTML = `<div class="if-bew">
     <div class="if-hero"><h2>DEINE FIGUR. DEIN TANZ.</h2>
-      <p>Muster wählen, Vorbild-Video mit <b>Video-Clone</b> auslesen, Musikstil festlegen – der Chat baut daraus die Szenen-Prompts.
-      Deine Figur wird das Startbild des Videos.</p></div>
-    ${IF_MUSTER.map(x => `<article class="if-muster ${x.id === m.id ? 'an' : ''}">
-      <figure><img src="${esc(x.bild)}" alt="Beispiel für @Bild 1" loading="lazy"><figcaption>Beispiel für @Bild 1</figcaption></figure>
+      <p>Ein Assistent führt dich in 5 Schritten: Hauptfigur wählen, Bewegung und Kulisse festlegen (Beschreibung reicht – Video nur, wenn du willst),
+      Musik, Prompt prüfen – dann ab in den Video-Modus oder in den Chat.</p></div>
+    ${IF_MUSTER.map(x => `<article class="if-muster an">
+      <figure><img class="fokus" src="${esc(x.bild)}" alt="Beispiel für @Bild 1" loading="lazy"><figcaption>Beispiel für @Bild 1</figcaption></figure>
       <div class="if-muster-inhalt">
         <small>${esc(x.id)} · Muster</small><h3>${esc(x.name)}</h3><p>${esc(x.kurz)}</p>
         <ol class="if-muster-schritte">
-          <li><b>@Bild 1</b> – ${esc(x.bild1)}
-            <div class="if-up-knoepfe"><button class="btn klein" data-ifnav="influencer:meine" data-tip="Einen deiner Influencer aussuchen">Meine Influencer</button>
-            <button class="btn klein" data-ifnav="influencer:erstellen" data-tip="Neue Figur bauen">Figur bauen</button></div></li>
-          <li><b>@Video 1</b> – Vorbild-Video in Video-Clone auslesen (Link oder Upload).
-            <div class="if-up-knoepfe"><button class="btn klein primaer" id="ifKlon" data-tip="Öffnet den Chat rechts im Modus Video-Clone">${ico('video')}Video-Clone öffnen</button></div></li>
-          <li><b>Musikstil</b>
-            <div class="if-chips if-musik">${IF_MUSIK.map(([n]) => `<button class="chip ${!mu.eigen.trim() && mu.musik === n ? 'aktiv' : ''}" data-ifmusik="${esc(n)}">${esc(n)}</button>`).join('')}</div>
-            <input id="ifMusikEigen" class="if-eingabe" placeholder="… oder eigener Stil, z. B. 90er Eurodance" value="${esc(mu.eigen)}" maxlength="60"></li>
-          <li><b>Prompt prüfen</b> – frei änderbar, der Musikstil wird angehängt.
-            <textarea id="ifMusterText" rows="4" data-muster="${esc(x.id)}">${esc(ifMusterText(x))}</textarea></li>
+          ${BW_SCHRITTE.map((s, i) => `<li><b>${esc(s)}</b>${['', ' – Meine Influencer, Bibliothek, Vorlagen-Ordner oder Beispielbild; jederzeit austauschbar',
+            ' – Beschreibung, Video-Clone-Analyse (mischbar) oder neues Vorbild-Video', ' – Stil antippen oder eigenen eintragen', ' – frei änderbar',
+            ' – Video-Modus mit deiner Figur als Startbild oder Chat'][i + 1] || ''}</li>`).join('')}
         </ol>
-        <div class="if-los"><button class="if-gen" id="ifMusterChat" data-tip="Schreibt den Prompt ins Chatfeld – du kannst ihn dort noch ändern und abschicken">
-          In den Chat übernehmen<small>kostet erst beim Senden</small></button></div>
+        <div class="if-los"><button class="if-gen lotse-ziel" id="ifBewStart" data-tip="Öffnet den Assistenten – kostet nichts, bis du im Video-Modus erzeugst">
+          ${laeuft ? 'Weitermachen' : 'Schritt für Schritt starten'}<small>${laeuft ? `bei Schritt ${BW.schritt}: ${esc(BW_SCHRITTE[BW.schritt - 1])}` : 'öffnet ein Fenster'}</small></button></div>
       </div></article>`).join('')}
     <section class="if-vorlagen" id="ifVorlagen">${ifVorlagenHtml()}</section>
     <p class="hinweis">Die Bewegung wird aus der Beschreibung nachgebaut, nicht Bild für Bild kopiert. Die Identität hält über das Startbild (@Bild 1).
@@ -370,24 +352,20 @@ function ifVorlagenHtml() {
     <p class="unter">Unterordner: Bilder › ${esc(d.ordner.Bilder.join(', '))} · Videos › ${esc(d.ordner.Videos.join(', '))} – eigene Ordner gehen auch.</p>
     ${d.vorlagen.length ? `<div class="if-pillen">${pillen.map(([k, t, n]) => `<button class="${filter === k ? 'an' : ''}" data-ifvfilter="${esc(k)}">${esc(t)}<small>${n}</small></button>`).join('')}</div>
     <div class="if-vraster">${liste.map(v => `<div class="if-vkarte">
-      ${v.art === 'bild' ? `<img src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
+      ${v.art === 'bild' ? `<img class="fokus" src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
       <span class="if-typ">${esc(v.ordner)}</span>
       <div class="if-vinfo"><b title="${esc(v.name)}">${esc(v.name)}</b>${v.prompt ? '<small>mit Prompt</small>' : ''}</div>
       <div class="if-vknoepfe">
         ${v.art === 'bild' ? `<button class="btn klein" data-ifv="basis" data-pfad="${esc(v.pfad)}" data-tip="Als @Bild 1 / Basis ins Panel „Erstellen“">Als @Bild 1</button>`
-          : `<button class="btn klein primaer" data-ifv="klon" data-pfad="${esc(v.pfad)}" data-tip="Video-Clone liest dieses Video als @Video 1 aus (≈ 0,01–0,05 $)">Auslesen</button>`}
-        ${v.prompt && v.art === 'video' ? `<button class="btn klein" data-ifv="prompt" data-pfad="${esc(v.pfad)}" data-tip="${esc(v.prompt.slice(0, 160))}">Prompt</button>` : ''}
+          : `<button class="btn klein primaer" data-ifv="klon" data-pfad="${esc(v.pfad)}" data-tip="Video-Clone liest dieses Video aus (≈ 0,01–0,05 $) – danach im Assistenten übernehmen und mischen">Auslesen</button>`}
+        ${v.prompt && v.art === 'video' ? `<button class="btn klein" data-ifv="prompt" data-pfad="${esc(v.pfad)}" data-tip="${esc(v.prompt.slice(0, 160))}">Als Beschreibung</button>` : ''}
       </div></div>`).join('')}</div>`
     : '<p class="unter"><b>Noch leer.</b> Lege z. B. ein Tanzvideo in <code>Videos\\Tanz</code> und deine Figur in <code>Bilder\\Charaktere</code>, dann „Neu einlesen“.</p>'}`;
 }
 async function ifVorlageAktion(k) {
   const v = IF.vorlagen.vorlagen.find(x => x.pfad === k.dataset.pfad);
   if (!v) return;
-  if (k.dataset.ifv === 'prompt') {
-    IF.muster.text[ifMuster().id] = v.prompt;
-    ifBewegungZeichnen();
-    return toast(`Prompt aus „${v.name}“ übernommen.`, 'ok');
-  }
+  if (k.dataset.ifv === 'prompt') return bewegungAssistent({ quelle: 'beschreibung', bewegung: v.prompt, promptEigen: false, schritt: BW.bild ? 2 : 1 });
   if (k.dataset.ifv === 'basis') {
     const d = await api('vorlagen/uebernehmen', { pfad: v.pfad });
     IF.basis = { id: d.id, url: d.url, name: v.name, quelle: 'foto' }; IF.basisWeg = false;
@@ -395,13 +373,7 @@ async function ifVorlageAktion(k) {
     await ansicht('influencer:erstellen');
     return toast(`„${v.name}“ liegt als Basis im Panel.`, 'ok');
   }
-  if (k.dataset.ifv === 'klon') {
-    if (!await bestaetigen('Video auslesen?', `Video-Clone analysiert „${v.name}“ als @Video 1. Kosten ≈ 0,01–0,05 $. Die Vorlage bleibt im Ordner.`, 'Auslesen')) return;
-    await ifChatBereit('klon');
-    if (C.chat.klon || C.chat.nachrichten.length) await chatNeu('klon');
-    await klonStarten(v.pfad);
-    toast('Analyse läuft – rechts im Chat. Danach „In den Chat übernehmen“.', 'ok');
-  }
+  if (k.dataset.ifv === 'klon') return bwVideoAuslesen(v.pfad);
 }
 
 async function ifChatBereit(modus) {
@@ -413,18 +385,6 @@ async function ifChatBereit(modus) {
   C.chat = (await api('chat/' + C.chat.id, { modus })).chat;
   await chatOeffnen(C.chat.id);
 }
-async function ifMusterInChat() {
-  const m = ifMuster();
-  if (!ifMusterText(m).trim()) return toast('Der Prompt ist leer.', 'fehler');
-  await ifChatBereit();
-  const klon = C.chat.modus === 'klon' && C.chat.klon;
-  $('#chatText').value = `Muster ${m.id} „${m.name}“: Bau daraus Szenen-Prompts für den Video-Modus. @Image 1 ist meine Figur und wird das Startbild,` +
-    ` @Video 1 ist ${klon ? 'das Vorbild aus der Video-Clone-Analyse in diesem Chat' : 'das Vorbild, das ich mit Video-Clone auslese'}.\n\n${ifMusterPrompt(m)}`;
-  chatFeldHoehe();
-  $('#chatText').focus();
-  toast(klon ? 'Im Chatfeld – prüfen und abschicken.' : 'Im Chatfeld. Tipp: zuerst das Vorbild mit Video-Clone auslesen.', 'ok');
-}
-
 function ifMeineZeichnen() {
   if (S.ansicht !== 'influencer:meine') return;
   const w = $('#wand');
@@ -596,8 +556,6 @@ $('#wand').addEventListener('click', async ev => {
     if (vf) { IF.vfilter = vf.dataset.ifvfilter; $('#ifVorlagen').innerHTML = ifVorlagenHtml(); return; }
     const va = t.closest('[data-ifv]');
     if (va) { await ifVorlageAktion(va); return; }
-    const mus = t.closest('[data-ifmusik]');
-    if (mus) { IF.muster.musik = mus.dataset.ifmusik; IF.muster.eigen = ''; ifBewegungZeichnen(); return; }
     switch (t.closest('button')?.id) {
       case 'ifHilfe': IF.lotse.aus = false; IF.quittiert = 0; speicher.setz('lotse.influencer', IF.lotse); lotseZeigen(true); return;
       case 'ifFoto': ifFileIn.click(); return;
@@ -608,8 +566,7 @@ $('#wand').addEventListener('click', async ev => {
       case 'ifMinus': IF.gen.anzahl = Math.max(1, IF.gen.anzahl - 1); ifSpeichern(); ifPanelZeichnen(); return;
       case 'ifPlus': IF.gen.anzahl = Math.min(4, IF.gen.anzahl + 1); ifSpeichern(); ifPanelZeichnen(); return;
       case 'ifGen': await ifErzeugen(); return;
-      case 'ifKlon': await ifChatBereit('klon'); toast('Video-Clone ist rechts offen: Link einfügen oder Video hochladen.', 'ok'); return;
-      case 'ifMusterChat': await ifMusterInChat(); return;
+      case 'ifBewStart': await bewegungAssistent(); return;
       case 'ifVNeu': IF.vorlagen = null; $('#ifVorlagen').innerHTML = ifVorlagenHtml(); await ifVorlagenLaden(); return;
       case 'ifVPfad': await textKopieren(IF.vorlagen.pfad, 'Pfad kopiert – im Explorer einfügen.'); return;
       case 'ifZufall': {
@@ -635,8 +592,6 @@ $('#wand').addEventListener('click', async ev => {
 });
 $('#wand').addEventListener('input', ev => {
   if (ev.target.id === 'ifText') { IF.text = ev.target.value; IF.erzeugt = false; lotseZeigen(); }
-  if (ev.target.id === 'ifMusterText') IF.muster.text[ev.target.dataset.muster] = ev.target.value;
-  if (ev.target.id === 'ifMusikEigen') { IF.muster.eigen = ev.target.value; $$('.if-musik .chip').forEach(c => c.classList.toggle('aktiv', !ev.target.value.trim() && c.dataset.ifmusik === IF.muster.musik)); }
 });
 // Video-Vorlagen spielen beim Darüberfahren stumm an
 $('#wand').addEventListener('mouseover', ev => { const v = ev.target.closest?.('video[data-vorschau]'); if (v && v.paused) v.play().catch(() => {}); });

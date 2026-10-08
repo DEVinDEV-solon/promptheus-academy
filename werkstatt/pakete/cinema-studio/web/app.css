@@ -657,6 +657,58 @@ button:disabled{cursor:default}
 .if-vinfo b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .if-vinfo small{color:var(--gold2);font-size:11px}
 .if-vknoepfe{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px 8px}
+/* Bildausschnitt: Gesicht sichtbar halten. Querformat (Charakterblatt: links Porträt, rechts Ganzkörper) → linker Teil */
+img.fokus{object-position:50% 18%}
+img.fokus.quer{object-position:0% 30%}
+/* Bewegung-Assistent (Popup) */
+.modal-card.bw-karte{width:min(920px,100%)}
+.bw-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.bw-kopf small{color:var(--gold2);font-size:11.5px}
+.bw-kopf h3{font-family:var(--serife);font-size:22px;margin:2px 0 0}
+.bw-punkte{display:flex;align-items:center;gap:4px;margin:14px 0 10px;flex-wrap:wrap}
+.bw-punkte i{flex:1;min-width:8px;height:1px;background:var(--border2)}
+.bw-punkt{display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:2px;color:var(--muted);font-size:12px}
+.bw-punkt b{width:24px;height:24px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px}
+.bw-punkt.fertig b{background:var(--gold2);border-color:var(--gold2);color:#15120a}
+.bw-punkt.jetzt{color:var(--gold)}
+.bw-punkt.jetzt b{background:var(--gold);border-color:var(--gold);color:#15120a;box-shadow:0 0 0 3px rgba(230,204,136,.25)}
+.bw-punkt:disabled{opacity:.45;cursor:default}
+.bw-hinweis{display:flex;gap:8px;align-items:flex-start;background:#23262e;border:1px solid var(--gold2);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:12px}
+.bw-pfeil{color:var(--gold);font-size:16px;line-height:1.1;animation:wippenX 1.2s ease-in-out infinite;display:inline-block}
+.bw-schritt h4{margin:0 0 10px;font-size:15px}
+.bw-schritt h4 small{color:var(--muted);font-weight:400;font-size:12px;margin-left:6px}
+.bw-schritt textarea,.bw-schritt .if-eingabe{width:100%;margin-top:6px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;color:inherit;font-family:inherit;resize:vertical;outline:none}
+.bw-schritt textarea:focus,.bw-schritt .if-eingabe:focus{border-color:var(--gold)}
+.bw-prompt{font-family:ui-monospace,Consolas,monospace !important;font-size:12.5px !important}
+.bw-label{display:block;font-size:12px;color:var(--muted);margin:12px 0 6px}
+.bw-tabs{margin-bottom:10px}
+.bw-raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;max-height:330px;overflow:auto;padding:2px}
+.bw-raster button{padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden;aspect-ratio:3/4;background:var(--bg2)}
+.bw-raster button img{width:100%;height:100%;object-fit:cover;display:block}
+.bw-raster button.an{border-color:var(--gold);box-shadow:0 0 0 3px rgba(230,204,136,.25)}
+.bw-gewaehlt{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--gold2);border-radius:12px;padding:8px;margin-bottom:10px}
+.bw-gewaehlt img{width:54px;height:72px;object-fit:cover;border-radius:8px}
+.bw-gewaehlt div{display:flex;flex-direction:column}.bw-gewaehlt small{color:var(--muted);font-size:11.5px}
+.bw-wahl{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bw-wahl button{border:1px solid var(--border2);background:var(--bg2);border-radius:12px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;color:inherit;transition:.15s}
+.bw-wahl button span{font-size:22px}
+.bw-wahl button small{color:var(--muted);font-size:11.5px;line-height:1.35}
+.bw-wahl button:hover{border-color:var(--gold2)}
+.bw-wahl button.an{border-color:var(--gold);background:rgba(230,204,136,.1)}
+.bw-ende{grid-template-columns:repeat(2,1fr);margin-top:12px}
+.bw-detail{margin-top:6px}
+.bw-liste{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto}
+.bw-liste button{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--bg2);border-radius:9px;padding:7px 10px;text-align:left;color:inherit}
+.bw-liste button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.bw-liste button small{color:var(--muted2);font-size:11px}
+.bw-liste button.an,.bw-liste button:hover{border-color:var(--gold)}
+.bw-analyse{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12.5px}
+.bw-analyse p{margin:4px 0;color:var(--muted)}.bw-analyse small{color:var(--gold2)}
+.bw-zeile{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}.bw-zeile small{color:var(--muted);font-size:11.5px}
+.bw-zusammen{display:flex;gap:14px;align-items:center}
+.bw-zusammen img{width:72px;height:96px;object-fit:cover;border-radius:10px}
+.bw-zusammen dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:13px}.bw-zusammen dt{color:var(--muted)}.bw-zusammen dd{margin:0}
+.bw-fuss{margin-top:16px}
 @media (hover:none){.if-aktionen{opacity:1}}
 /* Lotse: Pfeil, Ring, Sprechblase */
 .lotse-ziel{animation:puls 1.6s ease-out infinite;border-radius:12px}
@@ -678,6 +730,7 @@ button:disabled{cursor:default}
   .if-panel{position:static;max-height:none}
   .if-mauer{columns:2 150px}
   .if-muster{grid-template-columns:1fr}
+  .bw-wahl,.bw-ende{grid-template-columns:1fr}
   .if-muster figure img{aspect-ratio:3/4}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

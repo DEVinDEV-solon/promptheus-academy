@@ -1684,7 +1684,8 @@ def chat_liste(name: str) -> list:
         except (OSError, ValueError):
             continue
         out.append({"id": c["id"], "titel": c.get("titel", ""), "modus": c.get("modus", "assistent"),
-                    "geaendert": c.get("geaendert", ""), "anzahl": len(c.get("nachrichten", []))})
+                    "geaendert": c.get("geaendert", ""), "anzahl": len(c.get("nachrichten", [])),
+                    "klon": bool((c.get("klon") or {}).get("analyse"))})
     return sorted(out, key=lambda c: c["geaendert"], reverse=True)
 
 
@@ -1952,7 +1953,7 @@ def vorlage_als_upload(name: str, rel: str) -> dict:
 # --------------------------------------------------------------------------- HTTP
 STATIC = {"index.html": "text/html; charset=utf-8", "app.css": "text/css; charset=utf-8",
           "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8",
-          "influencer.js": "text/javascript; charset=utf-8", "influencer_vorlagen.json": "application/json; charset=utf-8",
+          "influencer.js": "text/javascript; charset=utf-8", "bewegung.js": "text/javascript; charset=utf-8", "influencer_vorlagen.json": "application/json; charset=utf-8",
           "muster_haupttaenzer.webp": "image/webp", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
 
 
