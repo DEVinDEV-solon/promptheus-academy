@@ -64,6 +64,22 @@ export function kategoriePruefen(k) {
   throw new Fehler(400, 'Unbekannte Kategorie');
 }
 
+/**
+ * Die Regel eines Zeitplans (8.2: nur, was die Aufgabenplanung abbilden kann):
+ *   { typ: 'taeglich', uhrzeit: 'HH:MM' }
+ *   { typ: 'woechentlich', tag: 0–6 (Montag = 0), uhrzeit: 'HH:MM' }
+ *   { typ: 'intervall', stunden: 1–12 }
+ * @returns die bereinigte Regel oder null, wenn sie nicht passt.
+ */
+export function regelPruefen(r) {
+  if (!r || typeof r !== 'object') return null;
+  const uhr = typeof r.uhrzeit === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(r.uhrzeit) ? r.uhrzeit : null;
+  if (r.typ === 'taeglich') return uhr ? { typ: 'taeglich', uhrzeit: uhr } : null;
+  if (r.typ === 'woechentlich') return uhr && Number.isInteger(r.tag) && r.tag >= 0 && r.tag <= 6 ? { typ: 'woechentlich', tag: r.tag, uhrzeit: uhr } : null;
+  if (r.typ === 'intervall') return Number.isInteger(r.stunden) && r.stunden >= 1 && r.stunden <= 12 ? { typ: 'intervall', stunden: r.stunden } : null;
+  return null;
+}
+
 /** Ein Fehler mit HTTP-Status, den die Routen weitergeben. */
 export class Fehler extends Error {
   constructor(status, text) { super(text); this.status = status; }
@@ -130,7 +146,7 @@ export function workflowPruefen(roh) {
     icon: typeof w.icon === 'string' ? w.icon.slice(0, 20) : 'app',
     kategorie,
     ziel: String(w.ziel ?? '').slice(0, 300),
-    ausloeser: { art: ['hand', 'zeitplan', 'start'].includes(a.art) ? a.art : 'hand', regel: a.regel ?? null, zeitzone: 'Europe/Berlin' },
+    ausloeser: { art: ['hand', 'zeitplan', 'start'].includes(a.art) ? a.art : 'hand', regel: a.art === 'zeitplan' ? regelPruefen(a.regel) : null, zeitzone: 'Europe/Berlin' },
     schritte,
     ablage: { taskleiste: !!w.ablage?.taskleiste, meineWorkflows: w.ablage?.meineWorkflows !== false, reihenfolge: Number(w.ablage?.reihenfolge) || 0 },
     status,

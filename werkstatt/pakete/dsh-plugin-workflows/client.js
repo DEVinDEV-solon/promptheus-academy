@@ -404,6 +404,7 @@ window.__ModuleLoader__.load({
     const bruecke = {
       offen: false,
       mail: false,
+      /** false, oder die Seite im Rahmen: Meine Apps oder die Werkbank (Phase B). */
       apps: false,
       text: null,
       schreiber: false,
@@ -422,7 +423,9 @@ window.__ModuleLoader__.load({
     }
     function oeffnen() { bruecke.offen = true; melden(); }
     function schliessen() { bruecke.offen = false; melden(); }
-    function appsOeffnen() { bruecke.apps = true; bruecke.offen = false; bruecke.mail = false; melden(); }
+    function appsOeffnen(seite) { bruecke.apps = typeof seite === 'string' ? seite : '/promptheus-apps/'; bruecke.offen = false; bruecke.mail = false; melden(); }
+    /** Das Agenten-Team öffnet seit Phase B die Workflow-Werkbank (Plan 4 und 4.6). */
+    function werkbankOeffnen() { appsOeffnen('/promptheus-apps/werkbank'); }
     function appsSchliessen() { bruecke.apps = false; melden(); }
     function auftragEinsetzen(text) { bruecke.text = text; bruecke.offen = false; melden(); }
     function textAbholen() { const text = bruecke.text; bruecke.text = null; return text; }
@@ -1039,7 +1042,7 @@ window.__ModuleLoader__.load({
           style: zeichenKnopf,
           title: t('fenster'),
           'aria-label': t('fenster'),
-          onClick: oeffnen,
+          onClick: werkbankOeffnen,
         }, h(FensterZeichen)),
       );
     }
@@ -1952,7 +1955,7 @@ window.__ModuleLoader__.load({
           bruecke.offen = false;
           melden();
         } else {
-          oeffnen();
+          werkbankOeffnen();
         }
       };
 
@@ -2221,6 +2224,8 @@ window.__ModuleLoader__.load({
           if (ev.origin !== window.location.origin || !rahmen.current || ev.source !== rahmen.current.contentWindow) return;
           const art = ev.data && ev.data.art;
           if (art === 'promptheus-apps:schliessen') appsSchliessen();
+          // Die bisherige Team-Beratung bleibt erreichbar, bis der KI-Assistent (Phase E) sie ersetzt.
+          if (art === 'promptheus-apps:team-beratung') { appsSchliessen(); oeffnen(); }
           if (art === 'promptheus-apps:bereit') {
             const f = werkstattFarben();
             rahmen.current.contentWindow.postMessage({ art: 'promptheus-apps:farben', werte: f.werte, hell: f.hell }, window.location.origin);
@@ -2247,7 +2252,7 @@ window.__ModuleLoader__.load({
         },
           h('iframe', {
             ref: rahmen,
-            src: '/promptheus-apps/',
+            src: bruecke.apps,
             title: t('apps'),
             style: { flex: '1 1 auto', width: '100%', height: '100%', border: 0, borderRadius: '14px', background: 'var(--dsw-alias-bg-base)' },
           })));

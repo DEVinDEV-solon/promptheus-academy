@@ -3,7 +3,8 @@
  *
  * Eine Präfix-Route `/promptheus-apps` am Webserver der Werkstatt:
  *   /promptheus-apps/                 die Seite (im Werkstatt-Fenster als Rahmen)
- *   /promptheus-apps/seite/<datei>    app.js, app.css (feste Liste)
+ *   /promptheus-apps/werkbank         die Workflow-Werkbank (Phase B, Plan 4 und 4.6)
+ *   /promptheus-apps/seite/<datei>    Skripte und Stile (feste Liste)
  *   /promptheus-apps/api/...          JSON
  *
  * Sicherheit: Die Werkstatt lässt nur mit ihrem Zugangs-Cookie hinein. Hier
@@ -21,15 +22,20 @@ import { fileURLToPath } from 'node:url';
 import { Fehler, KATEGORIEN, ablageOeffnen, idPruefen, kategoriePruefen, kontoErmitteln, stempelPruefen } from './ablage.mjs';
 import { tresorOeffnen } from './tresor.mjs';
 import { abbildLesen, ausfuehren } from './laeufer.mjs';
-import { baustein, bedienfelder, folgt, kategorieVorschlag } from './bausteine/index.mjs';
+import { baustein, bedienfelder, einstellungenPruefen, folgt, katalog, kategorieVorschlag, ketteBruch, streckeVollstaendig } from './bausteine/index.mjs';
 import { VORLAGEN, vorlage } from './vorlagen.mjs';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 export const PFAD = '/promptheus-apps';
 const STATISCH = {
+  'grund.js': 'text/javascript; charset=utf-8',
   'app.js': 'text/javascript; charset=utf-8',
   'app.css': 'text/css; charset=utf-8',
+  'werkbank.js': 'text/javascript; charset=utf-8',
+  'werkbank.css': 'text/css; charset=utf-8',
 };
+/** Die HTML-Seiten unter dem Präfix. */
+const SEITEN = { '': 'index.html', 'index.html': 'index.html', werkbank: 'werkbank.html' };
 const SEITEN_CSP = "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'";
 
 function senden(res, status, typ, koerper, mehr = {}) {
@@ -93,6 +99,49 @@ function kennzahlen(ablage, apps, jetzt = new Date()) {
     }
   }
   return { laeufeHeute, okHeute, dauerMittelMs: nDauer ? Math.round(dauer / nDauer) : null, kostenMonat, ausgabenHeute: ausgaben };
+}
+
+/** Ein Probelauf, der geklappt hat und nach der letzten Änderung lief. */
+function probeBestanden(ablage, app) {
+  const p = ablage.laeufe(app.id).find((l) => l.ausloeser === 'probe');
+  return !!p && p.status === 'ok' && Date.parse(p.start) >= Date.parse(app.geaendert);
+}
+
+/** Eine freie App-Kennung aus dem Namen: Kleinbuchstaben, Ziffern, Bindestriche. */
+function idAusName(ablage, name) {
+  let grund = String(name).toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 34).replace(/-+$/, '');
+  if (grund.length < 3) grund = `app-${grund || 'neu'}`;
+  for (let n = 1; n < 1000; n++) {
+    const id = n === 1 ? grund : `${grund}-${n}`;
+    if (!ablage.gibtEs(id)) return id;
+  }
+  throw new Fehler(409, 'Keine freie Kennung');
+}
+
+/**
+ * Ein Entwurf aus der Werkbank: jeder Baustein bekannt, Einstellungen gegen
+ * sein Feld-Schema bereinigt, die Kette heil. Geheimnisse kommen hier nie an,
+ * sie gehen in Phase C über die Tresor-Route.
+ */
+function entwurfBauen(k) {
+  if (!Array.isArray(k.schritte) || k.schritte.length === 0 || k.schritte.length > 12) throw new Fehler(400, 'Eine App braucht 1 bis 12 Schritte');
+  const schritte = k.schritte.map((s) => {
+    const id = String(s?.baustein ?? '');
+    if (!baustein(id) && !folgt(id)) throw new Fehler(400, `Unbekannter Baustein „${id.slice(0, 40)}“`);
+    return { baustein: id, einstellungen: einstellungenPruefen(id, s.einstellungen) };
+  });
+  const bruch = ketteBruch(schritte);
+  if (bruch) throw new Fehler(400, bruch.text);
+  const erster = baustein(schritte[0].baustein) || folgt(schritte[0].baustein);
+  return {
+    name: String(k.name ?? '').trim().slice(0, 60),
+    ziel: String(k.ziel ?? '').trim().slice(0, 300),
+    icon: typeof k.icon === 'string' && /^[a-z]{2,20}$/.test(k.icon) ? k.icon : erster.icon,
+    ausloeser: k.ausloeser && typeof k.ausloeser === 'object' ? { art: k.ausloeser.art, regel: k.ausloeser.regel } : { art: 'hand' },
+    schritte,
+  };
 }
 
 /**
@@ -166,6 +215,18 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
         })),
       };
     }
+    if (weg === 'katalog' && !post) {
+      return {
+        bausteine: katalog(),
+        kategorien: KATEGORIEN,
+        vorlagen: VORLAGEN.map((v) => ({ vorlage: v.vorlage, titel: v.titel, text: v.text, app: structuredClone(v.app) })),
+        entwuerfe: ablage.liste().filter((a) => a.status === 'entwurf' && !a.ungueltig).map((a) => ({ id: a.id, name: a.name, icon: a.icon, geaendert: a.geaendert })),
+      };
+    }
+    if (weg === 'bearbeiten' && !post) {
+      const app = ablage.lesen(idPruefen(q.get('id')));
+      return { app, probeOk: app.status === 'aktiv' || probeBestanden(ablage, app) };
+    }
     if (weg === 'lauf' && !post) return ablage.lauf(idPruefen(q.get('id')), stempelPruefen(q.get('stempel')));
     if (weg === 'abbild' && !post) {
       const id = idPruefen(q.get('id'));
@@ -183,6 +244,44 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
         ablage.schreiben(app);
       }
       return ausfuehren({ ablage, tresor, id, ausloeser: k.probe ? 'probe' : 'hand', aenderungen, werkstatt, audit });
+    }
+    if (weg === 'speichern') {
+      const neu = entwurfBauen(k);
+      const alt = k.id === undefined || k.id === null ? null : ablage.lesen(idPruefen(k.id));
+      const kategorie = k.kategorie === undefined ? alt?.kategorie ?? kategorieVorschlag(neu.schritte) : kategoriePruefen(k.kategorie);
+      const app = ablage.schreiben({
+        schema: 1,
+        ...(alt || {}),
+        ...neu,
+        id: alt ? alt.id : idAusName(ablage, neu.name),
+        kategorie,
+        // Jede Änderung macht aus einer laufenden App wieder einen Entwurf: erst ein neuer Probelauf, dann ablegen.
+        status: 'entwurf',
+        erstellt: alt?.erstellt ?? new Date().toISOString(),
+        ablage: { ...(alt?.ablage || {}), meineWorkflows: true, taskleiste: k.taskleiste === undefined ? !!alt?.ablage?.taskleiste : !!k.taskleiste },
+      });
+      return { app, probeOk: false };
+    }
+    if (weg === 'ablegen') {
+      const app = ablage.lesen(idPruefen(k.id));
+      const spaeter = app.schritte.find((s) => !baustein(s.baustein));
+      if (spaeter) throw new Fehler(409, `„${folgt(spaeter.baustein)?.titel || spaeter.baustein}“ kommt erst in Phase ${folgt(spaeter.baustein)?.phase || '?'}`);
+      if (!streckeVollstaendig(app.schritte)) throw new Fehler(409, 'Die Strecke braucht vorne eine Quelle und hinten ein Ziel');
+      if (!probeBestanden(ablage, app)) throw new Fehler(409, 'Erst ein Probelauf, der klappt, dann ablegen');
+      if (k.kategorie !== undefined) app.kategorie = kategoriePruefen(k.kategorie);
+      app.status = 'aktiv';
+      app.ablage = { ...app.ablage, meineWorkflows: true, taskleiste: !!k.taskleiste };
+      const fertig = ablage.schreiben(app);
+      if (audit) {
+        audit({
+          action_type: 'workflow_abgelegt',
+          action_description: `App ${fertig.id} abgelegt`,
+          resource: `eigene_workflows/${ablage.konto}/${fertig.id}`,
+          outcome: 'success', actor_type: 'user', actor_id: ablage.konto,
+          metadata: { app: fertig.id, schritte: fertig.schritte.length, taskleiste: fertig.ablage.taskleiste },
+        });
+      }
+      return { app: fertig };
     }
     if (weg === 'kategorie') {
       const app = ablage.lesen(idPruefen(k.id));
@@ -215,9 +314,9 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
     try {
       if (url.pathname !== PFAD && !url.pathname.startsWith(`${PFAD}/`)) throw new Fehler(404, 'Unbekannt');
       const rest = url.pathname.slice(PFAD.length).replace(/^\/+/, '');
-      if (rest === '' || rest === 'index.html') {
+      if (Object.hasOwn(SEITEN, rest)) {
         if (req.method !== 'GET') throw new Fehler(405, 'Nur GET');
-        return senden(res, 200, 'text/html; charset=utf-8', readFileSync(join(HIER, 'seite', 'index.html')), { 'content-security-policy': SEITEN_CSP });
+        return senden(res, 200, 'text/html; charset=utf-8', readFileSync(join(HIER, 'seite', SEITEN[rest])), { 'content-security-policy': SEITEN_CSP });
       }
       if (rest.startsWith('seite/')) {
         const datei = rest.slice(6);
