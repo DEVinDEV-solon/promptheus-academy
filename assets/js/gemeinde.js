@@ -168,7 +168,7 @@ PU.gemeindeFilm = function () {
   if (kasten) kasten.classList.add('film-flaeche');
   flaeche.classList.add('film-inhalt');
 
-  const poster = 'assets/img/community-film.jpg';
+  const poster = 'assets/img/community/community-film.jpg';
   const hinweis = PU.el('p', 'klein gemeinde-film-hinweis',
     'Ein Rundgang durch Community und Bibliothek, rund zwei Minuten, mit Musik.');
   const v = PU.el('video', 'gemeinde-film');

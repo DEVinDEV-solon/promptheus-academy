@@ -262,12 +262,12 @@ $webseite = 'https://promptheus-academy.de/';
            pulsierend. Ohne Ton, läuft von selbst. -->
       <figure class="lp-video-rahmen">
         <video class="lp-video" loop muted autoplay playsinline
-               preload="metadata" poster="<?= pu_v('assets/img/community.jpg') ?>">
+               preload="metadata" poster="<?= pu_v('assets/img/community/community.jpg') ?>">
           <source src="<?= pu_v('assets/video/methode-prometheus.mp4') ?>" type="video/mp4">
         </video>
       </figure>
       <?php else: ?>
-      <div class="lp-wisch" style="background-image:url('<?= pu_v('assets/img/community.jpg') ?>')">
+      <div class="lp-wisch" style="background-image:url('<?= pu_v('assets/img/community/community.jpg') ?>')">
         <span class="lp-wisch-schrift">Du baust, statt zuzusehen.</span>
       </div>
       <?php endif; ?>
@@ -385,7 +385,7 @@ $webseite = 'https://promptheus-academy.de/';
   <section class="lp-community lp-sektion" id="community" aria-label="Community">
     <div class="lp-mitte">
       <div class="lp-community-karte lp-auf"
-           style="background-image:url('<?= pu_v('assets/img/community.jpg') ?>')">
+           style="background-image:url('<?= pu_v('assets/img/community/community.jpg') ?>')">
         <div class="lp-community-inhalt">
           <p class="lp-kicker">Community · aus der Werkstatt</p>
           <h2>Die Werkbank der Schulen.</h2>

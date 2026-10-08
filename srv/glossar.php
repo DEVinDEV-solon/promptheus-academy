@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * PROMPTHEUS — das Glossar: Begriffe lesen, im Text verlinken, Fragen stellen.
  *
- * Die Begriffe liegen als OKF-Notizen in `secondbrain/90_Bibliothek/Glossar/`,
+ * Die Begriffe liegen als OKF-Notizen in `secondbrain/70_Bibliothek/Glossar/`,
  * eine Datei je Begriff. Das ist der Grund, warum es diese Datei gibt: Die
  * verwandten Schlagworte, die im Programm neben der Erklärung stehen, sind die
  * **Wikilinks der Notiz**. Sie kommen aus der Verbindung selbst und nicht aus
@@ -29,7 +29,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/brain.php';   // pu_md
 require_once __DIR__ . '/kurse.php';   // pu_frontmatter, pu_ohne_erste_h1
 
-const PU_GLOSSAR_ORDNER = 'secondbrain/90_Bibliothek/Glossar';
+const PU_GLOSSAR_ORDNER = 'secondbrain/70_Bibliothek/Glossar';
 
 /** Kürzestes Wort, das noch verlinkt wird. Kürzeres trifft zu oft daneben. */
 const PU_GLOSSAR_MINDESTLAENGE = 3;

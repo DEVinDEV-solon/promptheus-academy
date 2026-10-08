@@ -3,7 +3,7 @@
 Die Community-Seite (`assets/js/gemeinde.js`, `PU.gemeindeFilm`) hat in der
 Titelzeile rechts den Knopf „Film ansehen“. Er öffnet ein grosses Fenster mit
 diesem Film. Das Standbild dazu liegt im Programm
-(`assets/img/community-film.jpg`), der Film kommt wie alle Aufnahmen mit dem
+(`assets/img/community/community-film.jpg`), der Film kommt wie alle Aufnahmen mit dem
 Medienpaket (`werkzeuge/medien_paket_bauen.php`). Fehlt der Film, zeigt das
 Fenster das Standbild.
 

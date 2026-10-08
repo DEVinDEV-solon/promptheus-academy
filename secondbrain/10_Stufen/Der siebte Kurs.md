@@ -59,7 +59,7 @@ Reklame.
 
 Acht Felder, in dieser Reihenfolge. Sie sind dieselben, nach denen die Academy
 ihre eigene Marke beschrieben hat — das Musterstück liegt in der Bibliothek
-unter [[90_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]].
+unter [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]].
 
 | Feld | Die Frage |
 |---|---|
@@ -129,4 +129,4 @@ der Academy Konkurrenz macht (siehe [../../LIZENZ.md](../../LIZENZ.md)).
 - [[000_Academy/Leitbild|Leitbild]] — warum die Academy nichts erfindet
 - [[10_Stufen/_index|Die sechs Stufen]] — was vorher kommt
 - [[20_Domaenen/_index|Fachkurse]] — die Kurse daneben
-- [[90_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — das Musterstück
+- [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — das Musterstück

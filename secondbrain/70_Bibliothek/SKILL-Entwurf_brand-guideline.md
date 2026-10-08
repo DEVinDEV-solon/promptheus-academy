@@ -1,7 +1,7 @@
 # Skill-Entwurf: brand-guideline
 
 > Quelle: SecondBrain 10_Stufen / „Der 7. Kurs" (6 Lektionen) +
-> Musterstück `90_Bibliothek/Brand-Guideline.md`.
+> Musterstück `70_Bibliothek/Brand-Guideline.md`.
 > Zweck: Ein Agent soll für **Kursteilnehmer** eine vollständige,
 > einsatzfähige Brand-Guideline erarbeiten — nach exakt der Methodik des
 > Kurses. Nicht für PROMPTHEUS selbst; die Marke der Academy ist nur
