@@ -258,6 +258,7 @@ try {
   pruefe('Unbrauchbare Antwort: 502 mit Satz', (await kiPost({ modus: 'fragen', vorlage: 'ki-news', frage: 'fokus', wunsch: 'x' })).status === 502);
   kiAntwort = new Fehler(451, 'Die Schutzschicht hat die Frage angehalten');
   pruefe('Sperre der Schutzschicht kommt als 451 an', (await kiPost({ modus: 'fragen', vorlage: 'ki-news', frage: 'fokus', wunsch: 'x' })).status === 451);
+  pruefe('Audit nennt das Modell im eigenen Feld', kiAudits.some((a) => a.outcome === 'success' && a.model === 'test/modell') && kiAudits.some((a) => a.outcome === 'error' && a.severity === 'warning'));
   pruefe('Audit nennt Modus und Zahlen, nie den Text', kiAudits.length >= 5 && kiAudits.every((a) => a.action_type === 'workflow_ki_hilfe') && !JSON.stringify(kiAudits).includes('iPhone') && !JSON.stringify(kiAudits).includes('Mittag'));
   pruefe('Ohne Same-Origin: 403', (await fetch(`${kiBasis}/api/ki`, { method: 'POST', headers: { 'sec-fetch-site': 'cross-site' }, body: '{}' })).status === 403);
   kiServer.close();
