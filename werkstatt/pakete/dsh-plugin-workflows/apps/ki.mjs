@@ -50,7 +50,8 @@ export function modellErmitteln(env = process.env) {
   return MODELL_VORGABE;
 }
 
-const SYSTEM = [
+/** Die Rolle des Modells; gilt für jeden Weg (Schutzschicht und Abo-Programme). */
+export const SYSTEM = [
   'Du bist Hephaistos, der Werkstattleiter der PROMPTHEUS-Werkstatt.',
   'Du hilfst Menschen ohne Programmierkenntnisse, eine kleine Automation (eine „App“) einzurichten.',
   'Du schreibst kurz, freundlich und konkret, auf Deutsch, in der du-Form, ohne Ausrufezeichen.',
