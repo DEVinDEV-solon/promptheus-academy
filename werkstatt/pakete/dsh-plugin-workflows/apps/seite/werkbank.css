@@ -1,0 +1,196 @@
+/* Workflow-Werkbank — PROMPTHEUS Werkstatt (Masterplan Workflow-Modalseite, 4 und 4.6).
+   Baut auf app.css auf (Tokens, Knöpfe, Felder). Nur var(--…), keine rohen Farben.
+   Glut heisst „hier geht es weiter“ (Pfeil, jetziger Schritt, gewählte Kachel),
+   Gold heisst „geschafft“ (erledigte Schritte, voller Ring) — Brand/BRAND.md §1. */
+
+.werkbank { display: flex; flex-direction: column; height: 100%; }
+
+/* ---------- Kopf und Schrittleiste ---------- */
+.wb-kopf { padding: 12px 18px 10px; border-bottom: 1px solid var(--rand); background: var(--grund-2); }
+.wb-kopf-zeile { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wb-kopf h1 { margin: 0; font: 600 20px/1.25 var(--serife); flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-marke { width: 20px; height: 20px; color: var(--glut); }
+.wb-kopf-rechts { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.schrittleiste { margin-top: 12px; }
+.schrittleiste ol { list-style: none; margin: 0; padding: 0; display: flex; }
+.schrittleiste li { position: relative; flex: 1 1 0; min-width: 0; }
+.schrittleiste li + li::before { content: ''; position: absolute; top: 14px; right: 50%; width: 100%; height: 2px; background: var(--rand); }
+.schrittleiste li.ls-ok::before, .schrittleiste li.ls-jetzt::before, .schrittleiste li.ls-ueber::before { background: var(--rand-hell); }
+.schrittleiste button { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 0 2px; border: 0; background: transparent; cursor: pointer; }
+.schrittleiste button:disabled { cursor: not-allowed; }
+.ls-nr { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--rand-hell); background: var(--grund-2); font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--schrift-2); }
+.ls-wort { font-size: 11.5px; color: var(--schrift-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ls-jetzt .ls-nr { border-color: var(--glut); background: var(--glut); color: var(--grund); }
+.ls-jetzt .ls-wort { color: var(--schrift); font-weight: 600; }
+.ls-ok .ls-nr { border-color: var(--gold); color: var(--gold); }
+.ls-ok .ls-wort { color: var(--schrift-2); }
+.ls-fehlt .ls-nr { border-color: var(--schlecht); color: var(--schlecht); }
+.ls-ueber .ls-nr { border-style: dashed; }
+.schrittleiste button:not(:disabled):hover .ls-nr { border-color: var(--glut-hell); }
+.schrittleiste button:disabled .ls-nr, .schrittleiste button:disabled .ls-wort { opacity: .55; }
+
+/* ---------- Körper ---------- */
+.wb-koerper { flex: 1; display: flex; min-height: 0; }
+.wb-haupt { flex: 1; min-width: 0; overflow-y: auto; padding: 22px 26px 48px; outline: none; }
+.wb-stand { flex: none; width: 250px; border-left: 1px solid var(--rand); background: var(--grund-2); padding: 18px 14px; overflow-y: auto; }
+
+.abschnitt { max-width: 860px; }
+.wb-haupt .abschnitt:not(.einzeln) { padding-bottom: 30px; margin-bottom: 26px; border-bottom: 1px solid var(--rand); }
+.wb-haupt .abschnitt:not(.einzeln):last-child { border-bottom: 0; }
+.schritt-kopf { margin-bottom: 36px; }
+.schritt-zahl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--schrift-3); }
+.schritt-kopf h2 { margin: 4px 0 4px; font: 600 1.45rem/1.25 var(--serife); outline: none; }
+.schritt-unter { margin: 0; color: var(--schrift-2); max-width: 640px; }
+.abschnitt > .hinweis-zeile { margin-bottom: 14px; max-width: 640px; }
+
+/* ---------- Kacheln ---------- */
+.kacheln { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 12px; }
+.kachel { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 132px; padding: 14px 14px 12px; border: 1px solid var(--rand); border-radius: 10px; background: var(--grund-2); text-align: left; cursor: pointer; transition: border-color .12s, transform .12s; }
+.kachel:hover { border-color: var(--rand-hell); transform: translateY(-1px); }
+.kachel-ico { width: 28px; height: 28px; color: var(--schrift-2); margin-bottom: 2px; }
+.kachel-titel { font-weight: 600; font-size: 14px; line-height: 1.3; padding-right: 18px; }
+.kachel-kurz { font-size: 12px; line-height: 1.4; color: var(--schrift-3); }
+.kachel.gewaehlt { border-color: var(--glut); box-shadow: inset 0 0 0 1px var(--glut); }
+.kachel.gewaehlt .kachel-ico { color: var(--glut); }
+.kachel.gesperrt { opacity: .5; cursor: help; }
+.kachel.gesperrt:hover { transform: none; }
+.kachel-ecke { position: absolute; top: 9px; right: 10px; font-size: 13px; line-height: 1; }
+.ecke-ok { color: var(--gold); font-weight: 700; }
+.ecke-fehlt { color: var(--schlecht); font-weight: 700; }
+.ecke-schloss { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; color: var(--warn); }
+.ecke-schloss .ico { width: 12px; height: 12px; }
+
+/* ---------- Einstellungen unter der gewählten Kachel ---------- */
+.einstellungen { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--rand); border-left: 3px solid var(--glut); border-radius: 10px; background: var(--grund-2); }
+.einst-titel { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-weight: 600; }
+.einst-titel .ico { color: var(--glut); }
+.einst-hinweis { display: flex; align-items: flex-start; gap: 6px; margin: 12px 0 0; color: var(--schrift-3); font-size: 12px; }
+.einst-hinweis:first-child { margin-top: 0; }
+.einst-hinweis.warn { color: var(--warn); }
+.einst-hinweis.daten { color: var(--schrift-2); }
+.einst-hinweis .ico { width: 14px; height: 14px; margin-top: 1px; color: var(--lapis); }
+.einstellungen .felder { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.einstellungen[data-regel] { display: flex; gap: 12px 16px; flex-wrap: wrap; align-items: flex-end; }
+.einstellungen[data-regel] .einst-hinweis { flex-basis: 100%; }
+.feld.breit { grid-column: 1 / -1; }
+.feld > span { display: flex; align-items: center; gap: 4px; }
+.felder-block { display: flex; flex-direction: column; gap: 16px; max-width: 640px; }
+.feld.gross > span { font-size: 13px; color: var(--schrift); }
+.feld.gross input, .feld.gross textarea { font-size: 15px; padding: 9px 11px; }
+textarea { resize: vertical; }
+.pflicht, .frei { font-style: normal; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; margin-left: 4px; }
+.pflicht { color: var(--warn); }
+.frei { color: var(--schrift-3); }
+.info { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--schrift-3); cursor: help; }
+.info:hover, .info:focus-visible { color: var(--lapis); }
+.info .ico { width: 15px; height: 15px; }
+
+/* ---------- Tooltip ---------- */
+.tip { position: fixed; z-index: 70; max-width: 300px; display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; background: var(--grund-3); border: 1px solid var(--rand-hell); border-radius: 10px; box-shadow: var(--schatten); font-size: 12.5px; line-height: 1.45; pointer-events: none; }
+.tip b { font-weight: 600; }
+.tip-zeile { color: var(--schrift-2); }
+.tip-daten { padding-left: 8px; border-left: 2px solid var(--lapis); }
+.tip-warn { color: var(--warn); }
+
+/* ---------- Der wippende Pfeil ---------- */
+.pfeil { position: fixed; z-index: 65; display: none; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; transform: translate(-50%, -100%); animation: wippen 1.2s ease-in-out infinite; }
+.pfeil.an { display: flex; }
+.pfeil-wort { padding: 2px 8px; border-radius: 6px; background: var(--glut); color: var(--grund); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pfeil-spitze { width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 12px solid var(--glut); }
+.pfeil.unten { flex-direction: column-reverse; transform: translate(-50%, 0); animation-name: wippen-unten; }
+.pfeil.unten .pfeil-spitze { border-top: 0; border-bottom: 12px solid var(--glut); }
+@keyframes wippen { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+@keyframes wippen-unten { 0%, 100% { translate: 0 0; } 50% { translate: 0 7px; } }
+
+/* ---------- Rechte Spalte: Ring und Checkliste (4.4) ---------- */
+.ring { position: relative; width: 148px; margin: 0 auto 14px; }
+.ring svg { display: block; width: 100%; height: auto; }
+.ring-grund { fill: none; stroke: var(--grund-3); stroke-width: 9; }
+.ring-wert { fill: none; stroke: url(#ringVerlauf); stroke-width: 9; stroke-linecap: round; transition: stroke-dasharray .4s ease; }
+.ring-wert.null { opacity: 0; }
+.rv-a { stop-color: var(--glut); }
+.rv-b { stop-color: var(--gold); }
+.ring.voll .rv-a { stop-color: var(--gold); }
+.ring-zahl { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-zahl b { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ring-zahl small { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--schrift-3); }
+.balken { display: none; }
+.checkliste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.checkliste button { display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }
+.checkliste button:hover:not(:disabled) { background: var(--grund-3); }
+.checkliste button:disabled { cursor: default; }
+.checkliste button.jetzt { background: var(--grund-3); box-shadow: inset 3px 0 0 var(--glut); }
+.st-zeichen { font-weight: 700; text-align: center; }
+.st-ok .st-zeichen { color: var(--gold); }
+.st-fehlt .st-zeichen { color: var(--schlecht); }
+.st-frei .st-zeichen { color: var(--schrift-3); }
+.st-zustand { font-size: 11px; color: var(--schrift-3); }
+.st-fuss { margin: 14px 0 0; text-align: center; color: var(--schrift-2); font-size: 12px; }
+
+/* ---------- Fuss ---------- */
+.wb-fuss { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--rand); background: var(--grund-2); }
+.wb-fehlt { flex: 1; text-align: right; color: var(--schrift-3); font-size: 12px; }
+.knopf.gross { height: 40px; padding: 0 18px; font-size: 14px; }
+.knopf .ico + span, .knopf > .ico:last-child { margin-left: 2px; }
+
+/* ---------- Startseite ---------- */
+.start { max-width: 920px; }
+.start h2 { margin: 0 0 6px; font: 600 1.6rem/1.25 var(--serife); }
+.start-unter { margin: 0 0 34px; max-width: 640px; color: var(--schrift-2); }
+.start-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.start-karte { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 140px; padding: 16px; border: 1px solid var(--rand); border-radius: 10px; background: var(--grund-2); text-align: left; cursor: pointer; transition: border-color .12s, transform .12s; }
+.start-karte:hover { border-color: var(--rand-hell); transform: translateY(-1px); }
+.start-karte .ico { width: 28px; height: 28px; color: var(--schrift-2); }
+.start-karte b { font-size: 14.5px; }
+.start-karte span:not(.ico) { color: var(--schrift-3); font-size: 12px; }
+.start-karte em { margin-top: auto; }
+.start-karte.neu { border-color: var(--glut); }
+.start-karte.neu .ico { color: var(--glut); }
+.start-h3 { margin: 26px 0 10px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--schrift-3); font-weight: 600; }
+.start-weiter { display: flex; gap: 8px; flex-wrap: wrap; }
+.start-alt { margin-top: 30px; color: var(--schrift-3); font-size: 12px; }
+.verweis { padding: 0; border: 0; background: none; color: var(--glut); text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* ---------- Probe und Ablegen ---------- */
+.probe .strecke-kurz { margin-bottom: 36px; }
+/* Platz über den Knöpfen, auf die der Pfeil zeigt: er soll nie Text verdecken. */
+.probe > p, .ablegen > p { margin: 34px 0 0; }
+.probe-ok, .probe-fehler { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--grund-2); border: 1px solid var(--rand); }
+.probe-ok { border-left: 3px solid var(--gut); }
+.probe-ok b { color: var(--gut); }
+.probe-fehler { border-left: 3px solid var(--schlecht); }
+.probe-fehler b { color: var(--schlecht); }
+.probe-ausgabe { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--rand); border-radius: 10px; background: var(--grund-2); max-height: 380px; overflow: auto; }
+.ablegen .felder { margin: 16px 0; max-width: 420px; grid-template-columns: 1fr; }
+
+/* ---------- Fertig ---------- */
+.fertig { max-width: 560px; margin: 8vh auto 0; text-align: center; }
+.fertig-zeichen { width: 64px; height: 64px; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold); border-radius: 50%; color: var(--gold); font-size: 30px; font-weight: 700; }
+.fertig h2 { margin: 0 0 8px; font: 600 1.45rem/1.3 var(--serife); }
+.fertig p { color: var(--schrift-2); }
+.fertig-knoepfe { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 38px; }
+
+/* ---------- Schmal: Ring wird Balken oben, Checkliste als Zeile ---------- */
+@media (max-width: 900px) {
+  .wb-koerper { flex-direction: column; }
+  .wb-stand { order: -1; width: auto; border-left: 0; border-bottom: 1px solid var(--rand); padding: 8px 14px; max-height: none; overflow: visible; }
+  .ring, .st-fuss { display: none; }
+  .balken { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .balken .bahn { flex: 1; height: 6px; border-radius: 3px; background: var(--grund-3); overflow: hidden; }
+  .balken i { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--glut), var(--gold)); }
+  .balken span { font-size: 11.5px; color: var(--schrift-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .checkliste { flex-direction: row; flex-wrap: wrap; gap: 2px 4px; }
+  .checkliste button { grid-template-columns: auto auto; padding: 3px 6px; }
+  .st-zustand { display: none; }
+  .ls-wort { font-size: 10px; }
+  .wb-haupt { padding: 16px 16px 40px; }
+}
+@media (max-width: 560px) {
+  .ls-wort { display: none; }
+  .wb-kopf-rechts .haken { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pfeil { animation: none; }
+  .kachel:hover, .start-karte:hover { transform: none; }
+}

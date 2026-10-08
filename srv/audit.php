@@ -64,6 +64,9 @@ const PU_AUDIT_QUELLEN = [
     'academy'       => 'Academy',
     'schutzschicht' => 'Schutzschicht',
     'werkstatt'     => 'Werkstatt-Sitzung',
+    // Läufe der eigenen Apps (Masterplan Workflow-Modalseite, 8 und 9.6): nur
+    // Kennung, Auslöser, Dauer, Ergebnis — nie Inhalte.
+    'workflow'      => 'Eigene Apps',
 ];
 
 // ═════════════════════════════════════════════════════════════════════════════
