@@ -6,7 +6,8 @@
  *   /promptheus-apps/werkbank         die Workflow-Werkbank (Phase B, Plan 4 und 4.6)
  *   /promptheus-apps/seite/<datei>    Skripte und Stile (feste Liste)
  *   /promptheus-apps/api/...          JSON
- *   /promptheus-apps/api/ki           „KI fragen“ (Plan 11.2), nur über die Schutzschicht
+ *   /promptheus-apps/api/ki           „KI fragen“ (Plan 11.2), mit dem gewählten Modell
+ *   /promptheus-apps/api/modelle      Modellwahl der Werkbank (Plan 7.4)
  *
  * Sicherheit: Die Werkstatt lässt nur mit ihrem Zugangs-Cookie hinein. Hier
  * kommt dazu: jede API-Anfrage nur von derselben Herkunft
@@ -26,6 +27,8 @@ import { abbildLesen, ausfuehren } from './laeufer.mjs';
 import { baustein, bedienfelder, einstellungenPruefen, folgt, katalog, kategorieVorschlag, ketteBruch, streckeVollstaendig } from './bausteine/index.mjs';
 import { GRUPPEN, VORLAGEN, fragenAufloesen, vorlage } from './vorlagen.mjs';
 import { anfrageBauen, antwortPruefen, bremse, schutzschichtKi } from './ki.mjs';
+import { CLI_MODELLE, DATENWEG, WAHL_RE, cliErkennung, istBetreiber, modelleSuchen, openrouterListe, wahlLesen, wahlName, wahlSchreiben, wahlZerlegen, werkstattModelle } from './modelle.mjs';
+import { cliKi } from './cli.mjs';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 export const PFAD = '/promptheus-apps';
@@ -154,11 +157,59 @@ function entwurfBauen(k) {
  * @param o.schutz - DPAPI-Ersatz für Prüfungen.
  * @param o.audit - Funktion für die Audit-Zeile.
  * @param o.sameOrigin - Prüfung der Herkunft (Prüfungen können sie ersetzen).
- * @param o.ki - Funktion (Nachricht) → { antwort, modell }; Vorgabe: über die Schutzschicht (Prüfungen setzen ein Fake-Modell ein).
+ * @param o.ki - Funktion (Nachricht, Wahl) → { antwort, modell }; ersetzt jeden Weg (Prüfungen setzen ein Fake-Modell ein).
+ * @param o.env - Umgebung (Modelle der Werkstatt, Betreiber, Programme).
+ * @param o.betreiber - () → bool; nur dann gibt es die Abo-Programme (Vorgabe: Ticket der Academy).
+ * @param o.erkennen - (neu) → Programme auf diesem Rechner (Vorgabe: cliErkennung).
+ * @param o.orListe - () → Modelle von OpenRouter (Vorgabe: über die Schutzschicht).
+ * @param o.cliFabrik - baut die Frage-Funktion eines Abo-Programms (Vorgabe: cliKi).
  */
-export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin', ki = null }) {
-  let kiFn = ki;
+export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin', ki = null, env = process.env, betreiber = () => istBetreiber(env), erkennen = null, orListe = null, cliFabrik = cliKi }) {
   const kiBremse = bremse();
+  const schutzWege = new Map();
+  let erkenner = erkennen;
+  let orHolen = orListe;
+  const programme = async (neu = false) => {
+    if (!betreiber()) return [];
+    if (!erkenner) erkenner = cliErkennung({ env });
+    return erkenner(neu);
+  };
+  const orModelle = () => { if (!orHolen) orHolen = openrouterListe(); return orHolen(); };
+
+  /** Die Wahl, die gerade gilt: ein Abo-Programm nur beim Betreiber und nur, wenn es angemeldet ist. */
+  async function wirksam(gespeichert) {
+    const z = wahlZerlegen(gespeichert, env);
+    if (z.weg !== 'cli') return { z, gefunden: null };
+    const p = (await programme()).find((x) => x.programm === z.programm);
+    if (!p || !p.gefunden || !p.angemeldet) return { z: wahlZerlegen('werkstatt', env), gefunden: null, zurueck: gespeichert };
+    return { z, gefunden: p };
+  }
+
+  /** Die Frage-Funktion zur Wahl. */
+  function frageWeg(w, kontoName) {
+    if (ki) return (text) => ki(text, w.z);
+    if (w.z.weg === 'cli') return cliFabrik({ wahl: w.z.wahl, programm: w.z.programm, ort: w.gefunden.ort, modell: w.z.modell, audit, konto: kontoName, env });
+    if (!schutzWege.has(w.z.modell)) schutzWege.set(w.z.modell, schutzschichtKi({ modell: w.z.modell }));
+    return schutzWege.get(w.z.modell);
+  }
+
+  /** Was die Seite über die Programme erfährt: nie ein Pfad. */
+  const programmFuerSeite = (p) => ({ programm: p.programm, gefunden: !!p.gefunden, kaputt: !!p.kaputt, fassung: p.fassung || '', angemeldet: !!p.angemeldet, art: p.art || '', modelle: CLI_MODELLE[p.programm] || [] });
+
+  async function modellStand(ablage, neu = false) {
+    const werkstattListe = werkstattModelle(env);
+    const cliListe = await programme(neu);
+    const w = await wirksam(wahlLesen(ablage.kontoDir));
+    const istB = betreiber();
+    return {
+      aktuell: w.z.wahl, name: wahlName(w.z.wahl, werkstattListe), weg: w.z.weg, programm: w.z.programm || null,
+      datenweg: DATENWEG[w.z.weg === 'cli' ? w.z.programm : 'schutz'],
+      zurueckgefallen: w.zurueck ? wahlName(w.zurueck) : null,
+      werkstatt: werkstattListe,
+      betreiber: istB,
+      cli: istB ? cliListe.map(programmFuerSeite) : [],
+    };
+  }
   const oeffnen = () => {
     const k = konto();
     return { ablage: ablageOeffnen(wurzel, k), tresor: tresorOeffnen(wurzel, k, schutz) };
@@ -239,8 +290,37 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
       return { abbild: abbildLesen({ ablage, tresor, id, stempel: stempelPruefen(q.get('stempel')) }) };
     }
 
+    if (weg === 'modelle' && !post) return modellStand(ablage, q.get('neu') === '1');
+    if (weg === 'modelle/openrouter' && !post) {
+      return { modelle: modelleSuchen(await orModelle(), String(q.get('q') || '')) };
+    }
+
     if (!post) throw new Fehler(404, 'Unbekannt');
     const k = await koerperLesen(req);
+    if (weg === 'modelle') {
+      const wahl = typeof k.modell === 'string' ? k.modell : '';
+      if (!WAHL_RE.test(wahl)) throw new Fehler(400, 'Diese Modellwahl gibt es nicht');
+      const z = wahlZerlegen(wahl, env);
+      if (z.weg === 'cli') {
+        if (!betreiber()) throw new Fehler(403, 'Programme auf diesem Rechner gibt es nur beim Betreiber');
+        const p = (await programme()).find((x) => x.programm === z.programm);
+        if (!p || !p.gefunden) throw new Fehler(409, 'Das Programm wurde auf diesem Rechner nicht gefunden');
+        if (!p.angemeldet) throw new Fehler(409, 'Das Programm ist nicht angemeldet. Melde dich im Terminal an und such dann neu');
+      } else if (wahl.startsWith('or:') && !werkstattModelle(env).some((m) => m.wahl === wahl)) {
+        const liste = await orModelle();
+        if (!liste.some((m) => m.wahl === wahl)) throw new Fehler(404, 'Dieses Modell gibt es bei OpenRouter nicht');
+      }
+      const vorher = wahlLesen(ablage.kontoDir);
+      wahlSchreiben(ablage.kontoDir, wahl);
+      // AI Act: Wechsel des Modells gehört in den Audit-Trail; Modell im eigenen Feld.
+      audit?.({
+        action_type: 'workflow_modell_gewaehlt', action_description: 'Modell der Werkbank gewählt',
+        resource: `eigene_workflows/${ablage.konto}`, outcome: 'success', actor_type: 'user', actor_id: ablage.konto,
+        model: z.weg === 'cli' ? wahl : z.modell, severity: 'info',
+        metadata: { vorher, wahl, weg: z.weg },
+      });
+      return modellStand(ablage);
+    }
     if (weg === 'ausfuehren') {
       const id = idPruefen(k.id);
       const aenderungen = Array.isArray(k.aenderungen) ? k.aenderungen.slice(0, 40).filter((a) => a && Number.isInteger(a.schritt) && typeof a.name === 'string' && ['string', 'number', 'boolean'].includes(typeof a.wert)).map((a) => ({ schritt: a.schritt, name: a.name.slice(0, 40), wert: typeof a.wert === 'string' ? a.wert.slice(0, 2000) : a.wert })) : [];
@@ -292,16 +372,18 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
     if (weg === 'ki') {
       const anfrage = anfrageBauen(k);
       kiBremse();
-      if (!kiFn) kiFn = schutzschichtKi();
-      const protokoll = (outcome, mehr = {}) => audit?.({
+      const kiFn = frageWeg(await wirksam(wahlLesen(ablage.kontoDir)), ablage.konto);
+      // AI Act: Modell im eigenen Feld, damit der Audit-Trail je Modell filterbar ist; nie ein Inhalt.
+      const protokoll = (outcome, mehr = {}, model = '') => audit?.({
         action_type: 'workflow_ki_hilfe', action_description: `KI-Hilfe in der Werkbank (${anfrage.modus})`,
-        resource: `eigene_workflows/${ablage.konto}`, outcome, actor_type: 'user', actor_id: ablage.konto,
+        resource: `eigene_workflows/${ablage.konto}`, outcome, actor_type: 'user', actor_id: ablage.konto, model,
+        severity: outcome === 'success' ? 'info' : 'warning',
         metadata: { modus: anfrage.modus, vorlage: typeof k.vorlage === 'string' ? k.vorlage.slice(0, 40) : null, zeichen: anfrage.wunsch.length, ...mehr },
       });
       try {
         const { antwort, modell } = await kiFn(anfrage.text);
         const ergebnis = antwortPruefen(anfrage, antwort);
-        protokoll('success', { modell });
+        protokoll('success', {}, modell);
         return { ...ergebnis, modell };
       } catch (f) {
         protokoll('error', { status: f instanceof Fehler ? f.status : 500 });
