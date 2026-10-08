@@ -8,6 +8,7 @@
  *   /promptheus-apps/api/...          JSON
  *   /promptheus-apps/api/ki           „KI fragen“ (Plan 11.2), mit dem gewählten Modell
  *   /promptheus-apps/api/modelle      Modellwahl der Werkbank (Plan 7.4)
+ *   /promptheus-apps/api/zeigen       Ablage oder Ergebnis im Explorer (wie Cinema Studio)
  *
  * Sicherheit: Die Werkstatt lässt nur mit ihrem Zugangs-Cookie hinein. Hier
  * kommt dazu: jede API-Anfrage nur von derselben Herkunft
@@ -18,7 +19,7 @@
  * @module @promptheus/dsh-plugin-workflows/apps/routen
  */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Fehler, KATEGORIEN, ablageOeffnen, idPruefen, kategoriePruefen, kontoErmitteln, stempelPruefen } from './ablage.mjs';
@@ -29,6 +30,7 @@ import { GRUPPEN, VORLAGEN, fragenAufloesen, vorlage } from './vorlagen.mjs';
 import { anfrageBauen, antwortPruefen, bremse, schutzschichtKi } from './ki.mjs';
 import { CLI_MODELLE, DATENWEG, WAHL_RE, cliErkennung, istBetreiber, modelleSuchen, openrouterListe, wahlLesen, wahlName, wahlSchreiben, wahlZerlegen, werkstattModelle } from './modelle.mjs';
 import { cliKi } from './cli.mjs';
+import { imExplorerZeigen } from './explorer.mjs';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 export const PFAD = '/promptheus-apps';
@@ -163,8 +165,9 @@ function entwurfBauen(k) {
  * @param o.erkennen - (neu) → Programme auf diesem Rechner (Vorgabe: cliErkennung).
  * @param o.orListe - () → Modelle von OpenRouter (Vorgabe: über die Schutzschicht).
  * @param o.cliFabrik - baut die Frage-Funktion eines Abo-Programms (Vorgabe: cliKi).
+ * @param o.zeigen - (pfad, markieren) → öffnet den Explorer (Prüfungen setzen eine Attrappe ein).
  */
-export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin', ki = null, env = process.env, betreiber = () => istBetreiber(env), erkennen = null, orListe = null, cliFabrik = cliKi }) {
+export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin', ki = null, env = process.env, betreiber = () => istBetreiber(env), erkennen = null, orListe = null, cliFabrik = cliKi, zeigen = imExplorerZeigen }) {
   const kiBremse = bremse();
   const schutzWege = new Map();
   let erkenner = erkennen;
@@ -408,6 +411,26 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
       const jetzt = new Date().toISOString();
       const app = ablage.schreiben({ schema: 1, ...structuredClone(v.app), kategorie: v.app.kategorie || kategorieVorschlag(v.app.schritte), erstellt: jetzt, ablage: { meineWorkflows: true } });
       return { app };
+    }
+    if (weg === 'zeigen') {
+      // Ohne App: der Ordner mit allen Apps des Kontos. Mit App: ihre Ergebnisse, sonst ihr Ordner.
+      // Mit Stempel: die Ergebnis-Datei dieses Laufs, im Ordner markiert. Pfade nur aus geprüften Kennungen.
+      let ordner = ablage.kontoDir;
+      let datei = null;
+      if (k.id !== undefined && k.id !== null) {
+        const app = ablage.lesen(idPruefen(k.id));
+        const dir = ablage.appDir(app.id);
+        const ergebnisse = join(dir, 'ergebnisse');
+        ordner = existsSync(ergebnisse) ? ergebnisse : dir;
+        if (k.stempel !== undefined && k.stempel !== null) {
+          const p = join(ergebnisse, `${stempelPruefen(k.stempel)}.md`);
+          if (!existsSync(p)) throw new Fehler(404, 'Die Ergebnis-Datei dieses Laufs gibt es nicht mehr');
+          datei = p;
+        }
+      }
+      mkdirSync(ordner, { recursive: true });
+      zeigen(datei || ordner, !!datei);
+      return { ok: true, pfad: datei || ordner };
     }
     if (weg === 'loeschen') {
       ablage.wegwerfen(idPruefen(k.id));

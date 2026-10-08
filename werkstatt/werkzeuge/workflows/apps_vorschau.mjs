@@ -118,7 +118,9 @@ async function kiBeispiel(text) {
     : 'Neue KI-Werkzeuge für den Unterricht, mit Quelle, ohne Werbung' } };
 }
 
-const handler = appsHandler({ werkstatt: werkstattFuerBausteine, wurzel, konto: () => konto, schutz, ki: process.argv.includes('--ki-beispiel') ? kiBeispiel : null });
+const handler = appsHandler({ werkstatt: werkstattFuerBausteine, wurzel, konto: () => konto, schutz, ki: process.argv.includes('--ki-beispiel') ? kiBeispiel : null,
+  // Die Vorschau öffnet keinen echten Explorer; der Pfad steht im Log.
+  zeigen: (pfad, markieren) => console.log(`Explorer (Vorschau)${markieren ? ', markiert' : ''}: ${pfad}`) });
 createServer((req, res) => {
   const pfad = new URL(req.url, 'http://x').pathname;
   if (pfad === '/' ) { res.writeHead(302, { location: `${PFAD}/` }); return res.end(); }

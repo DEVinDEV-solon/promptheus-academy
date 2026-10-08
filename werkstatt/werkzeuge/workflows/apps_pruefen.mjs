@@ -406,6 +406,24 @@ try {
   const ax = aufrufe.at(-1);
   pruefe('Codex: Antwort aus der Ausgabedatei, schreibgeschützt, Rolle im stdin', cx.antwort.vorschlag === 'codex' && ax.a[0] === 'codex.js' && ax.a.includes('read-only') && ax.a.at(-1) === '-' && ax.o.eingabe.startsWith('Du bist Hephaistos'));
 
+  console.log('Ablage öffnen (wie Cinema Studio)');
+  const gezeigt = [];
+  const zHandler = appsHandler({ werkstatt, wurzel, konto: () => konto, schutz, zeigen: (p, m) => gezeigt.push({ p, m }) });
+  const zServer = createServer((q, r) => zHandler(q, r));
+  await new Promise((ja) => zServer.listen(0, '127.0.0.1', ja));
+  const zPost = (k, kopf = { 'sec-fetch-site': 'same-origin' }) => fetch(`http://127.0.0.1:${zServer.address().port}/promptheus-apps/api/zeigen`, { method: 'POST', headers: { ...kopf, 'content-type': 'application/json' }, body: JSON.stringify(k) });
+  const z1 = await (await zPost({})).json();
+  pruefe('Ablage öffnen: Ordner des Kontos, nicht markiert', z1.pfad === join(wurzel, konto) && gezeigt.at(-1).p === join(wurzel, konto) && gezeigt.at(-1).m === false);
+  const z2 = await (await zPost({ id: 'pdf-sammler' })).json();
+  pruefe('App: ihr Ergebnis-Ordner', z2.pfad === join(wurzel, konto, 'pdf-sammler', 'ergebnisse'));
+  const stempelDatei = readdirSync(join(wurzel, konto, 'pdf-sammler', 'ergebnisse'))[0].replace(/\.md$/, '');
+  const z3 = await (await zPost({ id: 'pdf-sammler', stempel: stempelDatei })).json();
+  pruefe('Lauf: Datei im Ordner markiert', z3.pfad.endsWith(`${stempelDatei}.md`) && gezeigt.at(-1).m === true);
+  const nZ = gezeigt.length;
+  const zBoese = [await zPost({ id: '..\\..\\Windows' }), await zPost({ id: 'pdf-sammler', stempel: '..\\..\\x' }), await zPost({ id: 'gibt-es-nicht' }), await zPost({}, { 'sec-fetch-site': 'cross-site' })];
+  pruefe('Pfadangriffe, unbekannte App und fremde Herkunft öffnen nichts', zBoese.map((r) => r.status).join() === '400,400,404,403' && gezeigt.length === nZ);
+  zServer.close();
+
   const seite = readFileSync(new URL('../../pakete/dsh-plugin-workflows/apps/seite/werkbank.js', import.meta.url), 'utf8');
   pruefe('Werkbank: Hinweis zum Datenabfluss und einmalige Zustimmung', seite.includes('KI_DATEN') && seite.includes("'werkbank.kiOk'"));
   pruefe('Werkbank: keine Inline-Stile im HTML', !/style="/.test(seite));
