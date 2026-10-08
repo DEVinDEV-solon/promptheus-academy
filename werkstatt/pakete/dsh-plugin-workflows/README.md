@@ -49,6 +49,7 @@ unten oder in der Taskleiste.
 | Werkbank (Phase B) | `apps/seite/` (werkbank.html, werkbank.css, werkbank.js) |
 
 - **Ablage:** `werkstatt\eigene_workflows\<konto>\<app>\` (gitignored). Das Konto ist `l<nummer>` des zuletzt eingelassenen Lernenden, sonst `betreiber`.
+- **Direkt zur Ablage** (wie in Cinema Studio, `apps/explorer.mjs`): „Ablage öffnen“ oben in Meine Apps öffnet den Ordner des Kontos, „Im Ordner zeigen“ auf der App-Seite und im ⋯-Menü ihre `ergebnisse`, „Datei im Ordner zeigen“ markiert die Datei des letzten Laufs. Der Pfad steht danach im Hinweis. Von der Seite kommen nur Kennungen, nie ein Pfad; ohne Shell.
 - **Protokoll:** je Lauf eine Datei ohne Inhalte. Die Ausgabe liegt getrennt und verschlüsselt daneben und wird nach **30 Tagen** gelöscht (Entscheidung 07.10.2026).
 - **Audit:** jeder Lauf als Quelle `workflow` im Audit-Trail der Academy.
 - **Bausteine heute:** Ordner lesen (feste Ordner: Downloads, Dokumente, Desktop, Secondbrain-Import; nur Namen, Grösse, Datum), Dateien filtern, Tabelle, eigene Liste, Karte des Tages, Anzeige, Datei schreiben. Mail, KI-Zusammenfassung und Telegram folgen in Phase C.

@@ -139,6 +139,14 @@ $('#sortierung').value = U.sort;
 $('#sortierung').addEventListener('change', (ev) => { U.sort = ev.target.value; speicher.setz('sort', U.sort); uebersichtZeichnen(); });
 $('#leereZeigen').checked = U.leere;
 $('#leereZeigen').addEventListener('change', (ev) => { U.leere = ev.target.checked; speicher.setz('leere', U.leere); uebersichtZeichnen(); });
+/** Ablage oder Ergebnis im Explorer, wie in Cinema Studio; der Pfad steht danach im Hinweis. */
+async function ordnerZeigen(koerper = {}) {
+  try {
+    const r = await api('zeigen', koerper);
+    hinweis(`Im Explorer geöffnet: ${r.pfad}`);
+  } catch (e) { fehler(e); }
+}
+$('#ablageAuf').addEventListener('click', () => ordnerZeigen());
 $('#ausVorlage').addEventListener('click', () => vorlagenDialog());
 $('#neueApp').addEventListener('click', () => werkbank());
 /** Die Werkbank (Phase B) ist eine eigene Seite im selben Rahmen; von dort geht es mit #app=<id> zurück. */
@@ -171,6 +179,7 @@ function appMenue(anker, id) {
     { text: 'In der Werkbank bearbeiten', ico: 'werkzeug', tun: () => werkbank(id) },
     { text: 'Jetzt ausführen', ico: 'play', tun: () => ausfuehren(id, false) },
     { text: 'Probelauf', ico: 'probe', tun: () => ausfuehren(id, true) },
+    { text: 'Im Ordner zeigen', ico: 'ordner', tun: () => ordnerZeigen({ id }) },
     a.status === 'pausiert'
       ? { text: 'Fortsetzen', ico: 'play', tun: () => statusSetzen(id, 'aktiv') }
       : { text: 'Pausieren', ico: 'pause', tun: () => statusSetzen(id, 'pausiert') },
@@ -305,6 +314,7 @@ function appZeichnen() {
       <span class="plakette p-${esc(app.status)}">${esc(STATUS_WORT[app.status] || app.status)}</span>
       <span class="meta">${esc(ausloeserText(app.ausloeser))}${zustand.letzterLauf ? ` · zuletzt ${esc(zeitKurz(zustand.letzterLauf))}` : ''}</span>
       <div class="rechts">
+        <button type="button" class="knopf" data-ordner title="Ergebnisse und Einstellungen dieser App im Explorer öffnen"><span class="ico" data-i="ordner"></span>Im Ordner zeigen</button>
         <button type="button" class="knopf haupt" data-los ${bereit ? '' : 'disabled'}><span class="ico" data-i="play"></span>Jetzt ausführen</button>
         <button type="button" class="knopf rund" data-appmehr aria-label="Weitere Aktionen"><span class="ico" data-i="mehr"></span></button>
       </div>
@@ -323,7 +333,8 @@ function appZeichnen() {
           </div>
         </div></section>
         <section class="flaeche"><h3>Letztes Ergebnis ${letzter ? `<span class="rechts">${esc(zeit(letzter.start))} ${letzter.status === 'ok' ? '<span class="status-ok">✓</span>' : '<span class="status-fehler">✕</span>'}</span>` : ''}</h3>
-          <div class="flaeche-innen">${letzter ? ausgabeHtml(letzter.abbild) : '<p class="leise">Noch kein Lauf.</p>'}</div></section>
+          <div class="flaeche-innen">${letzter ? ausgabeHtml(letzter.abbild) : '<p class="leise">Noch kein Lauf.</p>'}
+            ${letzter?.abbild?.datei ? `<p><button type="button" class="knopf klein" data-ordner-lauf="${esc(letzter.stempel)}"><span class="ico" data-i="ordner"></span>Datei im Ordner zeigen</button></p>` : ''}</div></section>
         ${protokollHtml()}
       </div>
       ${seitenmenueHtml()}
@@ -336,6 +347,9 @@ $('#appSeite').addEventListener('click', async (ev) => {
   const t = ev.target;
   if (t.closest('[data-zurueck]')) return appSchliessen();
   if (t.closest('[data-appmehr]')) return appMenue(t.closest('[data-appmehr]'), U.app);
+  if (t.closest('[data-ordner]')) return ordnerZeigen({ id: U.app });
+  const ordnerLauf = t.closest('[data-ordner-lauf]');
+  if (ordnerLauf) return ordnerZeigen({ id: U.app, stempel: ordnerLauf.dataset.ordnerLauf });
   if (t.closest('[data-los]')) return ausfuehren(U.app, false, aenderungenLesen(), !!$('#merken')?.checked);
   if (t.closest('[data-probe]')) return ausfuehren(U.app, true, aenderungenLesen(), false);
   const blatt = t.closest('[data-blatt]');
