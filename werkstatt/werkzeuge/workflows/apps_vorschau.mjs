@@ -2,13 +2,15 @@
 /**
  * Vorschau von „Meine Apps“ ohne laufende Werkstatt.
  *
- *   node werkzeuge/workflows/apps_vorschau.mjs [--port 3095] [--beispiel]
+ *   node werkzeuge/workflows/apps_vorschau.mjs [--port 3095] [--beispiel] [--ki-beispiel]
  *
  * Startet denselben Handler wie die Werkstatt (`/promptheus-apps`) auf
  * 127.0.0.1, mit einer eigenen Ablage im Temp-Ordner — die echten eigenen Apps
  * bleiben unberührt. `--beispiel` legt die Vorlagen an und füllt das Protokoll
  * mit Läufen der letzten Tage, damit Übersicht, Tabelle und Seitenmenü etwas
  * zeigen. Der Tresor-Schlüssel ist in der Vorschau ein Prüfschlüssel, kein DPAPI.
+ * `--ki-beispiel` setzt für „KI fragen“ ein Schein-Modell mit festen Antworten
+ * ein; ohne den Schalter geht die Frage an die Schutzschicht auf 3089.
  */
 
 import { createServer } from 'node:http';
@@ -50,7 +52,7 @@ if (process.argv.includes('--beispiel')) {
   });
   const ablage = ablageOeffnen(wurzel, konto);
   const tresor = tresorOeffnen(wurzel, konto, schutz);
-  for (const v of VORLAGEN) {
+  for (const v of VORLAGEN.filter((x) => ['downloads-ueberblick', 'pdf-sammler', 'lernkarte', 'mail-tagesbriefing'].includes(x.vorlage))) {
     const app = structuredClone(v.app);
     for (const s of app.schritte) if (s.baustein === 'quelle/ordner') s.einstellungen.ordner = 'import';
     ablage.schreiben({ schema: 1, ...app, erstellt: new Date(Date.now() - 9 * 86400000).toISOString() });
@@ -73,7 +75,50 @@ if (process.argv.includes('--beispiel')) {
   }
 }
 
-const handler = appsHandler({ werkstatt: werkstattFuerBausteine, wurzel, konto: () => konto, schutz });
+/** Schein-Modell für die Vorschau: denkt nicht, antwortet fest, damit die Oberfläche etwas zeigt. */
+async function kiBeispiel(text) {
+  await new Promise((r) => setTimeout(r, 700));
+  if (text.includes('"treffer"')) {
+    return { modell: 'beispiel', antwort: { treffer: [
+      { vorlage: 'ki-news', warum: 'Holt täglich KI-Nachrichten und schickt sie zur Wunschzeit an Telegram; Uhrzeit und Gruppen-Thema stellst du im Fragebogen ein.' },
+      { vorlage: 'themen-woche', warum: 'Wenn dir einmal pro Woche reicht: dieselben Quellen als Rückblick in einer Datei.' },
+    ], hinweis: 'Beide Vorlagen brauchen Bausteine aus Phase C und G; du kannst sie schon einrichten.' } };
+  }
+  if (text.includes('"rueckfragen"')) {
+    const ebay = text.includes('eBay');
+    return { modell: 'beispiel', antwort: ebay ? {
+      rueckfragen: [
+        { frage: 'Wofür brauchst du das Gerät vor allem?', optionen: ['Alltag', 'Fotos', 'Spiele', 'als Zweitgerät'] },
+        { frage: 'Wie wichtig ist dir der Akku?', optionen: ['sehr wichtig', 'egal, tausche ich', 'mittel'] },
+        { frage: 'Welche Farbe?', optionen: ['egal', 'schwarz', 'weiss', 'blau'] },
+      ],
+      beachten: [
+        'Akkuzustand mindestens 85 % (in den Einstellungen ablesbar)',
+        'Keine iCloud-Sperre: „Mein iPhone suchen“ muss deaktiviert sein',
+        'Kein Displaytausch mit Fremdteil (Meldung „Unbekanntes Teil“)',
+        'Original-Rechnung oder Kaufbeleg vorhanden',
+        'Netzbetreiber-Sperre (SIM-Lock) ausgeschlossen',
+      ],
+      hinweis: 'Bei gebrauchten Smartphones entscheiden Akku und Sperren mehr als der Preis.',
+    } : {
+      rueckfragen: [
+        { frage: 'Für wen sind die Neuigkeiten?', optionen: ['nur für mich', 'für mein Team', 'für den Unterricht'] },
+        { frage: 'Wie tief soll es gehen?', optionen: ['Überblick', 'Fachlich', 'Nur Werkzeuge'] },
+      ],
+      beachten: [
+        'Nur Meldungen der letzten 24 Stunden, keine Wiederholungen',
+        'Werbung und Gewinnspiele weglassen',
+        'Je Meldung die Quelle nennen',
+      ],
+      hinweis: 'Ein klarer Blickwinkel macht die Auswahl besser als viele Stichworte.',
+    } };
+  }
+  return { modell: 'beispiel', antwort: { vorschlag: text.includes('Je Zeile ein Punkt')
+    ? ['Akkuzustand mindestens 85 %', 'Keine iCloud-Sperre', 'Kein Displaytausch mit Fremdteil', 'Mit Rechnung'].join('\n')
+    : 'Neue KI-Werkzeuge für den Unterricht, mit Quelle, ohne Werbung' } };
+}
+
+const handler = appsHandler({ werkstatt: werkstattFuerBausteine, wurzel, konto: () => konto, schutz, ki: process.argv.includes('--ki-beispiel') ? kiBeispiel : null });
 createServer((req, res) => {
   const pfad = new URL(req.url, 'http://x').pathname;
   if (pfad === '/' ) { res.writeHead(302, { location: `${PFAD}/` }); return res.end(); }

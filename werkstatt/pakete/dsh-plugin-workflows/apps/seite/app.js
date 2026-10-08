@@ -192,19 +192,8 @@ function dialog(html, beimOeffnen) {
   return zu;
 }
 
-function vorlagenDialog() {
-  const v = U.daten?.vorlagen || [];
-  dialog(`<h2>Aus Vorlage</h2><p class="unter">Eine Vorlage legt eine fertige App an. Du kannst sie danach auf ihrer Seite anpassen.</p>
-    <div class="vorlagen">${v.map((x) => `<div class="vorlage"><div class="zeile">${esc(x.titel)}</div><p>${esc(x.text)}</p>
-      <button type="button" class="knopf klein ${x.vorhanden ? '' : 'haupt'}" data-vorlage="${esc(x.vorlage)}" ${x.vorhanden ? 'disabled' : ''}>${x.vorhanden ? 'Schon angelegt' : 'Anlegen'}</button></div>`).join('')}</div>
-    <div class="dialog-fuss"><button type="button" class="knopf" data-zu>Schliessen</button></div>`, (d, zu) => {
-    d.addEventListener('click', async (ev) => {
-      const b = ev.target.closest('[data-vorlage]'); if (!b || b.disabled) return;
-      b.disabled = true;
-      try { const r = await api('vorlage', { vorlage: b.dataset.vorlage }); zu(); hinweis(`„${r.app.name}“ angelegt.`); await uebersichtLaden(); appOeffnen(r.app.id); } catch (e) { b.disabled = false; fehler(e); }
-    });
-  });
-}
+/** Vorlagen wählt man in der Werkbank: dort gibt es Zwecke, Suche, Fragebogen und „KI fragen“ (Plan 11.1). */
+function vorlagenDialog() { werkbank(); }
 
 async function ausfuehren(id, probe, aenderungen = [], merken = false) {
   hinweis(probe ? 'Probelauf läuft …' : 'Läuft …');
@@ -264,7 +253,7 @@ async function appNeuLaden() {
 
 function feldHtml(f, i) {
   const n = `f${i}`;
-  if (f.typ === 'wahl') return `<label class="feld"><span>${esc(f.titel)}</span><select id="${n}">${f.werte.map((w) => `<option value="${esc(w)}" ${w === f.wert ? 'selected' : ''}>${esc(WERT_WORT[w] || w)}</option>`).join('')}</select></label>`;
+  if (f.typ === 'wahl') return `<label class="feld"><span>${esc(f.titel)}</span><select id="${n}">${f.werte.map((w) => `<option value="${esc(w)}" ${w === f.wert ? 'selected' : ''}>${esc(f.worte?.[w] || WERT_WORT[w] || w)}</option>`).join('')}</select></label>`;
   if (f.typ === 'schalter') return `<label class="feld"><span>${esc(f.titel)}</span><span class="haken"><input type="checkbox" id="${n}" ${f.wert ? 'checked' : ''}> ${f.wert ? 'an' : 'aus'}</span></label>`;
   if (f.typ === 'zahl') return `<label class="feld"><span>${esc(f.titel)}</span><input type="number" id="${n}" value="${esc(f.wert)}" min="${esc(f.min ?? '')}" max="${esc(f.max ?? '')}"></label>`;
   if (f.typ === 'mehrzeilig') return `<label class="feld"><span>${esc(f.titel)}</span><textarea id="${n}" rows="4">${esc(f.wert)}</textarea></label>`;
