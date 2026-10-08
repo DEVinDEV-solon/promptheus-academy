@@ -72,6 +72,39 @@ Schritten mit je einer Frage in Alltagssprache: Ziel, Wann, Woher, Auswahl
 - Die bisherige Team-Beratung (Auftrag für den Chat) ist über einen Verweis auf der Startseite der Werkbank erreichbar, bis Phase E sie ersetzt.
 - **Vorschau:** wie oben, dann http://127.0.0.1:3095/promptheus-apps/werkbank
 
+## Vorlagen, Fragebogen und „KI fragen“ (seit 08.10.2026, Plan 11.1 und 11.2)
+
+Die Startseite der Werkbank fragt „Was möchtest du automatisieren?“. Man
+beschreibt es in eigenen Worten (die Vorlagen filtern sich beim Tippen) oder
+wählt nach Zweck: Nachrichten & Wissen, Einkaufen & Preise, Post & Mail,
+Lernen & Erinnern, Dateien & Ordner, Beobachten. 17 Vorlagen in
+`apps/vorlagen.mjs`; jede Karte sagt „Läuft sofort“ oder „Teile folgen · Phase …“.
+
+- **Fragebogen:** Eine Vorlage stellt zuerst ihre Fragen (`fragen` in der
+  Vorlage: Typ, Vorgabe, Ziel im Schritt oder Zeitplan, `wenn` für abhängige
+  Fragen). Die Antworten landen in der Strecke, dann geht es in der Werkbank
+  zum Probelauf.
+- **KI fragen:** An Angaben mit `ki: true` (Frage einer Vorlage oder Feld eines
+  Bausteins). Hephaistos stellt 2–4 Rückfragen zum Antippen und nennt, woran
+  man oft nicht denkt. „Daraus meine Angabe bauen“ formuliert die Angabe;
+  übernommen wird nur nach Klick. Auf der Startseite schlägt „KI fragen“ die
+  passenden Vorlagen vor.
+- **Weg und Daten:** `POST /promptheus-apps/api/ki` → `apps/ki.mjs` → nur über
+  die Schutzschicht (`PROMPTHEUS_SCHUTZ_URL`, Vorgabe 127.0.0.1:3089). Der
+  Prompt entsteht serverseitig aus Vorlage und Feld; der Nutzertext steht als
+  Daten in `<eingabe>`. Die Antwort wird gegen das erwartete JSON geprüft und
+  gekürzt. Vor der ersten Frage stimmt man einmal zu (Hinweis auf OpenRouter,
+  möglicherweise ausserhalb der EU). Audit `workflow_ki_hilfe` nur mit Modus
+  und Zahlen. Höchstens 20 Fragen in 5 Minuten.
+- **Modell:** `PROMPTHEUS_WORKFLOW_MODELL`, sonst das Standardmodell der
+  Werkstatt aus `$DSH_HOME/settings.yaml`, sonst `deepseek/deepseek-v4.1-flash`.
+- **Bausteine späterer Phasen** tragen schon ihre Felder (eBay, RSS, Webseite,
+  Mail-Auswahl, KI-Zusammenfassung, KI-Prüfung, Telegram mit Gruppen-Thema ab 18,
+  E-Mail an mich). Der Server prüft die Werte; die App bleibt Entwurf. In der
+  Werkbank halten solche Schritte nicht auf („… folgt“), Probelauf und Ablegen
+  bleiben zu.
+- **Vorschau mit Schein-Modell:** `apps_vorschau.mjs --beispiel --ki-beispiel`.
+
 ## Die Taskleiste
 
 Von links: Logo, `Agenten-Team` (öffnet das Fenster), `Mail` (öffnet den

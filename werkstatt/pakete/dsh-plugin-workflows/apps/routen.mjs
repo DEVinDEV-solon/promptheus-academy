@@ -6,6 +6,7 @@
  *   /promptheus-apps/werkbank         die Workflow-Werkbank (Phase B, Plan 4 und 4.6)
  *   /promptheus-apps/seite/<datei>    Skripte und Stile (feste Liste)
  *   /promptheus-apps/api/...          JSON
+ *   /promptheus-apps/api/ki           „KI fragen“ (Plan 11.2), nur über die Schutzschicht
  *
  * Sicherheit: Die Werkstatt lässt nur mit ihrem Zugangs-Cookie hinein. Hier
  * kommt dazu: jede API-Anfrage nur von derselben Herkunft
@@ -23,7 +24,8 @@ import { Fehler, KATEGORIEN, ablageOeffnen, idPruefen, kategoriePruefen, kontoEr
 import { tresorOeffnen } from './tresor.mjs';
 import { abbildLesen, ausfuehren } from './laeufer.mjs';
 import { baustein, bedienfelder, einstellungenPruefen, folgt, katalog, kategorieVorschlag, ketteBruch, streckeVollstaendig } from './bausteine/index.mjs';
-import { VORLAGEN, vorlage } from './vorlagen.mjs';
+import { GRUPPEN, VORLAGEN, fragenAufloesen, vorlage } from './vorlagen.mjs';
+import { anfrageBauen, antwortPruefen, bremse, schutzschichtKi } from './ki.mjs';
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 export const PFAD = '/promptheus-apps';
@@ -152,8 +154,11 @@ function entwurfBauen(k) {
  * @param o.schutz - DPAPI-Ersatz für Prüfungen.
  * @param o.audit - Funktion für die Audit-Zeile.
  * @param o.sameOrigin - Prüfung der Herkunft (Prüfungen können sie ersetzen).
+ * @param o.ki - Funktion (Nachricht) → { antwort, modell }; Vorgabe: über die Schutzschicht (Prüfungen setzen ein Fake-Modell ein).
  */
-export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin' }) {
+export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workflows'), konto = () => kontoErmitteln(dirname(werkstatt)), schutz = null, audit = null, sameOrigin = (req) => String(req.headers['sec-fetch-site'] || '') === 'same-origin', ki = null }) {
+  let kiFn = ki;
+  const kiBremse = bremse();
   const oeffnen = () => {
     const k = konto();
     return { ablage: ablageOeffnen(wurzel, k), tresor: tresorOeffnen(wurzel, k, schutz) };
@@ -219,7 +224,8 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
       return {
         bausteine: katalog(),
         kategorien: KATEGORIEN,
-        vorlagen: VORLAGEN.map((v) => ({ vorlage: v.vorlage, titel: v.titel, text: v.text, app: structuredClone(v.app) })),
+        gruppen: GRUPPEN,
+        vorlagen: VORLAGEN.map((v) => ({ vorlage: v.vorlage, titel: v.titel, text: v.text, gruppe: v.gruppe, fragen: fragenAufloesen(v), app: structuredClone(v.app) })),
         entwuerfe: ablage.liste().filter((a) => a.status === 'entwurf' && !a.ungueltig).map((a) => ({ id: a.id, name: a.name, icon: a.icon, geaendert: a.geaendert })),
       };
     }
@@ -282,6 +288,25 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
         });
       }
       return { app: fertig };
+    }
+    if (weg === 'ki') {
+      const anfrage = anfrageBauen(k);
+      kiBremse();
+      if (!kiFn) kiFn = schutzschichtKi();
+      const protokoll = (outcome, mehr = {}) => audit?.({
+        action_type: 'workflow_ki_hilfe', action_description: `KI-Hilfe in der Werkbank (${anfrage.modus})`,
+        resource: `eigene_workflows/${ablage.konto}`, outcome, actor_type: 'user', actor_id: ablage.konto,
+        metadata: { modus: anfrage.modus, vorlage: typeof k.vorlage === 'string' ? k.vorlage.slice(0, 40) : null, zeichen: anfrage.wunsch.length, ...mehr },
+      });
+      try {
+        const { antwort, modell } = await kiFn(anfrage.text);
+        const ergebnis = antwortPruefen(anfrage, antwort);
+        protokoll('success', { modell });
+        return { ...ergebnis, modell };
+      } catch (f) {
+        protokoll('error', { status: f instanceof Fehler ? f.status : 500 });
+        throw f;
+      }
     }
     if (weg === 'kategorie') {
       const app = ablage.lesen(idPruefen(k.id));
