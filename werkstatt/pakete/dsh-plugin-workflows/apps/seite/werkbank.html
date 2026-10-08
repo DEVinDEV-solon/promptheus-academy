@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow-Werkbank · PROMPTHEUS Werkstatt</title>
+<link rel="stylesheet" href="/promptheus-apps/seite/app.css">
+<link rel="stylesheet" href="/promptheus-apps/seite/werkbank.css">
+</head>
+<body>
+<div class="werkbank" id="werkbank">
+  <header class="wb-kopf">
+    <div class="wb-kopf-zeile">
+      <span class="ico wb-marke" data-i="werkzeug"></span>
+      <h1 id="wbTitel">Workflow-Werkbank</h1>
+      <span class="plakette p-entwurf" id="wbStand" hidden>Entwurf</span>
+      <div class="wb-kopf-rechts">
+        <label class="haken" title="Alle Schritte untereinander statt einzeln"><input type="checkbox" id="alleZeigen"> Alle Schritte auf einer Seite</label>
+        <button type="button" class="knopf" id="zuApps" title="Zurück zur Übersicht „Meine Apps“"><span class="ico" data-i="app"></span>Meine Apps</button>
+        <button type="button" class="knopf rund" id="zu" aria-label="Schliessen" title="Schliessen (Esc)"><span class="ico" data-i="x"></span></button>
+      </div>
+    </div>
+    <nav class="schrittleiste" id="schrittleiste" aria-label="Schritte" hidden></nav>
+  </header>
+
+  <div class="wb-koerper">
+    <main class="wb-haupt" id="haupt" tabindex="-1"></main>
+    <aside class="wb-stand" id="stand" aria-label="Stand der App" hidden></aside>
+  </div>
+
+  <footer class="wb-fuss" id="fuss" hidden>
+    <button type="button" class="knopf" id="zurueck"><span class="ico" data-i="zurueck"></span>Zurück</button>
+    <span class="wb-fehlt" id="fehlt" aria-live="polite"></span>
+    <button type="button" class="knopf" id="ueberspringen" hidden>Überspringen</button>
+    <button type="button" class="knopf haupt" id="weiter">Weiter<span class="ico" data-i="weiter"></span></button>
+  </footer>
+</div>
+
+<div class="pfeil" id="pfeil" aria-hidden="true"><span class="pfeil-wort"></span><span class="pfeil-spitze"></span></div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div id="hinweis" class="hinweis-toast" role="status" aria-live="polite"></div>
+<script src="/promptheus-apps/seite/grund.js"></script>
+<script src="/promptheus-apps/seite/werkbank.js"></script>
+</body>
+</html>

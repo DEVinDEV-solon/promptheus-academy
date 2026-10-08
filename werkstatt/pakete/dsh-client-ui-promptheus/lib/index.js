@@ -1,5 +1,5 @@
 // pakete/dsh-client-ui-promptheus/src/index.ts
-import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
+import { createReadStream, existsSync as existsSync2, readFileSync as readFileSync2, statSync } from "node:fs";
 import { dirname, join as join2 } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -334,6 +334,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 var PRODUKT_TITEL = "Werkstatt \u2014 Promptheus Academy";
 var FAVICON_PFAD = "/favicon.svg";
 var FAVICON_DUNKEL_PFAD = "/favicon-dark.svg";
+var STUNDENVIDEO_PFAD = "/promptheus-stundenvideo.mp4";
+var STUNDENVIDEO_RELATIV = ["assets", "video", "hero-kie.mp4"];
 var HINTERGRUND_PFAD = "/promptheus-hintergrund.jpg";
 var GEMEINDE_PFAD = "/promptheus-community";
 var SCHUTZ_PFAD = "/promptheus-schutz";
@@ -377,6 +379,10 @@ function markeLesen() {
   return roh === void 0 ? void 0 : roh.toString("utf8");
 }
 function dateiLesen(relativ) {
+  const pfad = dateiFinden(relativ);
+  return pfad === void 0 ? void 0 : readFileSync2(pfad);
+}
+function dateiFinden(relativ) {
   const hier = dirname(fileURLToPath(import.meta.url));
   const kandidaten = [
     join2(hier, "..", ".."),
@@ -389,7 +395,7 @@ function dateiLesen(relativ) {
   for (const basis of kandidaten) {
     for (const teil of [relativ, ["werkstatt", ...relativ]]) {
       const pfad = join2(basis, ...teil);
-      if (existsSync2(pfad)) return readFileSync2(pfad);
+      if (existsSync2(pfad)) return pfad;
     }
   }
   return void 0;
@@ -444,6 +450,14 @@ function apply(ctx) {
       path: `${SCHUTZ_PFAD}/${weg}`,
       handler: (req, res) => schutzWeiterreichen(req, res, `${schutz}/schutz/${weg}`)
     }), `promptheus: Schutz ${weg}`);
+  }
+  const video = dateiFinden(STUNDENVIDEO_RELATIV);
+  if (video !== void 0) {
+    ctx.effect(() => webServer.register({
+      kind: "exact",
+      path: STUNDENVIDEO_PFAD,
+      handler: (req, res) => videoAusliefern(video, req, res)
+    }), `promptheus: Stundenvideo ${STUNDENVIDEO_PFAD}`);
   }
   ctx.effect(() => ctx.on("webserver/index-inject", (table) => {
     table.push({ kind: "script", placement: "head", text: UEBERSETZUNGS_SCHUTZ });
@@ -503,6 +517,64 @@ function werkstattWurzel() {
   }
   return join2(start, "..", "..", "..");
 }
+function videoAusliefern(pfad, req, res) {
+  const methode = String(req?.method ?? "GET").toUpperCase();
+  if (methode !== "GET" && methode !== "HEAD") {
+    res.writeHead(405, { allow: "GET, HEAD" });
+    res.end();
+    return;
+  }
+  let groesse;
+  try {
+    groesse = statSync(pfad).size;
+  } catch {
+    res.writeHead(404, { "cache-control": "no-store" });
+    res.end();
+    return;
+  }
+  const kopf = {
+    "content-type": "video/mp4",
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=86400",
+    "x-content-type-options": "nosniff"
+  };
+  const bereich = bereichLesen(req?.headers?.range, groesse);
+  if (bereich === "ungueltig") {
+    res.writeHead(416, { "content-range": `bytes */${groesse}` });
+    res.end();
+    return;
+  }
+  const [von, bis] = bereich ?? [0, groesse - 1];
+  kopf["content-length"] = String(bis - von + 1);
+  if (bereich !== void 0) kopf["content-range"] = `bytes ${von}-${bis}/${groesse}`;
+  res.writeHead(bereich === void 0 ? 200 : 206, kopf);
+  if (methode === "HEAD") {
+    res.end();
+    return;
+  }
+  const strom = createReadStream(pfad, { start: von, end: bis });
+  strom.on("error", () => res.destroy());
+  res.on?.("close", () => strom.destroy());
+  strom.pipe(res);
+}
+function bereichLesen(kopf, groesse) {
+  if (typeof kopf !== "string" || kopf === "") return void 0;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(kopf.trim());
+  if (m === null || m[1] === "" && m[2] === "" || groesse <= 0) return "ungueltig";
+  let von;
+  let bis;
+  if (m[1] === "") {
+    const n = Number(m[2]);
+    if (n <= 0) return "ungueltig";
+    von = Math.max(0, groesse - n);
+    bis = groesse - 1;
+  } else {
+    von = Number(m[1]);
+    bis = m[2] === "" ? groesse - 1 : Math.min(Number(m[2]), groesse - 1);
+  }
+  if (!Number.isSafeInteger(von) || !Number.isSafeInteger(bis) || von > bis || von >= groesse) return "ungueltig";
+  return [von, bis];
+}
 function escapeHtml(text) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -515,9 +587,11 @@ export {
   HINTERGRUND_PFAD,
   PRODUKT_TITEL,
   SCHUTZ_PFAD,
+  STUNDENVIDEO_PFAD,
   academyAdresse,
   apply,
   arbeitsordnerFinden,
+  bereichLesen,
   bindungSchreiben,
   cinemaEnvPort,
   cinemaOrdner,
@@ -529,5 +603,6 @@ export {
   name,
   schutzAdresse,
   starterUmgebung,
-  ticketSchreiben
+  ticketSchreiben,
+  videoAusliefern
 };
