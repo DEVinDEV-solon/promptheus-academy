@@ -317,6 +317,6 @@ sondern das Maß.
 
 ## Verwandt
 
-- [[90_Bibliothek/_index|Bibliothek]] — der Leseraum, in dem dieses Dokument steht
-- [[90_Bibliothek/Glossar/_index|Glossar]] — die Begriffe, deren Erklärungen diesen Regeln folgen
+- [[70_Bibliothek/_index|Bibliothek]] — der Leseraum, in dem dieses Dokument steht
+- [[70_Bibliothek/Glossar/_index|Glossar]] — die Begriffe, deren Erklärungen diesen Regeln folgen
 - `Brand/BRAND.md` im Programmordner — die Gestaltungsvorgabe mit den Werten

@@ -68,7 +68,7 @@ als eine Frage (Stufe 2), schreibt ein Dokument, das gut klingt und nichts
 ## Das Musterstück
 
 Die Academy hat ihr eigenes Dokument, und du kannst es lesen: es steht in
-[[90_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] und gilt für jede
+[[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] und gilt für jede
 Zeile auf diesem Bildschirm. Der Kurs geht seine acht Felder von oben nach
 unten durch und ersetzt die Antworten durch deine.
 
@@ -76,4 +76,4 @@ unten durch und ersetzt die Antworten durch deine.
 
 - [[10_Stufen/Der siebte Kurs|Der siebte Kurs]] — die Ordnung dahinter: wann er frei wird, was noch fehlt
 - [[10_Stufen/_index|Die sechs Stufen]] — was vorher kommt
-- [[90_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — das Musterstück
+- [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — das Musterstück

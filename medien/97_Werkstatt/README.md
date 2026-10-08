@@ -2,7 +2,7 @@
 
 Das Fenster hinter dem Menüpunkt „Werkstatt“ (`assets/js/werkstatt.js`,
 `werkstattFilm()`) zeigt unter den beiden Blöcken und dem Mäanderband diesen
-Film. Das Standbild liegt im Programm (`assets/img/werkstatt-film.jpg`), der
+Film. Das Standbild liegt im Programm (`assets/img/werkstatt/werkstatt-film.jpg`), der
 Film kommt wie alle Aufnahmen mit dem Medienpaket
 (`werkzeuge/medien_paket_bauen.php`). Fehlt der Film, zeigt das Fenster das
 Standbild.

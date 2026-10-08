@@ -17,7 +17,7 @@ import sys
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 VAULT = os.path.dirname(HIER)
-GLOSSAR = os.path.join(VAULT, '90_Bibliothek', 'Glossar')
+GLOSSAR = os.path.join(VAULT, '70_Bibliothek', 'Glossar')
 
 # Die Achsen, nach denen sortiert wird. Ein Glossar allein alphabetisch ist eine
 # Wand; nach Feldern gruppiert findet man auch, wonach man nicht suchen kann.

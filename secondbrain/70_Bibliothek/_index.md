@@ -18,8 +18,8 @@ ist wieder draußen.
 
 ## Was hier steht
 
-- [[90_Bibliothek/Glossar/_index|Glossar]] — Fremdwörter und Fachbegriffe, je Begriff eine Notiz
-- [[90_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — Stimme, Sprache, Ausgabeformen und der Einsatz in KI-Systemen
+- [[70_Bibliothek/Glossar/_index|Glossar]] — Fremdwörter und Fachbegriffe, je Begriff eine Notiz
+- [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — Stimme, Sprache, Ausgabeformen und der Einsatz in KI-Systemen
 - Autorenleitfaden — *noch nicht geschrieben*, siehe unten
 
 ## Zwei Räume, eine Richtung
@@ -64,7 +64,7 @@ also steht er hier als offener Punkt statt als leerer Ordner.
 
 Ein Teil davon steht inzwischen: Wie die Academy **klingt** — Haltung,
 Register, Verbotsliste, Form je Anlass — regelt die
-[[90_Bibliothek/Brand-Guideline|Brand-Guideline]]. Was noch fehlt, ist der
+[[70_Bibliothek/Brand-Guideline|Brand-Guideline]]. Was noch fehlt, ist der
 handwerkliche Rest: Wie eine Lektion aufgebaut wird, wie lang sie sein darf,
 wann eine Aufgabe dazugehört.
 

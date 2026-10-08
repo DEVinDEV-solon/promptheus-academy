@@ -28,8 +28,8 @@ hierher.
 | `20_Domaenen` | Die zehn Fachkurse |
 | `30_Agenten` | Prometheus, Athena, Hermes, Hephaistos |
 | `40_Aufgabentypen` | Die zwölf Aufgabentypen als Steckbrief |
+| `70_Bibliothek` | Nachschlagewerke — das Glossar (67 Begriffe, je einer eine Notiz), später der Autorenleitfaden |
 | `90_Quellen` | Geerntete Fakten aus acht anderen Wissensspeichern, mit Herkunft |
-| `90_Bibliothek` | Nachschlagewerke — das Glossar (67 Begriffe, je einer eine Notiz), später der Autorenleitfaden |
 
 ## Die Trennlinie, die alles bestimmt
 

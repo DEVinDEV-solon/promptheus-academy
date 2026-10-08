@@ -200,7 +200,7 @@ PU.werkstattFenster = async function () {
  * damit hält auch der Film an.
  */
 function werkstattFilm() {
-  const poster = 'assets/img/werkstatt-film.jpg';
+  const poster = 'assets/img/werkstatt/werkstatt-film.jpg';
   const figur = PU.el('figure', 'werkstatt-film-figur');
   const hinweis = PU.el('figcaption', 'klein werkstatt-film-hinweis',
     'Hephaistos zeigt die Werkstatt: der 7. Kurs, der Zugang, Schlüssel und Fingerabdruck, ' +
