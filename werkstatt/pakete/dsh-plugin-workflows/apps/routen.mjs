@@ -293,15 +293,17 @@ export function appsHandler({ werkstatt, wurzel = join(werkstatt, 'eigene_workfl
       const anfrage = anfrageBauen(k);
       kiBremse();
       if (!kiFn) kiFn = schutzschichtKi();
-      const protokoll = (outcome, mehr = {}) => audit?.({
+      // AI Act: Modell im eigenen Feld, damit der Audit-Trail je Modell filterbar ist; nie ein Inhalt.
+      const protokoll = (outcome, mehr = {}, model = '') => audit?.({
         action_type: 'workflow_ki_hilfe', action_description: `KI-Hilfe in der Werkbank (${anfrage.modus})`,
-        resource: `eigene_workflows/${ablage.konto}`, outcome, actor_type: 'user', actor_id: ablage.konto,
+        resource: `eigene_workflows/${ablage.konto}`, outcome, actor_type: 'user', actor_id: ablage.konto, model,
+        severity: outcome === 'success' ? 'info' : 'warning',
         metadata: { modus: anfrage.modus, vorlage: typeof k.vorlage === 'string' ? k.vorlage.slice(0, 40) : null, zeichen: anfrage.wunsch.length, ...mehr },
       });
       try {
         const { antwort, modell } = await kiFn(anfrage.text);
         const ergebnis = antwortPruefen(anfrage, antwort);
-        protokoll('success', { modell });
+        protokoll('success', {}, modell);
         return { ...ergebnis, modell };
       } catch (f) {
         protokoll('error', { status: f instanceof Fehler ? f.status : 500 });
