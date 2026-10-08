@@ -37,6 +37,7 @@
 
 import { anpassungenCss } from './anpassungen.ts'
 import { hintergrundCss } from './hintergrund.ts'
+import { stundenvideoCss, stundenvideoStarten } from './stundenvideo.ts'
 import { Bildstaerke } from './bildstaerke.ts'
 import { layerAus, Palettenwaehler, SCHICHT } from './farbkasten.ts'
 import { FarbkastenZeile } from './farbkasten-zeile.ts'
@@ -571,6 +572,20 @@ export function apply(ctx) {
       bild.anwenden()
       return () => { marke.remove(); bild.entfernen() }
     }, 'promptheus: Hintergrundbild')
+
+    // ── Stundenvideo ─────────────────────────────────────────────────────────
+    // Zur vollen Stunde läuft einmal hero-kie.mp4 im Rahmen des Bildes, ohne
+    // Bedienfelder und Scrollbalken, danach ist wieder das Bild da
+    // (`stundenvideo.ts`).
+    ctx.effect(() => {
+      const marke = document.createElement('style')
+      marke.dataset.plugin = '@promptheus/dsh-client-ui-promptheus'
+      marke.dataset.pluginCss = '@promptheus/dsh-client-ui-promptheus/stundenvideo.css'
+      marke.textContent = stundenvideoCss()
+      document.head.appendChild(marke)
+      const abstellen = stundenvideoStarten()
+      return () => { abstellen(); marke.remove() }
+    }, 'promptheus: Stundenvideo')
 
     // ── Feinanpassungen ──────────────────────────────────────────────────────
     // Zwei Stellen, an denen die Werkstatt anders aussieht als der Harness:

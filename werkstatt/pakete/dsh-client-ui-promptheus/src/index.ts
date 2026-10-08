@@ -30,7 +30,7 @@
  * @module @promptheus/dsh-client-ui-promptheus
  */
 
-import { existsSync, readFileSync } from 'node:fs'
+import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -55,6 +55,12 @@ export const FAVICON_PFAD = '/favicon.svg'
  * im dunklen Schema das Symbol des Harness.
  */
 export const FAVICON_DUNKEL_PFAD = '/favicon-dark.svg'
+
+/** Der Pfad, unter dem das Stundenvideo ausgeliefert wird (client/stundenvideo.ts). */
+export const STUNDENVIDEO_PFAD = '/promptheus-stundenvideo.mp4'
+
+/** Das Stundenvideo im PROMPTHEUS-Ordner. Nicht im Repo (gitignored, 43 MB). */
+const STUNDENVIDEO_RELATIV = ['assets', 'video', 'hero-kie.mp4']
 
 /** Der Pfad, unter dem das Hintergrundbild ausgeliefert wird. */
 export const HINTERGRUND_PFAD = '/promptheus-hintergrund.jpg'
@@ -183,6 +189,16 @@ function markeLesen(): string | undefined {
  * @returns der Inhalt der Datei, oder undefined wenn sie fehlt.
  */
 function dateiLesen(relativ: string[]): Buffer | undefined {
+  const pfad = dateiFinden(relativ)
+  return pfad === undefined ? undefined : readFileSync(pfad)
+}
+
+/**
+ * Sucht eine Datei an denselben Orten wie {@link dateiLesen}, ohne sie zu lesen.
+ * @param relativ - der Pfad innerhalb der Werkstatt, als Teile.
+ * @returns der volle Pfad, oder undefined wenn sie fehlt.
+ */
+function dateiFinden(relativ: string[]): string | undefined {
   const hier = dirname(fileURLToPath(import.meta.url))
   // Vom gebauten `lib/index.js` aus: Paket → pakete → Werkstatt → PROMPTHEUS.
   const kandidaten = [
@@ -193,7 +209,7 @@ function dateiLesen(relativ: string[]): Buffer | undefined {
   for (const basis of kandidaten) {
     for (const teil of [relativ, ['werkstatt', ...relativ]]) {
       const pfad = join(basis, ...teil)
-      if (existsSync(pfad)) return readFileSync(pfad)
+      if (existsSync(pfad)) return pfad
     }
   }
   return undefined
@@ -310,6 +326,19 @@ export function apply(ctx: any): void {
     }), `promptheus: Schutz ${weg}`)
   }
 
+  // ── Das Stundenvideo (07.10.2026) ──────────────────────────────────────────
+  // Gestreamt mit Range-Anfragen statt ganz gelesen: die Datei hat 43 MB, und
+  // der Browser fragt Videos ohnehin stückweise an. Fehlt sie, gibt es keine
+  // Route; der Client räumt beim Ladefehler still auf.
+  const video = dateiFinden(STUNDENVIDEO_RELATIV)
+  if (video !== undefined) {
+    ctx.effect(() => webServer.register({
+      kind: 'exact',
+      path: STUNDENVIDEO_PFAD,
+      handler: (req: any, res: any) => videoAusliefern(video, req, res),
+    }), `promptheus: Stundenvideo ${STUNDENVIDEO_PFAD}`)
+  }
+
   // ── Schutz gegen Übersetzungserweiterungen ─────────────────────────────────
   //
   // Diese Einspeisung steht **absichtlich zuerst**: sie muss laufen, bevor React
@@ -409,6 +438,82 @@ function werkstattWurzel(): string {
     ordner = join(ordner, '..')
   }
   return join(start, '..', '..', '..')
+}
+
+/**
+ * Liefert ein Video aus, ganz oder als einen Bereich (`Range: bytes=a-b`).
+ *
+ * Nur ein einzelner Bereich wird bedient; mehrere oder ungültige ergeben 416.
+ * Nur GET und HEAD.
+ * @param pfad - der Dateipfad, fest aus dem Quelltext, nie aus der Anfrage.
+ * @param req - die Anfrage.
+ * @param res - die Antwort.
+ */
+export function videoAusliefern(pfad: string, req: any, res: any): void {
+  const methode = String(req?.method ?? 'GET').toUpperCase()
+  if (methode !== 'GET' && methode !== 'HEAD') {
+    res.writeHead(405, { allow: 'GET, HEAD' })
+    res.end()
+    return
+  }
+  let groesse: number
+  try {
+    groesse = statSync(pfad).size
+  } catch {
+    res.writeHead(404, { 'cache-control': 'no-store' })
+    res.end()
+    return
+  }
+  const kopf: Record<string, string> = {
+    'content-type': 'video/mp4',
+    'accept-ranges': 'bytes',
+    'cache-control': 'public, max-age=86400',
+    'x-content-type-options': 'nosniff',
+  }
+  const bereich = bereichLesen(req?.headers?.range, groesse)
+  if (bereich === 'ungueltig') {
+    res.writeHead(416, { 'content-range': `bytes */${groesse}` })
+    res.end()
+    return
+  }
+  const [von, bis] = bereich ?? [0, groesse - 1]
+  kopf['content-length'] = String(bis - von + 1)
+  if (bereich !== undefined) kopf['content-range'] = `bytes ${von}-${bis}/${groesse}`
+  res.writeHead(bereich === undefined ? 200 : 206, kopf)
+  if (methode === 'HEAD') {
+    res.end()
+    return
+  }
+  const strom = createReadStream(pfad, { start: von, end: bis })
+  strom.on('error', () => res.destroy())
+  res.on?.('close', () => strom.destroy())
+  strom.pipe(res)
+}
+
+/**
+ * Liest einen Range-Kopf mit genau einem Bereich.
+ * @param kopf - der Wert von `Range`, oder undefined.
+ * @param groesse - die Dateigrösse in Bytes.
+ * @returns [von, bis] einschliesslich, undefined ohne Kopf, 'ungueltig' sonst.
+ */
+export function bereichLesen(kopf: unknown, groesse: number): [number, number] | undefined | 'ungueltig' {
+  if (typeof kopf !== 'string' || kopf === '') return undefined
+  const m = /^bytes=(\d*)-(\d*)$/.exec(kopf.trim())
+  if (m === null || (m[1] === '' && m[2] === '') || groesse <= 0) return 'ungueltig'
+  let von: number
+  let bis: number
+  if (m[1] === '') {
+    // Die letzten n Bytes.
+    const n = Number(m[2])
+    if (n <= 0) return 'ungueltig'
+    von = Math.max(0, groesse - n)
+    bis = groesse - 1
+  } else {
+    von = Number(m[1])
+    bis = m[2] === '' ? groesse - 1 : Math.min(Number(m[2]), groesse - 1)
+  }
+  if (!Number.isSafeInteger(von) || !Number.isSafeInteger(bis) || von > bis || von >= groesse) return 'ungueltig'
+  return [von, bis]
 }
 
 /** Escaped Text für die Einbettung in ein HTML-Element. */
