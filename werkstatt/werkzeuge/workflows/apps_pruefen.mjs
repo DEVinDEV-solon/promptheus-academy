@@ -21,6 +21,8 @@ import { GRUPPEN, VORLAGEN, fragenAufloesen, zielFeld } from '../../pakete/dsh-p
 import { baustein, einstellungenPruefen, folgt, ketteBruch, streckeVollstaendig } from '../../pakete/dsh-plugin-workflows/apps/bausteine/index.mjs';
 import { Fehler, KATEGORIEN } from '../../pakete/dsh-plugin-workflows/apps/ablage.mjs';
 import { anfrageBauen, bremse, modellErmitteln, schutzschichtKi } from '../../pakete/dsh-plugin-workflows/apps/ki.mjs';
+import { cliErkennung, cliUmgebung, programmFinden, wahlZerlegen, werkstattModelle } from '../../pakete/dsh-plugin-workflows/apps/modelle.mjs';
+import { cliKi } from '../../pakete/dsh-plugin-workflows/apps/cli.mjs';
 
 let ok = 0, schlecht = 0;
 const pruefe = (name, bedingung, mehr = '') => {
@@ -297,6 +299,112 @@ try {
   writeFileSync(join(home, 'settings.yaml.imported'), 'ui-onboarding:\n  x: 1\nagent-default-model:\n  provider: deepseek-official\n  model: deepseek-v9-flash\n  reasoningEffort: high\n');
   pruefe('Modell aus der Werkstatt-Einstellung', modellErmitteln({ DSH_HOME: home }) === 'deepseek/deepseek-v9-flash');
   pruefe('Modell aus der Umgebung geht vor, Unsinn nicht', modellErmitteln({ DSH_HOME: home, PROMPTHEUS_WORKFLOW_MODELL: 'anthropic/claude-x' }) === 'anthropic/claude-x' && modellErmitteln({ PROMPTHEUS_WORKFLOW_MODELL: 'a b; rm' }) !== 'a b; rm');
+
+  console.log('Modellwahl (7.4)');
+  writeFileSync(join(home, 'settings.yaml.imported'), 'agent-default-model:\n  provider: deepseek-official\n  model: deepseek-v9-flash\nllm-deepseek: \n  models: \n    - id: deepseek-v9-flash\n      name: DeepSeek V9 Flash\n    - id: deepseek-v9-pro\n      name: DeepSeek V9 Pro\n    - id: "a b; rm"\n');
+  const mEnv = { DSH_HOME: home, PATH: 'x' };
+  const wm = werkstattModelle(mEnv);
+  pruefe('Werkstatt-Modelle: Standard als „werkstatt“, weitere mit Anbieter, Unsinn nicht', wm.length === 2 && wm[0].wahl === 'werkstatt' && wm[0].name === 'DeepSeek V9 Flash' && wm[1].wahl === 'or:deepseek/deepseek-v9-pro');
+  pruefe('Wahl zerlegen: Unsinn wird Werkstatt, Claude mit Kurzname', wahlZerlegen('cli:claude:x; rm', mEnv).wahl === 'werkstatt' && wahlZerlegen('cli:claude:opus', mEnv).modell === 'opus' && wahlZerlegen('or:openai/gpt-x', mEnv).modell === 'openai/gpt-x');
+  const cu = cliUmgebung({ PATH: 'p', ANTHROPIC_API_KEY: 'k', OPENROUTER_API_KEY: 'k', PROMPTHEUS_BETREIBER: '1', CLAUDECODE: '1', DSH_HOME: 'h', USERPROFILE: 'u' });
+  pruefe('Programm-Umgebung ohne Schlüssel und Umleitungen der Werkstatt', Object.keys(cu).sort().join() === 'PATH,USERPROFILE');
+  if (process.platform === 'win32') {
+    const gibt = (p) => /[\\/]npm[\\/](codex\.cmd|node_modules[\\/]@openai[\\/]codex[\\/]bin[\\/]codex\.js)$/.test(p) || /[\\/]nodejs[\\/]node\.exe$/.test(p);
+    const pc = programmFinden('codex', { PATH: 'C:\\nodejs', APPDATA: 'C:\\a' }, gibt);
+    pruefe('npm-Hülle wird auf ihr Skript aufgelöst, ohne Shell', !!pc && /node\.exe$/.test(pc.befehl) && /codex\.js$/.test(pc.vorne[0]));
+    pruefe('Nicht vorhanden: null', programmFinden('codex', { PATH: 'C:\\leer' }, () => false) === null);
+  }
+  const erk = cliErkennung({ env: mEnv, finden: (n) => (n === 'claude' ? { befehl: 'C:\\geheim\\claude.exe', vorne: [] } : null),
+    laufen: async (b, a) => (a.includes('--version') ? { code: 0, aus: '2.1.0 (Claude Code)', fehler: '' } : { code: 0, aus: JSON.stringify({ loggedIn: true, authMethod: 'claude.ai', subscriptionType: 'pro', email: 'jemand@example.com', orgName: 'Firma' }), fehler: '' }) });
+  const gef = await erk();
+  pruefe('Erkennung: Fassung, angemeldet, Abo-Art, nie Adresse oder Firma', gef[0].gefunden && gef[0].fassung === '2.1.0' && gef[0].angemeldet && gef[0].art === 'Abo pro' && !JSON.stringify(gef).includes('example.com') && !JSON.stringify(gef).includes('Firma') && gef[1].gefunden === false);
+
+  let istB = false;
+  let cliStand = [{ programm: 'claude', gefunden: true, fassung: '2.1.0', angemeldet: true, art: 'Abo pro', ort: { befehl: 'C:\\geheim\\claude.exe', vorne: [] } }, { programm: 'codex', gefunden: false }];
+  const mAudits = [];
+  const kiWahl = [];
+  const fabrik = [];
+  const mHandler = appsHandler({ werkstatt, wurzel, konto: () => 'l77', schutz, audit: (e) => mAudits.push(e), env: mEnv,
+    betreiber: () => istB, erkennen: async () => cliStand,
+    orListe: async () => [{ wahl: 'or:anthropic/claude-x', id: 'anthropic/claude-x', name: 'Claude X', ein: 3, aus: 15, kontext: 200000 }, { wahl: 'or:openai/gpt-y', id: 'openai/gpt-y', name: 'GPT Y', ein: 1, aus: 2, kontext: 1000 }],
+    cliFabrik: (o) => { fabrik.push(o); return async () => ({ antwort: { treffer: [{ vorlage: 'ki-news', warum: 'w' }], hinweis: '' }, modell: o.wahl }); } });
+  const mServer = createServer((q, r) => mHandler(q, r));
+  await new Promise((ja) => mServer.listen(0, '127.0.0.1', ja));
+  const mBasis = `http://127.0.0.1:${mServer.address().port}/promptheus-apps/api`;
+  const mGet = async (w) => (await fetch(mBasis + w, { headers: { 'sec-fetch-site': 'same-origin' } })).json();
+  const mPost = (w, k) => fetch(mBasis + w, { method: 'POST', headers: { 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' }, body: JSON.stringify(k) });
+
+  const s0 = await mGet('/modelle');
+  pruefe('Ohne Betreiber: Werkstatt-Modell, keine Programme, Hinweis Schutzschicht', s0.aktuell === 'werkstatt' && s0.betreiber === false && s0.cli.length === 0 && /Schutzschicht/.test(s0.datenweg));
+  pruefe('Ohne Betreiber: Programm wählen 403', (await mPost('/modelle', { modell: 'cli:claude:sonnet' })).status === 403);
+  pruefe('Unsinnige Wahl: 400', (await mPost('/modelle', { modell: 'or:x; rm -rf' })).status === 400);
+  pruefe('OpenRouter-Modell, das es nicht gibt: 404', (await mPost('/modelle', { modell: 'or:boese/modell' })).status === 404);
+  const such = await mGet('/modelle/openrouter?q=claude');
+  pruefe('OpenRouter-Suche mit Preisen', such.modelle.length === 1 && such.modelle[0].aus === 15);
+  const mr1 = await mPost('/modelle', { modell: 'or:anthropic/claude-x' });
+  const mS1 = await mr1.json();
+  pruefe('OpenRouter-Modell gewählt und gespeichert', mr1.status === 200 && mS1.aktuell === 'or:anthropic/claude-x' && mS1.weg === 'schutz' && JSON.parse(readFileSync(join(wurzel, 'l77', 'einstellungen.json'), 'utf8')).ki.modell === 'or:anthropic/claude-x');
+  const wa = mAudits.find((e) => e.action_type === 'workflow_modell_gewaehlt');
+  pruefe('Audit der Wahl mit Modell im eigenen Feld', !!wa && wa.model === 'anthropic/claude-x' && wa.metadata.vorher === 'werkstatt');
+  pruefe('Modell der Werkstatt ohne OpenRouter-Liste wählbar', (await mPost('/modelle', { modell: 'or:deepseek/deepseek-v9-pro' })).status === 200);
+
+  istB = true;
+  const s2 = await mGet('/modelle?neu=1');
+  pruefe('Betreiber: Programme mit Stand und Modellen, nie ein Pfad', s2.betreiber && s2.cli[0].angemeldet && s2.cli[0].modelle.length === 3 && !JSON.stringify(s2).includes('geheim') && !JSON.stringify(s2).includes('ort'));
+  pruefe('Betreiber: nicht gefundenes Programm 409', (await mPost('/modelle', { modell: 'cli:codex' })).status === 409);
+  const mr3 = await mPost('/modelle', { modell: 'cli:claude:haiku' });
+  const s3 = await mr3.json();
+  pruefe('Betreiber: Claude Haiku gewählt, Datenweg Anthropic', mr3.status === 200 && s3.aktuell === 'cli:claude:haiku' && /Anthropic/.test(s3.datenweg));
+  const k3 = await (await mPost('/ki', { modus: 'vorlage', wunsch: 'KI News aufs Handy' })).json();
+  pruefe('KI fragen nimmt das Programm mit Kurzname und Ort', k3.modell === 'cli:claude:haiku' && fabrik.at(-1).modell === 'haiku' && fabrik.at(-1).ort.befehl.endsWith('claude.exe') && fabrik.at(-1).konto === 'l77');
+  cliStand = [{ programm: 'claude', gefunden: true, fassung: '2.1.0', angemeldet: false, art: '', ort: { befehl: 'x', vorne: [] } }];
+  const s4 = await mGet('/modelle');
+  pruefe('Abgemeldet: zurück auf das Werkstatt-Modell, mit Hinweis', s4.aktuell === 'werkstatt' && s4.zurueckgefallen === 'Claude Haiku');
+  istB = false;
+  cliStand = [{ programm: 'claude', gefunden: true, fassung: '2.1.0', angemeldet: true, art: 'Abo pro', ort: { befehl: 'x', vorne: [] } }];
+  const s5 = await mGet('/modelle');
+  pruefe('Ohne Betreiber nie ein Programm, auch wenn es gespeichert ist', s5.aktuell === 'werkstatt' && s5.cli.length === 0);
+  mServer.close();
+
+  console.log('Abo-Programm (7.4)');
+  const fMaske = { wert: (v, z) => JSON.parse(JSON.stringify(v).replace(/Mia Muster/g, () => { z.person = (z.person || 0) + 1; return '[PERSON]'; })), torschluss: (t) => (t.includes('BEKANNT-WERT') ? ['geheim:x'] : []) };
+  const aufrufe = [];
+  let cliAntwort = { code: 0, aus: JSON.stringify({ is_error: false, result: '```json\n{"vorschlag":"gut"}\n```' }), fehler: '', zeitum: false };
+  const cAudits = [];
+  const fragC = cliKi({ wahl: 'cli:claude:haiku', programm: 'claude', ort: { befehl: 'C:\\x\\claude.exe', vorne: [] }, modell: 'haiku', konto: 'l77', maske: fMaske,
+    env: { PATH: 'p', ANTHROPIC_API_KEY: 'platzhalter', PROMPTHEUS_BETREIBER: '1' }, audit: (e) => cAudits.push(e),
+    laufen: async (b, a, o) => { aufrufe.push({ b, a, o }); return cliAntwort; } });
+  const c1 = await fragC('Hilf Mia Muster beim Wunsch');
+  const mA1 = aufrufe[0];
+  pruefe('Abo-Programm: Antwort aus dem Codeblock, Modell ist die Wahl', c1.antwort.vorschlag === 'gut' && c1.modell === 'cli:claude:haiku');
+  pruefe('Abo-Programm: Nachricht maskiert und nur über stdin', mA1.o.eingabe.includes('[PERSON]') && !mA1.o.eingabe.includes('Mia') && !mA1.a.join(' ').includes('Wunsch'));
+  pruefe('Abo-Programm: ohne Werkzeuge, MCP, Einstellungen und Sitzung', mA1.a.includes('--tools') && mA1.a[mA1.a.indexOf('--tools') + 1] === '' && mA1.a.includes('--strict-mcp-config') && mA1.a.includes('--no-session-persistence') && mA1.a[mA1.a.indexOf('--model') + 1] === 'haiku');
+  pruefe('Abo-Programm: ohne Schlüssel der Werkstatt, in eigenem leeren Ordner', !('ANTHROPIC_API_KEY' in mA1.o.env) && !('PROMPTHEUS_BETREIBER' in mA1.o.env) && /pw-ki-/.test(mA1.o.cwd) && !existsSync(mA1.o.cwd));
+  pruefe('Abo-Programm: Audit llm_anfrage mit Modell und Zählwerten, ohne Inhalt', cAudits.length === 1 && cAudits[0].action_type === 'llm_anfrage' && cAudits[0].model === 'cli:claude:haiku' && cAudits[0].metadata.maskiert.person === 1 && !JSON.stringify(cAudits).includes('Mia') && !JSON.stringify(cAudits).includes('Wunsch'));
+  const fehlerVon = async (t) => { try { await fragC(t); return null; } catch (e) { return e; } };
+  const n0 = aufrufe.length;
+  const f451 = await fehlerVon('BEKANNT-WERT');
+  pruefe('Abo-Programm: Torschluss 451, Programm wird nicht gestartet', f451?.status === 451 && aufrufe.length === n0 && cAudits.at(-1).outcome === 'blocked' && cAudits.at(-1).severity === 'critical');
+  cliAntwort = { code: 1, aus: JSON.stringify({ is_error: true, result: 'Not logged in · Please run /login' }), fehler: '', zeitum: false };
+  pruefe('Abo-Programm: nicht angemeldet 409 mit Satz', (await fehlerVon('x'))?.status === 409);
+  cliAntwort = { code: 1, aus: JSON.stringify({ is_error: true, api_error_status: 429, result: 'limit' }), fehler: '', zeitum: false };
+  pruefe('Abo-Programm: Kontingent aufgebraucht 429', (await fehlerVon('x'))?.status === 429);
+  cliAntwort = { code: null, aus: '', fehler: '', zeitum: true };
+  pruefe('Abo-Programm: Zeit abgelaufen 504', (await fehlerVon('x'))?.status === 504);
+  let fragX = null;
+  const lang = cliKi({ wahl: 'cli:claude:opus', programm: 'claude', ort: { befehl: 'x', vorne: [] }, modell: 'opus', maske: fMaske, laufen: () => new Promise((ja) => { fragX = ja; }) });
+  const erst = lang('a');
+  await new Promise((ja) => setTimeout(ja, 20));
+  let zweit = null;
+  try { await lang('b'); } catch (e) { zweit = e; }
+  fragX({ code: 0, aus: JSON.stringify({ result: '{"vorschlag":"x"}' }), fehler: '', zeitum: false });
+  await erst;
+  pruefe('Abo-Programm: nur eine Frage zur Zeit', zweit?.status === 429);
+  const fragCodex = cliKi({ wahl: 'cli:codex', programm: 'codex', ort: { befehl: 'node.exe', vorne: ['codex.js'] }, maske: fMaske,
+    laufen: async (b, a, o) => { writeFileSync(a[a.indexOf('--output-last-message') + 1], '{"vorschlag":"codex"}'); aufrufe.push({ b, a, o }); return { code: 0, aus: '', fehler: '', zeitum: false }; } });
+  const cx = await fragCodex('Frage');
+  const ax = aufrufe.at(-1);
+  pruefe('Codex: Antwort aus der Ausgabedatei, schreibgeschützt, Rolle im stdin', cx.antwort.vorschlag === 'codex' && ax.a[0] === 'codex.js' && ax.a.includes('read-only') && ax.a.at(-1) === '-' && ax.o.eingabe.startsWith('Du bist Hephaistos'));
 
   const seite = readFileSync(new URL('../../pakete/dsh-plugin-workflows/apps/seite/werkbank.js', import.meta.url), 'utf8');
   pruefe('Werkbank: Hinweis zum Datenabfluss und einmalige Zustimmung', seite.includes('KI_DATEN') && seite.includes("'werkbank.kiOk'"));
