@@ -20,6 +20,9 @@ const IF_TYPEN = [
   ['vogel', 'Vogel', '🐦', 'Vogel-Figur mit Federn, Schnabel und Flügel-Armen'],
 ];
 const ifTyp = k => IF_TYPEN.find(t => t[0] === k) || IF_TYPEN[0];
+// Bild des Charaktertyps (Vorlagen\Bilder\Typen\<typ>.webp); das Symbol nur, falls die Datei fehlt
+const ifTypBild = (k, klasse = 'if-typbild') => IF.typBilder?.[k]
+  ? `<img class="${klasse}" src="${esc(IF.typBilder[k])}" alt="">` : `<span class="${klasse}">${ifTyp(k)[2]}</span>`;
 const IF_CHAT_VORSCHLAEGE = ['Gib mir 3 virale Influencer-Ideen', 'Mach meine Figur skurriler', 'Passendes Outfit für TikTok', 'Was mache ich als Nächstes?'];
 const IF_FORMATE = ['3:4', '4:5', '9:16', '1:1'];
 // Bewegung: Muster-Rezepte. Der Assistent (web/bewegung.js) fragt Schritt für Schritt: @Bild 1, Bewegung/Kulisse, Musik, Prompt.
@@ -38,7 +41,7 @@ const IF = {
   reiter: 'entdecken', pille: 'vorlagen', erzeugt: false, busy: false,
   gen: Object.assign({ modell: '', seitenverhaeltnis: '3:4', anzahl: 1, spar: false }, speicher.lies('igen', {})),
   lotse: Object.assign({ aus: false }, speicher.lies('lotse.influencer', {})), quittiert: 0,
-  vorlagen: null, vfilter: 'alle',
+  vorlagen: null, vfilter: 'alle', typBilder: null,
 };
 const ifSpeichern = () => speicher.setz('igen', IF.gen);
 const ifLaeuft = () => S.auftraege.some(j => j.status === 'laufend' && j.influencer);
@@ -208,7 +211,7 @@ function ifPanelZeichnen() {
     </div>
     <div class="if-abschnitt">Charaktertyp <small>${IF_TYPEN.length}</small></div>
     <div class="if-typen" role="radiogroup" aria-label="Charaktertyp">${IF_TYPEN.map(([k, n, s, t]) =>
-      `<button role="radio" aria-checked="${IF.typGewaehlt && IF.typ === k}" class="${IF.typGewaehlt && IF.typ === k ? 'an' : ''}" data-iftyp="${k}" data-tip="${esc(t)}"><span>${s}</span>${n}</button>`).join('')}</div>
+      `<button role="radio" aria-checked="${IF.typGewaehlt && IF.typ === k}" class="${IF.typGewaehlt && IF.typ === k ? 'an' : ''}" data-iftyp="${k}" data-tip="${esc(t)}">${ifTypBild(k)}${n}</button>`).join('')}</div>
     ${IF.vorlage ? `<div class="if-vorlage" data-tip="${esc(IF.vorlage.kurz || IF.vorlage.prompt.slice(0, 200))}">Vorlage: <b>${esc(IF.vorlage.name)}</b><button class="x" id="ifVorlageWeg" aria-label="Vorlage entfernen" data-tip="Vorlage entfernen">✕</button></div>` : ''}
     <div class="feld"><label for="ifText">Besonderheiten <small>optional</small></label>
       <textarea id="ifText" rows="3" maxlength="1500" placeholder="z. B. pinke Lederjacke, Riesenschnurrbart, Sonnenbrille">${esc(IF.text)}</textarea></div>
@@ -240,6 +243,7 @@ function ifBildVorlagen() {
   });
 }
 const ifAlleVorlagen = () => [...ifBildVorlagen(), ...(IF.daten?.vorlagen || [])];
+const ifVorlagenMitBild = () => ifAlleVorlagen().filter(v => v.bild || ifEigenZuVorlage(v.id));
 // Ansichtsblatt-Angaben aus fremden Prompts entfernen – den Bildaufbau bestimmt unser Grundblock
 const ifPromptOhneBlatt = p => p.replace(/Two-panel sheet:[^.]*\.\s*/i, '');
 const ifAr = v => (/full body/i.test(v.prompt) ? 0.68 : 0.82);
@@ -249,9 +253,9 @@ function ifVorlagenKarte(v) {
   const bild = eigen?.bilder[0].url || v.bild;
   return `<div class="if-karte" data-vorlage="${esc(v.id)}" style="--ar:${bild ? 0.75 : ifAr(v)}">
     ${bild ? `<img class="fokus" src="${esc(bild)}" alt="${esc(v.name)}" loading="lazy">`
-      : `<div class="if-silhouette"><span>${t[2]}</span><small>${esc(v.kurz)}</small>
+      : `<div class="if-silhouette">${ifTypBild(v.typ, 'if-silhouette-bild')}<small>${esc(v.kurz)}</small>
          <button class="btn klein" data-ifa="vorschau" data-tip="Ein Bild dieser Figur erzeugen (kostet Guthaben)">Vorschau erzeugen</button></div>`}
-    <span class="if-typ">${t[2]} ${esc(t[1])}</span>
+    <span class="if-typ">${esc(t[1])}</span>
     <div class="if-info"><b>${esc(v.name)}</b></div>
     <div class="if-aktionen">
       ${bild ? `<button class="rund" data-ifa="basis" data-tip="Als Basis: daraus einen neuen Charakter bauen">${ico('variation')}</button>` : ''}
@@ -263,8 +267,8 @@ function ifVorlagenKarte(v) {
 function ifEigenKarte(i, neu = false) {
   const t = ifTyp(i.typ), bild = i.bilder[0];
   return `<div class="if-karte${neu ? ' neu' : ''}" data-inf="${esc(i.id)}" style="--ar:${bild ? 0.75 : 0.82}">
-    ${bild ? `<img src="${esc(bild.url)}" alt="${esc(i.name)}" loading="lazy">` : `<div class="if-silhouette"><span>${t[2]}</span><small>Noch kein Bild</small></div>`}
-    <span class="if-typ">${t[2]} ${esc(t[1])}${i.bilder.length > 1 ? ` · ${i.bilder.length}` : ''}</span>
+    ${bild ? `<img src="${esc(bild.url)}" alt="${esc(i.name)}" loading="lazy">` : `<div class="if-silhouette">${ifTypBild(i.typ, 'if-silhouette-bild')}<small>Noch kein Bild</small></div>`}
+    <span class="if-typ">${esc(t[1])}${i.bilder.length > 1 ? ` · ${i.bilder.length}` : ''}</span>
     <div class="if-info"><b>${esc(i.name)}</b></div>
     <div class="if-aktionen">
       ${bild ? `<button class="rund" data-ifa="basis" data-tip="Als Basis: daraus einen neuen Charakter bauen">${ico('variation')}</button>
@@ -306,7 +310,7 @@ function ifHauptZeichnen() {
   const meine = IF.liste;
   const pillen = `<div class="if-pillen" role="tablist">
       <button class="${IF.pille === 'meine' ? 'an' : ''}" data-ifpille="meine" data-tip="Deine eigenen Charaktere">Meine Influencer ${meine.length ? `<small>${meine.length}</small>` : ''}</button>
-      <button class="${IF.pille === 'vorlagen' ? 'an' : ''}" data-ifpille="vorlagen" data-tip="Fertige Figuren zum Nachbauen – mit Bild aus dem Vorlagen-Ordner, danach reine Text-Vorlagen">Vorlagen <small>${ifAlleVorlagen().length}</small></button>
+      <button class="${IF.pille === 'vorlagen' ? 'an' : ''}" data-ifpille="vorlagen" data-tip="Fertige Figuren zum Nachbauen – aus dem Vorlagen-Ordner und deinen Vorschaubildern">Vorlagen <small>${ifVorlagenMitBild().length}</small></button>
       <button disabled data-tip="Kommt bald: Charaktere aus der Community">Community-Trends <small>bald</small></button></div>`;
   let mauer;
   if (IF.pille === 'meine') {
@@ -314,7 +318,9 @@ function ifHauptZeichnen() {
       : `<div class="leer"><div class="gross">${ico('profil')}</div><h3>Noch keine eigenen Influencer</h3><p>Starte mit einer Vorlage: „Nachbauen“ lädt sie ins Panel.</p>
          <div class="knoepfe" style="justify-content:center"><button class="btn primaer" data-ifpille="vorlagen">Mit einer Vorlage starten</button></div></div>`;
   } else {
-    mauer = `<div class="if-mauer">${ifAlleVorlagen().map(ifVorlagenKarte).join('')}</div>`;
+    // Nur Vorlagen mit Bild. Reine Text-Vorlagen (charakter.md) bleiben für Zufall und Chat, erscheinen hier
+    // aber erst, wenn es ein Bild gibt (eigener Influencer daraus oder Datei im Vorlagen-Ordner).
+    mauer = `<div class="if-mauer">${ifVorlagenMitBild().map(ifVorlagenKarte).join('')}</div>`;
   }
   el.innerHTML = reiter + `<div class="if-hero">
       <div class="if-hero-bilder">${heroBilder.map(i => `<img class="fokus" src="${esc(i.bilder[0].url)}" alt="">`).join('')}${heroFuell.map(v => `<img class="fokus" src="${esc(v.bild)}" alt="" data-tip="${esc(v.name)}">`).join('')}</div>
@@ -349,6 +355,9 @@ function ifBewegungZeichnen() {
 // Vorlagen-Ordner: <Ablage>\Vorlagen\Bilder|Videos\<Ordner> – bei jedem Besuch frisch eingelesen
 async function ifVorlagenLaden() {
   try { IF.vorlagen = await api('vorlagen'); } catch (e) { IF.vorlagen = { fehler: e.message, vorlagen: [] }; }
+  // Bilder\Typen\<typ>.webp sind die Köpfe der Charaktertypen – keine Vorlagen
+  IF.typBilder = Object.fromEntries(IF.vorlagen.vorlagen.filter(v => v.art === 'bild' && v.ordner === 'Typen').map(v => [v.name.toLowerCase(), v.url]));
+  IF.vorlagen.vorlagen = IF.vorlagen.vorlagen.filter(v => v.ordner !== 'Typen');
   if (S.ansicht === 'influencer:bewegung' && $('#ifVorlagen')) $('#ifVorlagen').innerHTML = ifVorlagenHtml();
 }
 function ifVorlagenHtml() {
@@ -439,7 +448,7 @@ function influencerKarteChat(k, idx) {
   return `<div class="ckarte" data-k="${idx}">
     <div class="ckopf">${ico('profil')}<b>Influencer</b><span>${esc(k.name)}</span><span class="cpreis" data-preis="${idx}"></span></div>
     <div class="cprompt">${esc(k.prompt)}</div>
-    <div class="cchips"><span>${t[2]} ${esc(t[1])}</span></div>
+    <div class="cchips"><span>${esc(t[1])}</span></div>
     <div class="cknoepfe">
       <button class="btn klein" data-ka="eintragen" data-tip="Figur und Typ links ins Panel übernehmen">${ico('kopie')}Ins Panel</button>
       <button class="btn klein primaer" data-ka="erzeugen" data-tip="Sofort 1 Bild erzeugen – Kosten siehe oben">${ico('funke')}Direkt erzeugen</button>

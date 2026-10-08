@@ -660,6 +660,8 @@ button:disabled{cursor:default}
 /* Bildausschnitt: Gesicht sichtbar halten (fokusSetzen in bewegung.js richtet je Bild auf den Kopf aus).
    Charakterblatt (links Porträt, rechts Ganzkörper) → linker Teil */
 img.fokus{object-position:50% 18%}
+.if-typen button .if-typbild{width:44px;height:44px;object-fit:contain;display:block;font-size:26px;line-height:44px;text-align:center}
+.if-silhouette-bild{width:84px;height:84px;object-fit:contain;font-size:54px;line-height:84px;text-align:center}
 img.fokus.blatt{object-position:0% 30%}
 /* Bewegung-Assistent (Popup) */
 .modal-card.bw-karte{width:min(920px,100%)}
