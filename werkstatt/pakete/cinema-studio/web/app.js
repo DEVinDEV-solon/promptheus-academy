@@ -270,8 +270,12 @@ function einlassMarke() {
   return m ? m[1] : '';
 }
 
+// Jeder Aufruf beginnt gleich: Erstellen mit den letzten Ergebnissen, Modus Bild, Chat zu, Cursor im
+// Eingabefeld. Wer aus der Werkstatt kommt, will etwas erzeugen – nicht dort weitermachen, wo zuletzt
+// eine Ordner- oder Papierkorbansicht offen war.
 async function angemeldet(nutzer, csrf) {
   S.nutzer = nutzer; S.csrf = csrf; S.admin = nutzer.rolle === 'admin';
+  S.modus = 'bild'; speicher.setz('modus', 'bild');
   $('#login').classList.add('hidden');
   $('#app').classList.remove('hidden');
   profilZeigen();
@@ -280,8 +284,57 @@ async function angemeldet(nutzer, csrf) {
   katalogHolen().catch(() => {});      // Katalog mit Kosten für alle Modellwahlen vorladen
   kontoLaden();
   await auftraegeLaden();
-  ansicht(speicher.lies('ansicht', 'erstellen'));
-  if (speicher.lies('chatOffen', false)) chatUmschalten(true);
+  chatUmschalten(false);
+  modusSetzen('bild');
+  await ansicht('erstellen');
+  await begruessungZeigen();
+  pr.focus();
+}
+
+// ------------------------------------------------------------------ Begrüssung
+// Grosses Fenster beim Aufruf, bis „Nicht mehr anzeigen“ gesetzt ist. Der Haken gilt für jeden Weg
+// hinaus (Verstanden, X, Esc, Klick daneben) – wer ihn setzt und dann X drückt, meint dasselbe.
+// Aus dem Profilmenü („Begrüssung zeigen“) kommt es immer; der Haken steht dann so, wie er gespeichert
+// ist, und wer ihn abwählt, bekommt die Begrüssung beim nächsten Aufruf wieder.
+const BEGRUESSUNG_AUS = 'begruessungAus';
+async function begruessungZeigen(immer = false) {
+  let aus = speicher.lies(BEGRUESSUNG_AUS, false) === true;
+  if (aus && !immer) return;
+  await modal(`
+    <button type="button" class="begr-zu icon-btn" data-zu="null" aria-label="Schliessen" data-tip="Schliessen"><span data-i="x"></span></button>
+    <div class="begr-kopf">
+      <img src="/static/favicon.svg" alt="" width="52" height="52">
+      <h2 class="begr-titel">Willkommen im Cinema Studio</h2>
+      <p class="begr-unter">Bilder, Videos und Stimmen aus deinen Worten</p>
+    </div>
+    <div class="begr-zier" aria-hidden="true"></div>
+    <p class="begr-text">Hier entstehen Bilder, Videos und gesprochene Texte. Du beschreibst unten im Eingabefeld, was du sehen
+      oder hören willst, wählst Modell und Format und klickst auf „Erzeugen“. Deine bisherigen Ergebnisse liegen dahinter,
+      die neuesten zuerst. Bevor ein Auftrag losgeht, siehst du, was er ungefähr kostet.</p>
+    <h3 class="begr-zwischen">So kommst du schneller zu guten Ergebnissen</h3>
+    <ol class="begr-schritte">
+      <li><b>Prompt aus der Community holen.</b> In der Community der Werkstatt liegen erprobte Bild- und Videoprompts mit
+        Beispielen. Nimm einen, der deiner Idee nahekommt, als Ausgangspunkt.</li>
+      <li><b>Mit dem Chat besprechen.</b> Öffne den Assistenten mit dem Zauberstab oben rechts, füge den Prompt ein und sag,
+        was anders werden soll: Motiv, Stimmung, Licht, Kamera. Er fragt nach und schreibt den Prompt neu.</li>
+      <li><b>Auf Englisch übernehmen.</b> Der Assistent liefert den fertigen Prompt auf Englisch, weil die Modelle Englisch am
+        genauesten verstehen. Der Knopf „In Bild-Eingabe“ unter seiner Antwort trägt ihn samt Einstellungen direkt ins
+        Eingabefeld ein. Die Erklärung dazu bekommst du weiter auf Deutsch.</li>
+    </ol>
+    <div class="begr-fuss">
+      <label class="haken-zeile"><input type="checkbox" id="begrAus" ${aus ? 'checked' : ''}> Nicht mehr anzeigen</label>
+      <button type="button" class="btn primaer" data-zu="ok">Verstanden</button>
+    </div>`, {
+    breit: true,
+    beimOeffnen: card => {
+      card.classList.add('begruessung');
+      card.setAttribute('aria-labelledby', 'begrTitel');
+      card.querySelector('.begr-titel').id = 'begrTitel';
+      card.querySelector('#begrAus').onchange = ev => { aus = ev.target.checked; };
+      setTimeout(() => card.querySelector('[data-zu="ok"]').focus(), 30);
+    },
+  });
+  speicher.setz(BEGRUESSUNG_AUS, aus);
 }
 
 function profilZeigen() {
@@ -360,6 +413,7 @@ $('#profileBtn').onclick = () => {
   menue(b, [
     { kopf: 'PROMPTHEUS Cinema Studio' },
     { ico: 'zahnrad', txt: 'Einstellungen', klein: 'Anschluss, Modelle, Audio, Ablage', fn: einstellungenDialog },
+    { ico: 'funke', txt: 'Begrüssung zeigen', klein: 'Erklärung und Tipps vom Start', fn: () => begruessungZeigen(true).then(() => pr.focus()) },
     { ico: 'ordnerAuf', txt: 'Ablage öffnen', klein: 'Alle Bilder, Videos und Audios im Explorer', fn: () => imOrdnerZeigen(null) },
   ], { seite: 'oben' });
 };
@@ -1536,9 +1590,17 @@ async function verbrauchZeigen() {
 }
 
 // ------------------------------------------------------------------ Einstellungen
+// Auswahl für die Claude-CLI. Die Liste führt der Server (assistent.CLAUDE_MODELLE, über
+// assistent/status); diese zwei Aliase gelten, solange er nicht antwortet. Fehlte die Konstante,
+// öffnete der Dialog gar nicht („CLAUDE_WAHL is not defined“, 07.10.2026).
+let CLAUDE_WAHL = [['opus', 'Opus – immer die neueste Version'], ['sonnet', 'Sonnet – immer die neueste Version']];
 async function einstellungenDialog() {
   let d;
   try { d = await api('einstellungen'); } catch (e) { return fehler(e); }
+  try {
+    const liste = (await api('assistent/status')).modelle_claude;
+    if (Array.isArray(liste) && liste.length) CLAUDE_WAHL = liste.filter(e => Array.isArray(e) && e.length === 2).map(([id, t]) => [esc(id), esc(t)]);
+  } catch { /* bei den Aliasen bleiben */ }
   await Promise.all([K.daten ? null : katalogHolen(), A.modelle.length ? null : audioKatalogLaden()].filter(Boolean)).catch(() => {});
   const s = d.einstellungen, adm = d.admin;
   const dis = adm ? '' : 'disabled';
