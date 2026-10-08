@@ -235,9 +235,9 @@ function pu_session_start(): void
         return;
     }
 
-    session_name('PROMPTHEUS');
-    session_set_cookie_params(['lifetime' => 0, 'httponly' => true, 'samesite' => 'Lax']);
-    session_start();
+    // Eigener Cookie-Name und eigener Ordner je Installation: srv/sitzung.php.
+    require_once PU_ROOT . '/srv/sitzung.php';
+    pu_sitzung_oeffnen(PU_ROOT);
 }
 
 /** Der angemeldete Lernende, oder null. */
