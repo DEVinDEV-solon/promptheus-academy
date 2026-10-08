@@ -55,11 +55,11 @@ const tmp = mkdtempSync(join(tmpdir(), 'cinema_pruefen_'))
 try {
   // ── 1. Ordnersuche ──────────────────────────────────────────────────────────
   const werkstatt = join(tmp, 'werkstatt')
-  const ziel = join(werkstatt, 'scripts', 'CINEMA-STUDIO')
+  const ziel = join(werkstatt, 'scripts', 'cinema-studio')
   mkdirSync(ziel, { recursive: true })
   pruefe(lib.cinemaOrdner(werkstatt) === undefined, '1: leerer Ordner darf nicht als Cinema Studio gelten')
   for (const datei of ['server.py', 'zugang.py', 'CINEMA-STUDIO-START.bat']) writeFileSync(join(ziel, datei), '')
-  pruefe(lib.cinemaOrdner(werkstatt) === ziel, '1: Zielordner scripts\\CINEMA-STUDIO wird nicht gefunden')
+  pruefe(lib.cinemaOrdner(werkstatt) === ziel, '1: Zielordner scripts\\cinema-studio wird nicht gefunden')
   pruefe(lib.cinemaOrdner(werkstatt, 'relativ\\pfad') === ziel, '1: relativer PROMPTHEUS_CINEMA_DIR muss verworfen werden')
   pruefe(lib.cinemaPort('80') === 8796 && lib.cinemaPort('8797') === 8797 && lib.cinemaPort('x') === 8796,
     '1: Port-Regel stimmt nicht')

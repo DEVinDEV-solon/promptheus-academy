@@ -676,8 +676,8 @@ function ablageEinstellungenHtml(s, dis, werkstattAblage = '') {
       Den Ordner legt die Werkstatt fest; er ist auch dort im Arbeitsbereich zu sehen.</small></div>
     <button type="button" class="btn klein" id="efAblageAuf">${ico('ordnerAuf')} Ablage im Explorer öffnen</button>`;
   return `<div class="feld"><label>Ablage-Ordner</label>
-      <input id="efAblage" value="${esc(s.ablage_pfad || '')}" placeholder="leer = Ordner „Ablage“ im Programmordner" ${dis}>
-      <small>Jede Datei landet automatisch in <code>&lt;Ablage&gt;/&lt;Nutzer&gt;/Bilder|Videos|Audio/JJJJ-MM/Datum_Uhrzeit_Stichwort_Kennung</code>.
+      <input id="efAblage" value="${esc(s.ablage_pfad || '')}" placeholder="leer = Ordner „ablage“ im Programmordner" ${dis}>
+      <small>Jede Datei landet automatisch in <code>&lt;ablage&gt;/bilder|videos|audio/JJJJ-MM/Datum_Uhrzeit_Stichwort_Kennung</code>.
       Ein neuer Ordner gilt für neue Dateien; vorhandene bleiben, wo sie sind.</small></div>
     <button type="button" class="btn klein" id="efAblageAuf">${ico('ordnerAuf')} Ablage im Explorer öffnen</button>
     <div class="hinweis">„Speichern unter …“ an jedem Bild, Video und Audio lässt dich zusätzlich einen eigenen Ordner wählen (Chrome/Edge) – nichts landet mehr ungefragt in „Downloads“.</div>`;

@@ -278,7 +278,7 @@ FAKEV = {"id": "test/video-modell", "name": "Test Video", "anbieter": "Test", "b
 
 
 class WerkstattBindung(unittest.TestCase):
-    """Aus der Werkstatt gestartet: Schlüssel über die Schutzschicht, Ablage im Arbeitsordner (zugang.bindung)."""
+    """Aus der Werkstatt gestartet: Schlüssel über die Schutzschicht; die Ablage bleibt beim Programm (zugang.bindung)."""
 
     def setUp(self):
         import http.server
@@ -326,17 +326,43 @@ class WerkstattBindung(unittest.TestCase):
             server.or_anfrage("/key", timeout=3)
         self.assertIn("Werkstatt", str(f.exception))
 
-    def test_ablage_im_arbeitsordner_ohne_nutzerordner(self):
+    def test_ablage_beim_programm_ohne_nutzerordner(self):
         e = server.bild_speichern("werkstatt", png(3, 2), {"prompt": "Möwe am Meer"})
         f = server.medium_pfad(e)
         self.assertTrue(f.is_file())
-        teile = f.relative_to(self.arbeitsordner).parts
-        self.assertEqual(teile[:2], ("Cinema-Studio", "Bilder"), teile)
-        self.assertRegex(teile[2], r"^\d{4}-\d{2}$")
-        self.assertIn("möwe-am-meer", teile[3])
+        teile = f.relative_to(server.ablage_wurzel()).parts
+        self.assertEqual(teile[0], "bilder", teile)
+        self.assertRegex(teile[1], r"^\d{4}-\d{2}$")
+        self.assertIn("möwe-am-meer", teile[2])
+        self.assertFalse((self.arbeitsordner / "Cinema-Studio").exists(), "nichts mehr im Werkstatt-Arbeitsordner")
         # ein altes Konto behält seinen Unterordner
         alt = server.bild_speichern("anna", png(3, 2), {"prompt": "x"})
-        self.assertEqual(server.medium_pfad(alt).relative_to(self.arbeitsordner).parts[:2], ("Cinema-Studio", "anna"))
+        self.assertEqual(server.medium_pfad(alt).relative_to(server.ablage_wurzel()).parts[:2], ("anna", "bilder"))
+
+    def test_vereinheitlichen_holt_alles_an_einen_ort(self):
+        alt = self.arbeitsordner / "Cinema-Studio"
+        (alt / "Bilder" / "2026-10").mkdir(parents=True)
+        (alt / "Bilder" / "2026-10" / "2026-10-08_0444_x_aa11bb.png").write_bytes(png())
+        (alt / "Vorlagen" / "Bilder" / "Influencer Kühn").mkdir(parents=True)
+        (alt / "Vorlagen" / "Bilder" / "Influencer Kühn" / "HF-52 sporty.png").write_bytes(png())
+        (alt / "Vorlagen" / "Bilder" / "Influencer Kühn" / "HF-52 sporty.txt").write_text("prompt", "utf-8")
+        (server.DATA / "uploads").mkdir(parents=True, exist_ok=True)
+        (server.DATA / "uploads" / "up1.png").write_bytes(png())
+        liste = server.bilder()
+        liste.append({"id": "aa11bb", "owner": "werkstatt", "datei": "Bilder/2026-10/2026-10-08_0444_x_aa11bb.png",
+                      "wurzel": str(alt), "mime": "image/png", "erstellt": server.jetzt(), "typ": "bild", "prompt": "x"})
+        server.schreib_json("bilder.json", liste)
+        server.ablage_vereinheitlichen()
+        w = server.ablage_wurzel()
+        self.assertTrue((w / "bilder" / "2026-10" / "2026-10-08_0444_x_aa11bb.png").is_file())
+        self.assertTrue((w / "vorlagen" / "bilder" / "influencer-kuehn" / "hf-52-sporty.png").is_file())
+        self.assertTrue((w / "vorlagen" / "bilder" / "influencer-kuehn" / "hf-52-sporty.txt").is_file())
+        self.assertTrue((w / "uploads" / "up1.png").is_file())
+        self.assertFalse(alt.exists(), "alter Ort ist leer und weg")
+        b = server.bild_finden("aa11bb")
+        self.assertEqual((b["datei"], b["wurzel"]), ("bilder/2026-10/2026-10-08_0444_x_aa11bb.png", str(w)))
+        self.assertTrue(server.medium_pfad(b).is_file())
+        self.assertEqual(server.ablage_vereinheitlichen(), 0, "zweiter Lauf ändert nichts")
 
     def test_eigener_schluessel_wird_abgelehnt(self):
         token, csrf = server.sitzung_neu("werkstatt")
@@ -356,7 +382,7 @@ class WerkstattBindung(unittest.TestCase):
             c.request("GET", "/api/einstellungen", headers={"Host": "127.0.0.1", "Cookie": f"bildgen_sid={token}"})
             d = json.loads(c.getresponse().read())
             self.assertTrue(d["werkstatt"]["schutzschicht"])
-            self.assertTrue(d["werkstatt"]["ablage"].endswith("Cinema-Studio"))
+            self.assertEqual(d["werkstatt"]["ablage"], "", "die Ablage bleibt beim Programm")
         finally:
             srv.shutdown()
 
@@ -428,7 +454,7 @@ class Video(unittest.TestCase):
         server.schreib_json("einstellungen.json", {"startbild_anpassung": "aus"})
         self.addCleanup(server.schreib_json, "einstellungen.json", {})
         up = server.neue_id()
-        (server.DATA / "uploads" / f"{up}.png").write_bytes(png())
+        (server.uploads_ordner() / f"{up}.png").write_bytes(png())
         server.schreib_json("uploads.json", {up: {"owner": "vid", "datei": f"{up}.png", "mime": "image/png"}})
         with self.assertRaises(ValueError):
             server.video_auftrag_starten("vid", {"modell": FAKEV["id"], "prompt": "x", "endbild": up})
@@ -475,7 +501,7 @@ class Video(unittest.TestCase):
         ups = {}
         for _ in range(2):
             up = server.neue_id()
-            (server.DATA / "uploads" / f"{up}.png").write_bytes(png(16, 9))
+            (server.uploads_ordner() / f"{up}.png").write_bytes(png(16, 9))
             ups[up] = {"owner": "vid", "datei": f"{up}.png", "mime": "image/png"}
         server.schreib_json("uploads.json", ups)
         start, ende = list(ups)
@@ -764,7 +790,7 @@ class AudioAblage(unittest.TestCase):
 
     def test_ablage_name_und_einsortieren(self):
         rel = server.ablage_relativ("video", "2026-09-25T10:00:00+00:00", "Möwe über dem Meer! 4K", "abc123def456", "mp4")
-        self.assertTrue(rel.startswith("Videos/2026-09/2026-09-25_"))
+        self.assertTrue(rel.startswith("videos/2026-09/2026-09-25_"))
         self.assertTrue(rel.endswith("_möwe-über-dem-meer-4k_abc123def456.mp4"), rel)
         # alte, flache Datei wird beim Start einsortiert
         (server.DATA / "bilder" / "altbild00001.png").write_bytes(png())
@@ -773,7 +799,7 @@ class AudioAblage(unittest.TestCase):
                                              "prompt": "Alter Leuchtturm"}])
         self.assertEqual(server.ablage_einsortieren(), 1)
         b = server.bild_finden("altbild00001")
-        self.assertTrue(b["datei"].startswith("Bilder/2026-08/"))
+        self.assertTrue(b["datei"].startswith("bilder/2026-08/"))
         self.assertTrue(server.medium_pfad(b).is_file())
         self.assertFalse((server.DATA / "bilder" / "altbild00001.png").exists())
         self.assertEqual(server.ablage_einsortieren(), 0, "zweiter Lauf ändert nichts")
@@ -819,7 +845,7 @@ class AudioAblage(unittest.TestCase):
             self.assertEqual(aufrufe[0][2], "eve", "unbekannte Stimme → Beispielstimme des Modells")
             b = server.bild_finden(job["bilder"][0])
             self.assertEqual((b["typ"], b["mime"]), ("audio", "audio/mpeg"))
-            self.assertTrue(b["datei"].startswith("Audio/"))
+            self.assertTrue(b["datei"].startswith("audio/"))
             self.assertAlmostEqual(b["dauer"], 2.5, delta=0.2, msg="Tempo 80 % → 2 s werden ~2,5 s")
             self.assertAlmostEqual(b["kosten"], 0.000015 * len("Guten Tag"), places=6)
             self.assertTrue((server.DATA / "audio_roh" / b["roh"]).is_file(), "Original bleibt erhalten")
@@ -1090,21 +1116,21 @@ class Influencer(unittest.TestCase):
         st, j, _, _ = self.req("/api/vorlagen", None, a)
         self.assertEqual(st, 200)
         w = server.vorlagen_wurzel()
-        self.assertTrue((w / "Videos" / "Tanz").is_dir(), "Standardordner werden angelegt")
-        (w / "Bilder" / "Charaktere" / "figur.png").write_bytes(png())
-        (w / "Bilder" / "Charaktere" / "figur.txt").write_text("a man in a black coat", "utf-8")
-        (w / "Bilder" / "Charaktere" / "falsch.png").write_bytes(b"kein bild")
+        self.assertTrue((w / "videos" / "tanz").is_dir(), "Standardordner werden angelegt")
+        (w / "bilder" / "charaktere" / "figur.png").write_bytes(png())
+        (w / "bilder" / "charaktere" / "figur.txt").write_text("a man in a black coat", "utf-8")
+        (w / "bilder" / "charaktere" / "falsch.png").write_bytes(b"kein bild")
         st, j, _, _ = self.req("/api/vorlagen", None, a)
         v = next(x for x in j["vorlagen"] if x["name"] == "figur")
-        self.assertEqual((v["art"], v["ordner"], v["prompt"]), ("bild", "Charaktere", "a man in a black coat"))
+        self.assertEqual((v["art"], v["ordner"], v["prompt"]), ("bild", "charaktere", "a man in a black coat"))
         self.assertEqual(self.req(v["url"], None, a)[0], 200)
-        self.assertEqual(self.req("/vorlage/Bilder/Charaktere/falsch.png", None, a)[0], 415)
-        self.assertEqual(self.req("/vorlage/Bilder/..%2F..%2Fserver.py", None, a)[0], 404)
-        self.assertEqual(self.req("/vorlage/Bilder/Charaktere/figur.png")[0], 401)
+        self.assertEqual(self.req("/vorlage/bilder/charaktere/falsch.png", None, a)[0], 415)
+        self.assertEqual(self.req("/vorlage/bilder/..%2F..%2Fserver.py", None, a)[0], 404)
+        self.assertEqual(self.req("/vorlage/bilder/charaktere/figur.png")[0], 401)
         st, j, _, _ = self.req("/api/vorlagen/uebernehmen", {"pfad": v["pfad"]}, a, ca)
         self.assertEqual(st, 200)
         self.assertTrue(j["url"].startswith("/upload/"))
-        self.assertEqual(self.req("/api/vorlagen/uebernehmen", {"pfad": "Bilder/../../x.png"}, a, ca)[0], 404)
+        self.assertEqual(self.req("/api/vorlagen/uebernehmen", {"pfad": "bilder/../../x.png"}, a, ca)[0], 404)
 
     def test_ablauf(self):
         a, ca, b, cb = self.a, self.csrf_a, self.b, self.csrf_b

@@ -20,7 +20,7 @@ const IF_TYPEN = [
   ['vogel', 'Vogel', '🐦', 'Vogel-Figur mit Federn, Schnabel und Flügel-Armen'],
 ];
 const ifTyp = k => IF_TYPEN.find(t => t[0] === k) || IF_TYPEN[0];
-// Bild des Charaktertyps (Vorlagen\Bilder\Typen\<typ>.webp); das Symbol nur, falls die Datei fehlt
+// Bild des Charaktertyps (vorlagenilder	ypen\<typ>.webp); das Symbol nur, falls die Datei fehlt
 const ifTypBild = (k, klasse = 'if-typbild') => IF.typBilder?.[k]
   ? `<img class="${klasse}" src="${esc(IF.typBilder[k])}" alt="">` : `<span class="${klasse}">${ifTyp(k)[2]}</span>`;
 const IF_CHAT_VORSCHLAEGE = ['Gib mir 3 virale Influencer-Ideen', 'Mach meine Figur skurriler', 'Passendes Outfit für TikTok', 'Was mache ich als Nächstes?'];
@@ -232,21 +232,21 @@ function ifPanelZeichnen() {
 }
 
 const ifEigenZuVorlage = id => IF.liste.find(i => i.vorlage_id === id && i.bilder.length);
-// Bild-Vorlagen aus dem Vorlagen-Ordner: Bilder\Influencer <Typ>\datei.png + gleichnamige .txt (Prompt).
+// Bild-Vorlagen aus dem Vorlagen-Ordner: bilder\influencer-<typ>\datei.png + gleichnamige .txt (Prompt).
 // Sie stehen in der Galerie vor den reinen Text-Vorlagen und zeigen ihr echtes Bild.
 function ifBildVorlagen() {
-  return (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'bild' && /^influencer\s/i.test(v.ordner)).map(v => {
-    const tname = v.ordner.replace(/^influencer\s+/i, '').toLowerCase();
+  return (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'bild' && /^influencer[-\s]/i.test(v.ordner)).map(v => {
+    const tname = v.ordner.replace(/^influencer[-\s]+/i, '').toLowerCase();
     const typ = (IF_TYPEN.find(t => t[1].toLowerCase() === tname || t[0] === tname) || IF_TYPEN[0])[0];
     const sig = (v.prompt.match(/Signature:\s*([^.]*)/i) || [])[1] || v.prompt.split('. ')[0] || '';
-    return { id: 'ord:' + v.pfad, name: v.name.replace(/^HF-(\d+)\s*(.*)$/, (_, n, s) => `${s ? s[0].toUpperCase() + s.slice(1) : 'Figur'} ${n}`),
+    return { id: 'ord:' + v.pfad, name: v.name.replace(/^hf-(\d+)[-\s]*(.*)$/i, (_, n, s) => `${s ? s[0].toUpperCase() + s.slice(1).replace(/-/g, ' ') : 'Figur'} ${n}`),
       typ, prompt: v.prompt, kurz: sig.slice(0, 140), bild: v.url, pfad: v.pfad };
   });
 }
 const ifAlleVorlagen = () => [...ifBildVorlagen(), ...(IF.daten?.vorlagen || [])];
 // Kopfbereich „Erstellen“: kurze Videos statt Bilder – abwechselnd aus Vorlagen\Videos und den eigenen erzeugten Videos
 async function ifHeroVideosLaden() {
-  const vorl = (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'video').map(v => ({ url: v.url, titel: `${v.ordner} · ${v.name}` }));
+  const vorl = (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'video').map(v => ({ url: v.url, titel: `${ordnerAnzeige(v.ordner)} · ${v.name}` }));
   let eigene = [];
   try { eigene = (await api('bilder?ansicht=alle&typ=video')).bilder.filter(b => b.eigen).slice(0, 12).map(b => ({ url: '/bild/' + b.id, titel: b.prompt.slice(0, 80) })); } catch { /* ohne */ }
   const mix = [];
@@ -365,12 +365,12 @@ function ifBewegungZeichnen() {
       Nur Vorbilder verwenden, an denen du Rechte hast – fremde Personen, Marken und Musik werden nicht übernommen.</p>
   </div>`;
 }
-// Vorlagen-Ordner: <Ablage>\Vorlagen\Bilder|Videos\<Ordner> – bei jedem Besuch frisch eingelesen
+// Vorlagen-Ordner: <Programm>blageorlagenilder|videos\<ordner> – bei jedem Besuch frisch eingelesen
 async function ifVorlagenLaden() {
   try { IF.vorlagen = await api('vorlagen'); } catch (e) { IF.vorlagen = { fehler: e.message, vorlagen: [] }; }
-  // Bilder\Typen\<typ>.webp sind die Köpfe der Charaktertypen – keine Vorlagen
-  IF.typBilder = Object.fromEntries(IF.vorlagen.vorlagen.filter(v => v.art === 'bild' && v.ordner === 'Typen').map(v => [v.name.toLowerCase(), v.url]));
-  IF.vorlagen.vorlagen = IF.vorlagen.vorlagen.filter(v => v.ordner !== 'Typen');
+  // bilder	ypen\<typ>.webp sind die Köpfe der Charaktertypen – keine Vorlagen
+  IF.typBilder = Object.fromEntries(IF.vorlagen.vorlagen.filter(v => v.art === 'bild' && v.ordner.toLowerCase() === 'typen').map(v => [v.name.toLowerCase(), v.url]));
+  IF.vorlagen.vorlagen = IF.vorlagen.vorlagen.filter(v => v.ordner.toLowerCase() !== 'typen');
   if (S.ansicht === 'influencer:bewegung' && $('#ifVorlagen')) $('#ifVorlagen').innerHTML = ifVorlagenHtml();
 }
 function ifVorlagenHtml() {
@@ -382,24 +382,24 @@ function ifVorlagenHtml() {
     ...['bild', 'video'].flatMap(art => {
       const ordner = [...new Set(d.vorlagen.filter(v => v.art === art).map(v => v.ordner))];
       return [[art, art === 'bild' ? 'Bilder' : 'Videos', d.vorlagen.filter(v => v.art === art).length],
-        ...ordner.map(o => [`${art}:${o}`, `· ${o}`, d.vorlagen.filter(v => v.art === art && v.ordner === o).length])];
+        ...ordner.map(o => [`${art}:${o}`, `· ${ordnerAnzeige(o)}`, d.vorlagen.filter(v => v.art === art && v.ordner === o).length])];
     })];
   return `<div class="if-vorlagen-kopf"><h3>Deine Vorlagen</h3>
       <button class="btn klein" id="ifVNeu" data-tip="Ordner neu einlesen">${ico('nachbauen')}Neu einlesen</button></div>
     <p class="unter">Bilder und Videos hier hineinlegen – sie erscheinen automatisch. Eine gleichnamige <code>.txt</code> daneben: bei Bildern die Figur-Beschreibung, bei Videos der Bewegungs-Prompt.</p>
     <div class="if-pfad"><code>${esc(d.pfad)}</code><button class="btn klein" id="ifVPfad">Pfad kopieren</button></div>
-    <p class="unter">Unterordner: Bilder › ${esc(d.ordner.Bilder.join(', '))} · Videos › ${esc(d.ordner.Videos.join(', '))} – eigene Ordner gehen auch.</p>
+    <p class="unter">Unterordner: <code>bilder</code> › ${esc(d.ordner.bilder.join(', '))} · <code>videos</code> › ${esc(d.ordner.videos.join(', '))} – eigene Ordner gehen auch.</p>
     ${d.vorlagen.length ? `<div class="if-pillen">${pillen.map(([k, t, n]) => `<button class="${filter === k ? 'an' : ''}" data-ifvfilter="${esc(k)}">${esc(t)}<small>${n}</small></button>`).join('')}</div>
     <div class="if-vraster">${liste.map(v => `<div class="if-vkarte">
-      ${v.art === 'bild' ? `<img class="fokus${/blatt$/i.test(v.name) || /blätter/i.test(v.ordner) ? ' blatt' : ''}" src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
-      <span class="if-typ">${esc(v.ordner)}</span>
+      ${v.art === 'bild' ? `<img class="fokus${/blatt$/i.test(v.name) || /blätter|blaetter/i.test(v.ordner) ? ' blatt' : ''}" src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
+      <span class="if-typ">${esc(ordnerAnzeige(v.ordner))}</span>
       <div class="if-vinfo"><b title="${esc(v.name)}">${esc(v.name)}</b>${v.prompt ? '<small>mit Prompt</small>' : ''}</div>
       <div class="if-vknoepfe">
         ${v.art === 'bild' ? `<button class="btn klein" data-ifv="basis" data-pfad="${esc(v.pfad)}" data-tip="Als @Bild 1 / Basis ins Panel „Erstellen“">Als @Bild 1</button>`
           : `<button class="btn klein primaer" data-ifv="klon" data-pfad="${esc(v.pfad)}" data-tip="Video-Clone liest dieses Video aus (≈ 0,01–0,05 $) – danach im Assistenten übernehmen und mischen">Auslesen</button>`}
         ${v.prompt && v.art === 'video' ? `<button class="btn klein" data-ifv="prompt" data-pfad="${esc(v.pfad)}" data-tip="${esc(v.prompt.slice(0, 160))}">Als Beschreibung</button>` : ''}
       </div></div>`).join('')}</div>`
-    : '<p class="unter"><b>Noch leer.</b> Lege z. B. ein Tanzvideo in <code>Videos\\Tanz</code> und deine Figur in <code>Bilder\\Charaktere</code>, dann „Neu einlesen“.</p>'}`;
+    : '<p class="unter"><b>Noch leer.</b> Lege z. B. ein Tanzvideo in <code>videos\\tanz</code> und deine Figur in <code>bilder\\charaktere</code>, dann „Neu einlesen“.</p>'}`;
 }
 async function ifVorlageAktion(k) {
   const v = IF.vorlagen.vorlagen.find(x => x.pfad === k.dataset.pfad);

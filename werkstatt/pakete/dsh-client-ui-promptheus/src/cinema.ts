@@ -53,14 +53,14 @@ export const WARTEN_SEKUNDEN = 60
 /**
  * Wo Cinema Studio liegt, gesehen von der Werkstatt-Wurzel aus.
  *
- * Ein fester Ort: `werkstatt\scripts\CINEMA-STUDIO` mit `server.py` direkt
+ * Ein fester Ort: `werkstatt\scripts\cinema-studio` mit `server.py` direkt
  * darin (in git ausgeschlossen, dort liegen `.env` und die Ablage). Bis zum
  * 07.10.2026 stand hier zusätzlich eine Arbeitskopie tief in einem fremden,
  * nicht versionierten Worktree — sie verschwand mit jedem Aufräumen dieses
  * Worktrees. Ein anderer Ort geht über `PROMPTHEUS_CINEMA_DIR`.
  */
 export const CINEMA_ORTE: readonly string[][] = [
-  ['scripts', 'CINEMA-STUDIO'],
+  ['scripts', 'cinema-studio'],
 ]
 
 /** Ein Ordner gilt nur, wenn Server, Sperre und Startdatei darin liegen. */

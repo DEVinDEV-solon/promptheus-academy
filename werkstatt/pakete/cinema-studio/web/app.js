@@ -907,9 +907,14 @@ function lbHerkunft(b) {
   const inf = typeof IF !== 'undefined' && IF.liste?.find(i => i.bilder.some(x => x.id === b.id));
   return inf ? `${t} · Influencer „${inf.name}“` : t;
 }
+// Ordnernamen liegen klein und ohne Umlaute auf der Platte („influencer-kuehn“) – angezeigt werden sie lesbar („Influencer Kühn“)
+const ORDNER_WOERTER = { kuehn: 'Kühn', hintergruende: 'Hintergründe', charakterblaetter: 'Charakterblätter' };
+function ordnerAnzeige(name) {
+  return String(name || '').split(/[-\s]+/).filter(Boolean).map(w => ORDNER_WOERTER[w.toLowerCase()] || w[0].toUpperCase() + w.slice(1)).join(' ');
+}
 function herkunftAusUrl(url) {
   const p = (url || '').replace(location.origin, '');
-  if (p.startsWith('/vorlage/')) { const t = decodeURIComponent(p.slice(9)).split('/'); return `Aus dem Vorlagen-Ordner · ${t[0]} › ${t[1] || ''}`; }
+  if (p.startsWith('/vorlage/')) { const t = decodeURIComponent(p.slice(9)).split('/'); return `Aus dem Vorlagen-Ordner · ${ordnerAnzeige(t[0])} › ${ordnerAnzeige(t[1])}`; }
   if (p.startsWith('/static/')) return 'Muster-Beispielbild';
   if (p.startsWith('/upload/')) return 'Hochgeladen';
   return 'Aus der Bibliothek';

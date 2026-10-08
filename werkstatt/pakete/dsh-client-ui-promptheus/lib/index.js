@@ -14,7 +14,7 @@ var STARTER = "CINEMA-STUDIO-START.bat";
 var TICKET_SEKUNDEN = 120;
 var WARTEN_SEKUNDEN = 60;
 var CINEMA_ORTE = [
-  ["scripts", "CINEMA-STUDIO"]
+  ["scripts", "cinema-studio"]
 ];
 function istCinemaOrdner(ordner) {
   return ["server.py", "zugang.py", STARTER].every((datei) => existsSync(join(ordner, datei)));

@@ -82,7 +82,7 @@ def schreib_json(name: str, daten) -> None:
 
 
 def verzeichnisse() -> None:
-    for d in ("bilder", "uploads", "cache"):
+    for d in ("bilder", "cache"):
         (DATA / d).mkdir(parents=True, exist_ok=True)
 
 
@@ -553,20 +553,33 @@ def darf_sehen(b: dict, name: str) -> bool:
 
 
 # --------------------------------------------------------------------------- Ablage (strukturiert)
-TYP_ORDNER = {"bild": "Bilder", "video": "Videos", "audio": "Audio"}
+# Seit 08.10.2026 liegt alles, was Cinema Studio erzeugt und braucht, an EINEM Ort beim Programm – Namen klein:
+#   <Programm>\ablage\bilder|videos|audio\JJJJ-MM\…   Ergebnisse
+#   <Programm>\ablage\uploads\…                    eigene Fotos, Referenzbilder; uploads\clone = Videos für Video-Clone
+#   <Programm>\ablage\vorlagen\bilder|videos\…    Vorlagen
+#   <Programm>\data\…                              nur Zustand (Chats, Einstellungen, Listen)
+TYP_ORDNER = {"bild": "bilder", "video": "videos", "audio": "audio"}
 
-
-ABLAGE_IM_ARBEITSORDNER = "Cinema-Studio"
+FRUEHERE_ABLAGE_IM_ARBEITSORDNER = "Cinema-Studio"      # bis 08.10.2026: <Werkstatt-Arbeitsordner>\Cinema-Studio
 
 
 def ablage_wurzel() -> Path:
-    """Aus der Werkstatt gestartet: <Arbeitsordner der Werkstatt>\\Cinema-Studio — das hat Vorrang vor der
-    Einstellung, damit niemand seine Ergebnisse tief im Programmordner suchen muss (zugang.bindung)."""
-    arbeitsordner = zugang.bindung()["arbeitsordner"]
-    if arbeitsordner:
-        return arbeitsordner / ABLAGE_IM_ARBEITSORDNER
+    """<Programm>\\ablage – eine andere Ablage nur über die Einstellung „ablage_pfad“ (Tests: BILDGEN_ABLAGE)."""
     pfad_ = str(einstellungen().get("ablage_pfad") or "").strip() or os.environ.get("BILDGEN_ABLAGE", "")
-    return Path(pfad_) if pfad_ else ROOT / "Ablage"
+    return Path(pfad_) if pfad_ else ROOT / "ablage"
+
+
+def uploads_ordner() -> Path:
+    p = ablage_wurzel() / "uploads"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def clone_ordner() -> Path:
+    """Hochgeladene Videos für Video-Clone – nur bis zur Analyse, danach gelöscht."""
+    p = uploads_ordner() / "clone"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
 
 def nutzerordner(owner: str) -> str:
@@ -605,6 +618,133 @@ def medium_pfad(b: dict) -> Path:
                 return p
         return ablage_wurzel() / rel
     return DATA / "bilder" / d
+
+
+def name_klein(name: str) -> str:
+    """Einheitliche Ordner-/Dateinamen: klein, Umlaute ausgeschrieben, Leerzeichen → „-“ („Influencer Kühn“ → „influencer-kuehn“)."""
+    s = name.strip().lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    return re.sub(r"\s+", "-", s)
+
+
+def _gleich(a: Path, b: Path) -> bool:
+    try:
+        return a.exists() and b.exists() and os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
+def _umbenennen(p: Path, neu: str) -> Path:
+    """Umbenennen, auch wenn sich nur Groß-/Kleinschreibung ändert (Windows: über einen Zwischennamen)."""
+    if p.name == neu:
+        return p
+    zw = p.with_name(p.name + ".umbenennen")
+    p.rename(zw)
+    return zw.rename(p.with_name(neu))
+
+
+def _zusammenfuehren(quelle: Path, ziel: Path, dateien_klein: bool) -> int:
+    """Inhalt von quelle nach ziel verschieben (rekursiv), Ordnernamen klein; bei dateien_klein auch Dateinamen.
+    Vorhandenes im Ziel wird nie überschrieben."""
+    n = 0
+    ziel.mkdir(parents=True, exist_ok=True)
+    for p in sorted(quelle.iterdir()):
+        neu = name_klein(p.name) if (p.is_dir() or dateien_klein) else p.name
+        z = ziel / neu
+        if _gleich(p, z):                       # derselbe Eintrag, nur anders geschrieben → an Ort und Stelle umbenennen
+            p = _umbenennen(p, neu)
+            if p.is_dir():
+                n += _zusammenfuehren(p, p, dateien_klein)
+            continue
+        if p.is_dir():
+            n += _zusammenfuehren(p, z, dateien_klein)
+            try:
+                p.rmdir()
+            except OSError:
+                pass
+        elif not z.exists():
+            shutil.move(str(p), str(z))
+            n += 1
+        else:
+            print(f"Ablage: {p} nicht verschoben – {z} gibt es schon.", flush=True)
+    return n
+
+
+def _holen(p: Path, z: Path, dateien_klein: bool) -> int:
+    """Ordner p nach z bringen. Ist es derselbe Ordner (nur anders geschrieben), wird er an Ort und Stelle umbenannt."""
+    if _gleich(p, z):
+        p = _umbenennen(p, z.name)
+        return _zusammenfuehren(p, p, dateien_klein)
+    n = _zusammenfuehren(p, z, dateien_klein)
+    _leere_ordner_weg(p)
+    return n
+
+
+def _leere_ordner_weg(p: Path) -> None:
+    if not p.is_dir():
+        return
+    for k in p.iterdir():
+        if k.is_dir():
+            _leere_ordner_weg(k)
+    try:
+        p.rmdir()
+    except OSError:
+        pass
+
+
+def ablage_vereinheitlichen() -> int:
+    """Einmalig beim Start: alles an den einen Ort <Programm>\\ablage holen und Namen klein schreiben.
+    Quellen: frühere Ablage im Werkstatt-Arbeitsordner, <Programm>\\Ablage, data\\uploads, data\\klon_uploads.
+    Danach zeigen die Einträge in bilder.json auf die neuen Pfade. Läuft ohne Fehler auch mehrfach."""
+    ziel = ablage_wurzel()
+    n = 0
+    try:
+        for p in ROOT.iterdir():               # <Programm>\\Ablage → ablage (nur Schreibweise)
+            if p.is_dir() and p.name != "ablage" and p.name.lower() == "ablage" and _gleich(p, ziel):
+                _umbenennen(p, "ablage")
+        quellen = [ziel, ROOT / "Ablage"]
+        ao = zugang.bindung()["arbeitsordner"]
+        if ao:
+            quellen.append(Path(ao) / FRUEHERE_ABLAGE_IM_ARBEITSORDNER)
+        bekannt = {"bilder", "videos", "audio", "uploads"}
+        for q in quellen:
+            if not q.is_dir() or (q is not quellen[0] and _gleich(q, ziel)):
+                continue
+            ziel.mkdir(parents=True, exist_ok=True)
+            for p in sorted(q.iterdir()):
+                if not p.is_dir():
+                    continue
+                k = p.name.lower()
+                if k in bekannt:
+                    n += _holen(p, ziel / k, False)
+                elif k == "vorlagen":
+                    n += _holen(p, ziel / "vorlagen", True)
+                elif not k.startswith(".") and any(c.is_dir() and c.name.lower() in bekannt for c in p.iterdir()):
+                    for c in sorted(p.iterdir()):        # Nutzerordner <Ablage>\\<konto>\\Bilder …
+                        if c.is_dir() and c.name.lower() in bekannt:
+                            n += _holen(c, ziel / p.name / c.name.lower(), False)
+            if not _gleich(q, ziel):
+                _leere_ordner_weg(q)
+        for alt, neu in ((DATA / "uploads", ziel / "uploads"), (DATA / "klon_uploads", ziel / "uploads" / "clone")):
+            if alt.is_dir():
+                n += _holen(alt, neu, False)
+    except OSError as e:                     # ein Rest darf den Start nie verhindern
+        print(f"Ablage: nicht alles einsortiert ({e}).", flush=True)
+    with LOCK:
+        liste = bilder()
+        geaendert = False
+        for b in liste:
+            d = str(b.get("datei") or "")
+            if "/" not in d:
+                continue
+            teile = d.split("/")
+            teile[0] = TYP_ORDNER.get({"bilder": "bild", "videos": "video", "audio": "audio"}.get(teile[0].lower(), ""), teile[0])
+            neu = "/".join(teile)
+            if (ziel / nutzerordner(b["owner"]) / Path(*teile)).is_file() and (neu != d or b.get("wurzel") != str(ziel)):
+                b.update({"datei": neu, "wurzel": str(ziel)})
+                geaendert = True
+        if geaendert:
+            schreib_json("bilder.json", liste)
+    return n
 
 
 def ablage_einsortieren() -> int:
@@ -685,7 +825,7 @@ def referenz_daten(ref: str, owner: str) -> str | None:
         u = ups.get(ref)
         if not u or u["owner"] != owner:
             return None
-        f = DATA / "uploads" / u["datei"]
+        f = uploads_ordner() / u["datei"]
         mime = u["mime"]
     if not f.is_file() or mime == "image/svg+xml" or not mime.startswith("image/"):
         return None      # Videos und SVG taugen nicht als Referenzbild
@@ -1780,12 +1920,11 @@ def klon_starten(name: str, e: dict) -> dict:
         up = lies_json("klon_uploads.json", {}).get(str(e.get("upload") or ""))
         if not up or up["owner"] != name:
             raise Fehler(400, "Bitte einen Link angeben oder ein Video hochladen.")
-        datei = DATA / "klon_uploads" / up["datei"]
+        datei = clone_ordner() / up["datei"]
     if any(j["owner"] == name and j["status"] == "laeuft" for j in KLON_JOBS.values()):
         raise Fehler(409, "Es läuft bereits eine Analyse.")
     if vorlage:     # Kopie analysieren – die Analyse löscht ihre Quelle, die Vorlage bleibt liegen
-        (DATA / "klon_uploads").mkdir(parents=True, exist_ok=True)
-        datei = DATA / "klon_uploads" / f"{neue_id()}{vorlage.suffix.lower()}"
+        datei = clone_ordner() / f"{neue_id()}{vorlage.suffix.lower()}"
         shutil.copyfile(vorlage, datei)
     job = {"id": neue_id(), "owner": name, "chat": chat["id"], "status": "laeuft", "schritt": "Wird vorbereitet …",
            "nr": 0, "von": 4, "fehler": "", "start": jetzt()}
@@ -1920,16 +2059,16 @@ def prompt_uebersetzen(name: str, e: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- Vorlagen-Ordner
-# Liegen neben den Ergebnissen: <Ablage>\Vorlagen\Bilder|Videos\<Ordner>\datei (+ gleichnamige .txt = Prompt).
+# Liegen neben den Ergebnissen: <Ablage>\vorlagen\bilder|videos\<ordner>\datei (+ gleichnamige .txt = Prompt).
 # Wer dort Dateien hineinlegt, sieht sie beim nächsten Öffnen von Influencer › Bewegung – ohne Neustart.
-VORLAGEN_ARTEN = {"Bilder": "image/", "Videos": "video/"}
-VORLAGEN_ORDNER = {"Bilder": ("Charaktere", "Posen", "Outfits", "Hintergründe"),
-                   "Videos": ("Tanz", "Gehen", "Gruppe", "Sport", "Sonstiges")}
+VORLAGEN_ARTEN = {"bilder": "image/", "videos": "video/"}
+VORLAGEN_ORDNER = {"bilder": ("charaktere", "posen", "outfits", "hintergruende"),
+                   "videos": ("tanz", "gehen", "gruppe", "sport", "sonstiges")}
 VORLAGEN_ENDUNGEN = {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".webm"}
 
 
 def vorlagen_wurzel() -> Path:
-    return ablage_wurzel() / "Vorlagen"
+    return ablage_wurzel() / "vorlagen"
 
 
 def vorlagen_liste() -> dict:
@@ -1959,13 +2098,13 @@ def vorlagen_liste() -> dict:
                     except OSError:
                         pass
                 rel = f"{art}/{ordner.name}/{f.name}"
-                aus.append({"art": "bild" if art == "Bilder" else "video", "ordner": ordner.name, "name": f.stem,
+                aus.append({"art": "bild" if art == "bilder" else "video", "ordner": ordner.name, "name": f.stem,
                             "pfad": rel, "url": "/vorlage/" + quote(rel), "prompt": prompt})
     return {"pfad": str(w), "ordner": VORLAGEN_ORDNER, "vorlagen": aus}
 
 
 def vorlage_datei(rel: str) -> tuple[Path, str]:
-    """Pfad „Bilder|Videos/<Ordner>/<Datei>“ → Datei und Typ (an den ersten Bytes geprüft). Nichts außerhalb von Vorlagen."""
+    """Pfad „bilder|videos/<ordner>/<datei>“ → Datei und Typ (an den ersten Bytes geprüft). Nichts außerhalb von Vorlagen."""
     teile = str(rel).replace("\\", "/").split("/")
     if len(teile) != 3 or teile[0] not in VORLAGEN_ARTEN or any(t in ("", ".", "..") for t in teile):
         raise Fehler(404, "Vorlage nicht gefunden.")
@@ -1986,7 +2125,7 @@ def vorlage_als_upload(name: str, rel: str) -> dict:
     if not mime.startswith("image/") or f.stat().st_size > MAX_UPLOAD:
         raise Fehler(400, "Nur Bild-Vorlagen bis 12 MB lassen sich übernehmen.")
     uid, endung = neue_id(), bild_typ(f.read_bytes()[:64])[1]
-    shutil.copyfile(f, DATA / "uploads" / f"{uid}.{endung}")
+    shutil.copyfile(f, uploads_ordner() / f"{uid}.{endung}")
     with LOCK:
         ups = lies_json("uploads.json", {})
         ups[uid] = {"owner": name, "datei": f"{uid}.{endung}", "mime": mime, "erstellt": jetzt(), "name": f.stem[:120]}
@@ -2190,7 +2329,7 @@ class Handler(BaseHTTPRequestHandler):
             u = lies_json("uploads.json", {}).get(teile[1])
             if not u or u["owner"] != name:
                 raise Fehler(404, "Nicht gefunden.")
-            f, mime, dl = DATA / "uploads" / u["datei"], u["mime"], u["datei"]
+            f, mime, dl = uploads_ordner() / u["datei"], u["mime"], u["datei"]
         if not f.is_file():
             raise Fehler(404, "Datei fehlt.")
         self.datei(f, mime, dl if "dl" in parse_qs(url.query) else "", cache=True)
@@ -2228,7 +2367,7 @@ class Handler(BaseHTTPRequestHandler):
             s = einstellungen()
             bindung_ = zugang.bindung()
             return self.json({"ok": True, "einstellungen": s, "schluessel": key_quelle(), "admin": admin,
-                              "werkstatt": {"ablage": str(ablage_wurzel()) if bindung_["arbeitsordner"] else "",
+                              "werkstatt": {"ablage": "",
                                             "schutzschicht": bool(bindung_["schutzschicht"])}})
         if p == "einstellungen" and post:
             if not admin:
@@ -2492,7 +2631,7 @@ class Handler(BaseHTTPRequestHandler):
             if not typ or not typ[0].startswith("image/") or typ[0] == "image/svg+xml":
                 raise Fehler(400, "Nur PNG, JPEG, WebP oder GIF.")
             uid = neue_id()
-            (DATA / "uploads" / f"{uid}.{typ[1]}").write_bytes(roh)
+            (uploads_ordner() / f"{uid}.{typ[1]}").write_bytes(roh)
             with LOCK:
                 ups = lies_json("uploads.json", {})
                 ups[uid] = {"owner": name, "datei": f"{uid}.{typ[1]}", "mime": typ[0], "erstellt": jetzt(),
@@ -2628,8 +2767,7 @@ class Handler(BaseHTTPRequestHandler):
         laenge = int(self.headers.get("Content-Length") or 0)
         if not 0 < laenge <= KLON_MAX:
             raise Fehler(413, "Kein Video oder größer als 500 MB.")
-        ordner = DATA / "klon_uploads"
-        ordner.mkdir(parents=True, exist_ok=True)
+        ordner = clone_ordner()
         uid = neue_id()
         teil = ordner / f"{uid}.part"
         kopf, rest = b"", laenge
@@ -2996,6 +3134,9 @@ def main():
     threading.Thread(target=vkatalog_laden, daemon=True).start()
     threading.Thread(target=akatalog_laden, daemon=True).start()
     threading.Thread(target=katalog_waechter, daemon=True).start()
+    n_v = ablage_vereinheitlichen()
+    if n_v:
+        print(f"{n_v} Datei(en) nach {ablage_wurzel()} geholt (ein Ort, Namen klein).", flush=True)
     n_ab = ablage_einsortieren()
     if n_ab:
         print(f"{n_ab} Datei(en) in die Ablage {ablage_wurzel()} einsortiert.", flush=True)

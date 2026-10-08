@@ -137,19 +137,19 @@ function bwSchritt1() {
     else raster = BW.bib.length ? BW.bib.slice(0, 200).map(x => bwKachel('bild', x.id, '/bild/' + x.id, x.prompt.slice(0, 60))).join('') : '<p class="unter">Die Bibliothek enthält noch keine Bilder.</p>';
   } else if (BW.tab === 'vorlagen') {
     const v = (IF.vorlagen?.vorlagen || []).filter(x => x.art === 'bild');
-    raster = v.length ? v.map(x => bwKachel('vorlage', x.pfad, x.url, `${x.ordner} · ${x.name}`)).join('') : '<p class="unter">Im Vorlagen-Ordner liegen noch keine Bilder.</p>';
+    raster = v.length ? v.map(x => bwKachel('vorlage', x.pfad, x.url, `${ordnerAnzeige(x.ordner)} · ${x.name}`)).join('') : '<p class="unter">Im Vorlagen-Ordner liegen noch keine Bilder.</p>';
   } else {
     raster = IF_MUSTER.map(m => bwKachel('beispiel', m.id, m.bild, 'Beispiel: ' + m.name)).join('');
   }
   return `<h4>1 · Wer spielt die Hauptrolle? <small>@Bild 1 – wird das Startbild des Videos</small></h4>
-    ${BW.bild ? `<div class="bw-gewaehlt"><img class="fokus${/blatt$|blätter/i.test(BW.bild.name || '') ? ' blatt' : ''}" src="${esc(BW.bild.url)}" alt=""><div><b>${esc(BW.bild.name || 'Gewählt')}</b>
+    ${BW.bild ? `<div class="bw-gewaehlt"><img class="fokus${/blatt$|blätter|blaetter/i.test(BW.bild.name || '') ? ' blatt' : ''}" src="${esc(BW.bild.url)}" alt=""><div><b>${esc(BW.bild.name || 'Gewählt')}</b>
       <small>Zum Austauschen einfach ein anderes Bild anklicken.</small></div></div>` : ''}
     <div class="filter bw-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" class="${BW.tab === k ? 'an' : ''}" data-bwtab="${k}">${t}</button>`).join('')}</div>
     <div class="bw-raster">${raster}</div>`;
 }
 const bwKachel = (art, wert, url, titel) =>
   `<button class="${BW.bild?.quelle === art && BW.bild?.wert === wert ? 'an' : ''}" data-bwbild="${art}" data-wert="${esc(wert)}" data-url="${esc(url)}" data-titel="${esc(titel || '')}" data-tip="${esc(titel || '')}">
-    <img class="fokus${/blatt$|blätter/i.test(titel || '') ? ' blatt' : ''}" src="${esc(url)}" loading="lazy" alt=""></button>`;
+    <img class="fokus${/blatt$|blätter|blaetter/i.test(titel || '') ? ' blatt' : ''}" src="${esc(url)}" loading="lazy" alt=""></button>`;
 async function bwBibLaden() {
   try { BW.bib = (await api('bilder?ansicht=alle&typ=bild')).bilder; } catch (e) { BW.bib = []; fehler(e); }
   if (BW.schritt === 1 && BW.tab === 'bibliothek') bwZeichnen();
@@ -183,7 +183,7 @@ function bwSchritt2() {
     const v = (IF.vorlagen?.vorlagen || []).filter(x => x.art === 'video');
     detail = BW.klonLaeuft ? `<div class="bw-analyse"><span class="spin"></span> Video-Clone liest das Video aus … ${esc(KLON.job?.schritt || '')}</div>`
       : `<label class="bw-label">Aus dem Vorlagen-Ordner (Videos)</label>
-      ${v.length ? `<div class="bw-liste">${v.map(x => `<button data-bwvideo="${esc(x.pfad)}">${ico('video')}<span>${esc(x.ordner)} · ${esc(x.name)}</span><small>Auslesen ≈ 0,01–0,05 $</small></button>`).join('')}</div>`
+      ${v.length ? `<div class="bw-liste">${v.map(x => `<button data-bwvideo="${esc(x.pfad)}">${ico('video')}<span>${esc(ordnerAnzeige(x.ordner))} · ${esc(x.name)}</span><small>Auslesen ≈ 0,01–0,05 $</small></button>`).join('')}</div>`
         : '<p class="unter">Noch keine Videos im Ordner <code>Vorlagen\\Videos</code>.</p>'}
       <button class="btn klein" id="bwKlonChat">${ico('video')}Link oder eigenes Video im Chat (Video-Clone)</button>
       <p class="unter">Danach hier „Aus Video-Clone übernehmen“ wählen.</p>`;
@@ -217,7 +217,7 @@ function bwSchritt4() {
 function bwSchritt5() {
   const q = { beschreibung: 'Beschreibung', analyse: 'Video-Clone-Analyse' + (BW.mix.trim() ? ' + Änderungen' : '') }[BW.quelle] || '';
   return `<h4>5 · Wie geht es weiter?</h4>
-    <div class="bw-zusammen"><img class="fokus${/blatt$|blätter/i.test(BW.bild?.name || '') ? ' blatt' : ''}" src="${esc(BW.bild?.url || '')}" alt="">
+    <div class="bw-zusammen"><img class="fokus${/blatt$|blätter|blaetter/i.test(BW.bild?.name || '') ? ' blatt' : ''}" src="${esc(BW.bild?.url || '')}" alt="">
       <dl><dt>@Bild 1</dt><dd>${esc(BW.bild?.name || '')}</dd><dt>Bewegung</dt><dd>${esc(q)}</dd><dt>Musik</dt><dd>${esc(BW.ohneMusik ? 'ohne' : (BW.eigen.trim() || BW.musik))}</dd></dl></div>
     <div class="bw-wahl bw-ende">
       <button id="bwVideo" class="an lotse-ziel"><span>🎬</span><b>Im Video-Modus öffnen</b><small>Deine Figur ist das Startbild, der Prompt steht drin. Preis und Modell siehst du dort vor dem Erzeugen.</small></button>

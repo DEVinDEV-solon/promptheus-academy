@@ -6,8 +6,20 @@ Lokale Plattform für Bilder, Videos und Sprache über **einen** OpenRouter-Ansc
 
 ## Quelle und Laufort
 - **Quelle (versioniert):** `werkstatt\pakete\cinema-studio` im PROMPTHEUS-Repo. Nur hier ändern.
-- **Laufort (nicht versioniert):** `werkstatt\scripts\CINEMA-STUDIO`. Dort liegen `.env`, `data\`, `zugang\` und die
-  `Ablage\` der erzeugten Medien.
+- **Laufort (nicht versioniert):** `werkstatt\scripts\cinema-studio`. Dort liegen `.env`, `data\`, `zugang\` und
+  `ablage\` – alle Daten an einem Ort, Ordner- und Dateinamen klein (seit 08.10.2026):
+  ```
+  cinema-studio\
+  ├ data\        nur Zustand: Chats, Einstellungen, Listen (bilder.json …)
+  └ ablage\
+    ├ bilder\ videos\ audio\   Ergebnisse, je Monat JJJJ-MM\
+    ├ uploads\                 eigene Fotos und Referenzen; uploads\clone\ = Videos für Video-Clone (bis zur Analyse)
+    └ vorlagen\
+      ├ bilder\influencer-extrem|influencer-kuehn|influencer-normal|charakterblaetter|typen|charaktere|posen|outfits|hintergruende\
+      └ videos\tanz|gehen|gruppe|sport|sonstiges\
+  ```
+  `ablage_vereinheitlichen()` holt beim Start Reste von früheren Orten hierher (`<Werkstatt-Arbeitsordner>\Cinema-Studio`,
+  `Ablage\`, `data\uploads`, `data\klon_uploads`), schreibt Namen klein und passt `bilder.json` an. Nie überschreiben.
 - `node werkzeuge/bauen.mjs` spiegelt den Code am Ende an den Laufort, allein geht es mit
   `node werkzeuge/cinema_spiegeln.mjs`. Gespiegelt wird nur die Liste `TEILE` in `werkzeuge/cinema_spiegeln.mjs`;
   Laufzeitdaten werden nie angefasst. Änderungen direkt am Laufort gehen beim nächsten Spiegeln verloren.
@@ -24,8 +36,8 @@ Lokale Plattform für Bilder, Videos und Sprache über **einen** OpenRouter-Ansc
    angelegt). Ohne Marke zeigt die Seite nur den Weg über die Werkstatt.
 3. **An die Werkstatt gebunden** (seit 06.10.2026): Bei jedem Klick schreibt die Werkstatt `zugang/werkstatt.json`
    mit ihrem Arbeitsordner und ihrer Schutzschicht (`zugang.bindung`). Dann gilt:
-   - **Ablage** in `<Arbeitsordner der Werkstatt>\Cinema-Studio\Bilder|Videos|Audio\JJJJ-MM\…` — ohne
-     Nutzer-Zwischenordner, Vorrang vor der Einstellung „Ablage-Ordner“. Ein neuer Arbeitsordner gilt ohne Neustart.
+   - **Ablage** in `<Programm>\ablage\bilder|videos|audio\JJJJ-MM\…` — ohne Nutzer-Zwischenordner. Bis 08.10.2026
+     lag sie im Arbeitsordner der Werkstatt; der Start holt sie von dort zurück.
    - **Schlüssel**: alle OpenRouter-Aufrufe gehen über die Schutzschicht (`or_basis()`), die den Schlüssel der
      Werkstatt einsetzt, maskiert und protokolliert. Cinema Studio schickt nur den Platzhalter `schutzschicht`;
      ein eigener Schlüssel wird dann abgelehnt. Ist die Werkstatt zu, sagt die Fehlermeldung genau das.
@@ -43,8 +55,8 @@ Voraussetzung: Python 3.10+ (nur Standardbibliothek, keine Pakete).
 | `web/index.html`, `web/app.css`, `web/app.js` | Oberfläche (ohne Framework) |
 | `web/chat.js` · `web/medien.js` | Seitenchat · Audio, Modellkatalog, Modellwahl mit Kosten, Speichern/Ablage |
 | `web/influencer.js` · `web/influencer_vorlagen.json` | Menü „Influencer“: Charaktere bauen (Panel, Galerie, Lotse mit Pfeilen) · 64 Vorlagen aus `vps/Pläne/100_Cinema-Studio/charakter.md`; Daten in `data/influencer.json`. Unterpunkt „Bewegung“ zeigt Muster-Rezepte (`web/muster_*.webp` als Beispiel für @Bild 1) und übergibt den Prompt an Video-Clone/Chat |
-| `Ablage/` | **Alle erzeugten Dateien**, strukturiert: `<nutzer>/Bilder\|Videos\|Audio/JJJJ-MM/Datum_Uhrzeit_Stichwort_Id` — nicht in git |
-| `data/` | Verwaltung: JSON-Dateien, `uploads/`, `audio_roh/` (Originale für „Klang anpassen“), `stimmen/` (eigene Stimmproben), `chats/`, `cache/` — nicht in git |
+| `ablage/` | **Alle Dateien**: `bilder\|videos\|audio/JJJJ-MM/Datum_Uhrzeit_Stichwort_Id`, `uploads/`, `vorlagen/` — nicht in git |
+| `data/` | Verwaltung: JSON-Dateien, `audio_roh/` (Originale für „Klang anpassen“), `stimmen/` (eigene Stimmproben), `chats/`, `cache/` — nicht in git |
 | `tests/test_server.py` | Offline-Tests (OpenRouter simuliert): `python -m unittest discover -s tests -v` |
 
 ## Wissenswertes

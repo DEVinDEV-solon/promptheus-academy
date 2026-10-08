@@ -41,10 +41,10 @@ Studio nicht mehr: Bei jedem Klick legt die Werkstatt eine Einlassmarke ab
 (`zugang\einlass.json`, nur sha256, 60 s, einmalig) und hängt sie hinter
 `#e=` an die Adresse (`einlassAusstellen`). Zugleich bindet sie Cinema Studio
 an sich (`zugang\werkstatt.json`, `bindungSchreiben`): Bilder, Videos und
-Audio landen im Vorgabe-Arbeitsordner der Werkstatt unter `Cinema-Studio\`,
+Audio bleiben beim Programm in `werkstatt\scripts\cinema-studio\ablage\`,
 und alle OpenRouter-Aufrufe laufen über die Schutzschicht — mit dem Schlüssel
 der Werkstatt, den Cinema Studio nie sieht. Die Werkstatt sucht das Programm
-an einem festen Ort, `werkstatt\scripts\CINEMA-STUDIO` (`CINEMA_ORTE`, in git
+an einem festen Ort, `werkstatt\scripts\cinema-studio` (`CINEMA_ORTE`, in git
 ausgeschlossen); `PROMPTHEUS_CINEMA_DIR` geht vor. Den Port nimmt sie aus
 `PROMPTHEUS_CINEMA_PORT`, sonst aus `BILDGEN_PORT` in der `.env` von Cinema
 Studio (nur diese Zeile), sonst 8796 — so meinen beide Seiten denselben.
