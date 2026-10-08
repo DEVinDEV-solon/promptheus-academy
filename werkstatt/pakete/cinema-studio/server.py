@@ -1875,6 +1875,50 @@ def chatmodelle() -> list:
     return CHATMODELLE["liste"]
 
 
+# --------------------------------------------------------------------------- Prompt übersetzen
+UEBERSETZ_AUFTRAG = ("Übersetze den folgenden Bild- bzw. Video-Prompt ins Deutsche. Behalte Absätze, Aufzählungen und Fachbegriffe "
+                     "(z. B. Kameraeinstellungen) bei. Nichts erklären, nichts kommentieren – antworte nur mit der Übersetzung.")
+
+
+def prompt_uebersetzen(name: str, e: dict) -> dict:
+    """Prompt eines Bildes (oder freien Text) ins Deutsche. Beim eigenen Bild wird die Übersetzung gespeichert."""
+    bid = str(e.get("bild") or "")
+    b = bild_finden(bid) if bid else None
+    if bid and (not b or not darf_sehen(b, name)):
+        raise Fehler(404, "Bild nicht gefunden.")
+    if b and b.get("prompt_de"):
+        return {"text": b["prompt_de"], "kosten": 0}
+    text = str(b["prompt"] if b else e.get("text") or "").strip()[:8000]
+    if not text:
+        raise Fehler(400, "Kein Text zum Übersetzen.")
+    if not api_key():
+        raise Fehler(400, "Für die Übersetzung wird ein OpenRouter-Schlüssel gebraucht (Einstellungen → Anschluss).")
+    modell_id = einstellungen()["assistent_or_modell"]
+    teile, kosten = [], 0.0
+    for art, wert in assistent.openrouter_strom(api_key(), modell_id, [{"role": "system", "content": UEBERSETZ_AUFTRAG},
+                                                                      {"role": "user", "content": text}], threading.Event(), or_basis()):
+        if art == "text":
+            teile.append(str(wert))
+        elif art == "fehler":
+            raise RuntimeError(str(wert))
+        elif art == "ende":
+            kosten = float((wert or {}).get("kosten") or 0)
+    de = "".join(teile).strip()
+    if not de:
+        raise RuntimeError("Die Übersetzung kam leer zurück.")
+    if b and b["owner"] == name:
+        with LOCK:
+            liste = bilder()
+            for x in liste:
+                if x["id"] == b["id"]:
+                    x["prompt_de"] = de
+            schreib_json("bilder.json", liste)
+    if kosten:
+        verbrauch_schreiben({"zeit": jetzt(), "owner": name, "modell": modell_id, "art": "uebersetzung",
+                             "bilder": 0, "kosten": kosten, "tokens": 0, "status": "fertig"})
+    return {"text": de, "kosten": round(kosten, 5)}
+
+
 # --------------------------------------------------------------------------- Vorlagen-Ordner
 # Liegen neben den Ergebnissen: <Ablage>\Vorlagen\Bilder|Videos\<Ordner>\datei (+ gleichnamige .txt = Prompt).
 # Wer dort Dateien hineinlegt, sieht sie beim nächsten Öffnen von Influencer › Bewegung – ohne Neustart.
@@ -2551,6 +2595,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.json({"ok": True, "elemente": elemente_liste(name)})
 
         # --- Vorlagen-Ordner (Bilder/Videos neben den Ergebnissen)
+        if p == "uebersetzen" and post:
+            return self.json({"ok": True, **prompt_uebersetzen(name, e)})
         if p == "vorlagen" and not post:
             return self.json({"ok": True, **vorlagen_liste()})
         if p == "vorlagen/uebernehmen" and post:

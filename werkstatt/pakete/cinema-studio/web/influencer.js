@@ -41,7 +41,7 @@ const IF = {
   reiter: 'entdecken', pille: 'vorlagen', erzeugt: false, busy: false,
   gen: Object.assign({ modell: '', seitenverhaeltnis: '3:4', anzahl: 1, spar: false }, speicher.lies('igen', {})),
   lotse: Object.assign({ aus: false }, speicher.lies('lotse.influencer', {})), quittiert: 0,
-  vorlagen: null, vfilter: 'alle', typBilder: null,
+  vorlagen: null, vfilter: 'alle', typBilder: null, heroVideos: null,
 };
 const ifSpeichern = () => speicher.setz('igen', IF.gen);
 const ifLaeuft = () => S.auftraege.some(j => j.status === 'laufend' && j.influencer);
@@ -181,6 +181,7 @@ async function influencerZeigen(a) {
   if (!S.modelle.length) await katalogLaden().catch(() => {});
   if (!K.daten) katalogHolen().then(ifPreisZeigen).catch(() => {});
   await ifVorlagenLaden();         // bei jedem Besuch frisch: neue Dateien im Ordner erscheinen sofort
+  if (a === 'influencer:erstellen') await ifHeroVideosLaden();
   if (S.ansicht !== a) return;
   if (a === 'influencer:meine') return ifMeineZeichnen();
   wand.innerHTML = `<div class="if-seite"><aside class="if-panel" id="ifPanel" aria-label="Influencer bauen"></aside>
@@ -243,6 +244,15 @@ function ifBildVorlagen() {
   });
 }
 const ifAlleVorlagen = () => [...ifBildVorlagen(), ...(IF.daten?.vorlagen || [])];
+// Kopfbereich „Erstellen“: kurze Videos statt Bilder – abwechselnd aus Vorlagen\Videos und den eigenen erzeugten Videos
+async function ifHeroVideosLaden() {
+  const vorl = (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'video').map(v => ({ url: v.url, titel: `${v.ordner} · ${v.name}` }));
+  let eigene = [];
+  try { eigene = (await api('bilder?ansicht=alle&typ=video')).bilder.filter(b => b.eigen).slice(0, 12).map(b => ({ url: '/bild/' + b.id, titel: b.prompt.slice(0, 80) })); } catch { /* ohne */ }
+  const mix = [];
+  for (let n = 0; mix.length < 5 && (n < vorl.length || n < eigene.length); n++) { if (vorl[n]) mix.push(vorl[n]); if (eigene[n] && mix.length < 5) mix.push(eigene[n]); }
+  IF.heroVideos = mix;
+}
 const ifVorlagenMitBild = () => ifAlleVorlagen().filter(v => v.bild || ifEigenZuVorlage(v.id));
 // Ansichtsblatt-Angaben aus fremden Prompts entfernen – den Bildaufbau bestimmt unser Grundblock
 const ifPromptOhneBlatt = p => p.replace(/Two-panel sheet:[^.]*\.\s*/i, '');
@@ -323,10 +333,13 @@ function ifHauptZeichnen() {
     mauer = `<div class="if-mauer">${ifVorlagenMitBild().map(ifVorlagenKarte).join('')}</div>`;
   }
   el.innerHTML = reiter + `<div class="if-hero">
-      <div class="if-hero-bilder">${heroBilder.map(i => `<img class="fokus" src="${esc(i.bilder[0].url)}" alt="">`).join('')}${heroFuell.map(v => `<img class="fokus" src="${esc(v.bild)}" alt="" data-tip="${esc(v.name)}">`).join('')}</div>
+      <div class="if-hero-bilder">${IF.heroVideos?.length ? IF.heroVideos.map(v => `<video src="${esc(v.url)}#t=0.1" muted loop autoplay playsinline preload="metadata" data-tip="${esc(v.titel)}" data-titel="${esc(v.titel)}"></video>`).join('')
+        : heroBilder.map(i => `<img class="fokus" src="${esc(i.bilder[0].url)}" alt="">`).join('')}${IF.heroVideos?.length ? '' : heroFuell.map(v => `<img class="fokus" src="${esc(v.bild)}" alt="" data-tip="${esc(v.name)}">`).join('')}</div>
       <h2>DEIN INFLUENCER.<br>DEIN VIRALER HIT.</h2>
       <p>Baue deinen KI-Influencer mit Gesicht, Körper und Stil, wie du ihn willst – aus einer Vorlage, deinem Foto oder einer bestehenden Figur.</p>
     </div>` + pillen + mauer;
+  // per innerHTML eingefügte Videos starten nicht in jedem Browser von selbst
+  el.querySelectorAll('.if-hero-bilder video').forEach(v => { v.muted = true; v.play().catch(() => {}); });
 }
 // ------------------------------------------------------------------ Bewegung (Muster)
 function ifBewegungZeichnen() {
@@ -567,6 +580,20 @@ async function ifAusBibliothek() {
 $('#wand').addEventListener('click', async ev => {
   if (!S.ansicht.startsWith('influencer:')) return;
   const t = ev.target;
+  // Klick aufs Bild (nicht auf Knöpfe) → groß ansehen; Videos im Kopfbereich mit Ton und Steuerung
+  const vid = t.closest('.if-hero-bilder video');
+  const medium = vid || (t.closest('button') ? null : t.closest('.if-karte img, .if-vkarte img, .if-hero-bilder img, .if-muster figure img'));
+  const bid = medium && /\/bild\/([A-Za-z0-9_-]+)/.exec(medium.getAttribute('src') || '')?.[1];
+  if (bid) {
+    if (!S.bilder.some(x => x.id === bid)) { try { S.bilder = (await api('bilder?ansicht=alle')).bilder; } catch { /* dann einfache Ansicht */ } }
+    if (S.bilder.some(x => x.id === bid)) return oeffnen(bid);
+  }
+  if (vid) return bildZeigen(vid.src.replace(/#.*$/, ''), vid.dataset.titel || '', { video: true });
+  const bildEl = t.closest('.if-karte img, .if-vkarte img, .if-hero-bilder img, .if-muster figure img');
+  if (bildEl && !t.closest('button')) {
+    const titel = bildEl.closest('.if-karte')?.querySelector('.if-info b')?.textContent || bildEl.closest('.if-vkarte')?.querySelector('.if-vinfo b')?.textContent || bildEl.alt || '';
+    return bildZeigen(bildEl.currentSrc || bildEl.src, titel);
+  }
   try {
     const nav = t.closest('[data-ifnav]');
     if (nav) {

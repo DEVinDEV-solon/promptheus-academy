@@ -835,6 +835,7 @@ function oeffnen(id) {
   if (!b) return;
   const par = b.parameter || {};
   const v = istVideo(b);
+  const lbDe = speicher.lies('lbDeutsch', false);
   lb.innerHTML = `<div class="lb-bild">
       <button class="lb-nav l" data-lb="zurueck" data-tip="Vorheriges (←)" ${i <= 0 ? 'disabled' : ''}>${ico('links')}</button>
       ${v ? `<video src="/bild/${b.id}" controls autoplay loop playsinline aria-label="${esc(b.prompt.slice(0, 120))}"></video>`
@@ -844,7 +845,12 @@ function oeffnen(id) {
     </div>
     <aside class="lb-seite">
       <button class="icon-btn zu" data-lb="zu" data-tip="Schließen (Esc)">${ico('x')}</button>
-      <div><h4>Beschreibung</h4><div class="prompt">${esc(b.prompt)}</div></div>
+      <div class="lb-herkunft">${esc(lbHerkunft(b))}</div>
+      <div><div class="lb-kopf"><h4>Beschreibung</h4>
+        <div class="filter lb-sprache" role="tablist" aria-label="Sprache der Beschreibung">
+          <button role="tab" data-lb="orig" class="${lbDe ? '' : 'an'}" data-tip="Beschreibung so, wie sie ans Modell ging">Original</button>
+          <button role="tab" data-lb="de" class="${lbDe ? 'an' : ''}" data-tip="Ins Deutsche übersetzen – einmalig Bruchteile eines Cents, danach gespeichert">Deutsch</button></div></div>
+        <div class="prompt" id="lbPrompt">${esc(lbDe && b.prompt_de ? b.prompt_de : b.prompt)}</div></div>
       <dl>
         <dt>Modell</dt><dd>${esc(b.modell_name)}</dd>
         ${par.seitenverhaeltnis ? `<dt>Format</dt><dd>${esc(par.seitenverhaeltnis)}</dd>` : ''}
@@ -870,6 +876,8 @@ function oeffnen(id) {
     </aside>`;
   lb.classList.remove('hidden');
   lb.dataset.id = id;
+  const lbImg = lb.querySelector('.lb-bild > img');
+  if (lbImg) zoomAktivieren(lbImg);
   lb.onclick = ev => {
     const x = ev.target.closest('[data-lb]')?.dataset.lb;
     if (!x && ev.target.classList.contains('lb-bild')) return lbZu();
@@ -880,9 +888,94 @@ function oeffnen(id) {
     if (x === 'neu') { lbZu(); neuErzeugen(b).catch(fehler); }
     if (x === 'dl') speichernUnter(b);
     if (x === 'mehr') mehrMenue(ev.target.closest('[data-lb]'), b, { ausLb: true });
+    if (x === 'orig' || x === 'de') {
+      speicher.setz('lbDeutsch', x === 'de');
+      lb.querySelectorAll('.lb-sprache button').forEach(k => k.classList.toggle('an', k.dataset.lb === x));
+      if (x === 'orig') $('#lbPrompt').textContent = b.prompt; else lbUebersetzen(b);
+    }
   };
+  if (lbDe && !b.prompt_de) lbUebersetzen(b);
 }
 function lbZu() { $('#lightbox').classList.add('hidden'); $('#lightbox').innerHTML = ''; }
+// Woher stammt das geöffnete Bild? Steht im Leuchtkasten über der Beschreibung.
+function lbHerkunft(b) {
+  const a = S.ansicht;
+  const t = a === 'bibliothek' ? 'Aus der Bibliothek' : a === 'erstellen' ? 'Aus „Erstellen“' : a === 'audio' ? 'Aus „Audio“'
+    : a === 'favoriten' ? 'Aus den Favoriten' : a === 'veroeffentlicht' ? 'Aus „Veröffentlicht“' : a === 'papierkorb' ? 'Aus dem Papierkorb'
+    : a.startsWith('ordner:') ? `Aus dem Ordner „${S.ordner.find(o => o.id === a.slice(7))?.name || '…'}“`
+    : a.startsWith('influencer:') ? 'Aus „Influencer“' : 'Aus der Bibliothek';
+  const inf = typeof IF !== 'undefined' && IF.liste?.find(i => i.bilder.some(x => x.id === b.id));
+  return inf ? `${t} · Influencer „${inf.name}“` : t;
+}
+function herkunftAusUrl(url) {
+  const p = (url || '').replace(location.origin, '');
+  if (p.startsWith('/vorlage/')) { const t = decodeURIComponent(p.slice(9)).split('/'); return `Aus dem Vorlagen-Ordner · ${t[0]} › ${t[1] || ''}`; }
+  if (p.startsWith('/static/')) return 'Muster-Beispielbild';
+  if (p.startsWith('/upload/')) return 'Hochgeladen';
+  return 'Aus der Bibliothek';
+}
+async function lbUebersetzen(b) {
+  const el = $('#lbPrompt');
+  if (!el) return;
+  if (b.prompt_de) { el.textContent = b.prompt_de; return; }
+  el.textContent = 'Wird übersetzt …'; el.classList.add('laedt');
+  try {
+    const d = await api('uebersetzen', { bild: b.id });
+    b.prompt_de = d.text;
+    if ($('#lightbox').dataset.id === b.id && speicher.lies('lbDeutsch', false)) $('#lbPrompt').textContent = d.text;
+  } catch (e) {
+    if ($('#lightbox').dataset.id === b.id) $('#lbPrompt').textContent = b.prompt;
+    fehler(e);
+  } finally { $('#lbPrompt')?.classList.remove('laedt'); }
+}
+
+// Zoom im Leuchtkasten: Strg + Mausrad zoomt an der Mausposition, Ziehen verschiebt, Klick aufs Bild 2,5× ↔ ganz.
+function zoomAktivieren(img) {
+  const box = img.parentElement;
+  let s = 1, x = 0, y = 0, druck = null, gezogen = false;
+  img.style.transformOrigin = '0 0';
+  img.draggable = false;
+  const setz = () => {
+    img.style.transform = s === 1 ? '' : `translate(${x}px, ${y}px) scale(${s})`;
+    img.style.cursor = s > 1 ? (druck ? 'grabbing' : 'grab') : 'zoom-in';
+    box.classList.toggle('gezoomt', s > 1);
+  };
+  const zoom = (neu, cx, cy) => {
+    neu = Math.max(1, Math.min(10, neu));
+    if (neu === 1) { s = 1; x = 0; y = 0; return setz(); }
+    const r = img.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;   // Punkt unter der Maus bleibt stehen
+    x += px * (1 - neu / s); y += py * (1 - neu / s); s = neu;
+    setz();
+  };
+  box.addEventListener('wheel', ev => {
+    if (!ev.ctrlKey) return;
+    ev.preventDefault();                      // sonst zoomt der Browser die ganze Seite
+    zoom(s * Math.exp(-ev.deltaY * 0.0018), ev.clientX, ev.clientY);
+  }, { passive: false });
+  img.addEventListener('pointerdown', ev => { druck = { x: ev.clientX - x, y: ev.clientY - y, sx: ev.clientX, sy: ev.clientY }; gezogen = false; if (s > 1) img.setPointerCapture(ev.pointerId); setz(); });
+  img.addEventListener('pointermove', ev => {
+    if (!druck) return;
+    if (Math.abs(ev.clientX - druck.sx) + Math.abs(ev.clientY - druck.sy) > 4) gezogen = true;
+    if (s > 1 && gezogen) { x = ev.clientX - druck.x; y = ev.clientY - druck.y; setz(); }
+  });
+  const los = () => { druck = null; setz(); };
+  img.addEventListener('pointerup', los); img.addEventListener('pointercancel', los);
+  img.addEventListener('click', ev => { ev.stopPropagation(); if (!gezogen) zoom(s > 1 ? 1 : 2.5, ev.clientX, ev.clientY); });
+  setz();
+}
+// Einfache Großansicht für Bilder außerhalb der Bibliothek (Influencer, Vorlagen): ganz sehen, zoomen, daneben klicken schließt
+function bildZeigen(url, titel = '', { video = false, herkunft = herkunftAusUrl(url) } = {}) {
+  const lb = $('#lightbox');
+  lb.innerHTML = `<div class="lb-bild lb-nur">
+      ${video ? `<video src="${esc(url)}" controls autoplay loop playsinline aria-label="${esc(titel)}"></video>` : `<img src="${esc(url)}" alt="${esc(titel)}">`}
+      <div class="lb-leiste">${herkunft ? `<small class="lb-her">${esc(herkunft)}</small>` : ''}${titel ? `<b>${esc(titel)}</b>` : ''}<span>${video ? 'daneben klicken schließt' : 'Strg + Mausrad zoomen · Klick aufs Bild 2,5× · ziehen verschiebt · daneben klicken schließt'}</span></div>
+      <button class="icon-btn lb-x" data-lb="zu" data-tip="Schließen (Esc)">${ico('x')}</button>
+    </div>`;
+  lb.dataset.id = '';
+  lb.classList.remove('hidden');
+  if (!video) zoomAktivieren(lb.querySelector('img'));
+  lb.onclick = ev => { if (ev.target.closest('[data-lb="zu"]') || !ev.target.closest('img,video,.lb-leiste')) lbZu(); };
+}
 
 // ------------------------------------------------------------------ Eingabefeld
 const QUAL = {
@@ -1710,7 +1803,7 @@ document.addEventListener('keydown', ev => {
     if (lb) return lbZu();
     if (S.waehlen) return auswahlBeenden();
   }
-  if (lb && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) {
+  if (lb && $('#lightbox').dataset.id && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) {
     const i = S.bilder.findIndex(x => x.id === $('#lightbox').dataset.id);
     const n = S.bilder[i + (ev.key === 'ArrowRight' ? 1 : -1)];
     if (n) oeffnen(n.id);

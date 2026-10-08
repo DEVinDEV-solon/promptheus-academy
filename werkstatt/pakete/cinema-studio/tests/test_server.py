@@ -1065,6 +1065,26 @@ class Influencer(unittest.TestCase):
         self.assertEqual(self.req("/static/muster_haupttaenzer.webp")[0], 200)
         self.assertEqual(self.req("/static/bewegung.js")[0], 200)
 
+    def test_uebersetzen(self):
+        a, ca = self.a, self.csrf_a
+        alt, alt_key = server.assistent.openrouter_strom, server.api_key
+        aufrufe = []
+
+        def falsch(key, modell, nachrichten, abbruch, basis=""):
+            aufrufe.append(nachrichten[-1]["content"])
+            yield "text", "Ein Mann mit Pilzkopf"
+            yield "ende", {"kosten": 0.0004}
+        server.assistent.openrouter_strom, server.api_key = falsch, lambda: "sk-or-test"
+        try:
+            b = server.bild_speichern("ia", png(), {"prompt": "A man with a bowl cut", "modell": "x", "modell_name": "x"})
+            st, j, _, _ = self.req("/api/uebersetzen", {"bild": b["id"]}, a, ca)
+            self.assertEqual((st, j["text"]), (200, "Ein Mann mit Pilzkopf"))
+            st, j, _, _ = self.req("/api/uebersetzen", {"bild": b["id"]}, a, ca)
+            self.assertEqual((j["text"], j["kosten"], len(aufrufe)), ("Ein Mann mit Pilzkopf", 0, 1), "zweites Mal aus dem Speicher")
+            self.assertEqual(self.req("/api/uebersetzen", {"bild": b["id"]}, self.b, self.csrf_b)[0], 404, "fremdes Bild")
+        finally:
+            server.assistent.openrouter_strom, server.api_key = alt, alt_key
+
     def test_vorlagen_ordner(self):
         a, ca = self.a, self.csrf_a
         st, j, _, _ = self.req("/api/vorlagen", None, a)
