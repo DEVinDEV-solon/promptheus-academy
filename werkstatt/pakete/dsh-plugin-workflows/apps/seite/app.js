@@ -1,53 +1,12 @@
 /* Meine Apps — PROMPTHEUS Werkstatt (Masterplan Workflow-Modalseite, 9.4–9.7).
    Läuft als eigene Seite im Werkstatt-Fenster (Rahmen) oder allein im Browser.
    Kein Framework; jede Angabe aus der API geht durch esc(), bevor sie ins HTML kommt.
-   Keine Inline-Stile im HTML (CSP style-src 'self'); Breiten setzt JS über .style. */
+   Keine Inline-Stile im HTML (CSP style-src 'self'); Breiten setzt JS über .style.
+   Braucht grund.js davor (Symbole, api, hinweis, Farben). */
 'use strict';
-
-// ------------------------------------------------------------------ Grundlagen
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const IM_RAHMEN = window.parent !== window;
-const speicher = {
-  lies(k, d) { try { const v = localStorage.getItem('meine-apps.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-  setz(k, v) { try { localStorage.setItem('meine-apps.' + k, JSON.stringify(v)); } catch { /* ohne Speicher */ } },
-};
-
-const P = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-const ICONS = {
-  app: P('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'),
-  ordner: P('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
-  datei: P('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>'),
-  karte: P('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h10M7 14h6"/>'),
-  mail: P('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'),
-  lupe: P('<circle cx="11" cy="11" r="6"/><path d="m20 20-4.3-4.3"/>'),
-  plus: P('<path d="M12 5v14M5 12h14"/>'),
-  x: P('<path d="M6 6l12 12M18 6 6 18"/>'),
-  mehr: P('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'),
-  auge: P('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
-  play: P('<path d="M7 5v14l11-7z"/>'),
-  probe: P('<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/>'),
-  pause: P('<path d="M8 5v14M16 5v14"/>'),
-  zurueck: P('<path d="M15 6l-6 6 6 6"/>'),
-  einklappen: P('<path d="M13 6l6 6-6 6M5 6v12"/>'),
-  ausklappen: P('<path d="M11 6l-6 6 6 6M19 6v12"/>'),
-  groesse: P('<path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6"/>'),
-  uhr: P('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),
-  muell: P('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),
-  kategorie: P('<path d="M4 6h16M4 12h10M4 18h6"/>'),
-  filter: P('<path d="M4 5h16l-6 8v5l-4 2v-7z"/>'),
-  tabelle: P('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/>'),
-  liste: P('<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>'),
-  funke: P('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'),
-  senden: P('<path d="M4 12l16-8-6 16-2-7z"/>'),
-};
-const ico = (n) => ICONS[n] || ICONS.app;
-function symbole(root = document) { $$('[data-i]', root).forEach((el) => { if (!el.firstChild) el.innerHTML = ico(el.dataset.i); }); }
 
 const STATUS_WORT = { aktiv: 'aktiv', pausiert: 'pausiert', fehler: 'Fehler', entwurf: 'Entwurf' };
 const AUSLOESER_WORT = { hand: 'von Hand', zeitplan: 'Zeitplan', nachgeholt: 'nachgeholt', start: 'beim Start', probe: 'Probelauf' };
-const WERT_WORT = { downloads: 'Downloads', dokumente: 'Dokumente', desktop: 'Desktop', import: 'Secondbrain · 50_Import' };
 const KENNZAHL_WORT = { gefunden: 'gefunden', behalten: 'behalten', verworfen: 'verworfen', zeilen: 'Zeilen', eintraege: 'Einträge', gezeigt: 'gezeigt', zeichen: 'Zeichen' };
 
 const zeit = (iso) => { const d = new Date(iso); return Number.isNaN(+d) ? '–' : d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }); };
@@ -58,34 +17,6 @@ const zeitKurz = (iso) => {
 };
 const dauer = (ms) => (ms == null ? '–' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace('.', ',')} s`);
 const euro = (x) => (x ? `${x.toFixed(3).replace('.', ',')} €` : '–');
-const ausloeserText = (a) => (!a || a.art === 'hand' ? 'von Hand' : a.art === 'start' ? 'beim Werkstatt-Start'
-  : a.regel?.typ === 'taeglich' ? `täglich ${a.regel.uhrzeit || ''}`.trim() : 'Zeitplan');
-
-async function api(weg, koerper) {
-  const r = await fetch('/promptheus-apps/api/' + weg, koerper === undefined ? { credentials: 'same-origin' }
-    : { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(koerper) });
-  const d = await r.json().catch(() => ({ fehler: 'Antwort nicht lesbar' }));
-  if (!r.ok) throw new Error(d.fehler || `Fehler ${r.status}`);
-  return d;
-}
-let toastUhr;
-function hinweis(text, fehler = false) {
-  const t = $('#hinweis');
-  t.textContent = text; t.classList.toggle('fehler', fehler); t.classList.add('an');
-  clearTimeout(toastUhr); toastUhr = setTimeout(() => t.classList.remove('an'), 3200);
-}
-const fehler = (e) => hinweis(e.message || String(e), true);
-
-// ------------------------------------------------------------------ Farben aus der Werkstatt
-window.addEventListener('message', (ev) => {
-  if (ev.origin !== location.origin || !ev.data || ev.data.art !== 'promptheus-apps:farben') return;
-  const w = ev.data.werte || {};
-  for (const [k, v] of Object.entries(w)) if (/^--[a-z0-9-]+$/.test(k) && typeof v === 'string' && v.length < 80 && !/[;{}]/.test(v)) document.documentElement.style.setProperty(k, v);
-  document.documentElement.classList.toggle('hell', !!ev.data.hell);
-});
-function schliessenGanz() {
-  if (IM_RAHMEN) window.parent.postMessage({ art: 'promptheus-apps:schliessen' }, location.origin);
-}
 
 // ------------------------------------------------------------------ Zustand
 const U = {
@@ -151,7 +82,7 @@ function uebersichtZeichnen() {
   if (!U.daten.apps.length) {
     brett.innerHTML = `<div class="leer-gross"><h2>Noch keine eigenen Apps</h2>
       <p>Eine App ist ein Ablauf, den du einmal einrichtest und dann per Klick oder nach Zeitplan laufen lässt. Fang mit einer Vorlage an.</p>
-      <p><button type="button" class="knopf haupt" data-vorlagen><span class="ico" data-i="plus"></span>Vorlage wählen</button></p></div>`;
+      <p><button type="button" class="knopf haupt" data-werkbank><span class="ico" data-i="werkzeug"></span>Eigene App bauen</button> <button type="button" class="knopf" data-vorlagen><span class="ico" data-i="plus"></span>Vorlage wählen</button></p></div>`;
     symbole(brett);
     return;
   }
@@ -172,6 +103,7 @@ function uebersichtZeichnen() {
 // Klicks im Brett
 $('#brett').addEventListener('click', (ev) => {
   if (ev.target.closest('[data-vorlagen]')) return vorlagenDialog();
+  if (ev.target.closest('[data-werkbank]')) return werkbank();
   const m = ev.target.closest('[data-mehr]');
   if (m) { ev.stopPropagation(); return appMenue(m, m.dataset.mehr); }
   const k = ev.target.closest('[data-app]');
@@ -208,6 +140,9 @@ $('#sortierung').addEventListener('change', (ev) => { U.sort = ev.target.value; 
 $('#leereZeigen').checked = U.leere;
 $('#leereZeigen').addEventListener('change', (ev) => { U.leere = ev.target.checked; speicher.setz('leere', U.leere); uebersichtZeichnen(); });
 $('#ausVorlage').addEventListener('click', () => vorlagenDialog());
+$('#neueApp').addEventListener('click', () => werkbank());
+/** Die Werkbank (Phase B) ist eine eigene Seite im selben Rahmen; von dort geht es mit #app=<id> zurück. */
+function werkbank(id) { location.href = '/promptheus-apps/werkbank' + (id ? '?id=' + encodeURIComponent(id) : ''); }
 $('#zu').addEventListener('click', schliessenGanz);
 if (!IM_RAHMEN) $('#zu').hidden = true;
 
@@ -233,6 +168,7 @@ function appMenue(anker, id) {
   if (!a) return;
   menue(anker, [
     { text: 'Öffnen', ico: 'app', tun: () => appOeffnen(id) },
+    { text: 'In der Werkbank bearbeiten', ico: 'werkzeug', tun: () => werkbank(id) },
     { text: 'Jetzt ausführen', ico: 'play', tun: () => ausfuehren(id, false) },
     { text: 'Probelauf', ico: 'probe', tun: () => ausfuehren(id, true) },
     a.status === 'pausiert'
@@ -343,19 +279,6 @@ function aenderungenLesen() {
     if (wert !== f.wert) aus.push({ schritt: f.schritt, name: f.name, wert });
   });
   return aus;
-}
-
-function ausgabeHtml(a) {
-  if (!a) return '<p class="leise">Keine Ausgabe gespeichert.</p>';
-  let innen = '';
-  if (a.art === 'tabelle') {
-    innen = `${a.zusatz?.length ? `<div class="zusatz">${a.zusatz.map((z) => `<span>${esc(z.wort)} · ${esc(z.zahl)}</span>`).join('')}</div>` : ''}
-      <div class="ausgabe-tabelle"><table><thead><tr>${a.spalten.map((s) => `<th>${esc(s)}</th>`).join('')}</tr></thead>
-      <tbody>${a.zeilen.length ? a.zeilen.map((z) => `<tr>${z.map((x) => `<td>${esc(x)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${a.spalten.length}" class="leise">Keine Einträge.</td></tr>`}</tbody></table></div>`;
-  } else if (a.art === 'karte') {
-    innen = `${a.punkte?.length ? `<ul>${a.punkte.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}${a.fuss ? `<div class="fuss">${esc(a.fuss)}</div>` : ''}`;
-  } else innen = `<p>${esc(a.text)}</p>`;
-  return `<div class="ausgabe"><div class="ausgabe-titel">${esc(a.titel)}</div>${innen}${a.datei ? `<div class="fuss">Gespeichert als ${esc(a.datei)}</div>` : ''}</div>`;
 }
 
 function protokollHtml() {
@@ -562,5 +485,9 @@ document.addEventListener('keydown', (ev) => {
 });
 
 symbole();
-uebersichtLaden();
+uebersichtLaden().then(() => {
+  const m = /^#app=([a-z0-9-]{3,40})$/.exec(location.hash);
+  if (m && U.daten?.apps.some((a) => a.id === m[1])) appOeffnen(m[1]);
+  if (m) history.replaceState(null, '', location.pathname);
+});
 if (IM_RAHMEN) window.parent.postMessage({ art: 'promptheus-apps:bereit' }, location.origin);

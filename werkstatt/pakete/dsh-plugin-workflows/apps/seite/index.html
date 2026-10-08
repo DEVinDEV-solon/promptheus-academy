@@ -19,7 +19,8 @@
           <option value="fehler">Fehler zuerst</option>
         </select>
         <label class="haken"><input type="checkbox" id="leereZeigen"> leere zeigen</label>
-        <button type="button" class="knopf haupt" id="ausVorlage"><span class="ico" data-i="plus"></span>Aus Vorlage</button>
+        <button type="button" class="knopf" id="ausVorlage"><span class="ico" data-i="plus"></span>Aus Vorlage</button>
+        <button type="button" class="knopf haupt" id="neueApp" title="Schritt für Schritt eine eigene App bauen"><span class="ico" data-i="werkzeug"></span>Neue App</button>
         <button type="button" class="knopf rund" id="zu" aria-label="Schliessen" title="Schliessen (Esc)"><span class="ico" data-i="x"></span></button>
       </div>
     </div>
@@ -31,6 +32,7 @@
 <div id="appSeite" class="app-seite" hidden role="dialog" aria-modal="true" aria-labelledby="appName"></div>
 <div id="dialog" class="dialog" hidden role="dialog" aria-modal="true"></div>
 <div id="hinweis" class="hinweis-toast" role="status" aria-live="polite"></div>
+<script src="/promptheus-apps/seite/grund.js"></script>
 <script src="/promptheus-apps/seite/app.js"></script>
 </body>
 </html>

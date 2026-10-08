@@ -22,7 +22,7 @@ selbst (`profiles\promptheus\package.json` und dessen `node_modules`).
 | `shell.overlay` | `agenten-team-fenster` | Das grosse Fenster des Agenten-Teams |
 | `shell.overlay` | `mail-fenster` | Das grosse Fenster `Mail-Abruf` |
 | `shell.overlay` | `agenten-team-leiste` | Die Taskleiste am unteren Rand, über der Chat-Spalte |
-| `shell.overlay` | `meine-apps-fenster` | Das grosse Fenster „Meine Apps“ (Rahmen auf `/promptheus-apps/`) |
+| `shell.overlay` | `meine-apps-fenster` | Das grosse Fenster „Meine Apps“ oder die Werkbank (Rahmen auf `/promptheus-apps/` bzw. `/promptheus-apps/werkbank`) |
 | `sidebar.footer.action` | `meine-apps` | Der Eintrag „Meine Apps“ unter Community und Cinema-Studio |
 
 Die Seitenleiste trägt seit dem 07.10.2026 kein „Agenten-Team“ und keinen
@@ -45,7 +45,8 @@ unten oder in der Taskleiste.
 | Bausteine (erste Runde ohne Netz) | `apps/bausteine/index.mjs` |
 | Vorlagen | `apps/vorlagen.mjs` |
 | Routen `/promptheus-apps` | `apps/routen.mjs` |
-| Seite | `apps/seite/` (index.html, app.css, app.js) |
+| Seite | `apps/seite/` (index.html, app.css, app.js; gemeinsam: grund.js) |
+| Werkbank (Phase B) | `apps/seite/` (werkbank.html, werkbank.css, werkbank.js) |
 
 - **Ablage:** `werkstatt\eigene_workflows\<konto>\<app>\` (gitignored). Das Konto ist `l<nummer>` des zuletzt eingelassenen Lernenden, sonst `betreiber`.
 - **Protokoll:** je Lauf eine Datei ohne Inhalte. Die Ausgabe liegt getrennt und verschlüsselt daneben und wird nach **30 Tagen** gelöscht (Entscheidung 07.10.2026).
@@ -54,6 +55,22 @@ unten oder in der Taskleiste.
 - **Läufer von Hand:** `node werkzeuge\workflows\lauf.mjs --konto l42 --id downloads-ueberblick --ausloeser hand`
 - **Vorschau ohne Werkstatt:** `node werkzeuge\workflows\apps_vorschau.mjs --beispiel`, dann http://127.0.0.1:3095/promptheus-apps/ (eigene Temp-Ablage, Demo-Ordner)
 - **Prüfen:** `node werkzeuge\workflows\apps_pruefen.mjs`
+
+## Die Werkbank (seit 08.10.2026, Phase B)
+
+Der Knopf `Agenten-Team` in der Taskleiste öffnet die Workflow-Werkbank
+(Masterplan 4 und 4.6), `Neue App` in „Meine Apps“ ebenso. Geführt in acht
+Schritten mit je einer Frage in Alltagssprache: Ziel, Wann, Woher, Auswahl
+(freiwillig), Was tun, Wohin, Probe, Ablegen.
+
+- **Kacheln** kommen aus dem Baustein-Katalog. Jeder Baustein sagt, was er `braucht` und `liefert`; Unpassendes ist ausgegraut, der Tooltip nennt den Grund. Der Server prüft die Kette noch einmal (`ketteBruch`) und bereinigt jede Einstellung gegen das Feld-Schema (`einstellungenPruefen`).
+- **Tooltips** bei Maus und Tastaturfokus (300 ms), `ⓘ` an jedem Feld.
+- **Der wippende Pfeil** (Glut) zeigt immer auf genau eine Stelle: die nächste nötige Handlung. Mit „Bewegung reduzieren“ steht er still.
+- **Rechts** Ring und Checkliste; schmal wird daraus ein Balken oben.
+- **Speichern** als Entwurf, sobald Name und Quelle da sind (`/api/speichern`). Jede Änderung macht eine abgelegte App wieder zum Entwurf.
+- **Ablegen** (`/api/ablegen`) geht nur nach einem Probelauf, der seit der letzten Änderung geklappt hat; der Server prüft das.
+- Die bisherige Team-Beratung (Auftrag für den Chat) ist über einen Verweis auf der Startseite der Werkbank erreichbar, bis Phase E sie ersetzt.
+- **Vorschau:** wie oben, dann http://127.0.0.1:3095/promptheus-apps/werkbank
 
 ## Die Taskleiste
 
