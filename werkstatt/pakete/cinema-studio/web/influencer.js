@@ -104,7 +104,7 @@ function ifPrompt({ vorlage = IF.vorlage, typ = IF.typ, text = IF.text, basis = 
     teile.push('Character: the exact character shown in the reference image. Keep identity, hair, outfit and colors; change only pose, expression and camera angle slightly.');
   } else {
     if (basis?.quelle === 'figur') teile.push('Base character: use the character in the reference image as the starting point. Keep the signature hair design, outfit colors and overall vibe recognizable, then apply the type below.');
-    teile.push('Character:\n' + (vorlage?.prompt || (basis ? 'Subject: the character from the reference image as a memorable fashion influencer.'
+    teile.push('Character:\n' + (vorlage?.prompt ? ifPromptOhneBlatt(vorlage.prompt) : (basis ? 'Subject: the character from the reference image as a memorable fashion influencer.'
       : 'Subject: an original, memorable fictional adult influencer character with one distinctive signature look.')));
     teile.push('Type: ' + d.typen[typ]);
   }
@@ -177,6 +177,8 @@ async function influencerZeigen(a) {
   if (S.ansicht !== a) return;
   if (!S.modelle.length) await katalogLaden().catch(() => {});
   if (!K.daten) katalogHolen().then(ifPreisZeigen).catch(() => {});
+  await ifVorlagenLaden();         // bei jedem Besuch frisch: neue Dateien im Ordner erscheinen sofort
+  if (S.ansicht !== a) return;
   if (a === 'influencer:meine') return ifMeineZeichnen();
   wand.innerHTML = `<div class="if-seite"><aside class="if-panel" id="ifPanel" aria-label="Influencer bauen"></aside>
     <section class="if-haupt" id="ifHaupt"></section></div>`;
@@ -226,21 +228,36 @@ function ifPanelZeichnen() {
 }
 
 const ifEigenZuVorlage = id => IF.liste.find(i => i.vorlage_id === id && i.bilder.length);
+// Bild-Vorlagen aus dem Vorlagen-Ordner: Bilder\Influencer <Typ>\datei.png + gleichnamige .txt (Prompt).
+// Sie stehen in der Galerie vor den reinen Text-Vorlagen und zeigen ihr echtes Bild.
+function ifBildVorlagen() {
+  return (IF.vorlagen?.vorlagen || []).filter(v => v.art === 'bild' && /^influencer\s/i.test(v.ordner)).map(v => {
+    const tname = v.ordner.replace(/^influencer\s+/i, '').toLowerCase();
+    const typ = (IF_TYPEN.find(t => t[1].toLowerCase() === tname || t[0] === tname) || IF_TYPEN[0])[0];
+    const sig = (v.prompt.match(/Signature:\s*([^.]*)/i) || [])[1] || v.prompt.split('. ')[0] || '';
+    return { id: 'ord:' + v.pfad, name: v.name.replace(/^HF-(\d+)\s*(.*)$/, (_, n, s) => `${s ? s[0].toUpperCase() + s.slice(1) : 'Figur'} ${n}`),
+      typ, prompt: v.prompt, kurz: sig.slice(0, 140), bild: v.url, pfad: v.pfad };
+  });
+}
+const ifAlleVorlagen = () => [...ifBildVorlagen(), ...(IF.daten?.vorlagen || [])];
+// Ansichtsblatt-Angaben aus fremden Prompts entfernen – den Bildaufbau bestimmt unser Grundblock
+const ifPromptOhneBlatt = p => p.replace(/Two-panel sheet:[^.]*\.\s*/i, '');
 const ifAr = v => (/full body/i.test(v.prompt) ? 0.68 : 0.82);
 function ifVorlagenKarte(v) {
   const eigen = ifEigenZuVorlage(v.id);
   const t = ifTyp(v.typ);
-  return `<div class="if-karte" data-vorlage="${esc(v.id)}" style="--ar:${eigen ? 0.75 : ifAr(v)}">
-    ${eigen ? `<img src="${esc(eigen.bilder[0].url)}" alt="${esc(v.name)}" loading="lazy">`
+  const bild = eigen?.bilder[0].url || v.bild;
+  return `<div class="if-karte" data-vorlage="${esc(v.id)}" style="--ar:${bild ? 0.75 : ifAr(v)}">
+    ${bild ? `<img class="fokus" src="${esc(bild)}" alt="${esc(v.name)}" loading="lazy">`
       : `<div class="if-silhouette"><span>${t[2]}</span><small>${esc(v.kurz)}</small>
          <button class="btn klein" data-ifa="vorschau" data-tip="Ein Bild dieser Figur erzeugen (kostet Guthaben)">Vorschau erzeugen</button></div>`}
     <span class="if-typ">${t[2]} ${esc(t[1])}</span>
     <div class="if-info"><b>${esc(v.name)}</b></div>
     <div class="if-aktionen">
-      ${eigen ? `<button class="rund" data-ifa="basis" data-tip="Als Basis: daraus einen neuen Charakter bauen">${ico('variation')}</button>` : ''}
+      ${bild ? `<button class="rund" data-ifa="basis" data-tip="Als Basis: daraus einen neuen Charakter bauen">${ico('variation')}</button>` : ''}
       <button class="rund" data-ifa="chat" data-tip="Im Chat besprechen">${ico('zauber')}</button>
     </div>
-    <button class="if-nachbauen" data-ifa="nachbauen" data-tip="Vorlage ins Panel laden – dann „Erzeugen“ drücken">${ico('nachbauen')}Nachbauen</button>
+    <button class="if-nachbauen" data-ifa="nachbauen" data-tip="Prompt und Typ dieser Vorlage ins Panel laden – dann „Erzeugen“ drücken">${ico('nachbauen')}Nachbauen</button>
   </div>`;
 }
 function ifEigenKarte(i, neu = false) {
@@ -285,11 +302,11 @@ function ifHauptZeichnen() {
     return;
   }
   const heroBilder = IF.liste.filter(i => i.bilder.length).slice(0, 5);
-  const heroFuell = IF.daten.vorlagen.filter((v, n) => n % 9 === 0).slice(0, 5 - heroBilder.length);
+  const heroFuell = ifBildVorlagen().filter((v, n) => n % 7 === 0).slice(0, 5 - heroBilder.length);
   const meine = IF.liste;
   const pillen = `<div class="if-pillen" role="tablist">
       <button class="${IF.pille === 'meine' ? 'an' : ''}" data-ifpille="meine" data-tip="Deine eigenen Charaktere">Meine Influencer ${meine.length ? `<small>${meine.length}</small>` : ''}</button>
-      <button class="${IF.pille === 'vorlagen' ? 'an' : ''}" data-ifpille="vorlagen" data-tip="Fertige Figuren zum Nachbauen">Vorlagen <small>${IF.daten.vorlagen.length}</small></button>
+      <button class="${IF.pille === 'vorlagen' ? 'an' : ''}" data-ifpille="vorlagen" data-tip="Fertige Figuren zum Nachbauen – mit Bild aus dem Vorlagen-Ordner, danach reine Text-Vorlagen">Vorlagen <small>${ifAlleVorlagen().length}</small></button>
       <button disabled data-tip="Kommt bald: Charaktere aus der Community">Community-Trends <small>bald</small></button></div>`;
   let mauer;
   if (IF.pille === 'meine') {
@@ -297,10 +314,10 @@ function ifHauptZeichnen() {
       : `<div class="leer"><div class="gross">${ico('profil')}</div><h3>Noch keine eigenen Influencer</h3><p>Starte mit einer Vorlage: „Nachbauen“ lädt sie ins Panel.</p>
          <div class="knoepfe" style="justify-content:center"><button class="btn primaer" data-ifpille="vorlagen">Mit einer Vorlage starten</button></div></div>`;
   } else {
-    mauer = `<div class="if-mauer">${IF.daten.vorlagen.map(ifVorlagenKarte).join('')}</div>`;
+    mauer = `<div class="if-mauer">${ifAlleVorlagen().map(ifVorlagenKarte).join('')}</div>`;
   }
   el.innerHTML = reiter + `<div class="if-hero">
-      <div class="if-hero-bilder">${heroBilder.map(i => `<img src="${esc(i.bilder[0].url)}" alt="">`).join('')}${heroFuell.map(v => `<span data-tip="${esc(v.name)}">${ifTyp(v.typ)[2]}</span>`).join('')}</div>
+      <div class="if-hero-bilder">${heroBilder.map(i => `<img class="fokus" src="${esc(i.bilder[0].url)}" alt="">`).join('')}${heroFuell.map(v => `<img class="fokus" src="${esc(v.bild)}" alt="" data-tip="${esc(v.name)}">`).join('')}</div>
       <h2>DEIN INFLUENCER.<br>DEIN VIRALER HIT.</h2>
       <p>Baue deinen KI-Influencer mit Gesicht, Körper und Stil, wie du ihn willst – aus einer Vorlage, deinem Foto oder einer bestehenden Figur.</p>
     </div>` + pillen + mauer;
@@ -352,7 +369,7 @@ function ifVorlagenHtml() {
     <p class="unter">Unterordner: Bilder › ${esc(d.ordner.Bilder.join(', '))} · Videos › ${esc(d.ordner.Videos.join(', '))} – eigene Ordner gehen auch.</p>
     ${d.vorlagen.length ? `<div class="if-pillen">${pillen.map(([k, t, n]) => `<button class="${filter === k ? 'an' : ''}" data-ifvfilter="${esc(k)}">${esc(t)}<small>${n}</small></button>`).join('')}</div>
     <div class="if-vraster">${liste.map(v => `<div class="if-vkarte">
-      ${v.art === 'bild' ? `<img class="fokus" src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
+      ${v.art === 'bild' ? `<img class="fokus${/blatt$/i.test(v.name) || /blätter/i.test(v.ordner) ? ' blatt' : ''}" src="${esc(v.url)}" alt="" loading="lazy">` : `<video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata" data-vorschau></video>`}
       <span class="if-typ">${esc(v.ordner)}</span>
       <div class="if-vinfo"><b title="${esc(v.name)}">${esc(v.name)}</b>${v.prompt ? '<small>mit Prompt</small>' : ''}</div>
       <div class="if-vknoepfe">
@@ -396,7 +413,7 @@ function ifMeineZeichnen() {
 }
 
 // ------------------------------------------------------------------ Aktionen
-const ifVorlage = id => IF.daten?.vorlagen.find(v => v.id === id);
+const ifVorlage = id => ifAlleVorlagen().find(v => v.id === id);
 const ifEigen = id => IF.liste.find(i => i.id === id);
 function ifBlitz() {
   const p = $('#ifPanel');
@@ -456,6 +473,13 @@ async function ifKartenAktion(btn) {
     IF.basis = null; IF.text = '';
     try { await ifErzeugen({ anzahl: 1, vorlage: v, typ: v.typ, name: v.name }); } finally { IF.basis = merk.basis; IF.text = merk.text; }
     return;
+  }
+  if (a === 'basis' && !i && v?.bild) {
+    const d = await api('vorlagen/uebernehmen', { pfad: v.pfad });
+    IF.basis = { id: d.id, url: d.url, name: v.name, quelle: 'figur' };
+    IF.vorlage = null;
+    ifNeuZeichnen(); ifBlitz();
+    return toast(`„${v.name}“ ist die Basis. Wähle jetzt einen Typ – z. B. „Frosch“.`, 'ok');
   }
   if (a === 'basis' && i?.bilder.length) {
     IF.basis = { id: i.bilder[0].id, url: i.bilder[0].url, name: i.name, quelle: 'figur' };
@@ -570,7 +594,7 @@ $('#wand').addEventListener('click', async ev => {
       case 'ifVNeu': IF.vorlagen = null; $('#ifVorlagen').innerHTML = ifVorlagenHtml(); await ifVorlagenLaden(); return;
       case 'ifVPfad': await textKopieren(IF.vorlagen.pfad, 'Pfad kopiert – im Explorer einfügen.'); return;
       case 'ifZufall': {
-        const vl = IF.daten.vorlagen, v = vl[Math.floor(Math.random() * vl.length)];
+        const vl = ifAlleVorlagen(), v = vl[Math.floor(Math.random() * vl.length)];
         IF.vorlage = v;
         IF.typ = Math.random() < 0.6 ? v.typ : IF_TYPEN[Math.floor(Math.random() * IF_TYPEN.length)][0];
         IF.typGewaehlt = true;

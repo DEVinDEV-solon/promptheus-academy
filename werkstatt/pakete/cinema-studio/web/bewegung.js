@@ -142,14 +142,14 @@ function bwSchritt1() {
     raster = IF_MUSTER.map(m => bwKachel('beispiel', m.id, m.bild, 'Beispiel: ' + m.name)).join('');
   }
   return `<h4>1 · Wer spielt die Hauptrolle? <small>@Bild 1 – wird das Startbild des Videos</small></h4>
-    ${BW.bild ? `<div class="bw-gewaehlt"><img class="fokus" src="${esc(BW.bild.url)}" alt=""><div><b>${esc(BW.bild.name || 'Gewählt')}</b>
+    ${BW.bild ? `<div class="bw-gewaehlt"><img class="fokus${/blatt$|blätter/i.test(BW.bild.name || '') ? ' blatt' : ''}" src="${esc(BW.bild.url)}" alt=""><div><b>${esc(BW.bild.name || 'Gewählt')}</b>
       <small>Zum Austauschen einfach ein anderes Bild anklicken.</small></div></div>` : ''}
     <div class="filter bw-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" class="${BW.tab === k ? 'an' : ''}" data-bwtab="${k}">${t}</button>`).join('')}</div>
     <div class="bw-raster">${raster}</div>`;
 }
 const bwKachel = (art, wert, url, titel) =>
   `<button class="${BW.bild?.quelle === art && BW.bild?.wert === wert ? 'an' : ''}" data-bwbild="${art}" data-wert="${esc(wert)}" data-url="${esc(url)}" data-titel="${esc(titel || '')}" data-tip="${esc(titel || '')}">
-    <img class="fokus" src="${esc(url)}" loading="lazy" alt=""></button>`;
+    <img class="fokus${/blatt$|blätter/i.test(titel || '') ? ' blatt' : ''}" src="${esc(url)}" loading="lazy" alt=""></button>`;
 async function bwBibLaden() {
   try { BW.bib = (await api('bilder?ansicht=alle&typ=bild')).bilder; } catch (e) { BW.bib = []; fehler(e); }
   if (BW.schritt === 1 && BW.tab === 'bibliothek') bwZeichnen();
@@ -217,7 +217,7 @@ function bwSchritt4() {
 function bwSchritt5() {
   const q = { beschreibung: 'Beschreibung', analyse: 'Video-Clone-Analyse' + (BW.mix.trim() ? ' + Änderungen' : '') }[BW.quelle] || '';
   return `<h4>5 · Wie geht es weiter?</h4>
-    <div class="bw-zusammen"><img class="fokus" src="${esc(BW.bild?.url || '')}" alt="">
+    <div class="bw-zusammen"><img class="fokus${/blatt$|blätter/i.test(BW.bild?.name || '') ? ' blatt' : ''}" src="${esc(BW.bild?.url || '')}" alt="">
       <dl><dt>@Bild 1</dt><dd>${esc(BW.bild?.name || '')}</dd><dt>Bewegung</dt><dd>${esc(q)}</dd><dt>Musik</dt><dd>${esc(BW.ohneMusik ? 'ohne' : (BW.eigen.trim() || BW.musik))}</dd></dl></div>
     <div class="bw-wahl bw-ende">
       <button id="bwVideo" class="an lotse-ziel"><span>🎬</span><b>Im Video-Modus öffnen</b><small>Deine Figur ist das Startbild, der Prompt steht drin. Preis und Modell siehst du dort vor dem Erzeugen.</small></button>
@@ -321,8 +321,29 @@ async function bwInDenChat() {
   toast('Im Chatfeld, Bild hängt an – prüfen und abschicken.', 'ok');
 }
 
-// Hochformat-/Querformat-Bilder so zeigen, dass das Gesicht sichtbar bleibt (Charakterblätter: links das Porträt)
-document.addEventListener('load', ev => {
-  const i = ev.target;
-  if (i.tagName === 'IMG' && i.classList.contains('fokus')) i.classList.toggle('quer', i.naturalWidth > i.naturalHeight * 1.2);
-}, true);
+// Bildausschnitt aufs Gesicht: Vorlagen haben weißen Hintergrund → oberste nicht-weiße Stelle (Kopf) suchen und den
+// sichtbaren Ausschnitt darauf zentrieren. Charakterblätter (Klasse „blatt“: links Porträt, rechts Ganzkörper) bleiben links.
+function fokusSetzen(i) {
+  if (i.classList.contains('blatt') || !i.naturalWidth || !i.clientWidth) return;
+  try {
+    const W = 48, H = Math.max(8, Math.round(W * i.naturalHeight / i.naturalWidth));
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(i, 0, 0, W, H);
+    const d = g.getImageData(0, 0, W, H).data;
+    const motiv = (x, y) => { const k = (y * W + x) * 4; return d[k] < 232 || d[k + 1] < 232 || d[k + 2] < 232; };
+    let oben = -1;
+    for (let y = 0; y < H && oben < 0; y++) { let n = 0; for (let x = 0; x < W; x++) if (motiv(x, y)) n++; if (n >= 2) oben = y; }
+    if (oben < 0) return;
+    let sx = 0, n = 0;
+    for (let y = oben; y < Math.min(H, oben + Math.ceil(H * 0.14)); y++) for (let x = 0; x < W; x++) if (motiv(x, y)) { sx += x; n++; }
+    const fx = n ? (sx / n + 0.5) / W : 0.5, fy = oben / H;
+    // Sichtbarer Anteil je Achse bei object-fit:cover
+    const bild = i.naturalWidth / i.naturalHeight, box = i.clientWidth / i.clientHeight;
+    const vx = Math.min(1, box / bild), vy = Math.min(1, bild / box);
+    const px = vx < 1 ? Math.max(0, Math.min(1, (fx - vx / 2) / (1 - vx))) : 0.5;
+    const py = vy < 1 ? Math.max(0, Math.min(1, (fy - 0.04) / (1 - vy))) : 0.5;
+    i.style.objectPosition = `${(px * 100).toFixed(1)}% ${(py * 100).toFixed(1)}%`;
+  } catch { /* Bild nicht lesbar – Standard-Ausschnitt bleibt */ }
+}
+document.addEventListener('load', ev => { const i = ev.target; if (i.tagName === 'IMG' && i.classList.contains('fokus')) fokusSetzen(i); }, true);

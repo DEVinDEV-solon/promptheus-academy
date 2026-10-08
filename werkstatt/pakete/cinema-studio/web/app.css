@@ -657,9 +657,10 @@ button:disabled{cursor:default}
 .if-vinfo b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .if-vinfo small{color:var(--gold2);font-size:11px}
 .if-vknoepfe{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px 8px}
-/* Bildausschnitt: Gesicht sichtbar halten. Querformat (Charakterblatt: links Porträt, rechts Ganzkörper) → linker Teil */
+/* Bildausschnitt: Gesicht sichtbar halten (fokusSetzen in bewegung.js richtet je Bild auf den Kopf aus).
+   Charakterblatt (links Porträt, rechts Ganzkörper) → linker Teil */
 img.fokus{object-position:50% 18%}
-img.fokus.quer{object-position:0% 30%}
+img.fokus.blatt{object-position:0% 30%}
 /* Bewegung-Assistent (Popup) */
 .modal-card.bw-karte{width:min(920px,100%)}
 .bw-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
