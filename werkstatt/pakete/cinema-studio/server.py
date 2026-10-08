@@ -26,7 +26,7 @@ from datetime import datetime, timedelta, timezone
 from http import cookies
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import assistent
 import audio
@@ -1031,6 +1031,8 @@ def auftrag_ausfuehren(job: dict, m: dict, basis: dict, refs_urls: list[str]) ->
                     job["fehler"].append("Antwort enthielt kein lesbares Bild.")
     job["kosten"] = round(kosten_summe, 5)
     job["tokens"] = token_summe
+    if job.get("influencer") and job["bilder"]:
+        influencer_bilder_anhaengen(job["owner"], job["influencer"], job["bilder"])
     job["status"] = "fertig" if job["bilder"] and not job["fehler"] else ("teilweise" if job["bilder"] else "fehler")
     job["ende"] = jetzt()
     verbrauch_schreiben({"zeit": job["ende"], "owner": job["owner"], "modell": m["id"], "bilder": len(job["bilder"]),
@@ -1084,6 +1086,12 @@ def auftrag_starten(owner: str, e: dict) -> dict:
                                    len(prompt), len(urls))}
     if refs and not urls:
         job["hinweis"] = "Referenzbilder werden von diesem Modell nicht unterstützt und wurden weggelassen."
+    iid = str(e.get("influencer_id") or "")
+    if iid:
+        inf = lies_json("influencer.json", {}).get(iid)
+        if not inf or inf["owner"] != owner:
+            raise Fehler(404, "Influencer nicht gefunden.")
+        job["influencer"] = iid
     with LOCK:
         AUFTRAEGE[job["id"]] = job
     threading.Thread(target=auftrag_ausfuehren, args=(job, m, nutzlast, urls), daemon=True).start()
@@ -1758,11 +1766,15 @@ def klon_starten(name: str, e: dict) -> dict:
         raise Fehler(400, "ffmpeg/ffprobe nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
     if not api_key():
         raise Fehler(400, "Für die Analyse wird ein OpenRouter-Schlüssel gebraucht (Einstellungen → Anschluss).")
-    url, datei = str(e.get("url") or "").strip(), None
+    url, datei, vorlage = str(e.get("url") or "").strip(), None, None
     if url:
         url = klon.url_pruefen(url)
         if not w["ytdlp"]:
             raise Fehler(400, "yt-dlp nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
+    elif e.get("vorlage"):
+        vorlage, mime = vorlage_datei(str(e["vorlage"]))
+        if not mime.startswith("video/") or vorlage.stat().st_size > KLON_MAX:
+            raise Fehler(400, "Diese Vorlage ist kein Video bis 500 MB.")
     else:
         up = lies_json("klon_uploads.json", {}).get(str(e.get("upload") or ""))
         if not up or up["owner"] != name:
@@ -1770,6 +1782,10 @@ def klon_starten(name: str, e: dict) -> dict:
         datei = DATA / "klon_uploads" / up["datei"]
     if any(j["owner"] == name and j["status"] == "laeuft" for j in KLON_JOBS.values()):
         raise Fehler(409, "Es läuft bereits eine Analyse.")
+    if vorlage:     # Kopie analysieren – die Analyse löscht ihre Quelle, die Vorlage bleibt liegen
+        (DATA / "klon_uploads").mkdir(parents=True, exist_ok=True)
+        datei = DATA / "klon_uploads" / f"{neue_id()}{vorlage.suffix.lower()}"
+        shutil.copyfile(vorlage, datei)
     job = {"id": neue_id(), "owner": name, "chat": chat["id"], "status": "laeuft", "schritt": "Wird vorbereitet …",
            "nr": 0, "von": 4, "fehler": "", "start": jetzt()}
     KLON_JOBS[job["id"]] = job
@@ -1858,9 +1874,86 @@ def chatmodelle() -> list:
     return CHATMODELLE["liste"]
 
 
+# --------------------------------------------------------------------------- Vorlagen-Ordner
+# Liegen neben den Ergebnissen: <Ablage>\Vorlagen\Bilder|Videos\<Ordner>\datei (+ gleichnamige .txt = Prompt).
+# Wer dort Dateien hineinlegt, sieht sie beim nächsten Öffnen von Influencer › Bewegung – ohne Neustart.
+VORLAGEN_ARTEN = {"Bilder": "image/", "Videos": "video/"}
+VORLAGEN_ORDNER = {"Bilder": ("Charaktere", "Posen", "Outfits", "Hintergründe"),
+                   "Videos": ("Tanz", "Gehen", "Gruppe", "Sport", "Sonstiges")}
+VORLAGEN_ENDUNGEN = {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".webm"}
+
+
+def vorlagen_wurzel() -> Path:
+    return ablage_wurzel() / "Vorlagen"
+
+
+def vorlagen_liste() -> dict:
+    w = vorlagen_wurzel()
+    for art, ordner in VORLAGEN_ORDNER.items():
+        for o in ordner:
+            try:
+                (w / art / o).mkdir(parents=True, exist_ok=True)
+            except OSError:
+                pass
+    aus = []
+    for art, praefix in VORLAGEN_ARTEN.items():
+        try:
+            unterordner = sorted((p for p in (w / art).iterdir() if p.is_dir()), key=lambda p: p.name.lower())
+        except OSError:
+            continue
+        for ordner in unterordner:
+            for f in sorted(ordner.iterdir(), key=lambda p: p.name.lower()):
+                if len(aus) >= 1000 or not f.is_file() or f.suffix.lower() not in VORLAGEN_ENDUNGEN:
+                    continue
+                if not ((praefix == "image/") == (f.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"))):
+                    continue
+                prompt, txt = "", f.with_suffix(".txt")
+                if txt.is_file():
+                    try:
+                        prompt = txt.read_text("utf-8", errors="replace")[:4000].strip()
+                    except OSError:
+                        pass
+                rel = f"{art}/{ordner.name}/{f.name}"
+                aus.append({"art": "bild" if art == "Bilder" else "video", "ordner": ordner.name, "name": f.stem,
+                            "pfad": rel, "url": "/vorlage/" + quote(rel), "prompt": prompt})
+    return {"pfad": str(w), "ordner": VORLAGEN_ORDNER, "vorlagen": aus}
+
+
+def vorlage_datei(rel: str) -> tuple[Path, str]:
+    """Pfad „Bilder|Videos/<Ordner>/<Datei>“ → Datei und Typ (an den ersten Bytes geprüft). Nichts außerhalb von Vorlagen."""
+    teile = str(rel).replace("\\", "/").split("/")
+    if len(teile) != 3 or teile[0] not in VORLAGEN_ARTEN or any(t in ("", ".", "..") for t in teile):
+        raise Fehler(404, "Vorlage nicht gefunden.")
+    w = vorlagen_wurzel().resolve()
+    f = (w / teile[0] / teile[1] / teile[2]).resolve()
+    if f.suffix.lower() not in VORLAGEN_ENDUNGEN or not f.is_relative_to(w) or not f.is_file():
+        raise Fehler(404, "Vorlage nicht gefunden.")
+    with open(f, "rb") as d:
+        typ = bild_typ(d.read(64))
+    if not typ or not typ[0].startswith(VORLAGEN_ARTEN[teile[0]]) or typ[0] == "image/svg+xml":
+        raise Fehler(415, "Diese Vorlage hat kein unterstütztes Format.")
+    return f, typ[0]
+
+
+def vorlage_als_upload(name: str, rel: str) -> dict:
+    """Bild-Vorlage als Referenz übernehmen (Kopie in uploads), z. B. als Basis eines Influencers."""
+    f, mime = vorlage_datei(rel)
+    if not mime.startswith("image/") or f.stat().st_size > MAX_UPLOAD:
+        raise Fehler(400, "Nur Bild-Vorlagen bis 12 MB lassen sich übernehmen.")
+    uid, endung = neue_id(), bild_typ(f.read_bytes()[:64])[1]
+    shutil.copyfile(f, DATA / "uploads" / f"{uid}.{endung}")
+    with LOCK:
+        ups = lies_json("uploads.json", {})
+        ups[uid] = {"owner": name, "datei": f"{uid}.{endung}", "mime": mime, "erstellt": jetzt(), "name": f.stem[:120]}
+        schreib_json("uploads.json", ups)
+    return {"id": uid, "url": f"/upload/{uid}"}
+
+
 # --------------------------------------------------------------------------- HTTP
 STATIC = {"index.html": "text/html; charset=utf-8", "app.css": "text/css; charset=utf-8",
-          "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
+          "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8",
+          "influencer.js": "text/javascript; charset=utf-8", "influencer_vorlagen.json": "application/json; charset=utf-8",
+          "muster_haupttaenzer.webp": "image/webp", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
 
 
 class Fehler(Exception):
@@ -2002,7 +2095,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         url = urlparse(self.path)
         try:
-            if not post and not url.path.startswith(("/api/", "/bild/", "/upload/", "/klonbild/", "/stimmprobe/", "/stimmdatei/")):
+            if not post and not url.path.startswith(("/api/", "/bild/", "/upload/", "/klonbild/", "/stimmprobe/", "/stimmdatei/", "/vorlage/")):
                 return self._statisch(url.path)
             if url.path.startswith("/klonbild/"):
                 return self._klonbild(url)
@@ -2012,6 +2105,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._stimmdatei(url)
             if url.path.startswith(("/bild/", "/upload/")):
                 return self._bilddatei(url)
+            if url.path.startswith("/vorlage/") and not post:
+                self._nutzer(False)
+                f, mime = vorlage_datei(unquote(url.path[len("/vorlage/"):]))
+                return self.datei(f, mime, cache=True)
             return self._api(url, post)
         except Fehler as e:
             self.json({"ok": False, "fehler": e.meldung}, e.code)
@@ -2452,6 +2549,27 @@ class Handler(BaseHTTPRequestHandler):
                 schreib_json("elemente.json", alle)
             return self.json({"ok": True, "elemente": elemente_liste(name)})
 
+        # --- Vorlagen-Ordner (Bilder/Videos neben den Ergebnissen)
+        if p == "vorlagen" and not post:
+            return self.json({"ok": True, **vorlagen_liste()})
+        if p == "vorlagen/uebernehmen" and post:
+            return self.json({"ok": True, **vorlage_als_upload(name, str(e.get("pfad") or ""))})
+
+        # --- Influencer (Charaktere)
+        if p == "influencer" and not post:
+            return self.json({"ok": True, "influencer": influencer_liste(name)})
+        if p == "influencer" and post:
+            return self.json({"ok": True, "id": influencer_speichern(name, e), "influencer": influencer_liste(name)})
+        if p.startswith("influencer/") and p.endswith("/loeschen") and post:
+            iid = p.split("/")[1]
+            with LOCK:
+                alle = lies_json("influencer.json", {})
+                if iid not in alle or alle[iid]["owner"] != name:
+                    raise Fehler(404, "Influencer nicht gefunden.")
+                alle.pop(iid)
+                schreib_json("influencer.json", alle)
+            return self.json({"ok": True, "influencer": influencer_liste(name)})
+
         # --- Verbrauch
         if p == "verbrauch" and not post:
             return self.json({"ok": True, **verbrauch_auswerten(name, admin and q.get("alle") == "1")})
@@ -2720,6 +2838,60 @@ def elemente_liste(name: str) -> list:
     return sorted(({"id": k, "name": v["name"], "art": v["art"], "erstellt": v["erstellt"],
                     "bilder": [mit_url(r) for r in v.get("bilder", [])]}
                    for k, v in alle.items() if v["owner"] == name), key=lambda x: x["name"].lower())
+
+
+INFLUENCER_TYPEN = ("normal", "kuehn", "extrem", "insekt", "frosch", "katze", "hund", "nager", "vogel")
+
+
+def influencer_speichern(owner: str, e: dict) -> str:
+    """Legt einen Charakter an oder ändert Name, Typ, Prompt (nur eigene)."""
+    titel = str(e.get("name", "")).strip()[:60]
+    if not titel:
+        raise Fehler(400, "Bitte gib dem Influencer einen Namen.")
+    typ = e.get("typ") if e.get("typ") in INFLUENCER_TYPEN else "normal"
+    prompt = str(e.get("prompt", "")).strip()[:4000]
+    vorlage = str(e.get("vorlage_id") or "")[:40]
+    basis = str(e.get("basis") or "")
+    if basis and not referenz_daten_erlaubt(basis, owner):
+        basis = ""
+    with LOCK:
+        alle = lies_json("influencer.json", {})
+        iid = str(e.get("id") or "")
+        if iid:
+            inf = alle.get(iid)
+            if not inf or inf["owner"] != owner:
+                raise Fehler(404, "Influencer nicht gefunden.")
+            inf.update({"name": titel, "typ": typ, "prompt": prompt or inf["prompt"]})
+        else:
+            iid = neue_id()
+            alle[iid] = {"owner": owner, "name": titel, "typ": typ, "prompt": prompt, "vorlage_id": vorlage,
+                         "basis": basis, "bilder": [], "erstellt": jetzt()}
+        schreib_json("influencer.json", alle)
+    return iid
+
+
+def influencer_bilder_anhaengen(owner: str, iid: str, bild_ids: list) -> None:
+    with LOCK:
+        alle = lies_json("influencer.json", {})
+        inf = alle.get(iid)
+        if inf and inf["owner"] == owner:
+            inf["bilder"] = list(dict.fromkeys([*bild_ids, *inf.get("bilder", [])]))[:200]
+            schreib_json("influencer.json", alle)
+
+
+def influencer_liste(name: str) -> list:
+    alle = lies_json("influencer.json", {})
+    sichtbar = {b["id"] for b in bilder() if b["owner"] == name and not b.get("geloescht")}
+    aus = []
+    for k, v in alle.items():
+        if v["owner"] != name:
+            continue
+        bild_ids = [b for b in v.get("bilder", []) if b in sichtbar]
+        basis = v.get("basis") or ""
+        aus.append({"id": k, "name": v["name"], "typ": v["typ"], "prompt": v["prompt"], "vorlage_id": v.get("vorlage_id", ""),
+                    "basis": {"id": basis, "url": ("/bild/" if basis in sichtbar else "/upload/") + basis} if basis else None,
+                    "bilder": [{"id": b, "url": "/bild/" + b} for b in bild_ids], "erstellt": v["erstellt"]})
+    return sorted(aus, key=lambda x: x["erstellt"], reverse=True)
 
 
 def verbrauch_auswerten(name: str, alle: bool) -> dict:

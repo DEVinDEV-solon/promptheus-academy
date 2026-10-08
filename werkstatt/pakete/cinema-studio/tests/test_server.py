@@ -1031,5 +1031,108 @@ class AudioAblage(unittest.TestCase):
         self.assertEqual(k["sprache"][0]["id"], "test/sprache")
 
 
+class Influencer(unittest.TestCase):
+    """Influencer › Erstellen: Charaktere anlegen, Bilder anhängen, nur eigene sehen."""
+    @classmethod
+    def setUpClass(cls):
+        cls.alt_data = server.DATA
+        server.DATA = Path(tempfile.mkdtemp(prefix="bildgen_inf_"))
+        server.verzeichnisse()
+        server.KATALOG.update({"modelle": [FAKE], "stand": time.time(), "fehler": ""})
+        server.schreib_json("benutzer.json", {"ia": {"name": "A", "rolle": "admin"}, "ib": {"name": "B", "rolle": "nutzer"}})
+        cls.srv = server.ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        cls.port = cls.srv.server_address[1]
+        threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
+        ta, cls.csrf_a = server.sitzung_neu("ia")
+        tb, cls.csrf_b = server.sitzung_neu("ib")
+        cls.a, cls.b = f"bildgen_sid={ta}", f"bildgen_sid={tb}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.shutdown()
+        server.DATA = cls.alt_data
+
+    req = Http.req
+
+    def test_vorlagen_statisch(self):
+        st, j, _, _ = self.req("/static/influencer_vorlagen.json")
+        self.assertEqual(st, 200)
+        self.assertGreaterEqual(len(j["vorlagen"]), 60)
+        self.assertEqual(set(j["typen"]), set(server.INFLUENCER_TYPEN))
+        self.assertTrue(all(v["typ"] in server.INFLUENCER_TYPEN and v["prompt"] for v in j["vorlagen"]))
+        self.assertEqual(len({v["id"] for v in j["vorlagen"]}), len(j["vorlagen"]), "IDs eindeutig")
+        self.assertEqual(self.req("/static/influencer.js")[0], 200)
+        self.assertEqual(self.req("/static/muster_haupttaenzer.webp")[0], 200)
+
+    def test_vorlagen_ordner(self):
+        a, ca = self.a, self.csrf_a
+        st, j, _, _ = self.req("/api/vorlagen", None, a)
+        self.assertEqual(st, 200)
+        w = server.vorlagen_wurzel()
+        self.assertTrue((w / "Videos" / "Tanz").is_dir(), "Standardordner werden angelegt")
+        (w / "Bilder" / "Charaktere" / "figur.png").write_bytes(png())
+        (w / "Bilder" / "Charaktere" / "figur.txt").write_text("a man in a black coat", "utf-8")
+        (w / "Bilder" / "Charaktere" / "falsch.png").write_bytes(b"kein bild")
+        st, j, _, _ = self.req("/api/vorlagen", None, a)
+        v = next(x for x in j["vorlagen"] if x["name"] == "figur")
+        self.assertEqual((v["art"], v["ordner"], v["prompt"]), ("bild", "Charaktere", "a man in a black coat"))
+        self.assertEqual(self.req(v["url"], None, a)[0], 200)
+        self.assertEqual(self.req("/vorlage/Bilder/Charaktere/falsch.png", None, a)[0], 415)
+        self.assertEqual(self.req("/vorlage/Bilder/..%2F..%2Fserver.py", None, a)[0], 404)
+        self.assertEqual(self.req("/vorlage/Bilder/Charaktere/figur.png")[0], 401)
+        st, j, _, _ = self.req("/api/vorlagen/uebernehmen", {"pfad": v["pfad"]}, a, ca)
+        self.assertEqual(st, 200)
+        self.assertTrue(j["url"].startswith("/upload/"))
+        self.assertEqual(self.req("/api/vorlagen/uebernehmen", {"pfad": "Bilder/../../x.png"}, a, ca)[0], 404)
+
+    def test_ablauf(self):
+        a, ca, b, cb = self.a, self.csrf_a, self.b, self.csrf_b
+        self.assertEqual(self.req("/api/influencer", {"name": " "}, a, ca)[0], 400)
+        st, j, _, _ = self.req("/api/influencer", {"name": "Quak Drip", "typ": "frosch", "prompt": "frog", "vorlage_id": "IF-41"}, a, ca)
+        self.assertEqual(st, 200, j)
+        iid = j["id"]
+        st, j, _, _ = self.req("/api/influencer", {"name": "Ohne Typ", "typ": "drache"}, a, ca)
+        self.assertEqual(next(i for i in j["influencer"] if i["id"] == j["id"])["typ"], "normal", "unbekannter Typ → normal")
+        # fremder Nutzer sieht und ändert nichts
+        self.assertEqual(self.req("/api/influencer", cookie=b)[1]["influencer"], [])
+        self.assertEqual(self.req(f"/api/influencer/{iid}/loeschen", {}, b, cb)[0], 404)
+        self.assertEqual(self.req("/api/influencer", {"id": iid, "name": "Gekapert"}, b, cb)[0], 404)
+
+        def fake(pfad, daten=None, timeout=30, mit_key=True):
+            return {"data": [{"b64_json": base64.b64encode(png(4, 4)).decode()}], "usage": {"cost": 0.01}}
+
+        alt_or, alt_key = server.or_anfrage, server.api_key
+        server.or_anfrage, server.api_key = fake, lambda: "sk-or-test"
+        try:
+            self.assertEqual(self.req("/api/erzeugen", {"prompt": "x", "modell": FAKE["id"], "influencer_id": iid}, b, cb)[0], 404)
+            st, j, _, _ = self.req("/api/erzeugen", {"prompt": "frog", "modell": FAKE["id"], "influencer_id": iid}, a, ca)
+            self.assertEqual(st, 200, j)
+            self.assertEqual(j["auftrag"]["influencer"], iid)
+            for _ in range(50):
+                _, j, _, _ = self.req("/api/auftraege", cookie=a)
+                if all(x["status"] != "laufend" for x in j["auftraege"]):
+                    break
+                time.sleep(0.1)
+        finally:
+            server.or_anfrage, server.api_key = alt_or, alt_key
+        _, j, _, _ = self.req("/api/influencer", cookie=a)
+        quak = next(i for i in j["influencer"] if i["id"] == iid)
+        self.assertEqual(len(quak["bilder"]), 1)
+        bid = quak["bilder"][0]["id"]
+        self.assertEqual(quak["bilder"][0]["url"], f"/bild/{bid}")
+        # umbenennen, löschen – das Bild bleibt in der Bibliothek
+        _, j, _, _ = self.req("/api/influencer", {"id": iid, "name": "Quak 2", "typ": "frosch"}, a, ca)
+        self.assertEqual(next(i for i in j["influencer"] if i["id"] == iid)["name"], "Quak 2")
+        _, j, _, _ = self.req(f"/api/influencer/{iid}/loeschen", {}, a, ca)
+        self.assertFalse(any(i["id"] == iid for i in j["influencer"]))
+        self.assertTrue(any(x["id"] == bid for x in self.req("/api/bilder?ansicht=alle", cookie=a)[1]["bilder"]))
+
+    def test_assistent_kontext(self):
+        t = server.assistent.anweisungen("assistent", [], [], {"modus": "influencer", "influencer": {"typ": "katze", "besonderheiten": "Goldkette"}}, "englisch")
+        self.assertIn("```influencer", t)
+        self.assertIn("Goldkette", t)
+        self.assertNotIn("```influencer", server.assistent.anweisungen("assistent", [], [], {"modus": "bild"}, "englisch"))
+
+
 if __name__ == "__main__":
     unittest.main()

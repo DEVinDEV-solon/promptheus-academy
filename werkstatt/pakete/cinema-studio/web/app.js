@@ -74,7 +74,7 @@ const S = {
   ansicht: 'erstellen', bilder: [], ordner: [], elemente: [], auftraege: [], verworfen: new Set(),
   auswahl: new Set(), waehlen: false, suche: '',
   gen: { modell: '', seitenverhaeltnis: '', qualitaet: '', aufloesung: '', anzahl: 1, refs: [], elemente: [], hintergrund: '' },
-  schaetzung: null, ordnerOffen: speicher.lies('ordnerOffen', true),
+  schaetzung: null, ordnerOffen: speicher.lies('ordnerOffen', true), influencerOffen: speicher.lies('influencerOffen', false),
   // Video
   modus: speicher.lies('modus', 'bild'), typFilter: '', vmodelle: [], vempfohlen: [], vstandard: '', vkatalogFehler: '',
   vgen: { modell: '', seitenverhaeltnis: '', aufloesung: '', dauer: 5, ton: true, anzahl: 1, start: null, ende: null },
@@ -294,6 +294,7 @@ function profilZeigen() {
 // ------------------------------------------------------------------ Menü links
 const NAV = [
   ['erstellen', 'Erstellen', 'funke', 'Bilder und Videos erzeugen – die letzten Ergebnisse liegen dahinter'],
+  ['influencer', 'Influencer', 'profil', 'KI-Charaktere bauen: aus Vorlagen, aus deinem Foto oder aus bestehenden Figuren'],
   ['audio', 'Audio', 'ton', 'Text sprechen lassen: Sprachmodelle, Stimmen, eigene geklonte Stimmen, Klang'],
   ['bibliothek', 'Bibliothek', 'bilder', 'Alle deine Bilder, nach Tagen sortiert'],
   ['favoriten', 'Favoriten', 'herz', 'Bilder, die du mit ♥ markiert hast'],
@@ -304,10 +305,23 @@ const NAV = [
   ['papierkorb', 'Papierkorb', 'muell', 'Gelöschte Bilder – wiederherstellen oder endgültig löschen'],
   ['modelle', 'Modelle', 'katalog', 'Modellkatalog von OpenRouter: Bild, Video, Sprache, Text, Vision – mit Kosten'],
 ];
+// Untermenü „Influencer“ (Ansichts-IDs mit Präfix, denn „erstellen“ ist schon die Bild-/Video-Ansicht)
+const IF_SUB = [
+  ['influencer:erstellen', 'Erstellen', 'Charakter bauen: Typ wählen, optional Foto, Erzeugen'],
+  ['influencer:bewegung', 'Bewegung', 'Charaktere in Bewegung bringen (kommt in Phase 2)'],
+  ['influencer:meine', 'Meine Influencer', 'Alle Charaktere, die du gebaut hast'],
+];
 function railBauen() {
   const nav = $('#railNav');
   const aktiv = S.ansicht;
   nav.innerHTML = NAV.map(([id, txt, ic, tip]) => {
+    if (id === 'influencer') {
+      return `<button data-nav="influencer" class="${aktiv.startsWith('influencer:') ? 'active' : ''} ${S.influencerOffen ? 'open' : ''}" data-tip="${esc(tip)}">
+          <span class="ico">${ico(ic)}</span><span class="lbl">${txt}</span><span class="sub-arrow">${ico('rechts')}</span></button>
+        <div class="rail-sub ${S.influencerOffen ? '' : 'hidden'}">
+          ${IF_SUB.map(([sid, stxt, stip]) => `<button data-nav="${sid}" class="${aktiv === sid ? 'active' : ''}" data-tip="${esc(stip)}"><span class="lbl">${stxt}</span></button>`).join('')}
+        </div>`;
+    }
     if (id === 'ordner') {
       return `<button data-nav="ordner" class="${aktiv.startsWith('ordner:') ? 'active' : ''} ${S.ordnerOffen ? 'open' : ''}" data-tip="${esc(tip)}">
           <span class="ico">${ico(ic)}</span><span class="lbl">${txt}</span><span class="sub-arrow">${ico('rechts')}</span></button>
@@ -329,6 +343,12 @@ $('#railNav').addEventListener('click', async ev => {
     S.ordnerOffen = !S.ordnerOffen; speicher.setz('ordnerOffen', S.ordnerOffen); railBauen(); return;
   }
   if (z === 'ordner-neu') { await ordnerNeu(); return; }
+  if (z === 'influencer') {
+    if ($('#rail').classList.contains('zu')) { $('#rail').classList.remove('zu'); speicher.setz('railZu', false); }
+    S.influencerOffen = !S.influencerOffen; speicher.setz('influencerOffen', S.influencerOffen);
+    if (S.influencerOffen && !S.ansicht.startsWith('influencer:')) ansicht('influencer:erstellen'); else railBauen();
+    return;
+  }
   ansicht(z);
   if (innerWidth <= 700) $('#rail').classList.add('zu');
 });
@@ -411,13 +431,18 @@ async function kontoLaden() {
 }
 
 // ------------------------------------------------------------------ Ansichten
-const TITEL = { audio: 'Audio', modelle: 'Modelle', erstellen: 'Erstellen', bibliothek: 'Bibliothek', favoriten: 'Favoriten', elemente: 'Elemente', veroeffentlicht: 'Veröffentlicht', verbrauch: 'Verbrauch', papierkorb: 'Papierkorb' };
+const TITEL = { 'influencer:erstellen': 'Influencer · Erstellen', 'influencer:bewegung': 'Influencer · Bewegung', 'influencer:meine': 'Meine Influencer',
+  audio: 'Audio', modelle: 'Modelle', erstellen: 'Erstellen', bibliothek: 'Bibliothek', favoriten: 'Favoriten', elemente: 'Elemente', veroeffentlicht: 'Veröffentlicht', verbrauch: 'Verbrauch', papierkorb: 'Papierkorb' };
 const bildAnsicht = a => ['erstellen', 'audio', 'bibliothek', 'favoriten', 'veroeffentlicht', 'papierkorb'].includes(a) || a.startsWith('ordner:');
 
 async function ansicht(a) {
   if (a.startsWith('ordner:') && !S.ordner.some(o => 'ordner:' + o.id === a)) a = 'bibliothek';
   if (!TITEL[a] && !a.startsWith('ordner:')) a = 'erstellen';
   S.ansicht = a; speicher.setz('ansicht', a);
+  const istIf = a.startsWith('influencer:');
+  if (istIf && !S.influencerOffen) { S.influencerOffen = true; speicher.setz('influencerOffen', true); }
+  if (!istIf) lotseWeg();
+  $('#wand').classList.toggle('if-wand', istIf);
   auswahlBeenden();
   railBauen();
   const o = S.ordner.find(x => 'ordner:' + x.id === a);
@@ -436,6 +461,7 @@ async function ansicht(a) {
   else if (a === 'verbrauch') await verbrauchZeigen();
   else if (a === 'elemente') elementeZeigen();
   else if (a === 'modelle') await katalogZeigen();
+  else if (istIf) await influencerZeigen(a);
   $('#wand').scrollTop = 0;
 }
 
@@ -1164,10 +1190,12 @@ async function erzeugen(ueber = null) {
     const d = await api('erzeugen', {
       prompt, modell: g.modell, seitenverhaeltnis: g.seitenverhaeltnis, qualitaet: g.qualitaet, aufloesung: g.aufloesung,
       anzahl: g.anzahl, hintergrund: g.hintergrund, refs: ueber?.refs ?? g.refs.map(r => r.id), elemente: ueber?.elemente ?? g.elemente.map(e => e.id),
+      influencer_id: ueber?.influencer_id || undefined,
     });
     if (d.auftrag.hinweis) toast(d.auftrag.hinweis);
     S.auftraege.push(d.auftrag);
-    if (!['erstellen', 'bibliothek'].includes(S.ansicht)) await ansicht('erstellen');
+    if (S.ansicht.startsWith('influencer:')) influencerNachAuftrag(d.auftrag);
+    else if (!['erstellen', 'bibliothek'].includes(S.ansicht)) await ansicht('erstellen');
     else { wandZeichnen(); $('#wand').scrollTop = 0; }
     abfragen();
   } catch (e) {
@@ -1205,6 +1233,7 @@ function abfragen() {
     if (fertig || neu.some(j => j.status === 'laufend' && j.bilder.length)) {
       if (bildAnsicht(S.ansicht)) await bilderLaden();
     } else if (bildAnsicht(S.ansicht)) wandZeichnen();
+    if (S.ansicht.startsWith('influencer:')) influencerAuftraegeGeaendert(fertig);
     if (fertig) { kontoLaden(); schaetzen(); }
     if (!S.auftraege.some(j => j.status === 'laufend')) { clearInterval(abfrageTimer); abfrageTimer = null; }
     void zahlVorher;

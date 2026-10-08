@@ -42,6 +42,7 @@ Voraussetzung: Python 3.10+ (nur Standardbibliothek, keine Pakete).
 | `lokal_stimme/` | Lokale Stimmklonung: Anbindung (`__init__.py`) und Dienst (`dienst.py`, eigene Python-Umgebung) |
 | `web/index.html`, `web/app.css`, `web/app.js` | Oberfläche (ohne Framework) |
 | `web/chat.js` · `web/medien.js` | Seitenchat · Audio, Modellkatalog, Modellwahl mit Kosten, Speichern/Ablage |
+| `web/influencer.js` · `web/influencer_vorlagen.json` | Menü „Influencer“: Charaktere bauen (Panel, Galerie, Lotse mit Pfeilen) · 64 Vorlagen aus `vps/Pläne/100_Cinema-Studio/charakter.md`; Daten in `data/influencer.json`. Unterpunkt „Bewegung“ zeigt Muster-Rezepte (`web/muster_*.webp` als Beispiel für @Bild 1) und übergibt den Prompt an Video-Clone/Chat |
 | `Ablage/` | **Alle erzeugten Dateien**, strukturiert: `<nutzer>/Bilder\|Videos\|Audio/JJJJ-MM/Datum_Uhrzeit_Stichwort_Id` — nicht in git |
 | `data/` | Verwaltung: JSON-Dateien, `uploads/`, `audio_roh/` (Originale für „Klang anpassen“), `stimmen/` (eigene Stimmproben), `chats/`, `cache/` — nicht in git |
 | `tests/test_server.py` | Offline-Tests (OpenRouter simuliert): `python -m unittest discover -s tests -v` |

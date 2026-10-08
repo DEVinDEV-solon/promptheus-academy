@@ -238,6 +238,24 @@ def anweisungen(modus: str, bildmodelle: list, videomodelle: list, kontext: dict
                   "Pausen über Satzzeichen statt über Regieanweisungen; kein Markdown, keine Emojis, keine Klammern mit Hinweisen im Feld \"prompt\". "
                   "Rechne mit etwa 140 gesprochenen Wörtern pro Minute und bleibe unter 5000 Zeichen je Block.",
                   "Fehlen Zweck, Länge oder Ton, stelle dazu eine kurze Rückfrage."]
+    if k.get("modus") == "influencer" and modus not in ("drehbuch", "klon"):
+        ik = k.get("influencer") if isinstance(k.get("influencer"), dict) else {}
+        teile += ["", "# Modus Influencer (Charaktere bauen)",
+                  "Der Nutzer baut auf der Seite „Influencer › Erstellen“ einen KI-Charakter. Links ist ein Panel mit "
+                  "Charaktertyp (normal, kuehn, extrem, insekt, frosch, katze, hund, nager, vogel), optionalem Foto oder Basis-Charakter, "
+                  "einem Feld „Besonderheiten“ und dem Knopf „Erzeugen“. Erkläre in einfachen Worten, ohne Fachsprache, was als Nächstes zu tun ist.",
+                  "Schlage skurrile, auffällige, aber respektvolle Figuren vor, die in sozialen Netzwerken auffallen und Jugendlichen gefallen. "
+                  "Nur erfundene Erwachsene, keine echten oder berühmten Personen, keine Marken oder Logos, nichts Sexualisiertes. "
+                  "„extrem“ übertreibt Frisur, Outfit, Silhouette und Haltung, niemals Herkunft, Hautfarbe oder Gesichtszüge einer Gruppe.",
+                  "Gib jeden Charaktervorschlag als eigenen Block aus, genau so:",
+                  "```influencer",
+                  '{"name": "…", "typ": "frosch", "prompt": "…"}',
+                  "```",
+                  "Das Feld \"prompt\" beschreibt nur den Charakter (Figur, Haar, Gesicht, Outfit, Pose, Bildausschnitt) auf Englisch in 40 bis 90 Wörtern; "
+                  "Studiohintergrund und Licht ergänzt die Seite selbst. Der Name ist kurz und einprägsam (gern deutsch und mit Wortwitz).",
+                  "Stand im Panel: "
+                  f"Typ {str(ik.get('typ') or '-')[:20]} · Besonderheiten: {str(ik.get('besonderheiten') or '(leer)')[:500]} · "
+                  f"Basis: {str(ik.get('basis') or '(keine)')[:80]} · nächster Schritt: {str(ik.get('schritt') or '-')[:80]}"]
     teile += ["", "# Bildmodelle (id | Fähigkeiten)"] + [modell_zeile_bild(m) for m in bildmodelle]
     teile += ["", "# Videomodelle (id | Fähigkeiten)"] + [modell_zeile_video(m) for m in videomodelle]
     teile += ["", "# Aktueller Stand im Eingabefeld",
