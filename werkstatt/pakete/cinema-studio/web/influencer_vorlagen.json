@@ -1,0 +1,466 @@
+{
+ "stand": "2026-10-08",
+ "grundblock": "Photorealistic fashion character photograph of a fictional adult character, editorial lookbook style. Seamless pure white studio background that fades to a very light grey at the floor, soft large diffused key light with gentle fill, faint soft contact shadow under the feet, no props, no scenery. 85mm lens look, f/8, everything sharp, natural skin texture with real pores, real fabric weave and stitching, true-to-life colors, clean high-end retouching without plastic skin. Vertical 3:4 frame.\nAvoid: text, letters, logos, brand names, watermark, celebrity likeness, extra fingers, distorted hands, warped face, cropped head, busy background, cartoon look.",
+ "fotoanker": "Use the person in the reference image as the identity anchor: keep the same face shape, eye shape and color, nose, lips, skin tone, apparent age and hair texture. Transform only styling, hair design, wardrobe and pose as described below. The result must clearly be the same person.",
+ "typen": {
+  "normal": "Realistic everyday proportions, natural features, believable street-casting look, styling turned down one notch.",
+  "kuehn": "One bold signature feature dominates (hair sculpture or statement garment), confident attitude, still fully realistic.",
+  "extrem": "Push hair, silhouette, wardrobe volume and posture to a sculptural, almost surreal level, like a high-fashion caricature. Face anatomy stays human, natural and respectful; never exaggerate ethnic features or skin tone.",
+  "insekt": "Reimagine the character as a premium anthropomorphic insect-human hybrid: glossy chitin plates on skin, slender antennae, subtle compound-eye sheen, an extra pair of small arms folded neatly, human posture, wearing the described outfit. Friendly, charismatic, not scary. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume.",
+  "frosch": "Reimagine the character as a premium anthropomorphic frog: smooth glistening green skin with natural spots, wide friendly mouth, big round eyes set high on the head, webbed fingers, human posture, wearing the described outfit. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume.",
+  "katze": "Reimagine the character as a premium anthropomorphic cat: realistic fur with fine detail, whiskers, expressive ears, tail visible, cat face with human expressiveness, human posture, wearing the described outfit. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume.",
+  "hund": "Reimagine the character as a premium anthropomorphic dog: realistic fur, dog snout and ears, loyal expressive eyes, tail visible, human posture, wearing the described outfit. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume.",
+  "nager": "Reimagine the character as a premium anthropomorphic rodent (pick mouse, rat, hamster, capybara or squirrel to fit the vibe): realistic fur, whiskers, small hands, prominent front teeth, human posture, wearing the described outfit. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume.",
+  "vogel": "Reimagine the character as a premium anthropomorphic bird: realistic layered feathers, beak, bird eyes, feathered wing-arms ending in feathered fingers, human posture, wearing the described outfit. photoreal creature design like a high-budget film creature, not a cartoon, not a mascot costume."
+ },
+ "vorlagen": [
+  {
+   "id": "IF-01",
+   "name": "Rocco Velluto",
+   "typ": "kuehn",
+   "kurz": "Glänzende schwarze Tolle, dicker Schnurrbart, lange Lederkutte und smaragdgrüne Samt-Schlaghose.",
+   "prompt": "Subject: lean adult man in his late 30s, light olive skin, standing tall with arms relaxed.\nHair: glossy jet-black pompadour combed high and back.\nFace: thick black chevron mustache, heavy brows, cool unimpressed stare.\nWardrobe: floor-skimming black leather trench coat worn open, black shirt, emerald-green velvet flared trousers with sharp crease, pointed black leather boots.\nPose: weight on one leg, hands hanging loose, chin slightly raised.\nFraming: full body, head to toe, generous white space above the head."
+  },
+  {
+   "id": "IF-02",
+   "name": "Bruno Pony",
+   "typ": "extrem",
+   "kurz": "Helmartiger brauner Pilzkopf mit messerscharfem Pony, Schnauzer und Retro-Trainingsjacke.",
+   "prompt": "Subject: adult man around 30, fair skin, deadpan expression.\nHair: thick chestnut bowl cut shaped like a perfect helmet, ruler-straight fringe exactly at the eyebrows, sides cut in one hard line at the jaw.\nFace: dense brown mustache, slightly raised eyebrows, unblinking stare into the lens.\nWardrobe: retro track jacket in cream and butter-yellow blocks with navy collar and zip, no logos.\nPose: shoulders square to camera.\nFraming: chest-up portrait, centered."
+  },
+  {
+   "id": "IF-03",
+   "name": "Nala Wolke",
+   "typ": "kuehn",
+   "kurz": "Riesiger runder platinblonder Afro über flauschiger limettengrüner Mohair-Strickjacke.",
+   "prompt": "Subject: adult woman in her mid 20s, deep brown skin with a warm glow, elegant long neck.\nHair: enormous perfectly round platinum-blond afro, airy and sculpted, twice the width of her shoulders.\nFace: calm confident expression, softly defined brows, glossy neutral lips.\nWardrobe: cropped chartreuse fluffy mohair cardigan with oversized sleeves, buttoned once.\nPose: torso slightly turned, eyes to camera.\nFraming: waist-up portrait."
+  },
+  {
+   "id": "IF-04",
+   "name": "Dorian Strich",
+   "typ": "kuehn",
+   "kurz": "Glatt zurückgegeltes Haar, feiner Lenker-Schnurrbart, dunkelblaue Trainingsjacke.",
+   "prompt": "Subject: slim adult man around 35, light skin, sharp cheekbones.\nHair: black hair slicked straight back with a wet-look shine.\nFace: thin pencil handlebar mustache with tiny upturned tips, piercing eyes, faint smirk.\nWardrobe: navy track jacket with two white sleeve stripes, zipped to the collarbone.\nPose: head slightly tilted, looking down the nose at the camera.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-05",
+   "name": "Silvio Riff",
+   "typ": "kuehn",
+   "kurz": "Langer silberweißer Rocker mit runder schwarzer Sonnenbrille, Lederjacke und Leder-Schlaghose.",
+   "prompt": "Subject: lanky adult man in his 60s, pale skin, rock-legend attitude.\nHair: very long straight silver-white hair falling past the chest, center part.\nFace: neat white goatee, small round black sunglasses.\nWardrobe: black leather biker jacket with silver zips, black tee, black leather flared trousers, black heeled boots.\nPose: relaxed slouch, thumbs hooked in pockets.\nFraming: full body, head to toe."
+  },
+  {
+   "id": "IF-06",
+   "name": "Mini-Karotte",
+   "typ": "extrem",
+   "kurz": "Winzige Figur weit weg im Bild, Glatze mit einem orangefarbenen Haarbüschel, olivgrüne Feldjacke.",
+   "prompt": "Subject: very short, slight adult man in his 40s, fair freckled skin, standing far from the camera so he appears tiny in the frame.\nHair: bald head with one single tall tuft of bright carrot-orange hair standing straight up.\nFace: curious wide eyes, small smile.\nWardrobe: olive field jacket one size too big, cream chino trousers, brown lace-up shoes.\nPose: hands clasped behind his back, leaning forward to peek at the viewer.\nFraming: full body small in the lower center of the frame, huge white space around him."
+  },
+  {
+   "id": "IF-07",
+   "name": "Kai Kontrast",
+   "typ": "normal",
+   "kurz": "Muskulöser junger Mann mit kurzen Locken und orange-schwarzer Steppjacke, ernster Blick.",
+   "prompt": "Subject: athletic adult man around 23, medium brown skin, strong jaw.\nHair: short tight curls, clean fade on the sides.\nFace: intense serious stare, slightly furrowed brows.\nWardrobe: boxy puffer jacket in bold orange and black color blocks, black hoodie underneath.\nPose: shoulders square, chin down slightly.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-08",
+   "name": "Bleach-Bowl Bodo",
+   "typ": "extrem",
+   "kurz": "Bodybuilder mit platinblondem Pilzkopf, winziger schwarzer Sportbrille und hautengem Shirt.",
+   "prompt": "Subject: enormous bodybuilder adult man around 30, light tan skin, massive neck and shoulders.\nHair: bleached platinum bowl cut, perfectly round, short fringe.\nFace: tiny black wraparound sport sunglasses, blank tough expression.\nWardrobe: skin-tight black long-sleeve shirt stretched over the muscles, thin silver chain with a small round pendant.\nPose: arms slightly away from the body because of the muscles.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-09",
+   "name": "Kamel-Kalle",
+   "typ": "extrem",
+   "kurz": "Breiter Mann mit hohem violettem Flat-Top-Block, riesiger Kamelmantel, Arme verschränkt.",
+   "prompt": "Subject: broad tall adult man in his 40s, deep brown skin, imposing calm presence.\nHair: very tall flat-top hair block dyed deep violet, sides razor-straight, top perfectly flat.\nFace: steady unimpressed gaze, closed mouth.\nWardrobe: oversized camel double-breasted overcoat with wide lapels, burgundy trousers, polished brown shoes.\nPose: arms firmly crossed, feet apart.\nFraming: full body."
+  },
+  {
+   "id": "IF-10",
+   "name": "Pia Kamm",
+   "typ": "extrem",
+   "kurz": "Profilansicht mit pinkem, spitz nach oben stehendem Haarkamm und olivgrüner Jacke.",
+   "prompt": "Subject: slender adult woman in her late 20s, fair skin, seen in strict side profile.\nHair: tall spiked crest of candy-pink hair rising like a cockatoo comb, sides shaved.\nFace: elegant profile, small nose, neutral mouth.\nWardrobe: olive utility jacket with high collar.\nPose: looking left, chin lifted.\nFraming: head and shoulders, small in the frame with lots of white space."
+  },
+  {
+   "id": "IF-11",
+   "name": "Kara Kampf",
+   "typ": "kuehn",
+   "kurz": "Durchtrainierte Frau mit hohem Dutt, schwarzer Lederweste und riesiger Tarn-Cargohose, Arme verschränkt.",
+   "prompt": "Subject: muscular athletic adult woman around 30, deep brown skin, defined arms.\nHair: high tight top bun, edges sleek.\nFace: confident stare, slight frown.\nWardrobe: black leather vest over a sheer black mesh top, extremely baggy camouflage cargo pants with big pockets, chunky white sneakers.\nPose: arms crossed, wide powerful stance.\nFraming: full body."
+  },
+  {
+   "id": "IF-12",
+   "name": "Stirnband-Stan",
+   "typ": "extrem",
+   "kurz": "80er-Sportler mit roter Lockenmähne, pinkem Frotteestirnband, Schnauzer, Kniestrümpfen und Händen in den Hüften.",
+   "prompt": "Subject: stocky adult man in his 40s, fair sunburned skin, proud grin.\nHair: big voluminous ginger curly hair, pink terry-cloth headband.\nFace: thick ginger mustache, pink-tinted wraparound sport glasses.\nWardrobe: white sweatshirt with navy sleeve stripes, short white athletic shorts with navy piping, white knee-high tube socks with navy stripes, chunky retro running shoes.\nPose: hands on hips, chest out, feet planted wide.\nFraming: full body."
+  },
+  {
+   "id": "IF-13",
+   "name": "Lars Lila",
+   "typ": "normal",
+   "kurz": "Blasser, schmaler junger Mann mit rasiertem Kopf in lila Trainingsjacke.",
+   "prompt": "Subject: slim adult man around 22, very fair skin, thoughtful look.\nHair: buzzed close to the scalp, light blond.\nFace: pale eyelashes, calm neutral mouth, eyes slightly off-camera.\nWardrobe: purple and navy track jacket zipped up, no logos.\nPose: shoulders slightly hunched.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-14",
+   "name": "Greta Grau",
+   "typ": "kuehn",
+   "kurz": "Platinblondes Kurzhaar, viel zu großer grauer Anzug und weite Jeans.",
+   "prompt": "Subject: tall adult woman in her 30s, fair skin, androgynous elegance.\nHair: short platinum hair slicked back.\nFace: minimal makeup, strong brows, cool gaze.\nWardrobe: very oversized charcoal suit jacket with dropped shoulders, black tank top, extremely wide light-wash jeans pooling over black loafers.\nPose: hands in jacket pockets, slight lean.\nFraming: full body."
+  },
+  {
+   "id": "IF-15",
+   "name": "Widder-Wanda",
+   "typ": "extrem",
+   "kurz": "Weißes Haar zu zwei gedrehten Widderhörnern geformt, schwarzer Blazer.",
+   "prompt": "Subject: adult woman in her late 20s, deep brown skin, regal posture.\nHair: snow-white hair sculpted into two large curled ram horns spiraling from the temples.\nFace: serene expression, subtle gloss on the lips, sharp defined brows.\nWardrobe: black tailored blazer over a crisp white shirt with pointed collar.\nPose: chin slightly raised, eyes to camera.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-16",
+   "name": "Hecken-Henry",
+   "typ": "extrem",
+   "kurz": "Flacher, grasgrüner Haarblock wie eine frisch geschnittene Hecke.",
+   "prompt": "Subject: adult man in his 30s, deep brown skin, calm stoic face.\nHair: wide flat-topped block of bright grass-green hair trimmed like a garden hedge, perfectly level top edge.\nFace: neutral expression, steady eyes.\nWardrobe: black turtleneck.\nPose: front-facing, still.\nFraming: head and shoulders, top of the hedge hair touching the upper edge of the frame."
+  },
+  {
+   "id": "IF-17",
+   "name": "Turm-Tilda",
+   "typ": "extrem",
+   "kurz": "Meterhoher pinker Kegel-Dutt, schwarzer Lederoverall, Hände in den Hüften.",
+   "prompt": "Subject: tall slender adult woman in her 30s, fair skin, fierce runway attitude.\nHair: towering cone-shaped pastel-pink beehive rising high above the head.\nFace: sharp graphic eyeliner, nude lips.\nWardrobe: glossy black leather jumpsuit with a wide pointed collar and belted waist, black heeled boots.\nPose: hands on hips, one leg forward.\nFraming: full body, the hair tower fully inside the frame."
+  },
+  {
+   "id": "IF-18",
+   "name": "Professor Wolke",
+   "typ": "extrem",
+   "kurz": "Älterer Herr mit wilder weißer Haarwolke, Schnauzer und zu großem babyblauem Doppelreiher.",
+   "prompt": "Subject: elderly adult man in his 70s, fair skin, playful mad-inventor energy (not resembling any real scientist).\nHair: wild white cloud of hair exploding to the sides.\nFace: bushy white mustache, raised eyebrows, mischievous eyes.\nWardrobe: very oversized baby-blue double-breasted suit with huge shoulders, white shirt, black shoes.\nPose: leaning forward toward the camera, one hand raised as if explaining something.\nFraming: full body."
+  },
+  {
+   "id": "IF-19",
+   "name": "Tara Turm",
+   "typ": "extrem",
+   "kurz": "Kleine Figur mit hohem weißem Kopftuchturm, ganz in Schwarz, in der Hocke.",
+   "prompt": "Subject: petite adult woman in her 30s, medium brown skin, poised and mysterious.\nHair: hidden under a very tall white wrapped headwrap tower.\nFace: calm expression, gold hoop earrings.\nWardrobe: black high-neck long-sleeve top, black wide trousers, black boots.\nPose: crouching low with elbows on knees, looking up at the camera.\nFraming: full body, small in the frame with lots of white space."
+  },
+  {
+   "id": "IF-20",
+   "name": "Windbreaker-Paul",
+   "typ": "kuehn",
+   "kurz": "Grauer Vokuhila, Schnauzer, pink-schwarzer Windbreaker, Jeans und pinke Sneaker.",
+   "prompt": "Subject: adult man in his 50s, light skin, cheerful confidence.\nHair: grey mullet, short on top, long at the back.\nFace: thick grey mustache, big grin.\nWardrobe: windbreaker in black, hot pink and white blocks, white tee, faded blue straight jeans, hot pink sneakers.\nPose: legs apart, arms relaxed, jacket open.\nFraming: full body."
+  },
+  {
+   "id": "IF-21",
+   "name": "Bonnie Barett",
+   "typ": "kuehn",
+   "kurz": "Weiße Puffzöpfe unter schwarzer Baskenmütze, schwarzer Anzug.",
+   "prompt": "Subject: adult woman in her mid 20s, deep brown skin, quiet confidence.\nHair: two big puffy white pigtails at ear level, black beret on top.\nFace: soft gaze, neutral lips, slight smile.\nWardrobe: black suit jacket, black tie, white shirt.\nPose: three-quarter turn, eyes to camera.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-22",
+   "name": "Doppelknoten-Dan",
+   "typ": "extrem",
+   "kurz": "Zwei kleine Haarknoten hoch oben auf dem Kopf, olivgrüner Doppelreiher.",
+   "prompt": "Subject: slim adult man around 28, light skin, deadpan face.\nHair: black hair pulled into two small tight topknots high on the crown, like little antennae.\nFace: thin brows, neutral mouth.\nWardrobe: olive double-breasted suit, slim trousers, dark loafers.\nPose: standing perfectly straight, arms at the sides.\nFraming: full body."
+  },
+  {
+   "id": "IF-23",
+   "name": "Tarnjacken-Tino",
+   "typ": "kuehn",
+   "kurz": "Lange dunkle Wellen, Camouflage-Bomberjacke und weite schwarze Hose.",
+   "prompt": "Subject: adult man in his late 20s, medium tan skin, relaxed cool.\nHair: long dark wavy hair past the shoulders.\nFace: light stubble, half smile.\nWardrobe: camouflage bomber jacket, white tee, baggy black trousers, black chunky boots.\nPose: walking toward the camera mid-step.\nFraming: full body."
+  },
+  {
+   "id": "IF-24",
+   "name": "Sir Archibald",
+   "typ": "extrem",
+   "kurz": "Gigantischer weißer Zwirbelbart, breiter als das Gesicht, brauner Samtanzug.",
+   "prompt": "Subject: elderly adult man in his 70s, fair skin, aristocratic charm.\nHair: bald crown with neat white hair on the sides.\nFace: gigantic white handlebar mustache waxed into curls that reach far beyond the cheeks, twinkling eyes.\nWardrobe: brown velvet suit, cream shirt with open collar, brown boots.\nPose: both hands holding the lapels, chest proud.\nFraming: full body."
+  },
+  {
+   "id": "IF-25",
+   "name": "Opa Bordeaux",
+   "typ": "normal",
+   "kurz": "Kleiner älterer Herr in bordeauxrotem Hemd und cremefarbener Hose.",
+   "prompt": "Subject: small elderly adult man in his 80s, fair skin, gentle and curious.\nHair: thin white combed hair.\nFace: round glasses, soft smile.\nWardrobe: burgundy button-up shirt tucked into high-waisted cream trousers, brown belt, beige shoes.\nPose: hands behind his back, standing slightly bent.\nFraming: full body, small in the frame."
+  },
+  {
+   "id": "IF-26",
+   "name": "Sebastiano Streng",
+   "typ": "extrem",
+   "kurz": "Glattes langes schwarzes Haar, finsterer Blick, brauner Anzug mit Krawatte.",
+   "prompt": "Subject: adult man in his 40s, light olive skin, dramatic stern face.\nHair: very long straight black hair parted in the middle, falling past the shoulders.\nFace: heavy brows lowered into a deep scowl, intense eyes.\nWardrobe: brown three-piece suit, cream shirt, dark tie.\nPose: one hand adjusting the tie.\nFraming: waist-up portrait."
+  },
+  {
+   "id": "IF-27",
+   "name": "Cowboy Gus",
+   "typ": "kuehn",
+   "kurz": "Grauer Riesenschnauzer, Fransen-Wildlederjacke, Bolo-Tie, schiebt die Brille hoch.",
+   "prompt": "Subject: rugged adult man in his 60s, tanned weathered skin.\nHair: swept-back grey hair.\nFace: huge grey walrus mustache, squinting eyes behind gold-rimmed glasses.\nWardrobe: tan suede jacket with long fringes, white shirt, bolo tie with turquoise stone.\nPose: one hand pushing up his glasses.\nFraming: waist-up portrait."
+  },
+  {
+   "id": "IF-28",
+   "name": "Karo-Kurt",
+   "typ": "extrem",
+   "kurz": "Kleiner Mann mit schwarz-weißem Karo-Fischerhut und Fliege, beugt sich neugierig vor.",
+   "prompt": "Subject: small adult man in his 30s, light skin, comic curiosity.\nHair: hidden under a black-and-white checkered bucket hat.\nFace: wide eyes, raised brows.\nWardrobe: black bow tie, white shirt, black vest.\nPose: hunched forward, peeking up at the camera from below.\nFraming: chest-up, camera slightly above, character small in the frame."
+  },
+  {
+   "id": "IF-29",
+   "name": "Watte-Wilma",
+   "typ": "kuehn",
+   "kurz": "Cremeblonde Zuckerwatte-Haarwolke über schwarzem Kunstpelz.",
+   "prompt": "Subject: adult woman in her late 20s, fair skin, soft dreamy look.\nHair: enormous cream-blond cotton-candy cloud of hair, light and fluffy.\nFace: pale lashes, rosy cheeks, calm closed-lip smile.\nWardrobe: black faux-fur coat with a high collar.\nPose: looking slightly down at the camera.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-30",
+   "name": "Tolle Theo",
+   "typ": "extrem",
+   "kurz": "Kupferne Riesentolle, doppelt so hoch wie der Kopf, hellblauer Anzug.",
+   "prompt": "Subject: tall thin adult man around 30, pale freckled skin, proud posture.\nHair: towering copper-red pompadour quiff as tall as his head, glossy and rock solid.\nFace: confident half smile.\nWardrobe: light-blue suit, white shirt, white loafers.\nPose: standing straight, hands at the sides.\nFraming: full body, the quiff fully inside the frame."
+  },
+  {
+   "id": "IF-31",
+   "name": "Bullhorn-Benno",
+   "typ": "extrem",
+   "kurz": "Schwarzes Haar zu zwei weiten Stierhörnern geformt, feiner Schnurrbart.",
+   "prompt": "Subject: adult man in his 30s, light olive skin, theatrical charisma.\nHair: black hair sculpted into two wide curved bull horns sweeping out from the forehead.\nFace: thin pencil mustache, sly smile.\nWardrobe: black shirt with a white geometric pattern.\nPose: front-facing, chin slightly down.\nFraming: head and shoulders."
+  },
+  {
+   "id": "IF-32",
+   "name": "Selin Silber",
+   "typ": "extrem",
+   "kurz": "Schwarze Haarknoten in Hornform, silberne Steppjacke, kräftige Brauen.",
+   "prompt": "Subject: adult woman in her early 20s, light olive skin, bold street style.\nHair: black hair sculpted into two glossy curved horn-shaped buns on top of the head.\nFace: thick dark brows, glossy lips, intense eyes.\nWardrobe: metallic silver puffer jacket, black crop top.\nPose: shoulders turned slightly, eyes to camera.\nFraming: waist-up portrait."
+  },
+  {
+   "id": "IF-33",
+   "name": "Monster-Matze",
+   "typ": "kuehn",
+   "kurz": "Gigantischer Bodybuilder mit blondierten Stachelhaaren, Sportbrille und Motocross-Trikot.",
+   "prompt": "Subject: gigantic bodybuilder adult man around 35, tanned skin.\nHair: bleached spiky hair.\nFace: black wraparound sport sunglasses, wide grin.\nWardrobe: motocross jersey with abstract navy and white graphics, no logos, no text.\nPose: chest pumped, shoulders wide.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-34",
+   "name": "Pilzkopf-Pit",
+   "typ": "normal",
+   "kurz": "Schmaler blasser Mann mit blondem Pilzkopf und leerem Blick.",
+   "prompt": "Subject: thin adult man around 24, very pale skin.\nHair: blond bowl cut with a straight fringe.\nFace: blank stare, thin lips.\nWardrobe: dark wool coat over a black sweater.\nPose: front-facing, perfectly still.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-35",
+   "name": "Racing-Ronja",
+   "typ": "kuehn",
+   "kurz": "Platinblonder Bob mit dichtem Pony, große goldene Creolen, Rennlederjacke in Rot-Schwarz.",
+   "prompt": "Subject: adult woman in her mid 20s, medium brown skin, cool attitude.\nHair: platinum blunt bob with heavy straight bangs.\nFace: soft makeup, nude lips, calm gaze.\nWardrobe: vintage racing leather jacket in red, black and white panels, no logos, big gold hoop earrings.\nPose: three-quarter turn, looking over the shoulder.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-36",
+   "name": "Mullet-Mika",
+   "typ": "kuehn",
+   "kurz": "Strubbeliger blonder Vokuhila, rot-weiße Rennlederjacke, weite Jeans, schwarze Stiefel.",
+   "prompt": "Subject: lanky adult man around 25, fair skin.\nHair: shaggy blond mullet.\nFace: light stubble, sleepy confident eyes.\nWardrobe: red-and-white racing leather jacket, white tee, baggy light-wash jeans, black boots.\nPose: weight on one leg, hands in pockets.\nFraming: full body."
+  },
+  {
+   "id": "IF-37",
+   "name": "Ziegel-Bert",
+   "typ": "extrem",
+   "kurz": "Brauner, rechteckiger Haarblock wie ein Ziegelstein, buschiger Schnauzer.",
+   "prompt": "Subject: adult man in his 50s, deep brown skin, dignified face.\nHair: tall rectangular block of brown hair shaped like a perfect brick, sharp corners.\nFace: bushy dark mustache, calm wise eyes.\nWardrobe: black jacket with a high collar, cream shirt.\nPose: front-facing.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-38",
+   "name": "Zopfhorn-Zhen",
+   "typ": "extrem",
+   "kurz": "Schmales langes Gesicht, zwei geflochtene Zöpfe als Hörner nach oben, blauer Hoodie.",
+   "prompt": "Subject: slim adult man in his 30s, light skin, long narrow face, playful seriousness.\nHair: two tight braided pigtails shaped into upward-pointing horns.\nFace: thin mustache, calm eyes.\nWardrobe: royal-blue hoodie.\nPose: front-facing, hands in hoodie pocket.\nFraming: chest-up portrait."
+  },
+  {
+   "id": "IF-39",
+   "name": "Schlaghosen-Schorsch",
+   "typ": "kuehn",
+   "kurz": "70er-Jahre-Typ in brauner Cord-Schlaghose, Kragenhemd und Plateauschuhen.",
+   "prompt": "Subject: adult man in his 30s, medium brown skin, groovy confidence.\nHair: rounded medium afro, long sideburns.\nFace: easy smile.\nWardrobe: brown corduroy flared trousers, tight cream shirt with a giant pointed collar, brown platform boots.\nPose: disco pose, one arm pointing up.\nFraming: full body."
+  },
+  {
+   "id": "IF-40",
+   "name": "Kuno Krawatte",
+   "typ": "normal",
+   "kurz": "Lässiger Nachbar in Hemd und Krawatte, Haarschopf leicht durcheinander.",
+   "prompt": "Subject: friendly adult man in his 40s, light skin, approachable vibe.\nHair: slightly messy brown hair.\nFace: warm smile, laugh lines.\nWardrobe: light-blue shirt with rolled sleeves, loose navy tie, beige chinos, brown sneakers.\nPose: waving at the camera.\nFraming: full body."
+  },
+  {
+   "id": "IF-41",
+   "name": "Quak Drip",
+   "typ": "frosch",
+   "kurz": "Streetwear-Frosch mit übergroßem Hoodie, Fischerhut und klobigen Sneakern.",
+   "prompt": "Subject: anthropomorphic frog influencer with smooth glistening lime-green skin and darker spots, big round golden eyes, wide confident grin.\nWardrobe: oversized lavender hoodie, cream cargo shorts, chunky white sneakers, bucket hat, thick gold-tone chain, no logos.\nPose: leaning back with one hand doing a peace sign.\nFraming: full body."
+  },
+  {
+   "id": "IF-42",
+   "name": "Gurr-Gustav",
+   "typ": "vogel",
+   "kurz": "Großstadttaube im grauen Trainingsanzug, mit Goldkette und Sonnenbrille, stolziert los.",
+   "prompt": "Subject: anthropomorphic city pigeon with iridescent green-purple neck feathers, grey body feathers, orange eyes, small beak.\nWardrobe: grey velour tracksuit, gold-tone chain, small black sunglasses, white sneakers.\nPose: mid-strut with chest puffed out, head bobbing forward.\nFraming: full body."
+  },
+  {
+   "id": "IF-43",
+   "name": "Chillo",
+   "typ": "nager",
+   "kurz": "Tiefenentspanntes Capybara im Hawaiihemd, eine Mandarine auf dem Kopf.",
+   "prompt": "Subject: anthropomorphic capybara with warm brown coarse fur, sleepy half-closed eyes, peaceful smile.\nWardrobe: loose turquoise Hawaiian shirt with hibiscus pattern, beige shorts, slide sandals, a single mandarin balanced on the head.\nPose: standing relaxed, holding a small coconut drink.\nFraming: full body."
+  },
+  {
+   "id": "IF-44",
+   "name": "Miau-Mogul",
+   "typ": "katze",
+   "kurz": "Katzen-CEO im maßgeschneiderten Anzug, schaut gelangweilt über die Brille.",
+   "prompt": "Subject: anthropomorphic grey British-shorthair-type cat with round copper eyes, smug expression.\nWardrobe: tailored charcoal three-piece suit, silk pocket square, thin gold-rimmed glasses lowered on the nose.\nPose: arms crossed, looking over the glasses.\nFraming: waist-up portrait."
+  },
+  {
+   "id": "IF-45",
+   "name": "DJ Wuff",
+   "typ": "hund",
+   "kurz": "Shiba-artiger Hund als DJ mit Kopfhörern und College-Jacke.",
+   "prompt": "Subject: anthropomorphic shiba-type dog with fluffy red-cream fur, curled tail, happy squint.\nWardrobe: cream and forest-green varsity jacket without lettering, black tee, big over-ear headphones around the neck.\nPose: one hand pressing a headphone to the ear, the other raised in the air.\nFraming: full body."
+  },
+  {
+   "id": "IF-46",
+   "name": "Bee-Z",
+   "typ": "insekt",
+   "kurz": "Bienen-Rapper in gelb-schwarzer Steppjacke, Fühler und schimmernde Flügel.",
+   "prompt": "Subject: anthropomorphic bee-human hybrid with fuzzy golden and black striped body hair, soft antennae, large dark glossy eyes, translucent wings on the back.\nWardrobe: cropped yellow-and-black puffer jacket, black joggers, honey-colored sneakers.\nPose: rapper stance with hands mid-gesture.\nFraming: full body."
+  },
+  {
+   "id": "IF-47",
+   "name": "Mantis Glam",
+   "typ": "insekt",
+   "kurz": "Gottesanbeterin als Laufsteg-Diva im grünen Paillettenkleid.",
+   "prompt": "Subject: anthropomorphic praying-mantis diva with elegant slender green body, triangular head, large emerald eyes, graceful folded forearms.\nWardrobe: floor-length emerald sequin gown, long satin gloves.\nPose: runway pose, hip out, head tilted.\nFraming: full body."
+  },
+  {
+   "id": "IF-48",
+   "name": "Axo-Lotte",
+   "typ": "frosch",
+   "kurz": "Pinkes Axolotl-Mädchen im E-Girl-Look mit flauschigen Kiemenbüscheln.",
+   "prompt": "Subject: anthropomorphic axolotl adult woman with soft pink translucent skin, feathery pink gill fronds framing the face, small black eyes, gentle smile.\nWardrobe: pastel lilac oversized sweater, black pleated skirt, striped knee socks, platform shoes.\nPose: tilting the head, both hands near the cheeks.\nFraming: full body."
+  },
+  {
+   "id": "IF-49",
+   "name": "Hamster Hustle",
+   "typ": "nager",
+   "kurz": "Hamster-Gym-Bro im Tanktop mit winzigen Hanteln.",
+   "prompt": "Subject: anthropomorphic golden hamster with chubby cheeks and soft fur, determined expression.\nWardrobe: red tank top, black training shorts, white sweatband, tiny chrome dumbbells in both hands.\nPose: flexing the arms proudly.\nFraming: full body."
+  },
+  {
+   "id": "IF-50",
+   "name": "Flamingo Flo",
+   "typ": "vogel",
+   "kurz": "Flamingo im neonpinken Trainingsanzug, steht natürlich auf einem Bein.",
+   "prompt": "Subject: anthropomorphic flamingo with vivid pink feathers, long elegant neck, curved black-tipped beak.\nWardrobe: neon pink tracksuit jacket, white bike shorts, one white sneaker.\nPose: balancing on one leg, arms like wings spread for balance, playful.\nFraming: full body."
+  },
+  {
+   "id": "IF-51",
+   "name": "Ricky Rollbrett",
+   "typ": "nager",
+   "kurz": "Ratten-Skater mit Mütze, Skateboard unter dem Arm.",
+   "prompt": "Subject: anthropomorphic brown rat with glossy fur, long pink tail, pink ears, cheeky grin.\nWardrobe: grey beanie, oversized flannel shirt, baggy beige jeans, worn skate shoes, skateboard under the arm.\nPose: casual lean, one foot crossed.\nFraming: full body."
+  },
+  {
+   "id": "IF-52",
+   "name": "Atlas Ameise",
+   "typ": "insekt",
+   "kurz": "Ameisen-Kraftsportler hebt einen riesigen Brotkrümel über den Kopf.",
+   "prompt": "Subject: anthropomorphic red ant powerlifter with glossy segmented body, strong slim limbs, antennae, focused face.\nWardrobe: black lifting singlet, wrist wraps, lifting belt.\nPose: holding a giant bread crumb overhead.\nFraming: full body."
+  },
+  {
+   "id": "IF-53",
+   "name": "Glitzer-Gina",
+   "typ": "katze",
+   "kurz": "Nacktkatze im Glitzer-Look mit Plateaustiefeln und Herz-Sonnenbrille.",
+   "prompt": "Subject: anthropomorphic sphynx cat with smooth pale-pink wrinkled skin, huge ears, big green eyes.\nWardrobe: holographic silver jacket, pink mini skirt, platform boots, heart-shaped pink sunglasses.\nPose: blowing a kiss.\nFraming: full body."
+  },
+  {
+   "id": "IF-54",
+   "name": "Oma Mops",
+   "typ": "hund",
+   "kurz": "Mops-Oma im Velours-Anzug mit Perlenkette und Handtasche.",
+   "prompt": "Subject: anthropomorphic elderly pug with wrinkled fawn face, black mask, warm eyes, grey muzzle.\nWardrobe: lilac velour tracksuit, pearl necklace, small quilted handbag, white orthopedic sneakers.\nPose: holding the handbag with both hands, proud smile.\nFraming: full body."
+  },
+  {
+   "id": "IF-55",
+   "name": "Kai Kröte",
+   "typ": "frosch",
+   "kurz": "Gaming-Kröte mit Headset, Gaming-Hoodie und Energydrink.",
+   "prompt": "Subject: anthropomorphic toad with bumpy olive-brown skin, golden eyes, laid-back smile.\nWardrobe: black hoodie with neon green trims, gaming headset with microphone, fingerless gloves, a can of energy drink without label.\nPose: sitting on a gaming chair, leaning forward.\nFraming: full body."
+  },
+  {
+   "id": "IF-56",
+   "name": "NPC-Nick",
+   "typ": "extrem",
+   "kurz": "Livestream-„NPC“ mit starrem Lächeln, perfekt symmetrisch, Pixel-Muster-Shirt.",
+   "prompt": "Subject: adult man around 25, light skin, perfectly symmetrical face, frozen polite smile, unblinking eyes like a video-game background character.\nHair: helmet-perfect side part, not a single hair out of place.\nWardrobe: shirt with a subtle pixel pattern, beige chinos, plain sneakers.\nPose: stiff idle stance, arms straight at the sides.\nFraming: full body."
+  },
+  {
+   "id": "IF-57",
+   "name": "Aura-Andy",
+   "typ": "kuehn",
+   "kurz": "Silberne Stachelfrisur, Chromjacke, ein Hauch von leuchtender Aura um die Konturen.",
+   "prompt": "Subject: adult man around 24, medium brown skin, calm main-character energy.\nHair: tall spiky silver hair.\nFace: half smile, eyes slightly squinted.\nWardrobe: chrome-finish cropped jacket, black turtleneck, wide black trousers.\nLight addition: a subtle soft cyan rim glow tracing the silhouette like an aura.\nPose: hands in pockets, slight head tilt.\nFraming: full body."
+  },
+  {
+   "id": "IF-58",
+   "name": "Brokkoli-Benni",
+   "typ": "extrem",
+   "kurz": "Lockiger „Brokkoli“-Haarschnitt mit Fade, übergroßes Basketball-Trikot.",
+   "prompt": "Subject: adult man around 20, light olive skin, playful grin.\nHair: dense curly perm on top shaped like a broccoli crown, tight fade on the sides.\nWardrobe: oversized blank basketball jersey in bright orange, long mesh shorts, crew socks, chunky sneakers.\nPose: spinning a basketball on one finger.\nFraming: full body."
+  },
+  {
+   "id": "IF-59",
+   "name": "Mullet-Meister Manni",
+   "typ": "extrem",
+   "kurz": "Vokuhila bis zur Hüfte, verspiegelte Brille, Jeans auf Jeans.",
+   "prompt": "Subject: adult man in his 40s, fair skin, unstoppable confidence.\nHair: extreme mullet, short spiky on top, long straight hair reaching the hips.\nFace: mirrored aviator sunglasses, big grin.\nWardrobe: double denim, faded jean jacket and jeans, white tank top, cowboy boots.\nPose: air-guitar pose.\nFraming: full body."
+  },
+  {
+   "id": "IF-60",
+   "name": "Oma Drift",
+   "typ": "kuehn",
+   "kurz": "Rennfahrer-Oma im Rennanzug, Helm unterm Arm, silberne Locken und Sonnenbrille.",
+   "prompt": "Subject: elderly adult woman in her 70s, light skin, fearless grin.\nHair: silver short curls.\nFace: oversized black sunglasses pushed up on the head, laugh lines.\nWardrobe: white and red racing suit without logos, racing gloves, helmet held under one arm.\nPose: thumbs up.\nFraming: full body."
+  },
+  {
+   "id": "IF-61",
+   "name": "Zuckerwatte-Zoe",
+   "typ": "kuehn",
+   "kurz": "Pastellfarbene Zuckerwatte-Haarwolke, Pastell-Steppjacke, Kaugummiblase.",
+   "prompt": "Subject: adult woman around 22, fair skin, bubbly energy.\nHair: big cloud of pastel pink, lilac and baby-blue hair.\nFace: blowing a pink bubble-gum bubble.\nWardrobe: pastel lilac puffer jacket, white mini skirt, chunky pastel sneakers.\nPose: one leg kicked back playfully.\nFraming: full body."
+  },
+  {
+   "id": "IF-62",
+   "name": "Glitch-Gabi",
+   "typ": "extrem",
+   "kurz": "Die Hälfte des Outfits zerfällt in digitale Pixel, Chromhaar.",
+   "prompt": "Subject: adult woman around 27, medium brown skin, cool composure.\nHair: sleek chrome-silver bob.\nWardrobe: white tailored suit whose right half dissolves into floating cubic pixels and digital glitch fragments.\nPose: front-facing, one hand raised watching the pixels drift.\nFraming: full body."
+  },
+  {
+   "id": "IF-63",
+   "name": "Kaktus-Karl",
+   "typ": "extrem",
+   "kurz": "Grüne Kaktus-Frisur mit Stachelspitzen, Anzug mit Kaktusmuster.",
+   "prompt": "Subject: adult man in his 30s, light skin, dry humor face.\nHair: tall green hair shaped like a saguaro cactus with two arms, tiny white tips like spines, a small pink flower on top.\nWardrobe: sand-colored suit with a small cactus print, white sneakers.\nPose: carefully hugging himself, pretending not to get pricked.\nFraming: full body."
+  },
+  {
+   "id": "IF-64",
+   "name": "Rizz-Opa Rudi",
+   "typ": "kuehn",
+   "kurz": "Opa mit frischem Fade, Goldkette, weißem Trainingsanzug und Charme-Grinsen.",
+   "prompt": "Subject: elderly adult man in his 70s, deep brown skin, charming smirk.\nHair: fresh short fade with a sharp line-up, grey beard trimmed perfectly.\nWardrobe: white tracksuit, thin gold-tone chain, white sneakers, small gold-rimmed glasses.\nPose: leaning on an invisible wall, one eyebrow raised.\nFraming: full body."
+  }
+ ]
+}

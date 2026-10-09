@@ -26,7 +26,7 @@ from datetime import datetime, timedelta, timezone
 from http import cookies
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import assistent
 import audio
@@ -82,7 +82,7 @@ def schreib_json(name: str, daten) -> None:
 
 
 def verzeichnisse() -> None:
-    for d in ("bilder", "uploads", "cache"):
+    for d in ("bilder", "cache"):
         (DATA / d).mkdir(parents=True, exist_ok=True)
 
 
@@ -553,20 +553,33 @@ def darf_sehen(b: dict, name: str) -> bool:
 
 
 # --------------------------------------------------------------------------- Ablage (strukturiert)
-TYP_ORDNER = {"bild": "Bilder", "video": "Videos", "audio": "Audio"}
+# Seit 08.10.2026 liegt alles, was Cinema Studio erzeugt und braucht, an EINEM Ort beim Programm – Namen klein:
+#   <Programm>\ablage\bilder|videos|audio\JJJJ-MM\…   Ergebnisse
+#   <Programm>\ablage\uploads\…                    eigene Fotos, Referenzbilder; uploads\clone = Videos für Video-Clone
+#   <Programm>\ablage\vorlagen\bilder|videos\…    Vorlagen
+#   <Programm>\data\…                              nur Zustand (Chats, Einstellungen, Listen)
+TYP_ORDNER = {"bild": "bilder", "video": "videos", "audio": "audio"}
 
-
-ABLAGE_IM_ARBEITSORDNER = "Cinema-Studio"
+FRUEHERE_ABLAGE_IM_ARBEITSORDNER = "Cinema-Studio"      # bis 08.10.2026: <Werkstatt-Arbeitsordner>\Cinema-Studio
 
 
 def ablage_wurzel() -> Path:
-    """Aus der Werkstatt gestartet: <Arbeitsordner der Werkstatt>\\Cinema-Studio — das hat Vorrang vor der
-    Einstellung, damit niemand seine Ergebnisse tief im Programmordner suchen muss (zugang.bindung)."""
-    arbeitsordner = zugang.bindung()["arbeitsordner"]
-    if arbeitsordner:
-        return arbeitsordner / ABLAGE_IM_ARBEITSORDNER
+    """<Programm>\\ablage – eine andere Ablage nur über die Einstellung „ablage_pfad“ (Tests: BILDGEN_ABLAGE)."""
     pfad_ = str(einstellungen().get("ablage_pfad") or "").strip() or os.environ.get("BILDGEN_ABLAGE", "")
-    return Path(pfad_) if pfad_ else ROOT / "Ablage"
+    return Path(pfad_) if pfad_ else ROOT / "ablage"
+
+
+def uploads_ordner() -> Path:
+    p = ablage_wurzel() / "uploads"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def clone_ordner() -> Path:
+    """Hochgeladene Videos für Video-Clone – nur bis zur Analyse, danach gelöscht."""
+    p = uploads_ordner() / "clone"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
 
 def nutzerordner(owner: str) -> str:
@@ -605,6 +618,133 @@ def medium_pfad(b: dict) -> Path:
                 return p
         return ablage_wurzel() / rel
     return DATA / "bilder" / d
+
+
+def name_klein(name: str) -> str:
+    """Einheitliche Ordner-/Dateinamen: klein, Umlaute ausgeschrieben, Leerzeichen → „-“ („Influencer Kühn“ → „influencer-kuehn“)."""
+    s = name.strip().lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    return re.sub(r"\s+", "-", s)
+
+
+def _gleich(a: Path, b: Path) -> bool:
+    try:
+        return a.exists() and b.exists() and os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
+def _umbenennen(p: Path, neu: str) -> Path:
+    """Umbenennen, auch wenn sich nur Groß-/Kleinschreibung ändert (Windows: über einen Zwischennamen)."""
+    if p.name == neu:
+        return p
+    zw = p.with_name(p.name + ".umbenennen")
+    p.rename(zw)
+    return zw.rename(p.with_name(neu))
+
+
+def _zusammenfuehren(quelle: Path, ziel: Path, dateien_klein: bool) -> int:
+    """Inhalt von quelle nach ziel verschieben (rekursiv), Ordnernamen klein; bei dateien_klein auch Dateinamen.
+    Vorhandenes im Ziel wird nie überschrieben."""
+    n = 0
+    ziel.mkdir(parents=True, exist_ok=True)
+    for p in sorted(quelle.iterdir()):
+        neu = name_klein(p.name) if (p.is_dir() or dateien_klein) else p.name
+        z = ziel / neu
+        if _gleich(p, z):                       # derselbe Eintrag, nur anders geschrieben → an Ort und Stelle umbenennen
+            p = _umbenennen(p, neu)
+            if p.is_dir():
+                n += _zusammenfuehren(p, p, dateien_klein)
+            continue
+        if p.is_dir():
+            n += _zusammenfuehren(p, z, dateien_klein)
+            try:
+                p.rmdir()
+            except OSError:
+                pass
+        elif not z.exists():
+            shutil.move(str(p), str(z))
+            n += 1
+        else:
+            print(f"Ablage: {p} nicht verschoben – {z} gibt es schon.", flush=True)
+    return n
+
+
+def _holen(p: Path, z: Path, dateien_klein: bool) -> int:
+    """Ordner p nach z bringen. Ist es derselbe Ordner (nur anders geschrieben), wird er an Ort und Stelle umbenannt."""
+    if _gleich(p, z):
+        p = _umbenennen(p, z.name)
+        return _zusammenfuehren(p, p, dateien_klein)
+    n = _zusammenfuehren(p, z, dateien_klein)
+    _leere_ordner_weg(p)
+    return n
+
+
+def _leere_ordner_weg(p: Path) -> None:
+    if not p.is_dir():
+        return
+    for k in p.iterdir():
+        if k.is_dir():
+            _leere_ordner_weg(k)
+    try:
+        p.rmdir()
+    except OSError:
+        pass
+
+
+def ablage_vereinheitlichen() -> int:
+    """Einmalig beim Start: alles an den einen Ort <Programm>\\ablage holen und Namen klein schreiben.
+    Quellen: frühere Ablage im Werkstatt-Arbeitsordner, <Programm>\\Ablage, data\\uploads, data\\klon_uploads.
+    Danach zeigen die Einträge in bilder.json auf die neuen Pfade. Läuft ohne Fehler auch mehrfach."""
+    ziel = ablage_wurzel()
+    n = 0
+    try:
+        for p in ROOT.iterdir():               # <Programm>\\Ablage → ablage (nur Schreibweise)
+            if p.is_dir() and p.name != "ablage" and p.name.lower() == "ablage" and _gleich(p, ziel):
+                _umbenennen(p, "ablage")
+        quellen = [ziel, ROOT / "Ablage"]
+        ao = zugang.bindung()["arbeitsordner"]
+        if ao:
+            quellen.append(Path(ao) / FRUEHERE_ABLAGE_IM_ARBEITSORDNER)
+        bekannt = {"bilder", "videos", "audio", "uploads"}
+        for q in quellen:
+            if not q.is_dir() or (q is not quellen[0] and _gleich(q, ziel)):
+                continue
+            ziel.mkdir(parents=True, exist_ok=True)
+            for p in sorted(q.iterdir()):
+                if not p.is_dir():
+                    continue
+                k = p.name.lower()
+                if k in bekannt:
+                    n += _holen(p, ziel / k, False)
+                elif k == "vorlagen":
+                    n += _holen(p, ziel / "vorlagen", True)
+                elif not k.startswith(".") and any(c.is_dir() and c.name.lower() in bekannt for c in p.iterdir()):
+                    for c in sorted(p.iterdir()):        # Nutzerordner <Ablage>\\<konto>\\Bilder …
+                        if c.is_dir() and c.name.lower() in bekannt:
+                            n += _holen(c, ziel / p.name / c.name.lower(), False)
+            if not _gleich(q, ziel):
+                _leere_ordner_weg(q)
+        for alt, neu in ((DATA / "uploads", ziel / "uploads"), (DATA / "klon_uploads", ziel / "uploads" / "clone")):
+            if alt.is_dir():
+                n += _holen(alt, neu, False)
+    except OSError as e:                     # ein Rest darf den Start nie verhindern
+        print(f"Ablage: nicht alles einsortiert ({e}).", flush=True)
+    with LOCK:
+        liste = bilder()
+        geaendert = False
+        for b in liste:
+            d = str(b.get("datei") or "")
+            if "/" not in d:
+                continue
+            teile = d.split("/")
+            teile[0] = TYP_ORDNER.get({"bilder": "bild", "videos": "video", "audio": "audio"}.get(teile[0].lower(), ""), teile[0])
+            neu = "/".join(teile)
+            if (ziel / nutzerordner(b["owner"]) / Path(*teile)).is_file() and (neu != d or b.get("wurzel") != str(ziel)):
+                b.update({"datei": neu, "wurzel": str(ziel)})
+                geaendert = True
+        if geaendert:
+            schreib_json("bilder.json", liste)
+    return n
 
 
 def ablage_einsortieren() -> int:
@@ -685,7 +825,7 @@ def referenz_daten(ref: str, owner: str) -> str | None:
         u = ups.get(ref)
         if not u or u["owner"] != owner:
             return None
-        f = DATA / "uploads" / u["datei"]
+        f = uploads_ordner() / u["datei"]
         mime = u["mime"]
     if not f.is_file() or mime == "image/svg+xml" or not mime.startswith("image/"):
         return None      # Videos und SVG taugen nicht als Referenzbild
@@ -1031,6 +1171,8 @@ def auftrag_ausfuehren(job: dict, m: dict, basis: dict, refs_urls: list[str]) ->
                     job["fehler"].append("Antwort enthielt kein lesbares Bild.")
     job["kosten"] = round(kosten_summe, 5)
     job["tokens"] = token_summe
+    if job.get("influencer") and job["bilder"]:
+        influencer_bilder_anhaengen(job["owner"], job["influencer"], job["bilder"])
     job["status"] = "fertig" if job["bilder"] and not job["fehler"] else ("teilweise" if job["bilder"] else "fehler")
     job["ende"] = jetzt()
     verbrauch_schreiben({"zeit": job["ende"], "owner": job["owner"], "modell": m["id"], "bilder": len(job["bilder"]),
@@ -1084,6 +1226,12 @@ def auftrag_starten(owner: str, e: dict) -> dict:
                                    len(prompt), len(urls))}
     if refs and not urls:
         job["hinweis"] = "Referenzbilder werden von diesem Modell nicht unterstützt und wurden weggelassen."
+    iid = str(e.get("influencer_id") or "")
+    if iid:
+        inf = lies_json("influencer.json", {}).get(iid)
+        if not inf or inf["owner"] != owner:
+            raise Fehler(404, "Influencer nicht gefunden.")
+        job["influencer"] = iid
     with LOCK:
         AUFTRAEGE[job["id"]] = job
     threading.Thread(target=auftrag_ausfuehren, args=(job, m, nutzlast, urls), daemon=True).start()
@@ -1186,6 +1334,30 @@ def video_auftrag_ausfuehren(job: dict, nutzlasten: list, info: dict, vorhandene
                          "bilder": len(job["bilder"]), "kosten": job["kosten"], "tokens": 0, "status": job["status"]})
 
 
+# Bildrollen im Video: Startbild/Endbild gehen als frame_images (das Video zeigt sie wörtlich),
+# Vorlagen als input_references (Grundlage für Figur, Aussehen, Stil – kein Startbild).
+# Laut OpenRouter wird ein Auftrag mit beidem als Bild-zu-Video behandelt, die Vorlagen können
+# dann untergehen – deshalb schließen sich die beiden Rollen aus.
+VORLAGEN_MAX = 3
+RASTER = {"3x2": (3, 2), "2x2": (2, 2), "3x1": (3, 1)}     # Spalten, Reihen
+
+
+def vorlagen_prompt(prompt: str, anzahl: int, raster: str = "") -> str:
+    """Deutscher Vorsatz, der dem Videomodell sagt, wofür die mitgeschickten Bilder da sind."""
+    namen = ", ".join(f"@Bild {i}" for i in range(1, anzahl + 1))
+    teile = [f"Mitgeschickte Vorlage{'n' if anzahl > 1 else ''} {namen}"
+             f"{' (in dieser Reihenfolge)' if anzahl > 1 else ''}: Grundlage für Figur, Aussehen, Produkt und Stil"
+             " – kein Startbild. Das Video beginnt mit der beschriebenen Startposition."]
+    if raster in RASTER:
+        sp, rh = RASTER[raster]
+        n = sp * rh
+        teile.append(f"@Bild 1 ist ein zusammenhängendes {n}-Panel-Storyboard-Raster ({sp} Spalten, {rh} "
+                     f"{'Reihen' if rh > 1 else 'Reihe'}), die Felder 1–{n} von links oben nach rechts unten gelesen. "
+                     f"Setze es als ein durchgehendes Video um: Startposition wie in Feld 1, dann Feld für Feld bis Feld {n}. "
+                     "Im Video kein Raster, keine Trennlinien und keine Ziffern; Person, Produkt, Kulisse und Licht wie in den Feldern.")
+    return "\n".join(teile) + "\n\n" + prompt
+
+
 def video_auftrag_starten(owner: str, e: dict) -> dict:
     m = videomodell(str(e.get("modell", "")))
     if not m or m["art"] != "erzeugen":
@@ -1236,11 +1408,36 @@ def video_auftrag_starten(owner: str, e: dict) -> dict:
         parameter[feld] = ref
     if frames:
         nl["frame_images"] = frames
+    vorlagen = [str(x) for x in (e.get("vorlagen") or []) if str(x or "")]
+    raster = str(e.get("raster") or "")
+    if len(vorlagen) > VORLAGEN_MAX:
+        raise ValueError(f"Höchstens {VORLAGEN_MAX} Vorlagen je Video.")
+    if len(set(vorlagen)) != len(vorlagen):
+        raise ValueError("Jede Vorlage nur einmal mitgeben.")
+    if raster and raster not in RASTER:
+        raise ValueError("Unbekanntes Storyboard-Raster.")
+    if raster and not vorlagen:
+        raise ValueError("Das Storyboard-Raster braucht das Raster-Bild als Vorlage (@Bild 1).")
+    if vorlagen and frames:
+        raise ValueError("Vorlagen und Start-/Endbild schließen sich aus – bitte nur eine der beiden Rollen verwenden.")
+    vrefs = []
+    for ref in vorlagen:
+        url = referenz_daten(ref, owner)
+        if not url:
+            raise ValueError("Eine Vorlage ist nicht verfügbar.")
+        vrefs.append({"type": "image_url", "image_url": {"url": url}})
+        refs.append(ref)
+    if vrefs:
+        nl["input_references"] = vrefs
+        nl["prompt"] = vorlagen_prompt(prompt, len(vrefs), raster)
+        parameter["vorlagen"] = vorlagen
+        if raster:
+            parameter["raster"] = raster
     info = {"prompt": prompt, "modell": m["id"], "modell_name": m["name"], "parameter": parameter, "refs": refs}
     job = {"id": neue_id(), "owner": owner, "art": "video", "status": "laufend", "gesamt": n, "bilder": [],
            "fehler": [], "prompt": prompt, "modell": m["id"], "modell_name": m["name"], "parameter": parameter,
            "refs": refs, "start": jetzt(), "ende": None, "kosten": 0.0, "tokens": 0,
-           "schaetzung": schaetzen_video(m, aufl, parameter.get("dauer", 0), parameter.get("ton", False), bool(frames), n)}
+           "schaetzung": schaetzen_video(m, aufl, parameter.get("dauer", 0), parameter.get("ton", False), bool(frames or vrefs), n)}
     if erweitern:
         em = erweitern_modell(fmt)
         if not em:
@@ -1676,7 +1873,8 @@ def chat_liste(name: str) -> list:
         except (OSError, ValueError):
             continue
         out.append({"id": c["id"], "titel": c.get("titel", ""), "modus": c.get("modus", "assistent"),
-                    "geaendert": c.get("geaendert", ""), "anzahl": len(c.get("nachrichten", []))})
+                    "geaendert": c.get("geaendert", ""), "anzahl": len(c.get("nachrichten", [])),
+                    "klon": bool((c.get("klon") or {}).get("analyse"))})
     return sorted(out, key=lambda c: c["geaendert"], reverse=True)
 
 
@@ -1758,18 +1956,25 @@ def klon_starten(name: str, e: dict) -> dict:
         raise Fehler(400, "ffmpeg/ffprobe nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
     if not api_key():
         raise Fehler(400, "Für die Analyse wird ein OpenRouter-Schlüssel gebraucht (Einstellungen → Anschluss).")
-    url, datei = str(e.get("url") or "").strip(), None
+    url, datei, vorlage = str(e.get("url") or "").strip(), None, None
     if url:
         url = klon.url_pruefen(url)
         if not w["ytdlp"]:
             raise Fehler(400, "yt-dlp nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
+    elif e.get("vorlage"):
+        vorlage, mime = vorlage_datei(str(e["vorlage"]))
+        if not mime.startswith("video/") or vorlage.stat().st_size > KLON_MAX:
+            raise Fehler(400, "Diese Vorlage ist kein Video bis 500 MB.")
     else:
         up = lies_json("klon_uploads.json", {}).get(str(e.get("upload") or ""))
         if not up or up["owner"] != name:
             raise Fehler(400, "Bitte einen Link angeben oder ein Video hochladen.")
-        datei = DATA / "klon_uploads" / up["datei"]
+        datei = clone_ordner() / up["datei"]
     if any(j["owner"] == name and j["status"] == "laeuft" for j in KLON_JOBS.values()):
         raise Fehler(409, "Es läuft bereits eine Analyse.")
+    if vorlage:     # Kopie analysieren – die Analyse löscht ihre Quelle, die Vorlage bleibt liegen
+        datei = clone_ordner() / f"{neue_id()}{vorlage.suffix.lower()}"
+        shutil.copyfile(vorlage, datei)
     job = {"id": neue_id(), "owner": name, "chat": chat["id"], "status": "laeuft", "schritt": "Wird vorbereitet …",
            "nr": 0, "von": 4, "fehler": "", "start": jetzt()}
     KLON_JOBS[job["id"]] = job
@@ -1858,9 +2063,130 @@ def chatmodelle() -> list:
     return CHATMODELLE["liste"]
 
 
+# --------------------------------------------------------------------------- Prompt übersetzen
+UEBERSETZ_AUFTRAG = ("Übersetze den folgenden Bild- bzw. Video-Prompt ins Deutsche. Behalte Absätze, Aufzählungen und Fachbegriffe "
+                     "(z. B. Kameraeinstellungen) bei. Nichts erklären, nichts kommentieren – antworte nur mit der Übersetzung.")
+
+
+def prompt_uebersetzen(name: str, e: dict) -> dict:
+    """Prompt eines Bildes (oder freien Text) ins Deutsche. Beim eigenen Bild wird die Übersetzung gespeichert."""
+    bid = str(e.get("bild") or "")
+    b = bild_finden(bid) if bid else None
+    if bid and (not b or not darf_sehen(b, name)):
+        raise Fehler(404, "Bild nicht gefunden.")
+    if b and b.get("prompt_de"):
+        return {"text": b["prompt_de"], "kosten": 0}
+    text = str(b["prompt"] if b else e.get("text") or "").strip()[:8000]
+    if not text:
+        raise Fehler(400, "Kein Text zum Übersetzen.")
+    if not api_key():
+        raise Fehler(400, "Für die Übersetzung wird ein OpenRouter-Schlüssel gebraucht (Einstellungen → Anschluss).")
+    modell_id = einstellungen()["assistent_or_modell"]
+    teile, kosten = [], 0.0
+    for art, wert in assistent.openrouter_strom(api_key(), modell_id, [{"role": "system", "content": UEBERSETZ_AUFTRAG},
+                                                                      {"role": "user", "content": text}], threading.Event(), or_basis()):
+        if art == "text":
+            teile.append(str(wert))
+        elif art == "fehler":
+            raise RuntimeError(str(wert))
+        elif art == "ende":
+            kosten = float((wert or {}).get("kosten") or 0)
+    de = "".join(teile).strip()
+    if not de:
+        raise RuntimeError("Die Übersetzung kam leer zurück.")
+    if b and b["owner"] == name:
+        with LOCK:
+            liste = bilder()
+            for x in liste:
+                if x["id"] == b["id"]:
+                    x["prompt_de"] = de
+            schreib_json("bilder.json", liste)
+    if kosten:
+        verbrauch_schreiben({"zeit": jetzt(), "owner": name, "modell": modell_id, "art": "uebersetzung",
+                             "bilder": 0, "kosten": kosten, "tokens": 0, "status": "fertig"})
+    return {"text": de, "kosten": round(kosten, 5)}
+
+
+# --------------------------------------------------------------------------- Vorlagen-Ordner
+# Liegen neben den Ergebnissen: <Ablage>\vorlagen\bilder|videos\<ordner>\datei (+ gleichnamige .txt = Prompt).
+# Wer dort Dateien hineinlegt, sieht sie beim nächsten Öffnen von Influencer › Bewegung – ohne Neustart.
+VORLAGEN_ARTEN = {"bilder": "image/", "videos": "video/"}
+VORLAGEN_ORDNER = {"bilder": ("charaktere", "posen", "outfits", "hintergruende"),
+                   "videos": ("tanz", "gehen", "gruppe", "sport", "sonstiges")}
+VORLAGEN_ENDUNGEN = {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".webm"}
+
+
+def vorlagen_wurzel() -> Path:
+    return ablage_wurzel() / "vorlagen"
+
+
+def vorlagen_liste() -> dict:
+    w = vorlagen_wurzel()
+    for art, ordner in VORLAGEN_ORDNER.items():
+        for o in ordner:
+            try:
+                (w / art / o).mkdir(parents=True, exist_ok=True)
+            except OSError:
+                pass
+    aus = []
+    for art, praefix in VORLAGEN_ARTEN.items():
+        try:
+            unterordner = sorted((p for p in (w / art).iterdir() if p.is_dir()), key=lambda p: p.name.lower())
+        except OSError:
+            continue
+        for ordner in unterordner:
+            for f in sorted(ordner.iterdir(), key=lambda p: p.name.lower()):
+                if len(aus) >= 1000 or not f.is_file() or f.suffix.lower() not in VORLAGEN_ENDUNGEN:
+                    continue
+                if not ((praefix == "image/") == (f.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"))):
+                    continue
+                prompt, txt = "", f.with_suffix(".txt")
+                if txt.is_file():
+                    try:
+                        prompt = txt.read_text("utf-8", errors="replace")[:4000].strip()
+                    except OSError:
+                        pass
+                rel = f"{art}/{ordner.name}/{f.name}"
+                aus.append({"art": "bild" if art == "bilder" else "video", "ordner": ordner.name, "name": f.stem,
+                            "pfad": rel, "url": "/vorlage/" + quote(rel), "prompt": prompt})
+    return {"pfad": str(w), "ordner": VORLAGEN_ORDNER, "vorlagen": aus}
+
+
+def vorlage_datei(rel: str) -> tuple[Path, str]:
+    """Pfad „bilder|videos/<ordner>/<datei>“ → Datei und Typ (an den ersten Bytes geprüft). Nichts außerhalb von Vorlagen."""
+    teile = str(rel).replace("\\", "/").split("/")
+    if len(teile) != 3 or teile[0] not in VORLAGEN_ARTEN or any(t in ("", ".", "..") for t in teile):
+        raise Fehler(404, "Vorlage nicht gefunden.")
+    w = vorlagen_wurzel().resolve()
+    f = (w / teile[0] / teile[1] / teile[2]).resolve()
+    if f.suffix.lower() not in VORLAGEN_ENDUNGEN or not f.is_relative_to(w) or not f.is_file():
+        raise Fehler(404, "Vorlage nicht gefunden.")
+    with open(f, "rb") as d:
+        typ = bild_typ(d.read(64))
+    if not typ or not typ[0].startswith(VORLAGEN_ARTEN[teile[0]]) or typ[0] == "image/svg+xml":
+        raise Fehler(415, "Diese Vorlage hat kein unterstütztes Format.")
+    return f, typ[0]
+
+
+def vorlage_als_upload(name: str, rel: str) -> dict:
+    """Bild-Vorlage als Referenz übernehmen (Kopie in uploads), z. B. als Basis eines Influencers."""
+    f, mime = vorlage_datei(rel)
+    if not mime.startswith("image/") or f.stat().st_size > MAX_UPLOAD:
+        raise Fehler(400, "Nur Bild-Vorlagen bis 12 MB lassen sich übernehmen.")
+    uid, endung = neue_id(), bild_typ(f.read_bytes()[:64])[1]
+    shutil.copyfile(f, uploads_ordner() / f"{uid}.{endung}")
+    with LOCK:
+        ups = lies_json("uploads.json", {})
+        ups[uid] = {"owner": name, "datei": f"{uid}.{endung}", "mime": mime, "erstellt": jetzt(), "name": f.stem[:120]}
+        schreib_json("uploads.json", ups)
+    return {"id": uid, "url": f"/upload/{uid}"}
+
+
 # --------------------------------------------------------------------------- HTTP
 STATIC = {"index.html": "text/html; charset=utf-8", "app.css": "text/css; charset=utf-8",
-          "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
+          "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8",
+          "influencer.js": "text/javascript; charset=utf-8", "bewegung.js": "text/javascript; charset=utf-8", "influencer_vorlagen.json": "application/json; charset=utf-8",
+          "muster_haupttaenzer.webp": "image/webp", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
 
 
 class Fehler(Exception):
@@ -2002,7 +2328,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         url = urlparse(self.path)
         try:
-            if not post and not url.path.startswith(("/api/", "/bild/", "/upload/", "/klonbild/", "/stimmprobe/", "/stimmdatei/")):
+            if not post and not url.path.startswith(("/api/", "/bild/", "/upload/", "/klonbild/", "/stimmprobe/", "/stimmdatei/", "/vorlage/")):
                 return self._statisch(url.path)
             if url.path.startswith("/klonbild/"):
                 return self._klonbild(url)
@@ -2012,6 +2338,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._stimmdatei(url)
             if url.path.startswith(("/bild/", "/upload/")):
                 return self._bilddatei(url)
+            if url.path.startswith("/vorlage/") and not post:
+                self._nutzer(False)
+                f, mime = vorlage_datei(unquote(url.path[len("/vorlage/"):]))
+                return self.datei(f, mime, cache=True)
             return self._api(url, post)
         except Fehler as e:
             self.json({"ok": False, "fehler": e.meldung}, e.code)
@@ -2048,7 +2378,7 @@ class Handler(BaseHTTPRequestHandler):
             u = lies_json("uploads.json", {}).get(teile[1])
             if not u or u["owner"] != name:
                 raise Fehler(404, "Nicht gefunden.")
-            f, mime, dl = DATA / "uploads" / u["datei"], u["mime"], u["datei"]
+            f, mime, dl = uploads_ordner() / u["datei"], u["mime"], u["datei"]
         if not f.is_file():
             raise Fehler(404, "Datei fehlt.")
         self.datei(f, mime, dl if "dl" in parse_qs(url.query) else "", cache=True)
@@ -2086,7 +2416,7 @@ class Handler(BaseHTTPRequestHandler):
             s = einstellungen()
             bindung_ = zugang.bindung()
             return self.json({"ok": True, "einstellungen": s, "schluessel": key_quelle(), "admin": admin,
-                              "werkstatt": {"ablage": str(ablage_wurzel()) if bindung_["arbeitsordner"] else "",
+                              "werkstatt": {"ablage": "",
                                             "schutzschicht": bool(bindung_["schutzschicht"])}})
         if p == "einstellungen" and post:
             if not admin:
@@ -2350,7 +2680,7 @@ class Handler(BaseHTTPRequestHandler):
             if not typ or not typ[0].startswith("image/") or typ[0] == "image/svg+xml":
                 raise Fehler(400, "Nur PNG, JPEG, WebP oder GIF.")
             uid = neue_id()
-            (DATA / "uploads" / f"{uid}.{typ[1]}").write_bytes(roh)
+            (uploads_ordner() / f"{uid}.{typ[1]}").write_bytes(roh)
             with LOCK:
                 ups = lies_json("uploads.json", {})
                 ups[uid] = {"owner": name, "datei": f"{uid}.{typ[1]}", "mime": typ[0], "erstellt": jetzt(),
@@ -2452,6 +2782,29 @@ class Handler(BaseHTTPRequestHandler):
                 schreib_json("elemente.json", alle)
             return self.json({"ok": True, "elemente": elemente_liste(name)})
 
+        # --- Vorlagen-Ordner (Bilder/Videos neben den Ergebnissen)
+        if p == "uebersetzen" and post:
+            return self.json({"ok": True, **prompt_uebersetzen(name, e)})
+        if p == "vorlagen" and not post:
+            return self.json({"ok": True, **vorlagen_liste()})
+        if p == "vorlagen/uebernehmen" and post:
+            return self.json({"ok": True, **vorlage_als_upload(name, str(e.get("pfad") or ""))})
+
+        # --- Influencer (Charaktere)
+        if p == "influencer" and not post:
+            return self.json({"ok": True, "influencer": influencer_liste(name)})
+        if p == "influencer" and post:
+            return self.json({"ok": True, "id": influencer_speichern(name, e), "influencer": influencer_liste(name)})
+        if p.startswith("influencer/") and p.endswith("/loeschen") and post:
+            iid = p.split("/")[1]
+            with LOCK:
+                alle = lies_json("influencer.json", {})
+                if iid not in alle or alle[iid]["owner"] != name:
+                    raise Fehler(404, "Influencer nicht gefunden.")
+                alle.pop(iid)
+                schreib_json("influencer.json", alle)
+            return self.json({"ok": True, "influencer": influencer_liste(name)})
+
         # --- Verbrauch
         if p == "verbrauch" and not post:
             return self.json({"ok": True, **verbrauch_auswerten(name, admin and q.get("alle") == "1")})
@@ -2463,8 +2816,7 @@ class Handler(BaseHTTPRequestHandler):
         laenge = int(self.headers.get("Content-Length") or 0)
         if not 0 < laenge <= KLON_MAX:
             raise Fehler(413, "Kein Video oder größer als 500 MB.")
-        ordner = DATA / "klon_uploads"
-        ordner.mkdir(parents=True, exist_ok=True)
+        ordner = clone_ordner()
         uid = neue_id()
         teil = ordner / f"{uid}.part"
         kopf, rest = b"", laenge
@@ -2722,6 +3074,60 @@ def elemente_liste(name: str) -> list:
                    for k, v in alle.items() if v["owner"] == name), key=lambda x: x["name"].lower())
 
 
+INFLUENCER_TYPEN = ("normal", "kuehn", "extrem", "insekt", "frosch", "katze", "hund", "nager", "vogel")
+
+
+def influencer_speichern(owner: str, e: dict) -> str:
+    """Legt einen Charakter an oder ändert Name, Typ, Prompt (nur eigene)."""
+    titel = str(e.get("name", "")).strip()[:60]
+    if not titel:
+        raise Fehler(400, "Bitte gib dem Influencer einen Namen.")
+    typ = e.get("typ") if e.get("typ") in INFLUENCER_TYPEN else "normal"
+    prompt = str(e.get("prompt", "")).strip()[:4000]
+    vorlage = str(e.get("vorlage_id") or "")[:40]
+    basis = str(e.get("basis") or "")
+    if basis and not referenz_daten_erlaubt(basis, owner):
+        basis = ""
+    with LOCK:
+        alle = lies_json("influencer.json", {})
+        iid = str(e.get("id") or "")
+        if iid:
+            inf = alle.get(iid)
+            if not inf or inf["owner"] != owner:
+                raise Fehler(404, "Influencer nicht gefunden.")
+            inf.update({"name": titel, "typ": typ, "prompt": prompt or inf["prompt"]})
+        else:
+            iid = neue_id()
+            alle[iid] = {"owner": owner, "name": titel, "typ": typ, "prompt": prompt, "vorlage_id": vorlage,
+                         "basis": basis, "bilder": [], "erstellt": jetzt()}
+        schreib_json("influencer.json", alle)
+    return iid
+
+
+def influencer_bilder_anhaengen(owner: str, iid: str, bild_ids: list) -> None:
+    with LOCK:
+        alle = lies_json("influencer.json", {})
+        inf = alle.get(iid)
+        if inf and inf["owner"] == owner:
+            inf["bilder"] = list(dict.fromkeys([*bild_ids, *inf.get("bilder", [])]))[:200]
+            schreib_json("influencer.json", alle)
+
+
+def influencer_liste(name: str) -> list:
+    alle = lies_json("influencer.json", {})
+    sichtbar = {b["id"] for b in bilder() if b["owner"] == name and not b.get("geloescht")}
+    aus = []
+    for k, v in alle.items():
+        if v["owner"] != name:
+            continue
+        bild_ids = [b for b in v.get("bilder", []) if b in sichtbar]
+        basis = v.get("basis") or ""
+        aus.append({"id": k, "name": v["name"], "typ": v["typ"], "prompt": v["prompt"], "vorlage_id": v.get("vorlage_id", ""),
+                    "basis": {"id": basis, "url": ("/bild/" if basis in sichtbar else "/upload/") + basis} if basis else None,
+                    "bilder": [{"id": b, "url": "/bild/" + b} for b in bild_ids], "erstellt": v["erstellt"]})
+    return sorted(aus, key=lambda x: x["erstellt"], reverse=True)
+
+
 def verbrauch_auswerten(name: str, alle: bool) -> dict:
     tage, modelle = {}, {}
     summe, n_bilder = 0.0, 0
@@ -2777,6 +3183,9 @@ def main():
     threading.Thread(target=vkatalog_laden, daemon=True).start()
     threading.Thread(target=akatalog_laden, daemon=True).start()
     threading.Thread(target=katalog_waechter, daemon=True).start()
+    n_v = ablage_vereinheitlichen()
+    if n_v:
+        print(f"{n_v} Datei(en) nach {ablage_wurzel()} geholt (ein Ort, Namen klein).", flush=True)
     n_ab = ablage_einsortieren()
     if n_ab:
         print(f"{n_ab} Datei(en) in die Ablage {ablage_wurzel()} einsortiert.", flush=True)

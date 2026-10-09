@@ -3,8 +3,8 @@
  *
  * Der Quelltext von Cinema Studio liegt versioniert in
  * `werkstatt\pakete\cinema-studio`. Laufen tut das Programm am festen Ort
- * `werkstatt\scripts\CINEMA-STUDIO` (in git ausgeschlossen), denn dort liegen
- * `.env`, `data\`, `zugang\` und die Ablage der erzeugten Medien.
+ * `werkstatt\scripts\cinema-studio` (in git ausgeschlossen), denn dort liegen
+ * `.env`, `data\`, `zugang\` und `ablage\` (Ergebnisse, Uploads, Vorlagen).
  *
  * Dieses Werkzeug kopiert nur die Dateien und Ordner aus {@link TEILE} dorthin.
  * Laufzeitdaten fasst es nie an. `node werkzeuge/bauen.mjs` ruft es am Ende auf;
@@ -21,7 +21,7 @@ const WURZEL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const QUELLE = join(WURZEL, 'pakete', 'cinema-studio')
 
 /** Der feste Ort, an dem Cinema Studio läuft. */
-export const ZIEL = join(WURZEL, 'scripts', 'CINEMA-STUDIO')
+export const ZIEL = join(WURZEL, 'scripts', 'cinema-studio')
 
 /**
  * Was gespiegelt wird. Ordner werden am Ziel erst geleert und dann neu

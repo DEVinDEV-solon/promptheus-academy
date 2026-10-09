@@ -226,7 +226,32 @@ def anweisungen(modus: str, bildmodelle: list, videomodelle: list, kontext: dict
                   "Hook, CTA), aber NIE den Inhalt: keine fremden Marken, Personen, Texte oder Figuren kopieren – alles "
                   "durch die Marke und das Produkt des Nutzers ersetzen. Frage zuerst nach Marke/Produkt, falls unbekannt. "
                   "Gib danach einen Klon-Bauplan und je Szene einen ```videoprompt```-Block mit \"szene\" und \"titel\" aus."]
+    teile += ["", "# Bilder im Video-Modus (für technischen Rat)",
+              "Unter dem Eingabefeld gibt es im Video-Modus anklickbare Kästchen (und dieselbe Auswahl im +-Menü). "
+              "Jedes mitgegebene Bild hat eine Rolle; ein Klick auf das Rollenschild eines Bildes ändert sie:",
+              "- Startbild (frame_images first_frame): Das Video beginnt GENAU mit diesem Bild. Nur Modelle mit bilder=first_frame.",
+              "- Endbild (frame_images last_frame): Das Video endet genau mit diesem Bild. Nur Modelle mit bilder=…last_frame.",
+              "- Vorlage (input_references, bis zu 3 = @Bild 1, 2, 3 in der gewählten Reihenfolge): Grundlage für Figur, Aussehen, "
+              "Produkt oder Stil, aber KEIN Startbild. Den ersten Moment (Startposition) beschreibt der Text.",
+              "- Storyboard-Raster (Kästchen ▦, Arten 6 Felder 3×2, 4 Felder 2×2, 3 Felder 3×1): @Bild 1 ist ein zusammenhängendes "
+              "Raster; das Video beginnt wie Feld 1 und folgt den Feldern, ohne Raster, Trennlinien oder Ziffern zu zeigen.",
+              "Regeln: Vorlagen und Start-/Endbild schließen sich aus (OpenRouter behandelt beides zusammen als Bild-zu-Video, "
+              "die Vorlagen gingen unter). Ob ein Modell Vorlagen wirklich beachtet, ist nur für bytedance/seedance-2.0-fast "
+              "bestätigt – bei anderen ehrlich sagen, dass es unbestätigt ist, und zu einem kurzen, günstigen Test raten. "
+              "Bei Vorlagen und Raster setzt das Programm selbst einen deutschen Vorsatz vor den Prompt (welche Bilder Vorlagen sind, "
+              "wie das Raster zu lesen ist) – diesen Vorsatz NICHT im Feld \"prompt\" wiederholen; dort nur Startposition, "
+              "Handlung, Kamera, Licht und Ton beschreiben und die Bilder bei Bedarf mit @Bild 1/2/3 ansprechen.",
+              "Faustregeln: Startbild, wenn das Bild exakt so im Video erscheinen soll (z. B. ein fertiges Produktfoto animieren); "
+              "Start- + Endbild für eine gezielte Verwandlung oder einen Übergang; Vorlage, wenn eine Figur oder ein Profilblatt "
+              "(Charakter-Variante, Profil-Screen) nur als Grundlage dienen soll; Storyboard-Raster, wenn ein mehrteiliges "
+              "Storyboard-Bild den Ablauf vorgibt. Weicht ein Start-/Endbild vom Videoformat ab, erweitert oder beschneidet es "
+              "das Programm je nach Einstellung (Einstellungen → Video). Bilder setzt der Nutzer selbst, du kannst sie nicht anhängen."]
     k = kontext or {}
+    br = k.get("bildrollen") if isinstance(k.get("bildrollen"), dict) else {}
+    if k.get("modus") == "video" and br:
+        teile.append(f"Gerade gesetzt: Startbild {'ja' if br.get('start') else 'nein'} · Endbild {'ja' if br.get('ende') else 'nein'} · "
+                     f"Vorlagen {min(int(br['vorlagen']), 3) if str(br.get('vorlagen') or '').isdigit() else 0} · Storyboard-Raster "
+                     f"{str(br.get('raster') or 'aus')[:8]}")
     if k.get("modus") == "audio" and modus not in ("drehbuch", "klon"):
         teile += ["", "# Modus Audio (Sprachausgabe)",
                   "Der Nutzer erzeugt gerade eine Sprachausgabe: Ein Sprachmodell liest den Text mit der eingestellten Stimme vor. "
@@ -238,6 +263,24 @@ def anweisungen(modus: str, bildmodelle: list, videomodelle: list, kontext: dict
                   "Pausen über Satzzeichen statt über Regieanweisungen; kein Markdown, keine Emojis, keine Klammern mit Hinweisen im Feld \"prompt\". "
                   "Rechne mit etwa 140 gesprochenen Wörtern pro Minute und bleibe unter 5000 Zeichen je Block.",
                   "Fehlen Zweck, Länge oder Ton, stelle dazu eine kurze Rückfrage."]
+    if k.get("modus") == "influencer" and modus not in ("drehbuch", "klon"):
+        ik = k.get("influencer") if isinstance(k.get("influencer"), dict) else {}
+        teile += ["", "# Modus Influencer (Charaktere bauen)",
+                  "Der Nutzer baut auf der Seite „Influencer › Erstellen“ einen KI-Charakter. Links ist ein Panel mit "
+                  "Charaktertyp (normal, kuehn, extrem, insekt, frosch, katze, hund, nager, vogel), optionalem Foto oder Basis-Charakter, "
+                  "einem Feld „Besonderheiten“ und dem Knopf „Erzeugen“. Erkläre in einfachen Worten, ohne Fachsprache, was als Nächstes zu tun ist.",
+                  "Schlage skurrile, auffällige, aber respektvolle Figuren vor, die in sozialen Netzwerken auffallen und Jugendlichen gefallen. "
+                  "Nur erfundene Erwachsene, keine echten oder berühmten Personen, keine Marken oder Logos, nichts Sexualisiertes. "
+                  "„extrem“ übertreibt Frisur, Outfit, Silhouette und Haltung, niemals Herkunft, Hautfarbe oder Gesichtszüge einer Gruppe.",
+                  "Gib jeden Charaktervorschlag als eigenen Block aus, genau so:",
+                  "```influencer",
+                  '{"name": "…", "typ": "frosch", "prompt": "…"}',
+                  "```",
+                  "Das Feld \"prompt\" beschreibt nur den Charakter (Figur, Haar, Gesicht, Outfit, Pose, Bildausschnitt) auf Englisch in 40 bis 90 Wörtern; "
+                  "Studiohintergrund und Licht ergänzt die Seite selbst. Der Name ist kurz und einprägsam (gern deutsch und mit Wortwitz).",
+                  "Stand im Panel: "
+                  f"Typ {str(ik.get('typ') or '-')[:20]} · Besonderheiten: {str(ik.get('besonderheiten') or '(leer)')[:500]} · "
+                  f"Basis: {str(ik.get('basis') or '(keine)')[:80]} · nächster Schritt: {str(ik.get('schritt') or '-')[:80]}"]
     teile += ["", "# Bildmodelle (id | Fähigkeiten)"] + [modell_zeile_bild(m) for m in bildmodelle]
     teile += ["", "# Videomodelle (id | Fähigkeiten)"] + [modell_zeile_video(m) for m in videomodelle]
     teile += ["", "# Aktueller Stand im Eingabefeld",

@@ -108,8 +108,8 @@ function mdEinfach(text) {
   return html.replace(/\u0000(\d+)\u0000/g, (_, i) => bloecke[+i]);
 }
 
-const KARTE_RE = /```(bildprompt|videoprompt|audioprompt)\s*\n([\s\S]*?)```/g;
-const KARTE_ART = { bildprompt: 'bild', videoprompt: 'video', audioprompt: 'audio' };
+const KARTE_RE = /```(bildprompt|videoprompt|audioprompt|influencer)\s*\n([\s\S]*?)```/g;
+const KARTE_ART = { bildprompt: 'bild', videoprompt: 'video', audioprompt: 'audio', influencer: 'influencer' };
 function kartenAus(text) {
   const out = [];
   for (const [, art, roh] of text.matchAll(KARTE_RE)) {
@@ -119,6 +119,7 @@ function kartenAus(text) {
 }
 /** Karte an den Katalog anpassen: unbekannte Modelle/Werte fallen auf den aktuellen Stand zurück. */
 function karteBereinigen(k) {
+  if (k.art === 'influencer') return influencerKarteBereinigen(k);
   if (k.art === 'audio') {
     const m = A.modelle.find(x => x.id === k.modell) || aktAModell();
     return { art: 'audio', prompt: String(k.prompt), modell: m?.id || '', titel: k.titel, fremd: !!k.modell && m?.id !== k.modell };
@@ -141,6 +142,7 @@ function karteBereinigen(k) {
     anzahl: Math.max(1, Math.min(4, +k.anzahl || 1)), fremd: !!k.modell && m?.id !== k.modell };
 }
 function karteHtmlChat(k, idx) {
+  if (k.art === 'influencer') return influencerKarteChat(k, idx);
   if (k.art === 'audio') return karteHtmlAudio(k, idx);
   const vid = k.art === 'video';
   const m = vid ? S.vmodelle.find(x => x.id === k.modell) : S.modelle.find(x => x.id === k.modell);
@@ -182,6 +184,12 @@ function chatZeichnen() {
     if (C.chat.nachrichten.length) box.scrollTop = box.scrollHeight;
     return;
   }
+  if (!C.chat.nachrichten.length && C.chat.modus === 'assistent' && S.ansicht.startsWith('influencer:')) {
+    box.innerHTML = `<div class="cleer">${ico('zauber')}<h4>Influencer bauen</h4>
+      <p>Ich helfe dir, eine auffällige Figur zu erfinden. Jeder Vorschlag kommt als Karte – „Ins Panel“ übernimmt ihn links.</p>
+      <div class="cvorschlaege">${IF_CHAT_VORSCHLAEGE.map(v => `<button data-vorschlag="${esc(v)}">${esc(v)}</button>`).join('')}</div></div>`;
+    return;
+  }
   if (!C.chat.nachrichten.length) {
     box.innerHTML = `<div class="cleer">${ico('zauber')}<h4>${C.chat.modus === 'drehbuch' ? 'Drehbuch planen' : 'Wobei kann ich helfen?'}</h4>
       <p>${C.chat.modus === 'drehbuch'
@@ -220,6 +228,7 @@ function karteZu(schluessel) {
 }
 async function karteKosten(k) {
   try {
+    if (k.art === 'influencer') return await influencerKosten(1);
     if (k.art === 'audio') {
       if (!k.modell) return null;
       const s = await api('schaetzen_audio', { modell: k.modell, zeichen: k.prompt.length });
@@ -250,6 +259,7 @@ async function preiseNachladen(box) {
 
 // ------------------------------------------------------------------ Karten übernehmen / erzeugen
 function karteEintragen(k) {
+  if (k.art === 'influencer') return influencerUebernehmen(k);
   if (!$('#composer').offsetParent) ansicht('erstellen');
   if (k.art === 'audio') {
     modusSetzen('audio');
@@ -275,11 +285,13 @@ function karteEintragen(k) {
   setTimeout(() => $('#composer').classList.remove('blitz'), 700);
 }
 async function karteErzeugen(k) {
+  if (k.art === 'influencer') return influencerUebernehmen(k, true);
   if (k.art === 'audio') {
     await audioErzeugen({ prompt: k.prompt, ...(k.modell ? { modell: k.modell } : {}) });
   } else if (k.art === 'video') {
     await erzeugen({ art: 'video', modell: k.modell, prompt: k.prompt, seitenverhaeltnis: k.seitenverhaeltnis, aufloesung: k.aufloesung,
-      dauer: k.dauer, ton: k.ton, anzahl: k.anzahl, startbild: S.vgen.start?.id || '', endbild: '' });
+      dauer: k.dauer, ton: k.ton, anzahl: k.anzahl, startbild: S.vgen.start?.id || '', endbild: S.vgen.ende?.id || '',
+      vorlagen: S.vgen.vorlagen.map(v => v.id), raster: S.vgen.raster });
   } else {
     await erzeugen({ modell: k.modell, prompt: k.prompt, seitenverhaeltnis: k.seitenverhaeltnis, aufloesung: k.aufloesung,
       qualitaet: k.qualitaet, anzahl: k.anzahl, hintergrund: '', refs: S.gen.refs.map(r => r.id), elemente: S.gen.elemente.map(e => e.id) });
@@ -298,7 +310,7 @@ $('#chatNachrichten').addEventListener('click', async ev => {
     if (b) {
       const k = karteZu(b.closest('[data-k]').dataset.k);
       if (!k) return;
-      if (b.dataset.ka === 'eintragen') { karteEintragen(k); toast('Ins Eingabefeld übernommen.', 'ok'); }
+      if (b.dataset.ka === 'eintragen') { karteEintragen(k); toast(k.art === 'influencer' ? 'Ins Panel übernommen.' : 'Ins Eingabefeld übernommen.', 'ok'); }
       else await karteErzeugen(k);
       return;
     }
@@ -346,7 +358,8 @@ async function chatSenden(zusatz = {}) {
   C.laeuft = true; knopfZustand();
   C.steuerung = new AbortController();
   const kontext = { modus: S.modus, modell: S.modus === 'video' ? S.vgen.modell : S.modus === 'audio' ? A.gen.modell : S.gen.modell,
-    bildmodell: S.gen.modell, videomodell: S.vgen.modell, audiomodell: A.gen.modell, prompt: pr.value, ...zusatz };
+    bildmodell: S.gen.modell, videomodell: S.vgen.modell, audiomodell: A.gen.modell, prompt: pr.value, ...influencerKontext(),
+    bildrollen: { start: !!S.vgen.start, ende: !!S.vgen.ende, vorlagen: S.vgen.vorlagen.length, raster: S.vgen.raster }, ...zusatz };
   let fertig = null;
   try {
     const r = await fetch(`/api/chat/${C.chat.id}/senden`, { method: 'POST', signal: C.steuerung.signal,
@@ -516,10 +529,10 @@ $('#chatNachrichten').addEventListener('change', async ev => {
   } catch (e) { fehler(e); }
   chatZeichnen();
 });
-async function klonStarten() {
-  const url = $('#klonUrl')?.value.trim();
-  if (!url && !KLON.upload) return toast('Bitte einen Link einfügen oder ein Video hochladen.');
-  const d = await api('klon/start', { chat: C.chat.id, ...(url ? { url } : { upload: KLON.upload.id }) });
+async function klonStarten(vorlage = '') {
+  const url = vorlage ? '' : $('#klonUrl')?.value.trim();
+  if (!url && !KLON.upload && !vorlage) return toast('Bitte einen Link einfügen oder ein Video hochladen.');
+  const d = await api('klon/start', { chat: C.chat.id, ...(vorlage ? { vorlage } : url ? { url } : { upload: KLON.upload.id }) });
   KLON.job = d.job;
   KLON.upload = null;
   chatZeichnen();
