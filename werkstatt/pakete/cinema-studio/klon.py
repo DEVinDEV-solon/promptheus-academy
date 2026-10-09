@@ -10,26 +10,22 @@ import base64
 import ipaddress
 import json
 import re
-import shutil
 import subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
 
-WERKZEUG_ORTE = {
-    "ffmpeg": [r"D:\Werkzeuge\ffmpeg\ffmpeg.exe", r"D:\Werkzeuge\ffmpeg\bin\ffmpeg.exe"],
-    "ffprobe": [r"D:\Werkzeuge\ffmpeg\ffprobe.exe", r"D:\Werkzeuge\ffmpeg\bin\ffprobe.exe"],
-    "yt-dlp": [r"D:\Werkzeuge\yt-dlp\yt-dlp.exe", r"D:\Werkzeuge\yt-dlp.exe"],
-}
+import werkzeugkiste as wk
+
 MAX_BILDER = 24
 FLAGS = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 
 def werkzeug(name: str, eigen: str = "") -> str:
-    kandidaten = [eigen] if eigen else []
-    kandidaten += [shutil.which(name) or ""] + WERKZEUG_ORTE.get(name, [])
-    return next((k for k in kandidaten if k and Path(k).is_file()), "")
+    """ffmpeg/ffprobe/yt-dlp aus dem Werkzeugordner im Repo (werkzeugkiste.py); ein eigener Pfad aus den
+    Einstellungen nur, solange dort nichts eingerichtet ist. PATH und Orte außerhalb werden nie gesucht."""
+    return wk.pfad(name) or (eigen if eigen and Path(eigen).is_file() else "")
 
 
 def url_pruefen(url: str) -> str:
