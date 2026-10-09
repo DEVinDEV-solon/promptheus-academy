@@ -12,6 +12,7 @@ import hashlib
 import hmac
 import json
 import math
+import mimetypes
 import os
 import re
 import secrets
@@ -582,6 +583,348 @@ def clone_ordner() -> Path:
     return p
 
 
+# --------------------------------------------------------------------------- Uploads (eigene Dateien)
+# <Ablage>\uploads\datei  und  <Ablage>\uploads\<eigener ordner>\datei – Dateien jeder Art.
+# uploads.json ist nur das Verzeichnis dazu (Id → Pfad). Wer im Explorer etwas hineinlegt, verschiebt oder
+# umbenennt, sieht es beim nächsten Öffnen der Uploads: uploads_abgleichen() trägt neue Dateien nach.
+# Ordner, die mit „.“ oder „_“ beginnen (z. B. _papierkorb), und „clone“ (Video-Clone) gehören nicht dazu.
+UPLOAD_INTERN = {"clone"}
+UPLOAD_PAPIERKORB = "_papierkorb"
+UPLOAD_DATEI_MAX = 500 * 1024 * 1024
+UPLOAD_MAX_ANZAHL = 5000
+UPLOAD_NICHT = {"desktop.ini", "thumbs.db", ".ds_store"}
+REF_MIMES = ("image/png", "image/jpeg", "image/webp", "image/gif")     # taugen als Referenz/Startbild/Vorlage
+TEXT_ENDUNGEN = {".txt", ".md", ".markdown", ".csv", ".json", ".srt", ".vtt", ".log", ".xml", ".yaml", ".yml", ".html", ".htm"}
+DOKUMENT_ENDUNGEN = {".pdf", ".doc", ".docx", ".odt", ".rtf", ".ppt", ".pptx", ".odp", ".xls", ".xlsx", ".ods", ".epub"}
+WIN_RESERVIERT = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
+
+
+def upload_name_ok(name: str, laenge: int = 120) -> str:
+    """Datei- oder Ordnername ohne Pfadteile und ohne Zeichen, die Windows nicht erlaubt; '' wenn nichts übrig bleibt."""
+    n = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", str(name or "")).strip().strip(".").strip()[:laenge].strip()
+    if not n or n.split(".")[0].lower() in WIN_RESERVIERT:
+        return ""
+    return n
+
+
+def upload_ordner_ok(name: str) -> bool:
+    return bool(name) and name.lower() not in UPLOAD_INTERN and not name.startswith((".", "_"))
+
+
+def upload_pfad(u: dict) -> Path | None:
+    """Pfad einer Upload-Datei – nur innerhalb von <Ablage>\\uploads, sonst None."""
+    rel = str(u.get("datei") or "").replace("\\", "/")
+    teile = rel.split("/")
+    if not rel or len(teile) > 2 or any(t in ("", ".", "..") for t in teile):
+        return None
+    w = uploads_ordner().resolve()
+    f = (w / Path(*teile)).resolve()
+    return f if f.is_relative_to(w) else None
+
+
+def upload_mime(f: Path) -> str:
+    """Typ an den ersten Bytes, sonst an der Endung. Textdateien zuerst an der Endung
+    (eine UTF-16-Textdatei beginnt mit Bytes, die wie MP3 aussehen)."""
+    endung = f.suffix.lower()
+    if endung in TEXT_ENDUNGEN:
+        return "text/markdown" if endung in (".md", ".markdown") else (mimetypes.guess_type(f.name)[0] or "text/plain")
+    try:
+        with open(f, "rb") as d:
+            typ = bild_typ(d.read(2048))
+    except OSError:
+        typ = None
+    if typ:
+        return typ[0]
+    return mimetypes.guess_type(f.name)[0] or "application/octet-stream"
+
+
+def upload_typ(mime: str, datei: str = "") -> str:
+    """bild | video | audio | text | datei – für Filter und Darstellung."""
+    for art in ("image", "video", "audio"):
+        if mime.startswith(art + "/"):
+            return {"image": "bild", "video": "video", "audio": "audio"}[art]
+    endung = Path(datei).suffix.lower()
+    if mime.startswith("text/") or endung in TEXT_ENDUNGEN or endung in DOKUMENT_ENDUNGEN or mime == "application/pdf":
+        return "text"
+    return "datei"
+
+
+def _upload_masse(f: Path, mime: str) -> tuple[int, int]:
+    if mime not in REF_MIMES:
+        return 0, 0
+    try:
+        with open(f, "rb") as d:
+            return bild_masse(d.read(1 << 16))
+    except OSError:
+        return 0, 0
+
+
+def _upload_dateien() -> list:
+    """Alle Dateien in uploads\\ und eine Ebene darunter: [(rel, Path, stat)]."""
+    w = uploads_ordner()
+    aus = []
+
+    def sammle(ordner: Path, praefix: str):
+        try:
+            eintraege = sorted(ordner.iterdir(), key=lambda p: p.name.lower())
+        except OSError:
+            return
+        for p in eintraege:
+            if len(aus) >= UPLOAD_MAX_ANZAHL:
+                return
+            if p.name.startswith(".") or p.name.lower() in UPLOAD_NICHT or p.suffix.lower() == ".part":
+                continue
+            try:
+                if p.is_file():
+                    aus.append((praefix + p.name, p, p.stat()))
+                elif not praefix and p.is_dir() and upload_ordner_ok(p.name):
+                    sammle(p, p.name + "/")
+            except OSError:
+                continue
+
+    sammle(w, "")
+    return aus
+
+
+def uploads_abgleichen() -> dict:
+    """Verzeichnis uploads.json mit dem Ordner abgleichen (unter LOCK aufrufen). Neue Dateien bekommen eine Id und
+    gehören dem Werkstatt-Konto. Eine im Explorer verschobene Datei (gleicher Name, gleiche Größe) behält ihre Id,
+    damit Verweise aus früheren Aufträgen weiter stimmen. Einträge ohne Datei bleiben stehen (z. B. bei einem
+    anderen Ablage-Pfad), sie werden nur nicht angezeigt."""
+    ups = lies_json("uploads.json", {})
+    dateien = _upload_dateien()
+    da = {rel.lower(): (f, st) for rel, f, st in dateien}
+    geaendert = False
+    bekannt = set()
+    for u in ups.values():
+        rel = str(u.get("datei") or "").replace("\\", "/")
+        bekannt.add(rel.lower())
+        treffer = da.get(rel.lower())
+        if treffer and u.get("groesse") != treffer[1].st_size:
+            u["groesse"] = treffer[1].st_size
+            u["breite"], u["hoehe"] = _upload_masse(treffer[0], str(u.get("mime", "")))
+            geaendert = True
+    neu = [(rel, f, st) for rel, f, st in dateien if rel.lower() not in bekannt]
+    if neu:
+        verwaist = {}
+        for k, u in ups.items():
+            rel = str(u.get("datei") or "").replace("\\", "/")
+            if rel.lower() not in da and u.get("groesse"):
+                verwaist[(Path(rel).name.lower(), u["groesse"])] = k
+        for rel, f, st in neu:
+            k = verwaist.pop((f.name.lower(), st.st_size), None)
+            if k:
+                ups[k]["datei"] = rel
+                continue
+            mime = upload_mime(f)
+            breite, hoehe = _upload_masse(f, mime)
+            ups[neue_id()] = {"owner": zugang.KONTO, "datei": rel, "mime": mime, "name": f.stem[:120],
+                              "erstellt": datetime.fromtimestamp(st.st_mtime, timezone.utc).isoformat(timespec="seconds"),
+                              "groesse": st.st_size, "breite": breite, "hoehe": hoehe, "gefunden": True}
+        geaendert = True
+    if geaendert:
+        schreib_json("uploads.json", ups)
+    return ups
+
+
+def uploads_ordner_liste(owner: str, ups: dict | None = None) -> list:
+    """Eigene Ordner unter uploads\\ mit Anzahl der Dateien darin."""
+    w = uploads_ordner()
+    zaehl: dict = {}
+    for u in (ups or {}).values():
+        rel = str(u.get("datei") or "").replace("\\", "/")
+        if u.get("owner") == owner and "/" in rel:
+            zaehl[rel.split("/")[0].lower()] = zaehl.get(rel.split("/")[0].lower(), 0) + 1
+    try:
+        namen = sorted((p.name for p in w.iterdir() if p.is_dir() and upload_ordner_ok(p.name)), key=str.lower)
+    except OSError:
+        namen = []
+    return [{"name": n, "anzahl": zaehl.get(n.lower(), 0)} for n in namen]
+
+
+def upload_eintrag(k: str, u: dict) -> dict:
+    rel = str(u.get("datei") or "").replace("\\", "/")
+    mime = str(u.get("mime") or "application/octet-stream")
+    groesse = int(u.get("groesse") or 0)
+    return {"id": k, "name": str(u.get("name") or Path(rel).stem), "datei": rel, "dateiname": Path(rel).name,
+            "ordner": rel.split("/")[0] if "/" in rel else "", "mime": mime, "typ": upload_typ(mime, rel),
+            "groesse": groesse, "breite": int(u.get("breite") or 0), "hoehe": int(u.get("hoehe") or 0),
+            "erstellt": str(u.get("erstellt") or ""), "url": "/upload/" + k,
+            "nutzbar": mime in REF_MIMES and 0 < groesse <= MAX_UPLOAD}
+
+
+def uploads_liste(owner: str, q: dict) -> dict:
+    """GET /api/uploads – ordner: fehlt/„*“ = alle, „-“ = ohne Ordner, sonst Ordnername; typ; q = Suche im Namen."""
+    with LOCK:
+        ups = uploads_abgleichen()
+    ordner, typ, suche = q.get("ordner", "*"), q.get("typ", ""), q.get("q", "").lower().strip()
+    aus, gesamt = [], 0
+    for k, u in ups.items():
+        if u.get("owner") != owner:
+            continue
+        f = upload_pfad(u)
+        if not f or not f.is_file():
+            continue
+        gesamt += 1
+        e = upload_eintrag(k, u)
+        if ordner == "-" and e["ordner"] or ordner not in ("*", "-") and e["ordner"].lower() != ordner.lower():
+            continue
+        if typ and e["typ"] != typ or suche and suche not in (e["name"] + " " + e["dateiname"]).lower():
+            continue
+        aus.append(e)
+    aus.sort(key=lambda e: e["erstellt"], reverse=True)
+    return {"pfad": str(uploads_ordner()), "ordner": uploads_ordner_liste(owner, ups), "gesamt": gesamt, "uploads": aus}
+
+
+def _frei(p: Path) -> Path:
+    """Freier Dateiname: „name.png“, sonst „name (2).png“ …"""
+    if not p.exists():
+        return p
+    for i in range(2, 1000):
+        q = p.with_name(f"{p.stem} ({i}){p.suffix}")
+        if not q.exists():
+            return q
+    raise Fehler(409, "Zu viele Dateien mit diesem Namen.")
+
+
+def upload_zielordner(name: str, anlegen: bool = False) -> Path:
+    """uploads\\ (name leer) oder ein eigener Ordner darin."""
+    w = uploads_ordner()
+    if not name:
+        return w
+    n = upload_name_ok(name, 60)
+    if not n or not upload_ordner_ok(n):
+        raise Fehler(400, "Dieser Ordnername geht nicht (keine Zeichen wie \\ / : * ? \" < > |, nicht mit . oder _ beginnen).")
+    p = w / n
+    if not p.is_dir():
+        if not anlegen:
+            raise Fehler(404, "Ordner nicht gefunden.")
+        p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def upload_registrieren(owner: str, f: Path, name: str = "") -> dict:
+    """Neue Datei in uploads\\ ins Verzeichnis eintragen (unter LOCK aufrufen)."""
+    st = f.stat()
+    mime = upload_mime(f)
+    breite, hoehe = _upload_masse(f, mime)
+    rel = f.relative_to(uploads_ordner()).as_posix()
+    ups = lies_json("uploads.json", {})
+    uid = neue_id()
+    ups[uid] = {"owner": owner, "datei": rel, "mime": mime, "name": (name or f.stem)[:120], "erstellt": jetzt(),
+                "groesse": st.st_size, "breite": breite, "hoehe": hoehe}
+    schreib_json("uploads.json", ups)
+    return upload_eintrag(uid, ups[uid])
+
+
+def upload_ordner_aendern(owner: str, e: dict) -> tuple[list, str]:
+    """POST /api/uploads/ordner – {name} anlegen · {name, neu} umbenennen · {name, loeschen} auflösen
+    (Dateien wandern nach uploads\\, nichts geht verloren) · {name, zeigen} im Explorer öffnen."""
+    name = str(e.get("name") or "")
+    if e.get("zeigen"):
+        im_explorer_zeigen(upload_zielordner(name))
+        return uploads_ordner_liste(owner, lies_json("uploads.json", {})), name
+    ergebnis = ""
+    with LOCK:
+        ups = uploads_abgleichen()
+        if e.get("neu") is not None or e.get("loeschen"):
+            alt = upload_zielordner(name)
+            if e.get("loeschen"):
+                ziel_ordner = uploads_ordner()
+            else:
+                n = upload_name_ok(str(e.get("neu")), 60)
+                if not n or not upload_ordner_ok(n):
+                    raise Fehler(400, "Dieser Ordnername geht nicht.")
+                ziel_ordner = uploads_ordner() / n
+                if ziel_ordner.exists() and ziel_ordner.resolve() != alt.resolve():
+                    raise Fehler(409, "Einen Ordner mit diesem Namen gibt es schon.")
+            praefix = alt.name.lower() + "/"
+            try:
+                if e.get("loeschen"):
+                    umzug = {}
+                    for f in sorted(alt.iterdir()):
+                        if f.is_file():
+                            z = _frei(ziel_ordner / f.name)
+                            os.replace(f, z)
+                            umzug[f"{alt.name}/{f.name}".lower()] = z.name
+                    _leere_ordner_weg(alt)
+                    for u in ups.values():
+                        rel = str(u.get("datei") or "").replace("\\", "/")
+                        if rel.lower() in umzug:
+                            u["datei"] = umzug[rel.lower()]
+                else:
+                    os.replace(alt, ziel_ordner)
+                    for u in ups.values():
+                        rel = str(u.get("datei") or "").replace("\\", "/")
+                        if rel.lower().startswith(praefix):
+                            u["datei"] = ziel_ordner.name + "/" + rel.split("/", 1)[1]
+                    ergebnis = ziel_ordner.name
+            except OSError as x:
+                raise Fehler(409, f"Ordner lässt sich nicht ändern ({x.strerror or x}). Ist eine Datei darin geöffnet?") from None
+            schreib_json("uploads.json", ups)
+        else:
+            ergebnis = upload_zielordner(name, anlegen=True).name
+        return uploads_ordner_liste(owner, ups), ergebnis
+
+
+def upload_aendern(owner: str, uid: str, e: dict) -> dict | None:
+    """POST /api/upload/<id> – aktion ordner | umbenennen | loeschen (→ uploads\\_papierkorb) | zeigen."""
+    aktion = e.get("aktion")
+    with LOCK:
+        ups = uploads_abgleichen()
+        u = ups.get(uid)
+        f = upload_pfad(u) if u and u.get("owner") == owner else None
+        if not f or not f.is_file():
+            raise Fehler(404, "Datei nicht gefunden.")
+        if aktion == "zeigen":
+            im_explorer_zeigen(f)
+            return upload_eintrag(uid, u)
+        w = uploads_ordner().resolve()
+        if aktion == "ordner":
+            zo = upload_zielordner(str(e.get("ordner") or ""), anlegen=bool(e.get("anlegen"))).resolve()
+            if zo == f.parent:
+                return upload_eintrag(uid, u)
+            ziel = _frei(zo / f.name)
+        elif aktion == "umbenennen":
+            n = upload_name_ok(str(e.get("name") or ""))
+            if not n:
+                raise Fehler(400, "Bitte einen gültigen Dateinamen eingeben.")
+            if not n.lower().endswith(f.suffix.lower()):
+                n += f.suffix
+            ziel = f.with_name(n)
+            if ziel.exists() and ziel.resolve() != f.resolve():
+                raise Fehler(409, "Eine Datei mit diesem Namen gibt es dort schon.")
+        elif aktion == "loeschen":
+            korb = w / UPLOAD_PAPIERKORB
+            korb.mkdir(exist_ok=True)
+            ziel = _frei(korb / f.name)
+        else:
+            raise Fehler(400, "Unbekannte Aktion.")
+        try:
+            os.replace(f, ziel)
+        except OSError as x:
+            raise Fehler(409, f"Datei lässt sich nicht verschieben ({x.strerror or x}). Ist sie gerade geöffnet?") from None
+        if aktion == "loeschen":
+            ups.pop(uid)
+            schreib_json("uploads.json", ups)
+            return None
+        u["datei"] = ziel.resolve().relative_to(w).as_posix()
+        if aktion == "umbenennen":
+            u["name"] = ziel.stem[:120]
+        schreib_json("uploads.json", ups)
+        return upload_eintrag(uid, u)
+
+
+def upload_auslieferung(mime: str) -> tuple[str, bool]:
+    """(Content-Type, als Download) für /upload/<id>. Bilder, Videos, Audio und PDF zeigt der Browser;
+    Text kommt immer als text/plain (nie als HTML der eigenen Seite), alles andere als Download."""
+    if mime.startswith(("image/", "video/", "audio/")) or mime == "application/pdf":
+        return mime, False
+    if mime.startswith("text/") or mime in ("application/json", "application/xml"):
+        return "text/plain; charset=utf-8", False
+    return "application/octet-stream", True
+
+
 def nutzerordner(owner: str) -> str:
     """Unterordner je Konto in der Ablage. Das Werkstatt-Konto legt ohne Zwischenordner ab:
     <Ablage>\\Bilder|Videos|Audio\\JJJJ-MM\\… statt <Ablage>\\werkstatt\\Bilder\\…"""
@@ -825,8 +1168,10 @@ def referenz_daten(ref: str, owner: str) -> str | None:
         u = ups.get(ref)
         if not u or u["owner"] != owner:
             return None
-        f = uploads_ordner() / u["datei"]
+        f = upload_pfad(u)
         mime = u["mime"]
+        if not f or mime not in REF_MIMES or (f.is_file() and f.stat().st_size > MAX_UPLOAD):
+            return None  # nur PNG/JPEG/WebP/GIF bis 12 MB – Videos, SVG, Texte taugen nicht als Referenzbild
     if not f.is_file() or mime == "image/svg+xml" or not mime.startswith("image/"):
         return None      # Videos und SVG taugen nicht als Referenzbild
     return f"data:{mime};base64," + base64.b64encode(f.read_bytes()).decode("ascii")
@@ -2174,8 +2519,8 @@ def vorlage_als_upload(name: str, rel: str) -> dict:
     if not mime.startswith("image/") or f.stat().st_size > MAX_UPLOAD:
         raise Fehler(400, "Nur Bild-Vorlagen bis 12 MB lassen sich übernehmen.")
     uid, endung = neue_id(), bild_typ(f.read_bytes()[:64])[1]
-    shutil.copyfile(f, uploads_ordner() / f"{uid}.{endung}")
     with LOCK:
+        shutil.copyfile(f, uploads_ordner() / f"{uid}.{endung}")
         ups = lies_json("uploads.json", {})
         ups[uid] = {"owner": name, "datei": f"{uid}.{endung}", "mime": mime, "erstellt": jetzt(), "name": f.stem[:120]}
         schreib_json("uploads.json", ups)
@@ -2186,6 +2531,7 @@ def vorlage_als_upload(name: str, rel: str) -> dict:
 STATIC = {"index.html": "text/html; charset=utf-8", "app.css": "text/css; charset=utf-8",
           "app.js": "text/javascript; charset=utf-8", "chat.js": "text/javascript; charset=utf-8", "medien.js": "text/javascript; charset=utf-8",
           "influencer.js": "text/javascript; charset=utf-8", "bewegung.js": "text/javascript; charset=utf-8", "influencer_vorlagen.json": "application/json; charset=utf-8",
+          "uploads.js": "text/javascript; charset=utf-8",
           "muster_haupttaenzer.webp": "image/webp", "logo.jpg": "image/jpeg", "favicon.svg": "image/svg+xml"}
 
 
@@ -2260,8 +2606,11 @@ class Handler(BaseHTTPRequestHandler):
         self._kopf_sicherheit()
         if mime.startswith(("image/", "video/", "audio/")):
             self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+        if mime.startswith("text/plain"):
+            self.send_header("Content-Security-Policy", "default-src 'none'; sandbox")
         if download:
-            self.send_header("Content-Disposition", f'attachment; filename="{download}"')
+            einfach = re.sub(r'[^\w .()-]', "_", download.encode("ascii", "replace").decode("ascii")) or "datei"
+            self.send_header("Content-Disposition", f"attachment; filename=\"{einfach}\"; filename*=UTF-8''{quote(download)}")
         self.end_headers()
         with open(f, "rb") as fh:
             fh.seek(anfang)
@@ -2376,9 +2725,13 @@ class Handler(BaseHTTPRequestHandler):
                 mime = "audio/wav" if f.suffix == ".wav" else "audio/mpeg"
         else:
             u = lies_json("uploads.json", {}).get(teile[1])
-            if not u or u["owner"] != name:
+            f = upload_pfad(u) if u and u["owner"] == name else None
+            if not f:
                 raise Fehler(404, "Nicht gefunden.")
-            f, mime, dl = uploads_ordner() / u["datei"], u["mime"], u["datei"]
+            mime, zwingend = upload_auslieferung(u["mime"])
+            dl = f.name
+            if zwingend and f.is_file():
+                return self.datei(f, mime, dl, cache=True)
         if not f.is_file():
             raise Fehler(404, "Datei fehlt.")
         self.datei(f, mime, dl if "dl" in parse_qs(url.query) else "", cache=True)
@@ -2393,6 +2746,9 @@ class Handler(BaseHTTPRequestHandler):
         if p == "klon/upload" and post:          # Rohdaten (Video) statt JSON
             name, _ = self._nutzer(True)
             return self._klon_upload(name)
+        if p == "uploads/datei" and post:        # eigene Datei jeder Art als Rohdaten (Bibliothek › Uploads)
+            name, _ = self._nutzer(True)
+            return self._upload_datei(name, q.get("ordner", ""))
         e = self._koerper() if post else {}
 
         # --- ohne Sitzung: nur Stand und Einlass. Eine Anmeldung gibt es nicht mehr (06.10.2026);
@@ -2680,13 +3036,22 @@ class Handler(BaseHTTPRequestHandler):
             if not typ or not typ[0].startswith("image/") or typ[0] == "image/svg+xml":
                 raise Fehler(400, "Nur PNG, JPEG, WebP oder GIF.")
             uid = neue_id()
-            (uploads_ordner() / f"{uid}.{typ[1]}").write_bytes(roh)
-            with LOCK:
+            with LOCK:          # Datei und Eintrag zusammen – sonst trägt ein gleichzeitiger Abgleich sie doppelt ein
+                (uploads_ordner() / f"{uid}.{typ[1]}").write_bytes(roh)
                 ups = lies_json("uploads.json", {})
                 ups[uid] = {"owner": name, "datei": f"{uid}.{typ[1]}", "mime": typ[0], "erstellt": jetzt(),
                             "name": str(e.get("name", ""))[:120]}
                 schreib_json("uploads.json", ups)
             return self.json({"ok": True, "id": uid, "url": f"/upload/{uid}"})
+
+        # --- Uploads (eigene Dateien jeder Art, auch im Explorer hineingelegte)
+        if p == "uploads" and not post:
+            return self.json({"ok": True, **uploads_liste(name, q)})
+        if p == "uploads/ordner" and post:
+            liste, neu = upload_ordner_aendern(name, e)
+            return self.json({"ok": True, "ordner": liste, "name": neu})
+        if p.startswith("upload/") and post and ID_RE.match(p[7:]):
+            return self.json({"ok": True, "upload": upload_aendern(name, p[7:], e)})
 
         # --- Bibliothek
         if p == "bilder" and not post:
@@ -2839,6 +3204,34 @@ class Handler(BaseHTTPRequestHandler):
                         "name": re.sub(r"[^\w .-]", "", unquote(self.headers.get("X-Dateiname", "")))[:120]}
             schreib_json("klon_uploads.json", ups)
         return self.json({"ok": True, "id": uid})
+
+    def _upload_datei(self, name: str, ordner: str):
+        """Eigene Datei (Bild, Video, Audio, Text, Vorlage …) als Rohdaten, max. 500 MB. Sie behält ihren Namen
+        (bei Gleichstand „name (2).endung“), damit man sie im Explorer wiederfindet."""
+        laenge = int(self.headers.get("Content-Length") or 0)
+        if not 0 < laenge <= UPLOAD_DATEI_MAX:
+            raise Fehler(413, "Leere Datei oder größer als 500 MB.")
+        ziel_ordner = upload_zielordner(ordner, anlegen=True)
+        dateiname = upload_name_ok(unquote(self.headers.get("X-Dateiname", ""))) or "datei"
+        teil = ziel_ordner / f".{neue_id()}.part"          # beginnt mit „.“ → wird beim Abgleich übersprungen
+        rest = laenge
+        try:
+            with open(teil, "wb") as f:
+                while rest > 0:
+                    stueck = self.rfile.read(min(1 << 20, rest))
+                    if not stueck:
+                        break
+                    f.write(stueck)
+                    rest -= len(stueck)
+            if rest > 0:
+                raise Fehler(400, "Upload unvollständig.")
+            with LOCK:
+                ziel = _frei(ziel_ordner / dateiname)
+                os.replace(teil, ziel)
+                eintrag = upload_registrieren(name, ziel)
+        finally:
+            teil.unlink(missing_ok=True)
+        return self.json({"ok": True, "upload": eintrag})
 
     def _stimm_upload(self, name: str):
         """Stimmprobe als Rohdaten, max. 15 MB. Audio aller Art sowie WebM/MP4 aus Browser-Aufnahmen."""

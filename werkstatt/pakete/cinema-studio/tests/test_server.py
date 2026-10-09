@@ -707,6 +707,148 @@ class Startbild(unittest.TestCase):
         self.assertEqual(server.startbild_angleichen(url, "9:16", "aus", ff), (url, ""))
 
 
+class Uploads(unittest.TestCase):
+    """Bibliothek › Uploads: Dateien jeder Art, eigene Ordner, im Explorer hineingelegte Dateien."""
+
+    def setUp(self):
+        self.alt_data, self.alt_ablage = server.DATA, os.environ["BILDGEN_ABLAGE"]
+        server.DATA = Path(tempfile.mkdtemp(prefix="bildgen_up_"))
+        os.environ["BILDGEN_ABLAGE"] = str(server.DATA / "Ablage")
+        server.verzeichnisse()
+        server.schreib_json("benutzer.json", {server.zugang.KONTO: {"name": "Werkstatt", "rolle": "admin"}})
+        self.srv = server.ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        self.port = self.srv.server_address[1]
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+        token, self.csrf = server.sitzung_neu(server.zugang.KONTO)
+        self.kopf = {"Host": f"127.0.0.1:{self.port}", "Cookie": f"bildgen_sid={token}", "X-CSRF": self.csrf}
+        self.w = server.uploads_ordner()
+
+    def tearDown(self):
+        self.srv.shutdown()
+        server.DATA = self.alt_data
+        os.environ["BILDGEN_ABLAGE"] = self.alt_ablage
+
+    def req(self, methode, pfad, body=None, kopf=None):
+        c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
+        h = {**self.kopf, **(kopf or {})}
+        if isinstance(body, dict):
+            body = json.dumps(body).encode()
+            h["Content-Type"] = "application/json"
+        c.request(methode, pfad, body=body, headers=h)
+        r = c.getresponse()
+        roh = r.read()
+        try:
+            j = json.loads(roh)
+        except ValueError:
+            j = None
+        return r.status, j, r, roh
+
+    def liste(self, q=""):
+        st, j, _, _ = self.req("GET", "/api/uploads" + q)
+        self.assertEqual(st, 200, j)
+        return j
+
+    def test_explorer_dateien_und_ordner(self):
+        # Wie im Explorer hineingelegt – ohne Eintrag in uploads.json
+        (self.w / "03-modell.png").write_bytes(png())
+        (self.w / "Charaktere").mkdir()
+        (self.w / "Charaktere" / "blatt.png").write_bytes(png(6, 4))
+        (self.w / "notizen.txt").write_text("Figur: rote Jacke", encoding="utf-8")
+        (self.w / "clip.mp4").write_bytes(mp4())
+        (self.w / "boese.html").write_text("<script>alert(1)</script>", encoding="utf-8")
+        for intern in ("clone", "_papierkorb", ".versteckt"):
+            (self.w / intern).mkdir(exist_ok=True)
+            (self.w / intern / "x.png").write_bytes(png())
+        (self.w / ".abc.part").write_bytes(b"halb")
+        (self.w / "desktop.ini").write_text("[x]")
+        j = self.liste()
+        namen = sorted(u["datei"] for u in j["uploads"])
+        self.assertEqual(namen, ["03-modell.png", "Charaktere/blatt.png", "boese.html", "clip.mp4", "notizen.txt"])
+        self.assertEqual(j["gesamt"], 5)
+        self.assertEqual(j["ordner"], [{"name": "Charaktere", "anzahl": 1}])
+        nach = {u["dateiname"]: u for u in j["uploads"]}
+        self.assertEqual((nach["blatt.png"]["typ"], nach["blatt.png"]["ordner"], nach["blatt.png"]["breite"], nach["blatt.png"]["hoehe"]),
+                         ("bild", "Charaktere", 6, 4))
+        self.assertTrue(nach["03-modell.png"]["nutzbar"])
+        self.assertEqual((nach["clip.mp4"]["typ"], nach["notizen.txt"]["typ"], nach["boese.html"]["typ"]), ("video", "text", "text"))
+        self.assertFalse(nach["clip.mp4"]["nutzbar"])
+        self.assertEqual(len(self.liste("?typ=bild")["uploads"]), 2)
+        self.assertEqual([u["dateiname"] for u in self.liste("?ordner=Charaktere")["uploads"]], ["blatt.png"])
+        self.assertEqual(len(self.liste("?ordner=-")["uploads"]), 4)
+        self.assertEqual([u["dateiname"] for u in self.liste("?q=modell")["uploads"]], ["03-modell.png"])
+        # Erneutes Öffnen legt nichts doppelt an
+        self.assertEqual(len(server.lies_json("uploads.json", {})), 5)
+        self.liste()
+        self.assertEqual(len(server.lies_json("uploads.json", {})), 5)
+        # Ausliefern: Bild als Bild, HTML/Text nie als Seite
+        st, _, r, roh = self.req("GET", nach["03-modell.png"]["url"])
+        self.assertEqual((st, r.getheader("Content-Type"), roh), (200, "image/png", png()))
+        st, _, r, _ = self.req("GET", nach["boese.html"]["url"])
+        self.assertEqual(r.getheader("Content-Type"), "text/plain; charset=utf-8")
+        self.assertIn("sandbox", r.getheader("Content-Security-Policy"))
+        # Als Referenz/Startbild/Vorlage taugen nur Bilder
+        self.assertTrue(server.referenz_daten(nach["blatt.png"]["id"], server.zugang.KONTO).startswith("data:image/png;base64,"))
+        self.assertIsNone(server.referenz_daten(nach["notizen.txt"]["id"], server.zugang.KONTO))
+        self.assertIsNone(server.referenz_daten(nach["blatt.png"]["id"], "jemand-anders"))
+        # Im Explorer verschoben: die Id bleibt (Verweise aus früheren Aufträgen stimmen weiter)
+        (self.w / "Neu").mkdir()
+        os.replace(self.w / "Charaktere" / "blatt.png", self.w / "Neu" / "blatt.png")
+        neu = {u["dateiname"]: u for u in self.liste()["uploads"]}
+        self.assertEqual((neu["blatt.png"]["id"], neu["blatt.png"]["ordner"]), (nach["blatt.png"]["id"], "Neu"))
+
+    def test_hochladen_ordner_und_aktionen(self):
+        def hoch(name, daten, ordner=""):
+            return self.req("POST", "/api/uploads/datei?ordner=" + ordner, daten,
+                            {"Content-Type": "application/octet-stream", "X-Dateiname": name})
+        st, j, _, _ = hoch("Mein%20Bild.png", png(), "Projekt")
+        self.assertEqual(st, 200, j)
+        self.assertEqual((j["upload"]["datei"], j["upload"]["typ"]), ("Projekt/Mein Bild.png", "bild"))
+        self.assertEqual(hoch("Mein%20Bild.png", png(), "Projekt")[1]["upload"]["dateiname"], "Mein Bild (2).png")
+        st, j, _, _ = hoch("..%2F..%2Fdrehbuch.md", "# Szene 1".encode())
+        self.assertEqual((j["upload"]["datei"], j["upload"]["typ"]), ("drehbuch.md", "text"), "kein Weg aus uploads heraus")
+        self.assertTrue((self.w / "drehbuch.md").is_file())
+        for falsch in ("_intern", "clone", "Clone"):
+            self.assertEqual(hoch("a.png", png(), falsch)[0], 400, falsch)
+        self.assertEqual(self.req("POST", "/api/uploads/datei", png(), {"X-CSRF": "falsch", "X-Dateiname": "a.png"})[0], 403)
+        # Eigene Ordner: anlegen, umbenennen, auflösen (Dateien bleiben)
+        st, j, _, _ = self.req("POST", "/api/uploads/ordner", {"name": "Kunden"})
+        self.assertEqual((st, j["name"]), (200, "Kunden"))
+        self.assertEqual(self.req("POST", "/api/uploads/ordner", {"name": "a/b:c"})[1]["name"], "abc")
+        st, j, _, _ = self.req("POST", "/api/uploads/ordner", {"name": "Projekt", "neu": "Projekt 2026"})
+        self.assertEqual(j["name"], "Projekt 2026")
+        self.assertIn({"name": "Projekt 2026", "anzahl": 2}, j["ordner"])
+        bilder = self.liste("?ordner=Projekt 2026".replace(" ", "%20"))["uploads"]
+        self.assertEqual(sorted(u["datei"] for u in bilder), ["Projekt 2026/Mein Bild (2).png", "Projekt 2026/Mein Bild.png"])
+        st, j, _, _ = self.req("POST", "/api/uploads/ordner", {"name": "Projekt 2026", "loeschen": True})
+        self.assertNotIn("Projekt 2026", [o["name"] for o in j["ordner"]])
+        self.assertTrue((self.w / "Mein Bild.png").is_file() and (self.w / "Mein Bild (2).png").is_file())
+        uid = next(u["id"] for u in self.liste()["uploads"] if u["dateiname"] == "Mein Bild.png")
+        # Einzelne Datei: verschieben, umbenennen (Endung bleibt), löschen → _papierkorb
+        st, j, _, _ = self.req("POST", f"/api/upload/{uid}", {"aktion": "ordner", "ordner": "Kunden"})
+        self.assertEqual(j["upload"]["datei"], "Kunden/Mein Bild.png")
+        st, j, _, _ = self.req("POST", f"/api/upload/{uid}", {"aktion": "umbenennen", "name": "Profil"})
+        self.assertEqual(j["upload"]["datei"], "Kunden/Profil.png")
+        self.assertEqual(self.req("POST", f"/api/upload/{uid}", {"aktion": "ordner", "ordner": "Gibtsnicht"})[0], 404)
+        st, j, _, _ = self.req("POST", f"/api/upload/{uid}", {"aktion": "loeschen"})
+        self.assertEqual(st, 200, j)
+        self.assertTrue((self.w / "_papierkorb" / "Profil.png").is_file())
+        self.assertNotIn(uid, [u["id"] for u in self.liste()["uploads"]])
+        self.assertEqual(self.req("POST", f"/api/upload/{uid}", {"aktion": "ordner", "ordner": ""})[0], 404)
+        # Auch Bilder aus dem +-Menü („Bild hochladen“) erscheinen in Uploads
+        daten = "data:image/png;base64," + base64.b64encode(png()).decode()
+        st, j, _, _ = self.req("POST", "/api/upload", {"daten": daten, "name": "referenz.png"})
+        self.assertIn(j["id"], [u["id"] for u in self.liste()["uploads"]])
+
+    def test_namen(self):
+        self.assertEqual(server.upload_name_ok('..\\..\\a<b>.png'), "ab.png")
+        self.assertEqual(server.upload_name_ok("CON.txt"), "")
+        self.assertEqual(server.upload_name_ok("  . "), "")
+        self.assertEqual(server.upload_typ("application/pdf", "x.pdf"), "text")
+        self.assertEqual(server.upload_typ("application/zip", "x.zip"), "datei")
+        self.assertEqual(server.upload_auslieferung("text/html")[0], "text/plain; charset=utf-8")
+        self.assertEqual(server.upload_auslieferung("application/x-msdownload"), ("application/octet-stream", True))
+
+
 class Klon(unittest.TestCase):
     def test_bausteine(self):
         k = server.klon

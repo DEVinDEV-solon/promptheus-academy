@@ -280,7 +280,7 @@ async function angemeldet(nutzer, csrf) {
   $('#app').classList.remove('hidden');
   profilZeigen();
   railBauen();
-  await Promise.all([katalogLaden(), videoKatalogLaden(), audioKatalogLaden(), ordnerLaden(), elementeLaden()]).catch(fehler);
+  await Promise.all([katalogLaden(), videoKatalogLaden(), audioKatalogLaden(), ordnerLaden(), elementeLaden(), uploadsOrdnerLaden()]).catch(fehler);
   katalogHolen().catch(() => {});      // Katalog mit Kosten für alle Modellwahlen vorladen
   kontoLaden();
   await auftraegeLaden();
@@ -345,6 +345,10 @@ function profilZeigen() {
 }
 
 // ------------------------------------------------------------------ Menü links
+// Bibliothek › Uploads: eigene Dateien in <Ablage>\uploads (Ansicht „uploads“ bzw. „uploads:<ordner>“, Code in uploads.js)
+const UP = { liste: [], ordner: [], gesamt: null, art: '', pfad: '' };
+const istUploadAnsicht = a => a === 'uploads' || (a || '').startsWith('uploads:');
+S.bibOffen = speicher.lies('bibOffen', true);
 const NAV = [
   ['erstellen', 'Erstellen', 'funke', 'Bilder und Videos erzeugen – die letzten Ergebnisse liegen dahinter'],
   ['influencer', 'Influencer', 'profil', 'KI-Charaktere bauen: aus Vorlagen, aus deinem Foto oder aus bestehenden Figuren'],
@@ -375,6 +379,17 @@ function railBauen() {
           ${IF_SUB.map(([sid, stxt, stip]) => `<button data-nav="${sid}" class="${aktiv === sid ? 'active' : ''}" data-tip="${esc(stip)}"><span class="lbl">${stxt}</span></button>`).join('')}
         </div>`;
     }
+    if (id === 'bibliothek') {
+      return `<button data-nav="bibliothek" class="${aktiv === 'bibliothek' ? 'active' : ''} ${S.bibOffen ? 'open' : ''}" data-tip="${esc(tip)}">
+          <span class="ico">${ico(ic)}</span><span class="lbl">${txt}</span><span class="sub-arrow" data-pfeil="1" data-tip="Uploads ein-/ausklappen">${ico('rechts')}</span></button>
+        <div class="rail-sub ${S.bibOffen ? '' : 'hidden'}">
+          <button data-nav="uploads" class="${aktiv === 'uploads' ? 'active' : ''}" data-tip="Eigene Dateien jeder Art – hochladen oder im Explorer in ablage\\uploads legen">
+            <span class="lbl">Uploads</span>${UP.gesamt != null ? `<span class="badge">${UP.gesamt}</span>` : ''}</button>
+          ${UP.ordner.map(o => `<button data-nav="uploads:${esc(o.name)}" class="tief ${aktiv === 'uploads:' + o.name ? 'active' : ''}" data-tip="Upload-Ordner „${esc(o.name)}“ – Rechtsklick: hochladen, umbenennen, im Explorer zeigen, auflösen">
+            <span class="lbl">${esc(o.name)}</span><span class="badge">${o.anzahl}</span></button>`).join('')}
+          <button data-nav="uploads-neu" class="neu tief" data-tip="Einen eigenen Ordner in Uploads anlegen"><span class="lbl">+ Neuer Upload-Ordner</span></button>
+        </div>`;
+    }
     if (id === 'ordner') {
       return `<button data-nav="ordner" class="${aktiv.startsWith('ordner:') ? 'active' : ''} ${S.ordnerOffen ? 'open' : ''}" data-tip="${esc(tip)}">
           <span class="ico">${ico(ic)}</span><span class="lbl">${txt}</span><span class="sub-arrow">${ico('rechts')}</span></button>
@@ -396,6 +411,13 @@ $('#railNav').addEventListener('click', async ev => {
     S.ordnerOffen = !S.ordnerOffen; speicher.setz('ordnerOffen', S.ordnerOffen); railBauen(); return;
   }
   if (z === 'ordner-neu') { await ordnerNeu(); return; }
+  if (z === 'uploads-neu') { await uploadOrdnerNeu().catch(fehler); return; }
+  if (z === 'bibliothek') {
+    if ($('#rail').classList.contains('zu')) { $('#rail').classList.remove('zu'); speicher.setz('railZu', false); }
+    const pfeil = ev.target.closest('[data-pfeil]');
+    S.bibOffen = pfeil ? !S.bibOffen : true; speicher.setz('bibOffen', S.bibOffen);
+    if (pfeil) { railBauen(); return; }
+  }
   if (z === 'influencer') {
     if ($('#rail').classList.contains('zu')) { $('#rail').classList.remove('zu'); speicher.setz('railZu', false); }
     S.influencerOffen = !S.influencerOffen; speicher.setz('influencerOffen', S.influencerOffen);
@@ -406,6 +428,8 @@ $('#railNav').addEventListener('click', async ev => {
   if (innerWidth <= 700) $('#rail').classList.add('zu');
 });
 $('#railNav').addEventListener('contextmenu', ev => {
+  const u = ev.target.closest('[data-nav^="uploads:"]');
+  if (u) { ev.preventDefault(); return uploadOrdnerMenue(u, u.dataset.nav.slice(8)); }
   const b = ev.target.closest('[data-nav^="ordner:"]');
   if (!b) return;
   ev.preventDefault();
@@ -486,12 +510,15 @@ async function kontoLaden() {
 
 // ------------------------------------------------------------------ Ansichten
 const TITEL = { 'influencer:erstellen': 'Influencer · Erstellen', 'influencer:bewegung': 'Influencer · Bewegung', 'influencer:meine': 'Meine Influencer',
-  audio: 'Audio', modelle: 'Modelle', erstellen: 'Erstellen', bibliothek: 'Bibliothek', favoriten: 'Favoriten', elemente: 'Elemente', veroeffentlicht: 'Veröffentlicht', verbrauch: 'Verbrauch', papierkorb: 'Papierkorb' };
+  audio: 'Audio', modelle: 'Modelle', erstellen: 'Erstellen', bibliothek: 'Bibliothek', uploads: 'Uploads', favoriten: 'Favoriten', elemente: 'Elemente', veroeffentlicht: 'Veröffentlicht', verbrauch: 'Verbrauch', papierkorb: 'Papierkorb' };
 const bildAnsicht = a => ['erstellen', 'audio', 'bibliothek', 'favoriten', 'veroeffentlicht', 'papierkorb'].includes(a) || a.startsWith('ordner:');
 
 async function ansicht(a) {
   if (a.startsWith('ordner:') && !S.ordner.some(o => 'ordner:' + o.id === a)) a = 'bibliothek';
-  if (!TITEL[a] && !a.startsWith('ordner:')) a = 'erstellen';
+  if (a.startsWith('uploads:') && !UP.ordner.some(o => 'uploads:' + o.name === a)) a = 'uploads';
+  if (!TITEL[a] && !a.startsWith('ordner:') && !a.startsWith('uploads:')) a = 'erstellen';
+  const istUp = istUploadAnsicht(a);
+  if (istUp && !S.bibOffen) { S.bibOffen = true; speicher.setz('bibOffen', true); }
   S.ansicht = a; speicher.setz('ansicht', a);
   const istIf = a.startsWith('influencer:');
   if (istIf && !S.influencerOffen) { S.influencerOffen = true; speicher.setz('influencerOffen', true); }
@@ -500,18 +527,20 @@ async function ansicht(a) {
   auswahlBeenden();
   railBauen();
   const o = S.ordner.find(x => 'ordner:' + x.id === a);
-  $('#viewTitel').textContent = o ? o.name : TITEL[a];
+  $('#viewTitel').textContent = o ? o.name : istUp && a !== 'uploads' ? 'Uploads · ' + a.slice(8) : TITEL[a];
   const mitBildern = bildAnsicht(a);
-  $('#composer').classList.toggle('hidden', !mitBildern || a === 'papierkorb');
-  $('#wand').classList.toggle('ohne-composer', !mitBildern || a === 'papierkorb');
-  $('.suche').classList.toggle('hidden', !mitBildern);
-  $('#typFilter').classList.toggle('hidden', !mitBildern || a === 'audio');
+  $('#composer').classList.toggle('hidden', !(mitBildern || istUp) || a === 'papierkorb');
+  $('#wand').classList.toggle('ohne-composer', !(mitBildern || istUp) || a === 'papierkorb');
+  $('.suche').classList.toggle('hidden', !(mitBildern || istUp));
+  $('#typFilter').classList.toggle('hidden', !(mitBildern || istUp) || a === 'audio');
+  $$('#typFilter button').forEach(x => x.classList.toggle('an', istUp ? x.dataset.typ === 'uploads' : x.dataset.typ === S.typFilter));
   if (a === 'audio' && S.modus !== 'audio') modusSetzen('audio');
   $('#btnAuswahl').classList.toggle('hidden', !mitBildern);
-  $('#btnGroesse').classList.toggle('hidden', !mitBildern);
+  $('#btnGroesse').classList.toggle('hidden', !(mitBildern || istUp));
   $('#btnLeeren').classList.toggle('hidden', a !== 'papierkorb');
   $('#viewCount').textContent = '';
-  if (mitBildern) await bilderLaden();
+  if (istUp) await uploadsLaden();
+  else if (mitBildern) await bilderLaden();
   else if (a === 'verbrauch') await verbrauchZeigen();
   else if (a === 'elemente') elementeZeigen();
   else if (a === 'modelle') await katalogZeigen();
@@ -685,7 +714,9 @@ $('#wand').addEventListener('mouseout', ev => {
 $('#typFilter').addEventListener('click', ev => {
   const b = ev.target.closest('[data-typ]');
   if (!b) return;
+  if (b.dataset.typ === 'uploads') return ansicht('uploads');
   S.typFilter = b.dataset.typ;
+  if (istUploadAnsicht(S.ansicht)) return ansicht('bibliothek');      // zurück aus Uploads in die Bibliothek
   $$('#typFilter button').forEach(x => x.classList.toggle('an', x === b));
   bilderLaden();
 });
@@ -700,7 +731,7 @@ $('#wand').addEventListener('contextmenu', ev => {
 let sucheTimer;
 $('#suche').addEventListener('input', ev => {
   clearTimeout(sucheTimer);
-  sucheTimer = setTimeout(() => { S.suche = ev.target.value.trim(); bilderLaden(); }, 250);
+  sucheTimer = setTimeout(() => { S.suche = ev.target.value.trim(); if (istUploadAnsicht(S.ansicht)) uploadsLaden(); else bilderLaden(); }, 250);
 });
 (() => {
   const groessen = [260, 180, 360];
@@ -1266,7 +1297,8 @@ $('#btnPlus').onclick = () => {
   if (S.modus === 'video') return videoPlusMenue();
   menue($('#btnPlus'), [
     { ico: 'hochladen', txt: 'Bild hochladen …', klein: 'PNG, JPEG, WebP – auch per Ziehen oder Einfügen', fn: () => $('#fileIn').click() },
-    { ico: 'bilder', txt: 'Aus der Bibliothek wählen …', fn: bibliothekWaehlen },
+    { ico: 'bilder', txt: 'Aus der Bibliothek wählen …', fn: () => bibliothekWaehlen('refs') },
+    { ico: 'ordner', txt: 'Aus Uploads wählen …', klein: 'Eigene Bilder aus ablage\\uploads und deinen Ordnern', fn: () => bibliothekWaehlen('refs', 'uploads') },
     '-',
     { kopf: 'Elemente' },
     ...(S.elemente.length ? S.elemente.map(el => ({ ico: 'at', txt: el.name, klein: `${el.bilder.length} Bild(er) · ${el.art}`, haken: S.gen.elemente.some(e => e.id === el.id),
@@ -1306,25 +1338,63 @@ async function dateienHochladen(files, ziel = S.modus === 'video' ? vStandardZie
     if (files.length) { ev.preventDefault(); dateienHochladen(files); }
   });
 })();
-async function bibliothekWaehlen(ziel = 'refs') {
-  let alle = [];
-  try { alle = (await api('bilder?ansicht=alle&typ=bild')).bilder; } catch (e) { return fehler(e); }
-  if (!alle.length) return toast('Die Bibliothek enthält noch keine Bilder.');
+// Auswahl aus der Bibliothek oder aus Uploads (Reiter oben). quelle: 'bibliothek' | 'uploads'
+async function bibliothekWaehlen(ziel = 'refs', quelle = 'bibliothek') {
+  let alle = [], ups = [];
+  try {
+    [alle, ups] = await Promise.all([api('bilder?ansicht=alle&typ=bild').then(d => d.bilder),
+      api('uploads?typ=bild').then(d => { upUebernehmen(d); return d.uploads.filter(u => u.nutzbar); })]);
+  } catch (e) { return fehler(e); }
+  if (!alle.length && !ups.length) return toast('Noch keine Bilder – weder in der Bibliothek noch in Uploads.');
+  if (quelle === 'uploads' && !ups.length) toast('In Uploads liegen noch keine nutzbaren Bilder (PNG, JPEG, WebP oder GIF bis 12 MB).');
+  if (!(quelle === 'uploads' ? ups : alle).length) quelle = quelle === 'uploads' ? 'bibliothek' : 'uploads';
   const einzeln = ziel !== 'refs' && ziel !== 'vorlage';
-  const gewaehlt = new Set();
+  const gewaehlt = new Map();             // Id → Adresse, in der Reihenfolge des Anklickens (= @Bild 1, 2, 3)
+  let wrOrdner = '*';
   const titel = { start: 'Startbild wählen', ende: 'Endbild wählen', vorlage: `Vorlagen wählen (bis zu ${VORLAGEN_MAX})` }[ziel] || 'Referenzbilder wählen';
   const unter = einzeln ? 'Ein Bild anklicken – das Video beginnt bzw. endet mit diesem Bild.'
     : ziel === 'vorlage' ? 'Anklicken zum Auswählen. Vorlagen sind Grundlage für Figur, Aussehen und Stil – kein Startbild. Die Reihenfolge ergibt @Bild 1, 2, 3.'
       : 'Anklicken zum Auswählen. Die Bilder werden beim Erzeugen mitgeschickt.';
+  const kachel = (id, url, tip) => `<button data-id="${id}" data-url="${esc(url)}" class="${gewaehlt.has(id) ? 'an' : ''}" data-tip="${esc(tip)}"><img src="${esc(url)}" loading="lazy" alt=""></button>`;
+  const raster = () => (quelle === 'uploads'
+    ? ups.filter(u => wrOrdner === '*' || u.ordner === wrOrdner).slice(0, 300).map(u => kachel(u.id, u.url, (u.ordner ? u.ordner + ' › ' : '') + u.dateiname))
+    : alle.slice(0, 300).map(b => kachel(b.id, '/bild/' + b.id, b.prompt.slice(0, 140)))).join('') || '<p class="unter">Hier liegen keine passenden Bilder.</p>';
+  const ordnerChips = () => ['*', ...new Set(ups.map(u => u.ordner).filter(Boolean))]
+    .map(o => `<button data-wr-ordner="${esc(o)}" class="${wrOrdner === o ? 'an' : ''}">${o === '*' ? 'Alle' : ico('ordner') + ' ' + esc(o)}</button>`).join('');
   const erg = await modal(`<h3>${titel}</h3>
     <p class="unter">${unter}</p>
-    <div class="waehlraster" id="wr">${alle.slice(0, 300).map(b => `<button data-id="${b.id}" data-tip="${esc(b.prompt.slice(0, 140))}"><img src="/bild/${b.id}" loading="lazy" alt=""></button>`).join('')}</div>
+    <div id="wrBox">
+      <div class="wr-tabs filter"><button data-wr-quelle="bibliothek">Bibliothek <small>${alle.length}</small></button>
+        <button data-wr-quelle="uploads" data-tip="Eigene Bilder aus ablage\\uploads (PNG, JPEG, WebP, GIF bis 12 MB)">Uploads <small>${ups.length}</small></button></div>
+      <div class="up-chips wr-ordner" id="wrOrdner"></div>
+      <div class="waehlraster" id="wr"></div>
+    </div>
     <div class="knoepfe"><button class="btn" data-zu="null">Abbrechen</button><button class="btn primaer" data-zu="ok">Übernehmen</button></div>`,
-  { breit: true, beimOeffnen: c => { c.querySelector('#wr').onclick = ev => { const b = ev.target.closest('[data-id]'); if (!b) return; const id = b.dataset.id; if (einzeln) { gewaehlt.clear(); $$('#wr .an', c).forEach(x => x.classList.remove('an')); } if (gewaehlt.has(id)) gewaehlt.delete(id); else gewaehlt.add(id); b.classList.toggle('an', gewaehlt.has(id)); }; } });
+  { breit: true, beimOeffnen: c => {
+    const zeichnen = () => {
+      $$('[data-wr-quelle]', c).forEach(b => b.classList.toggle('an', b.dataset.wrQuelle === quelle));
+      c.querySelector('#wrOrdner').innerHTML = quelle === 'uploads' && ups.some(u => u.ordner) ? ordnerChips() : '';
+      c.querySelector('#wr').innerHTML = raster();
+    };
+    zeichnen();
+    c.querySelector('#wrBox').onclick = ev => {
+      const q = ev.target.closest('[data-wr-quelle]');
+      if (q) { quelle = q.dataset.wrQuelle; wrOrdner = '*'; return zeichnen(); }
+      const o = ev.target.closest('[data-wr-ordner]');
+      if (o) { wrOrdner = o.dataset.wrOrdner; return zeichnen(); }
+      const b = ev.target.closest('#wr [data-id]');
+      if (!b) return;
+      const id = b.dataset.id;
+      if (einzeln) { gewaehlt.clear(); $$('#wr .an', c).forEach(x => x.classList.remove('an')); }
+      if (gewaehlt.has(id)) gewaehlt.delete(id); else gewaehlt.set(id, b.dataset.url);
+      b.classList.toggle('an', gewaehlt.has(id));
+    };
+  } });
   if (erg !== 'ok') return;
-  if (einzeln) { const id = [...gewaehlt][0]; if (id) { vBildSetzen(ziel, { id, url: '/bild/' + id }); videoAktualisieren(); } return; }
-  if (ziel === 'vorlage') { for (const id of gewaehlt) vBildSetzen('vorlage', { id, url: '/bild/' + id }); videoAktualisieren(); return; }
-  for (const id of gewaehlt) if (!S.gen.refs.some(r => r.id === id)) S.gen.refs.push({ id, url: '/bild/' + id });
+  const wahl = [...gewaehlt].map(([id, url]) => ({ id, url }));
+  if (einzeln) { if (wahl[0]) { vBildSetzen(ziel, wahl[0]); videoAktualisieren(); } return; }
+  if (ziel === 'vorlage') { for (const w of wahl) vBildSetzen('vorlage', w); videoAktualisieren(); return; }
+  for (const w of wahl) if (!S.gen.refs.some(r => r.id === w.id)) S.gen.refs.push(w);
   genAktualisieren();
 }
 
@@ -1564,7 +1634,8 @@ function vRolleWaehlen(ziel, anker) {
   const r = V_ROLLEN[ziel];
   menue(anker, [{ kopf: r.wort },
     { ico: 'hochladen', txt: `${r.wort} hochladen …`, klein: 'PNG, JPEG, WebP – auch per Ziehen', fn: () => { S.uploadZiel = ziel; $('#fileIn').click(); } },
-    { ico: 'bilder', txt: `${r.wort} aus der Bibliothek …`, fn: () => bibliothekWaehlen(ziel) }], { seite: 'oben' });
+    { ico: 'bilder', txt: `${r.wort} aus der Bibliothek …`, fn: () => bibliothekWaehlen(ziel) },
+    { ico: 'ordner', txt: `${r.wort} aus Uploads …`, klein: 'Eigene Bilder aus ablage\\uploads', fn: () => bibliothekWaehlen(ziel, 'uploads') }], { seite: 'oben' });
 }
 function vRasterMenue(anker) {
   menue(anker, [{ kopf: 'Storyboard-Raster' },
@@ -1640,6 +1711,7 @@ function videoPlusMenue() {
     { kopf: V_ROLLEN[ziel].wort },
     { ico: 'hochladen', txt: `${V_ROLLEN[ziel].wort} hochladen …`, klein: 'PNG, JPEG, WebP – auch per Ziehen', fn: () => { S.uploadZiel = ziel; $('#fileIn').click(); } },
     { ico: 'bilder', txt: `${V_ROLLEN[ziel].wort} aus der Bibliothek …`, klein: ziel === 'vorlage' ? 'Grundlage, kein Startbild – bis zu 3' : '', fn: () => bibliothekWaehlen(ziel) },
+    { ico: 'ordner', txt: `${V_ROLLEN[ziel].wort} aus Uploads …`, klein: 'Eigene Bilder aus ablage\\uploads', fn: () => bibliothekWaehlen(ziel, 'uploads') },
   ] : [];
   const e = [...block('start'), ...block('ende'), ...block('vorlage')];
   if (e.length && vRolleMoeglich('vorlage', m)) e.push({ ico: 'bilder', txt: 'Storyboard-Raster …', klein: S.vgen.raster ? RASTER_ARTEN[S.vgen.raster] : 'Raster-Bild als Grundlage, Feld 1 = Startposition', fn: () => vRasterMenue($('#btnPlus')) });
