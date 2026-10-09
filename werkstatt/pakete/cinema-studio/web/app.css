@@ -785,3 +785,32 @@ img.fokus.blatt{object-position:0% 30%}
   .if-muster figure img{aspect-ratio:3/4}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- Bibliothek › Uploads (uploads.js) ---------- */
+.rail-sub .tief{padding-left:20px}
+.up-kopf{display:flex;flex-direction:column;gap:10px;margin:14px 2px 4px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+.up-reihe{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.up-reihe .btn{display:inline-flex;align-items:center;gap:7px}
+.up-reihe .btn svg{width:15px;height:15px}
+.up-lbl{font-size:11.5px;color:var(--muted);min-width:44px}
+.up-chips button{height:28px;border:1px solid var(--border2);background:transparent;color:var(--muted);border-radius:14px;padding:0 11px;font-size:12px;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.up-chips button svg{width:13px;height:13px}
+.up-chips button small{color:var(--muted2);font-size:10.5px}
+.up-chips button:hover{color:var(--txt);border-color:var(--muted2)}
+.up-chips button.an{background:rgba(230,204,136,.14);border-color:rgba(230,204,136,.45);color:var(--gold)}
+.up-hinweis{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5}
+.up-hinweis code{font-size:11px;color:var(--gold2);word-break:break-all}
+.karte.up-karte{cursor:pointer}
+.up-flaeche{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;text-align:center;
+  background:linear-gradient(160deg,var(--panel2),var(--bg2))}
+.up-flaeche .up-symbol svg{width:38px;height:38px;color:var(--gold2);opacity:.85}
+.up-flaeche b{font-size:11px;letter-spacing:.06em;color:var(--gold);border:1px solid rgba(230,204,136,.4);border-radius:5px;padding:0 6px}
+.up-flaeche p{margin:0;font-size:12px;color:var(--txt);word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.up-datei .fuss p{display:none}
+.wand.drop{outline:2px dashed var(--gold);outline-offset:-8px;border-radius:14px}
+/* Auswahldialog: Reiter Bibliothek | Uploads */
+.wr-tabs{display:inline-flex;margin:4px 0 10px;height:34px}
+.wr-tabs button small{color:var(--muted2);font-weight:400;margin-left:4px}
+.wr-ordner{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.wr-ordner:empty{display:none}
+@media (max-width:700px){.up-kopf{padding:10px}.up-lbl{min-width:0;width:100%}}
