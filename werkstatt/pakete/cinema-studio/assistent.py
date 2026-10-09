@@ -226,7 +226,32 @@ def anweisungen(modus: str, bildmodelle: list, videomodelle: list, kontext: dict
                   "Hook, CTA), aber NIE den Inhalt: keine fremden Marken, Personen, Texte oder Figuren kopieren – alles "
                   "durch die Marke und das Produkt des Nutzers ersetzen. Frage zuerst nach Marke/Produkt, falls unbekannt. "
                   "Gib danach einen Klon-Bauplan und je Szene einen ```videoprompt```-Block mit \"szene\" und \"titel\" aus."]
+    teile += ["", "# Bilder im Video-Modus (für technischen Rat)",
+              "Unter dem Eingabefeld gibt es im Video-Modus anklickbare Kästchen (und dieselbe Auswahl im +-Menü). "
+              "Jedes mitgegebene Bild hat eine Rolle; ein Klick auf das Rollenschild eines Bildes ändert sie:",
+              "- Startbild (frame_images first_frame): Das Video beginnt GENAU mit diesem Bild. Nur Modelle mit bilder=first_frame.",
+              "- Endbild (frame_images last_frame): Das Video endet genau mit diesem Bild. Nur Modelle mit bilder=…last_frame.",
+              "- Vorlage (input_references, bis zu 3 = @Bild 1, 2, 3 in der gewählten Reihenfolge): Grundlage für Figur, Aussehen, "
+              "Produkt oder Stil, aber KEIN Startbild. Den ersten Moment (Startposition) beschreibt der Text.",
+              "- Storyboard-Raster (Kästchen ▦, Arten 6 Felder 3×2, 4 Felder 2×2, 3 Felder 3×1): @Bild 1 ist ein zusammenhängendes "
+              "Raster; das Video beginnt wie Feld 1 und folgt den Feldern, ohne Raster, Trennlinien oder Ziffern zu zeigen.",
+              "Regeln: Vorlagen und Start-/Endbild schließen sich aus (OpenRouter behandelt beides zusammen als Bild-zu-Video, "
+              "die Vorlagen gingen unter). Ob ein Modell Vorlagen wirklich beachtet, ist nur für bytedance/seedance-2.0-fast "
+              "bestätigt – bei anderen ehrlich sagen, dass es unbestätigt ist, und zu einem kurzen, günstigen Test raten. "
+              "Bei Vorlagen und Raster setzt das Programm selbst einen deutschen Vorsatz vor den Prompt (welche Bilder Vorlagen sind, "
+              "wie das Raster zu lesen ist) – diesen Vorsatz NICHT im Feld \"prompt\" wiederholen; dort nur Startposition, "
+              "Handlung, Kamera, Licht und Ton beschreiben und die Bilder bei Bedarf mit @Bild 1/2/3 ansprechen.",
+              "Faustregeln: Startbild, wenn das Bild exakt so im Video erscheinen soll (z. B. ein fertiges Produktfoto animieren); "
+              "Start- + Endbild für eine gezielte Verwandlung oder einen Übergang; Vorlage, wenn eine Figur oder ein Profilblatt "
+              "(Charakter-Variante, Profil-Screen) nur als Grundlage dienen soll; Storyboard-Raster, wenn ein mehrteiliges "
+              "Storyboard-Bild den Ablauf vorgibt. Weicht ein Start-/Endbild vom Videoformat ab, erweitert oder beschneidet es "
+              "das Programm je nach Einstellung (Einstellungen → Video). Bilder setzt der Nutzer selbst, du kannst sie nicht anhängen."]
     k = kontext or {}
+    br = k.get("bildrollen") if isinstance(k.get("bildrollen"), dict) else {}
+    if k.get("modus") == "video" and br:
+        teile.append(f"Gerade gesetzt: Startbild {'ja' if br.get('start') else 'nein'} · Endbild {'ja' if br.get('ende') else 'nein'} · "
+                     f"Vorlagen {min(int(br['vorlagen']), 3) if str(br.get('vorlagen') or '').isdigit() else 0} · Storyboard-Raster "
+                     f"{str(br.get('raster') or 'aus')[:8]}")
     if k.get("modus") == "audio" and modus not in ("drehbuch", "klon"):
         teile += ["", "# Modus Audio (Sprachausgabe)",
                   "Der Nutzer erzeugt gerade eine Sprachausgabe: Ein Sprachmodell liest den Text mit der eingestellten Stimme vor. "

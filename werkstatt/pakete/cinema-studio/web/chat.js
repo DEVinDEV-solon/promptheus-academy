@@ -290,7 +290,8 @@ async function karteErzeugen(k) {
     await audioErzeugen({ prompt: k.prompt, ...(k.modell ? { modell: k.modell } : {}) });
   } else if (k.art === 'video') {
     await erzeugen({ art: 'video', modell: k.modell, prompt: k.prompt, seitenverhaeltnis: k.seitenverhaeltnis, aufloesung: k.aufloesung,
-      dauer: k.dauer, ton: k.ton, anzahl: k.anzahl, startbild: S.vgen.start?.id || '', endbild: '' });
+      dauer: k.dauer, ton: k.ton, anzahl: k.anzahl, startbild: S.vgen.start?.id || '', endbild: S.vgen.ende?.id || '',
+      vorlagen: S.vgen.vorlagen.map(v => v.id), raster: S.vgen.raster });
   } else {
     await erzeugen({ modell: k.modell, prompt: k.prompt, seitenverhaeltnis: k.seitenverhaeltnis, aufloesung: k.aufloesung,
       qualitaet: k.qualitaet, anzahl: k.anzahl, hintergrund: '', refs: S.gen.refs.map(r => r.id), elemente: S.gen.elemente.map(e => e.id) });
@@ -357,7 +358,8 @@ async function chatSenden(zusatz = {}) {
   C.laeuft = true; knopfZustand();
   C.steuerung = new AbortController();
   const kontext = { modus: S.modus, modell: S.modus === 'video' ? S.vgen.modell : S.modus === 'audio' ? A.gen.modell : S.gen.modell,
-    bildmodell: S.gen.modell, videomodell: S.vgen.modell, audiomodell: A.gen.modell, prompt: pr.value, ...influencerKontext(), ...zusatz };
+    bildmodell: S.gen.modell, videomodell: S.vgen.modell, audiomodell: A.gen.modell, prompt: pr.value, ...influencerKontext(),
+    bildrollen: { start: !!S.vgen.start, ende: !!S.vgen.ende, vorlagen: S.vgen.vorlagen.length, raster: S.vgen.raster }, ...zusatz };
   let fertig = null;
   try {
     const r = await fetch(`/api/chat/${C.chat.id}/senden`, { method: 'POST', signal: C.steuerung.signal,

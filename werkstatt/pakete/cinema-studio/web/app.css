@@ -200,6 +200,16 @@ button:disabled{cursor:default}
 .karte:hover .laenge{opacity:0}
 .lb-bild video{max-width:100%;max-height:100%;border-radius:10px;box-shadow:var(--shadow);background:#000}
 .ref .rolle{position:absolute;left:0;right:0;bottom:0;font-size:9.5px;text-align:center;background:rgba(0,0,0,.65);color:var(--gold);line-height:15px}
+.ref .rolle[data-vwechsel]{cursor:pointer}
+.ref .rolle[data-vwechsel]:hover{background:rgba(230,204,136,.85);color:#111}
+/* Bildrollen im Video als anklickbare Kästchen */
+.rollenfeld{height:52px;min-width:70px;padding:0 10px;border:1px dashed var(--border2);border-radius:9px;background:transparent;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;cursor:pointer;transition:.15s}
+.rollenfeld .plus{font-size:16px;line-height:1}
+.rollenfeld:hover{border-color:var(--gold);color:var(--gold);background:rgba(230,204,136,.06)}
+.rollenfeld.an{border-style:solid;border-color:var(--gold);color:var(--gold);background:rgba(230,204,136,.14)}
+.rollenfeld.aus{opacity:.38;cursor:not-allowed}
+.rollenfeld.aus:hover{border-color:var(--border2);color:var(--muted);background:transparent}
 
 /* ---------- Seitenchat rechts ---------- */
 .seitenchat{width:400px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;

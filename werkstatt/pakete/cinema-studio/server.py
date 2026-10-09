@@ -1334,6 +1334,30 @@ def video_auftrag_ausfuehren(job: dict, nutzlasten: list, info: dict, vorhandene
                          "bilder": len(job["bilder"]), "kosten": job["kosten"], "tokens": 0, "status": job["status"]})
 
 
+# Bildrollen im Video: Startbild/Endbild gehen als frame_images (das Video zeigt sie wörtlich),
+# Vorlagen als input_references (Grundlage für Figur, Aussehen, Stil – kein Startbild).
+# Laut OpenRouter wird ein Auftrag mit beidem als Bild-zu-Video behandelt, die Vorlagen können
+# dann untergehen – deshalb schließen sich die beiden Rollen aus.
+VORLAGEN_MAX = 3
+RASTER = {"3x2": (3, 2), "2x2": (2, 2), "3x1": (3, 1)}     # Spalten, Reihen
+
+
+def vorlagen_prompt(prompt: str, anzahl: int, raster: str = "") -> str:
+    """Deutscher Vorsatz, der dem Videomodell sagt, wofür die mitgeschickten Bilder da sind."""
+    namen = ", ".join(f"@Bild {i}" for i in range(1, anzahl + 1))
+    teile = [f"Mitgeschickte Vorlage{'n' if anzahl > 1 else ''} {namen}"
+             f"{' (in dieser Reihenfolge)' if anzahl > 1 else ''}: Grundlage für Figur, Aussehen, Produkt und Stil"
+             " – kein Startbild. Das Video beginnt mit der beschriebenen Startposition."]
+    if raster in RASTER:
+        sp, rh = RASTER[raster]
+        n = sp * rh
+        teile.append(f"@Bild 1 ist ein zusammenhängendes {n}-Panel-Storyboard-Raster ({sp} Spalten, {rh} "
+                     f"{'Reihen' if rh > 1 else 'Reihe'}), die Felder 1–{n} von links oben nach rechts unten gelesen. "
+                     f"Setze es als ein durchgehendes Video um: Startposition wie in Feld 1, dann Feld für Feld bis Feld {n}. "
+                     "Im Video kein Raster, keine Trennlinien und keine Ziffern; Person, Produkt, Kulisse und Licht wie in den Feldern.")
+    return "\n".join(teile) + "\n\n" + prompt
+
+
 def video_auftrag_starten(owner: str, e: dict) -> dict:
     m = videomodell(str(e.get("modell", "")))
     if not m or m["art"] != "erzeugen":
@@ -1384,11 +1408,36 @@ def video_auftrag_starten(owner: str, e: dict) -> dict:
         parameter[feld] = ref
     if frames:
         nl["frame_images"] = frames
+    vorlagen = [str(x) for x in (e.get("vorlagen") or []) if str(x or "")]
+    raster = str(e.get("raster") or "")
+    if len(vorlagen) > VORLAGEN_MAX:
+        raise ValueError(f"Höchstens {VORLAGEN_MAX} Vorlagen je Video.")
+    if len(set(vorlagen)) != len(vorlagen):
+        raise ValueError("Jede Vorlage nur einmal mitgeben.")
+    if raster and raster not in RASTER:
+        raise ValueError("Unbekanntes Storyboard-Raster.")
+    if raster and not vorlagen:
+        raise ValueError("Das Storyboard-Raster braucht das Raster-Bild als Vorlage (@Bild 1).")
+    if vorlagen and frames:
+        raise ValueError("Vorlagen und Start-/Endbild schließen sich aus – bitte nur eine der beiden Rollen verwenden.")
+    vrefs = []
+    for ref in vorlagen:
+        url = referenz_daten(ref, owner)
+        if not url:
+            raise ValueError("Eine Vorlage ist nicht verfügbar.")
+        vrefs.append({"type": "image_url", "image_url": {"url": url}})
+        refs.append(ref)
+    if vrefs:
+        nl["input_references"] = vrefs
+        nl["prompt"] = vorlagen_prompt(prompt, len(vrefs), raster)
+        parameter["vorlagen"] = vorlagen
+        if raster:
+            parameter["raster"] = raster
     info = {"prompt": prompt, "modell": m["id"], "modell_name": m["name"], "parameter": parameter, "refs": refs}
     job = {"id": neue_id(), "owner": owner, "art": "video", "status": "laufend", "gesamt": n, "bilder": [],
            "fehler": [], "prompt": prompt, "modell": m["id"], "modell_name": m["name"], "parameter": parameter,
            "refs": refs, "start": jetzt(), "ende": None, "kosten": 0.0, "tokens": 0,
-           "schaetzung": schaetzen_video(m, aufl, parameter.get("dauer", 0), parameter.get("ton", False), bool(frames), n)}
+           "schaetzung": schaetzen_video(m, aufl, parameter.get("dauer", 0), parameter.get("ton", False), bool(frames or vrefs), n)}
     if erweitern:
         em = erweitern_modell(fmt)
         if not em:

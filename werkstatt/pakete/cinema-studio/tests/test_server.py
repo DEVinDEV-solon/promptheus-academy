@@ -428,6 +428,40 @@ class Video(unittest.TestCase):
             time.sleep(0.05)
         self.fail("Auftrag wurde nicht fertig")
 
+    def test_vorlagen_und_raster(self):
+        ups = {}
+        for owner in ("vid", "vid", "vid", "andere"):
+            up = server.neue_id()
+            (server.uploads_ordner() / f"{up}.png").write_bytes(png())
+            ups[up] = {"owner": owner, "datei": f"{up}.png", "mime": "image/png"}
+        server.schreib_json("uploads.json", ups)
+        ids = list(ups)
+        basis = {"modell": FAKEV["id"], "prompt": "Figur tanzt am Strand"}
+        for falsch in ({"vorlagen": ids}, {"vorlagen": [ids[0], ids[0]]}, {"raster": "3x2"},
+                       {"vorlagen": ids[:1], "raster": "9x9"}, {"vorlagen": ids[:1], "startbild": ids[1]},
+                       {"vorlagen": [ids[3]]}):
+            with self.assertRaises(ValueError, msg=str(falsch)):
+                server.video_auftrag_starten("vid", {**basis, **falsch})
+        job = server.video_auftrag_starten("vid", {**basis, "vorlagen": ids[:3], "raster": "3x2"})
+        self.warte(job)
+        self.assertEqual(job["status"], "fertig", job["fehler"])
+        gesendet = [d for p_, d in self.aufrufe if p_ == "/videos"][-1]
+        self.assertNotIn("frame_images", gesendet, "Vorlagen sind kein Startbild")
+        self.assertEqual(len(gesendet["input_references"]), 3)
+        for r in gesendet["input_references"]:
+            self.assertEqual(r["type"], "image_url")
+            self.assertNotIn("frame_type", r)
+            self.assertTrue(r["image_url"]["url"].startswith("data:image/png;base64,"))
+        self.assertIn("6-Panel-Storyboard-Raster (3 Spalten, 2 Reihen)", gesendet["prompt"])
+        self.assertIn("@Bild 1, @Bild 2, @Bild 3 (in dieser Reihenfolge)", gesendet["prompt"])
+        self.assertTrue(gesendet["prompt"].endswith("\n\nFigur tanzt am Strand"))
+        self.assertEqual(job["prompt"], "Figur tanzt am Strand", "gespeichert bleibt die eigene Beschreibung")
+        self.assertEqual((job["parameter"]["vorlagen"], job["parameter"]["raster"]), (ids[:3], "3x2"))
+        eins = server.vorlagen_prompt("x", 1, "3x1")
+        self.assertIn("(3 Spalten, 1 Reihe)", eins)
+        self.assertNotIn("Reihenfolge", eins)
+        self.assertNotIn("Storyboard", server.vorlagen_prompt("x", 2))
+
     def test_masse_und_typ(self):
         self.assertEqual(server.bild_typ(mp4())[0], "video/mp4")
         self.assertEqual(server.video_masse(mp4(1080, 1920, 8000)), (1080, 1920, 8.0))
@@ -1179,6 +1213,11 @@ class Influencer(unittest.TestCase):
         self.assertIn("```influencer", t)
         self.assertIn("Goldkette", t)
         self.assertNotIn("```influencer", server.assistent.anweisungen("assistent", [], [], {"modus": "bild"}, "englisch"))
+        # technischer Rat zu den Bildrollen im Video, samt aktuellem Stand
+        v = server.assistent.anweisungen("assistent", [], [], {"modus": "video", "bildrollen": {"vorlagen": 7, "raster": "3x2"}}, "englisch")
+        for wort in ("Startbild (frame_images first_frame)", "Vorlage (input_references", "Storyboard-Raster", "schließen sich aus"):
+            self.assertIn(wort, v)
+        self.assertIn("Vorlagen 3 · Storyboard-Raster 3x2", v)
 
 
 if __name__ == "__main__":

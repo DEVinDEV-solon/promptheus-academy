@@ -77,7 +77,7 @@ const S = {
   schaetzung: null, ordnerOffen: speicher.lies('ordnerOffen', true), influencerOffen: speicher.lies('influencerOffen', false),
   // Video
   modus: speicher.lies('modus', 'bild'), typFilter: '', vmodelle: [], vempfohlen: [], vstandard: '', vkatalogFehler: '',
-  vgen: { modell: '', seitenverhaeltnis: '', aufloesung: '', dauer: 5, ton: true, anzahl: 1, start: null, ende: null },
+  vgen: { modell: '', seitenverhaeltnis: '', aufloesung: '', dauer: 5, ton: true, anzahl: 1, start: null, ende: null, vorlagen: [], raster: '' },
 };
 
 async function api(pfad, body) {
@@ -914,6 +914,7 @@ function oeffnen(id) {
         ${v ? `<dt>Länge</dt><dd>${laengeText(b.dauer || par.dauer)}</dd><dt>Ton</dt><dd>${par.ton ? 'ja' : 'nein'}</dd>` : ''}
         ${par.startbild ? `<dt>Startbild</dt><dd>${par.startbild_angepasst ? esc(par.startbild_angepasst.replace(/^Startbild /, '')) : 'ja'}</dd>` : ''}
         ${par.endbild ? `<dt>Endbild</dt><dd>${par.endbild_angepasst ? esc(par.endbild_angepasst.replace(/^Endbild /, '')) : 'ja'}</dd>` : ''}
+        ${par.vorlagen?.length ? `<dt>Vorlagen</dt><dd>${par.vorlagen.length}${par.raster ? ' · Storyboard-Raster ' + esc(RASTER_ARTEN[par.raster] || par.raster) : ''}</dd>` : ''}
         ${b.typ === 'audio' ? `<dt>Stimme</dt><dd>${esc(par.stimme || '')}${par.klon ? ' (geklont)' : ''}</dd><dt>Länge</dt><dd>${laengeText(b.dauer)}</dd>` : ''}
         <dt>Datei</dt><dd class="datei" data-tip="${esc(b.datei || '')}">${esc(b.dateiname || '')}</dd>
         ${b.breite ? `<dt>Pixel</dt><dd>${b.breite} × ${b.hoehe}</dd>` : ''}
@@ -1273,21 +1274,24 @@ $('#btnPlus').onclick = () => {
       : [{ txt: 'Noch keine Elemente', klein: 'Über „…“ an einem Bild → Element erstellen', aus: true }]),
   ], { seite: 'oben' });
 };
+// Video: Ohne ausdrückliches Ziel landen neue Bilder als Startbild – außer es wird gerade mit Vorlagen gearbeitet.
+const vStandardZiel = () => (S.vgen.vorlagen.length || S.vgen.raster ? 'vorlage' : 'start');
 $('#fileIn').onchange = async ev => {
-  const ziel = S.modus === 'video' ? (S.uploadZiel || 'start') : 'refs';
+  const ziel = S.modus === 'video' ? (S.uploadZiel || vStandardZiel()) : 'refs';
   S.uploadZiel = null;
   await dateienHochladen([...ev.target.files], ziel);
   ev.target.value = '';
 };
-async function dateienHochladen(files, ziel = S.modus === 'video' ? 'start' : 'refs') {
-  if (ziel !== 'refs') files = files.slice(0, 1);
+async function dateienHochladen(files, ziel = S.modus === 'video' ? vStandardZiel() : 'refs') {
+  if (ziel === 'vorlage') files = files.slice(0, Math.max(0, VORLAGEN_MAX - S.vgen.vorlagen.length) || 1);
+  else if (ziel !== 'refs') files = files.slice(0, 1);
   for (const f of files.filter(f => f.type.startsWith('image/'))) {
     if (f.size > 12 * 1024 * 1024) { toast(`${f.name}: größer als 12 MB.`, 'fehler'); continue; }
     try {
       const daten = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
       const d = await api('upload', { daten, name: f.name });
       if (ziel === 'refs') S.gen.refs.push({ id: d.id, url: d.url });
-      else S.vgen[ziel] = { id: d.id, url: d.url };
+      else vBildSetzen(ziel, { id: d.id, url: d.url });
     } catch (e) { fehler(e); }
   }
   if (ziel === 'refs') genAktualisieren(); else videoAktualisieren();
@@ -1306,15 +1310,20 @@ async function bibliothekWaehlen(ziel = 'refs') {
   let alle = [];
   try { alle = (await api('bilder?ansicht=alle&typ=bild')).bilder; } catch (e) { return fehler(e); }
   if (!alle.length) return toast('Die Bibliothek enthält noch keine Bilder.');
-  const einzeln = ziel !== 'refs';
+  const einzeln = ziel !== 'refs' && ziel !== 'vorlage';
   const gewaehlt = new Set();
-  const erg = await modal(`<h3>${einzeln ? (ziel === 'start' ? 'Startbild wählen' : 'Endbild wählen') : 'Referenzbilder wählen'}</h3>
-    <p class="unter">${einzeln ? 'Ein Bild anklicken – das Video beginnt bzw. endet mit diesem Bild.' : 'Anklicken zum Auswählen. Die Bilder werden beim Erzeugen mitgeschickt.'}</p>
+  const titel = { start: 'Startbild wählen', ende: 'Endbild wählen', vorlage: `Vorlagen wählen (bis zu ${VORLAGEN_MAX})` }[ziel] || 'Referenzbilder wählen';
+  const unter = einzeln ? 'Ein Bild anklicken – das Video beginnt bzw. endet mit diesem Bild.'
+    : ziel === 'vorlage' ? 'Anklicken zum Auswählen. Vorlagen sind Grundlage für Figur, Aussehen und Stil – kein Startbild. Die Reihenfolge ergibt @Bild 1, 2, 3.'
+      : 'Anklicken zum Auswählen. Die Bilder werden beim Erzeugen mitgeschickt.';
+  const erg = await modal(`<h3>${titel}</h3>
+    <p class="unter">${unter}</p>
     <div class="waehlraster" id="wr">${alle.slice(0, 300).map(b => `<button data-id="${b.id}" data-tip="${esc(b.prompt.slice(0, 140))}"><img src="/bild/${b.id}" loading="lazy" alt=""></button>`).join('')}</div>
     <div class="knoepfe"><button class="btn" data-zu="null">Abbrechen</button><button class="btn primaer" data-zu="ok">Übernehmen</button></div>`,
   { breit: true, beimOeffnen: c => { c.querySelector('#wr').onclick = ev => { const b = ev.target.closest('[data-id]'); if (!b) return; const id = b.dataset.id; if (einzeln) { gewaehlt.clear(); $$('#wr .an', c).forEach(x => x.classList.remove('an')); } if (gewaehlt.has(id)) gewaehlt.delete(id); else gewaehlt.add(id); b.classList.toggle('an', gewaehlt.has(id)); }; } });
   if (erg !== 'ok') return;
-  if (einzeln) { const id = [...gewaehlt][0]; if (id) { S.vgen[ziel] = { id, url: '/bild/' + id }; videoAktualisieren(); } return; }
+  if (einzeln) { const id = [...gewaehlt][0]; if (id) { vBildSetzen(ziel, { id, url: '/bild/' + id }); videoAktualisieren(); } return; }
+  if (ziel === 'vorlage') { for (const id of gewaehlt) vBildSetzen('vorlage', { id, url: '/bild/' + id }); videoAktualisieren(); return; }
   for (const id of gewaehlt) if (!S.gen.refs.some(r => r.id === id)) S.gen.refs.push({ id, url: '/bild/' + id });
   genAktualisieren();
 }
@@ -1502,7 +1511,7 @@ async function videoSchaetzen() {
   if (!m) { $('#genPreis').textContent = '–'; return; }
   try {
     const s = await api('schaetzen_video', { modell: m.id, aufloesung: g.aufloesung, dauer: g.dauer, ton: m.ton === true && g.ton,
-      mit_bild: !!g.start, anzahl: g.anzahl });
+      mit_bild: !!(g.start || g.ende || g.vorlagen.length), anzahl: g.anzahl });
     if (S.modus !== 'video') return;
     S.vschaetzung = s;
     const unbekannt = s.quelle === 'unbekannt';
@@ -1517,27 +1526,123 @@ async function videoSchaetzen() {
   } catch { $('#genPreis').textContent = '–'; }
 }
 
+// ---- Bildrollen im Video: Startbild · Endbild · Vorlage (+ Storyboard-Raster)
+// Start-/Endbild zeigt das Video wörtlich (frame_images). Vorlagen sind nur Grundlage für Figur, Aussehen und Stil
+// (input_references) – den ersten Moment beschreibt der Text. Beides zusammen behandelt OpenRouter als Bild-zu-Video,
+// die Vorlagen gingen dann unter; deshalb schließen sich die Rollen aus (Server prüft das ebenfalls).
+const VORLAGEN_MAX = 3;
+const VORLAGE_BESTAETIGT = ['bytedance/seedance-2.0-fast'];     // laut OpenRouter-Doku sicher; andere unbestätigt
+const RASTER_ARTEN = { '3x2': '6 Felder · 3 × 2', '2x2': '4 Felder · 2 × 2', '3x1': '3 Felder · 3 × 1' };
+const V_ROLLEN = {
+  start: { wort: 'Startbild', art: 'first_frame', tip: 'Startbild – das Video beginnt genau mit diesem Bild.' },
+  ende: { wort: 'Endbild', art: 'last_frame', tip: 'Endbild – das Video endet genau mit diesem Bild.' },
+  vorlage: { wort: 'Vorlage', tip: 'Vorlage – Grundlage für Figur, Aussehen, Produkt oder Stil, aber kein Startbild.\nDen ersten Moment beschreibst du im Text. Bis zu 3 Vorlagen (@Bild 1, 2, 3).' },
+};
+function vRolleMoeglich(rolle, m = aktVModell()) {
+  if (!m) return false;
+  return rolle === 'vorlage' ? m.art !== 'bearbeiten' : (m.frames || []).includes(V_ROLLEN[rolle].art);
+}
+function vorlageHinweis(m = aktVModell()) {
+  if (!m) return '';
+  return VORLAGE_BESTAETIGT.includes(m.id) ? `Bei ${m.name} laut OpenRouter bestätigt.`
+    : `Ob ${m.name} Vorlagen beachtet, ist nicht bestätigt (sicher: Seedance 2.0 Fast).`;
+}
+// Setzt ein Bild in eine Rolle und räumt die jeweils andere Rollengruppe ab.
+function vBildSetzen(ziel, bild) {
+  const g = S.vgen;
+  if (ziel === 'vorlage') {
+    if (g.start || g.ende) { g.start = g.ende = null; toast('Vorlagen und Start-/Endbild schließen sich aus – Start-/Endbild entfernt.'); }
+    if (g.vorlagen.some(v => v.id === bild.id)) return;
+    if (g.vorlagen.length >= VORLAGEN_MAX) return toast(`Höchstens ${VORLAGEN_MAX} Vorlagen je Video.`);
+    g.vorlagen.push(bild);
+  } else {
+    if (g.vorlagen.length || g.raster) { g.vorlagen = []; g.raster = ''; toast('Start-/Endbild und Vorlagen schließen sich aus – Vorlagen und Storyboard-Raster entfernt.'); }
+    g[ziel] = bild;
+  }
+}
+function vRolleWaehlen(ziel, anker) {
+  const r = V_ROLLEN[ziel];
+  menue(anker, [{ kopf: r.wort },
+    { ico: 'hochladen', txt: `${r.wort} hochladen …`, klein: 'PNG, JPEG, WebP – auch per Ziehen', fn: () => { S.uploadZiel = ziel; $('#fileIn').click(); } },
+    { ico: 'bilder', txt: `${r.wort} aus der Bibliothek …`, fn: () => bibliothekWaehlen(ziel) }], { seite: 'oben' });
+}
+function vRasterMenue(anker) {
+  menue(anker, [{ kopf: 'Storyboard-Raster' },
+    { txt: 'Aus', klein: 'Vorlagen gelten als einzelne Bilder', haken: !S.vgen.raster, fn: () => { S.vgen.raster = ''; videoAktualisieren(); } },
+    ...Object.entries(RASTER_ARTEN).map(([k, t]) => ({ txt: t, klein: '@Bild 1 ist das Raster, Feld 1 = Startposition', haken: S.vgen.raster === k,
+      fn: () => {
+        if (S.vgen.start || S.vgen.ende) { S.vgen.start = S.vgen.ende = null; toast('Storyboard-Raster nutzt Vorlagen – Start-/Endbild entfernt.'); }
+        S.vgen.raster = k; videoAktualisieren();
+        if (!S.vgen.vorlagen.length) { toast('Jetzt das Raster-Bild als Vorlage hinzufügen (@Bild 1).'); vRolleWaehlen('vorlage', $('#refs [data-vrolle="vorlage"]') || $('#btnPlus')); }
+      } }))], { seite: 'oben' });
+}
+// Rolle eines schon gesetzten Bildes wechseln (Klick auf das Rollenschild)
+function vRolleWechseln(von, anker) {
+  const g = S.vgen, [art, i] = von.split(':');
+  const bild = art === 'vorlage' ? g.vorlagen[+i] : g[art];
+  if (!bild) return;
+  const nach = ziel => () => {
+    if (art === 'vorlage') g.vorlagen.splice(+i, 1); else g[art] = null;
+    if (ziel !== 'vorlage') { g.vorlagen = g.vorlagen.filter(v => v.id !== bild.id); }
+    vBildSetzen(ziel, bild); videoAktualisieren();
+  };
+  menue(anker, [{ kopf: 'Rolle dieses Bildes' },
+    ...Object.entries(V_ROLLEN).map(([k, r]) => ({ txt: r.wort, klein: r.tip.split('\n')[0].replace(/^[^–]+– /, ''), haken: k === art,
+      aus: k !== art && !vRolleMoeglich(k), fn: k === art ? () => {} : nach(k) }))], { seite: 'oben' });
+}
 function videoRefsZeichnen() {
   const m = aktVModell(), g = S.vgen;
-  const karte = (ziel, wort) => g[ziel]
-    ? `<div class="ref" data-tip="${wort} – das Video ${ziel === 'start' ? 'beginnt' : 'endet'} mit diesem Bild"><img src="${esc(g[ziel].url)}" alt="">
-         <span class="rolle">${wort}</span><button class="x" data-vref="${ziel}" aria-label="${wort} entfernen">✕</button></div>` : '';
-  $('#refs').innerHTML = karte('start', 'Startbild') + karte('ende', 'Endbild');
-  const f = m?.frames || [];
-  $('#btnPlus').dataset.tip = f.length ? `Startbild${f.includes('last_frame') ? ' oder Endbild' : ''} hinzufügen` : 'Dieses Modell arbeitet nur mit Text';
+  const karte = (ziel, wort, bild, tip, schluessel) => `<div class="ref" data-tip="${esc(tip)}"><img src="${esc(bild.url)}" alt="">
+      <span class="rolle" data-vwechsel="${schluessel}" data-tip="Klicken: Rolle ändern">${wort}</span>
+      <button class="x" data-vref="${schluessel}" aria-label="${wort} entfernen">✕</button></div>`;
+  const karten = [
+    g.start ? karte('start', 'Startbild', g.start, V_ROLLEN.start.tip, 'start') : '',
+    g.ende ? karte('ende', 'Endbild', g.ende, V_ROLLEN.ende.tip, 'ende') : '',
+    ...g.vorlagen.map((v, i) => karte('vorlage', g.raster && i === 0 ? 'Raster' : `@Bild ${i + 1}`, v,
+      g.raster && i === 0 ? `Storyboard-Raster (${RASTER_ARTEN[g.raster]}) – das Video folgt den Feldern, Feld 1 = Startposition` : `Vorlage @Bild ${i + 1} – Grundlage, kein Startbild`, `vorlage:${i}`)),
+  ].join('');
+  // Anklickbare Kästchen je Rolle – mit Tooltip, was die Rolle bewirkt
+  const kaestchen = ['start', 'ende', 'vorlage'].map(k => {
+    const r = V_ROLLEN[k];
+    if (k !== 'vorlage' && g[k]) return '';
+    if (k === 'vorlage' && g.vorlagen.length >= VORLAGEN_MAX) return '';
+    const geht = vRolleMoeglich(k, m);
+    const konflikt = k === 'vorlage' ? (g.start || g.ende) : (g.vorlagen.length || g.raster);
+    const tip = !m ? 'Erst ein Videomodell wählen.' : !geht ? `${m.name} nimmt kein ${r.wort}.`
+      : r.tip + (k === 'vorlage' ? '\n' + vorlageHinweis(m) : '') + (konflikt ? `\nAchtung: ersetzt ${k === 'vorlage' ? 'Start-/Endbild' : 'die Vorlagen'}.` : '') + '\nKlicken: hochladen oder aus der Bibliothek wählen.';
+    return `<button type="button" class="rollenfeld${geht ? '' : ' aus'}" data-vrolle="${k}" data-tip="${esc(tip)}" ${geht ? '' : 'aria-disabled="true"'}>
+      <span class="plus">＋</span><span>${k === 'vorlage' && g.vorlagen.length ? 'Vorlage' : r.wort}</span></button>`;
+  }).join('');
+  const rasterTip = `Storyboard-Raster – @Bild 1 ist ein zusammenhängendes Raster (z. B. 6 Felder, 3 Spalten × 2 Reihen).\nDas Video beginnt wie Feld 1 und folgt den Feldern; Raster und Ziffern erscheinen nicht im Video.\nDas Bild ist Grundlage, kein Startbild. ${vorlageHinweis(m)}\nKlicken: Rasterart wählen oder ausschalten.`;
+  const raster = m && vRolleMoeglich('vorlage', m) ? `<button type="button" class="rollenfeld schalter${g.raster ? ' an' : ''}" data-vraster data-tip="${esc(rasterTip)}">
+      <span class="plus">▦</span><span>${g.raster ? RASTER_ARTEN[g.raster].split(' · ')[0] : 'Storyboard'}</span></button>` : '';
+  $('#refs').innerHTML = karten + kaestchen + raster;
+  $('#btnPlus').dataset.tip = m ? 'Bild als Startbild, Endbild oder Vorlage hinzufügen' : 'Erst ein Videomodell wählen';
 }
 $('#refs').addEventListener('click', ev => {
+  if (S.modus !== 'video') return;
   const x = ev.target.closest('[data-vref]');
-  if (x) { S.vgen[x.dataset.vref] = null; videoAktualisieren(); }
+  if (x) {
+    const [art, i] = x.dataset.vref.split(':');
+    if (art === 'vorlage') { S.vgen.vorlagen.splice(+i, 1); if (!S.vgen.vorlagen.length) S.vgen.raster = ''; } else S.vgen[art] = null;
+    return videoAktualisieren();
+  }
+  const w = ev.target.closest('[data-vwechsel]');
+  if (w) return vRolleWechseln(w.dataset.vwechsel, w);
+  const k = ev.target.closest('[data-vrolle]');
+  if (k) { if (k.classList.contains('aus')) return toast(k.dataset.tip); return vRolleWaehlen(k.dataset.vrolle, k); }
+  const r = ev.target.closest('[data-vraster]');
+  if (r) vRasterMenue(r);
 });
 function videoPlusMenue() {
-  const f = aktVModell()?.frames || [];
-  const block = (ziel, wort, art) => f.includes(art) ? [
-    { kopf: wort },
-    { ico: 'hochladen', txt: `${wort} hochladen …`, klein: 'PNG, JPEG, WebP – auch per Ziehen', fn: () => { S.uploadZiel = ziel; $('#fileIn').click(); } },
-    { ico: 'bilder', txt: `${wort} aus der Bibliothek …`, fn: () => bibliothekWaehlen(ziel) },
+  const m = aktVModell();
+  const block = ziel => vRolleMoeglich(ziel, m) ? [
+    { kopf: V_ROLLEN[ziel].wort },
+    { ico: 'hochladen', txt: `${V_ROLLEN[ziel].wort} hochladen …`, klein: 'PNG, JPEG, WebP – auch per Ziehen', fn: () => { S.uploadZiel = ziel; $('#fileIn').click(); } },
+    { ico: 'bilder', txt: `${V_ROLLEN[ziel].wort} aus der Bibliothek …`, klein: ziel === 'vorlage' ? 'Grundlage, kein Startbild – bis zu 3' : '', fn: () => bibliothekWaehlen(ziel) },
   ] : [];
-  const e = [...block('start', 'Startbild', 'first_frame'), ...block('ende', 'Endbild', 'last_frame')];
+  const e = [...block('start'), ...block('ende'), ...block('vorlage')];
+  if (e.length && vRolleMoeglich('vorlage', m)) e.push({ ico: 'bilder', txt: 'Storyboard-Raster …', klein: S.vgen.raster ? RASTER_ARTEN[S.vgen.raster] : 'Raster-Bild als Grundlage, Feld 1 = Startposition', fn: () => vRasterMenue($('#btnPlus')) });
   menue($('#btnPlus'), e.length ? e : [{ txt: 'Dieses Modell nimmt keine Bilder', klein: 'Für Start-/Endbild z. B. Veo, Kling oder Seedance wählen', aus: true }], { seite: 'oben' });
 }
 
@@ -1567,6 +1672,9 @@ async function videoErzeugen(ueber = null) {
   const prompt = (ueber?.prompt ?? pr.value).trim();
   if (!prompt) { pr.focus(); return toast('Bitte beschreibe zuerst das Video.'); }
   if (!g.modell) return toast('Bitte zuerst ein Videomodell wählen.');
+  const vorlagen = ueber ? (ueber.vorlagen || []) : g.vorlagen.map(v => v.id);
+  const raster = ueber ? (ueber.raster || '') : g.raster;
+  if (raster && !vorlagen.length) return toast('Das Storyboard-Raster braucht das Raster-Bild als Vorlage (@Bild 1).');
   const m = S.vmodelle.find(x => x.id === g.modell);
   const kosten = ueber ? null : S.vschaetzung;
   if (kosten && kosten.quelle !== 'unbekannt' && kosten.gesamt >= 2 &&
@@ -1577,6 +1685,7 @@ async function videoErzeugen(ueber = null) {
     const d = await api('erzeugen_video', {
       prompt, modell: g.modell, seitenverhaeltnis: g.seitenverhaeltnis, aufloesung: g.aufloesung, dauer: g.dauer, ton: !!g.ton,
       anzahl: g.anzahl, startbild: ueber ? (ueber.startbild || '') : (g.start?.id || ''), endbild: ueber ? (ueber.endbild || '') : (g.ende?.id || ''),
+      vorlagen, raster,
     });
     S.auftraege.push(d.auftrag);
     const angepasst = ['startbild_angepasst', 'endbild_angepasst'].map(k => d.auftrag.parameter?.[k]).filter(Boolean);
@@ -1602,7 +1711,8 @@ function videoWiederverwenden(b) {
   if (S.vmodelle.some(m => m.id === b.modell)) S.vgen.modell = b.modell;
   Object.assign(S.vgen, { seitenverhaeltnis: p.seitenverhaeltnis || S.vgen.seitenverhaeltnis, aufloesung: p.aufloesung || S.vgen.aufloesung,
     dauer: p.dauer || S.vgen.dauer, ton: p.ton ?? S.vgen.ton,
-    start: p.startbild ? { id: p.startbild, url: mediumUrl(p.startbild) } : null, ende: p.endbild ? { id: p.endbild, url: mediumUrl(p.endbild) } : null });
+    start: p.startbild ? { id: p.startbild, url: mediumUrl(p.startbild) } : null, ende: p.endbild ? { id: p.endbild, url: mediumUrl(p.endbild) } : null,
+    vorlagen: (p.vorlagen || []).map(id => ({ id, url: mediumUrl(id) })), raster: p.raster || '' });
   pr.value = b.prompt; promptHoehe(); speicher.setz('prompt', pr.value);
   if (!$('#composer').offsetParent) ansicht('erstellen');
   videoAktualisieren();
@@ -1613,7 +1723,7 @@ async function videoNeuErzeugen(b) {
   if (!S.vmodelle.some(m => m.id === b.modell)) throw new Error('Das Modell dieses Videos ist nicht mehr verfügbar.');
   const p = b.parameter || {};
   await erzeugen({ art: 'video', modell: b.modell, prompt: b.prompt, seitenverhaeltnis: p.seitenverhaeltnis || '', aufloesung: p.aufloesung || '',
-    dauer: p.dauer || 0, ton: !!p.ton, anzahl: 1, startbild: p.startbild || '', endbild: p.endbild || '' });
+    dauer: p.dauer || 0, ton: !!p.ton, anzahl: 1, startbild: p.startbild || '', endbild: p.endbild || '', vorlagen: p.vorlagen || [], raster: p.raster || '' });
 }
 function mitStartbild(id, url, prompt, hinweis) {
   modusSetzen('video');
@@ -1622,6 +1732,7 @@ function mitStartbild(id, url, prompt, hinweis) {
   S.vgen.modell = m.id;
   S.vgen.start = { id, url };
   S.vgen.ende = null;
+  S.vgen.vorlagen = []; S.vgen.raster = '';
   pr.value = prompt; promptHoehe(); speicher.setz('prompt', pr.value);
   if (!$('#composer').offsetParent) ansicht('erstellen');
   videoAktualisieren();
