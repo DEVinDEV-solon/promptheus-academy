@@ -18,6 +18,7 @@ import re
 import secrets
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import urllib.error
@@ -31,8 +32,11 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import assistent
 import audio
+import hyperframes_audio as ha
+import hyperframes_werkzeuge as hw
 import klon
 import lokal_stimme
+import werkzeugkiste as wk
 import zugang
 
 ROOT = Path(__file__).resolve().parent
@@ -303,10 +307,15 @@ def einstellungen() -> dict:
     s.setdefault("assistent_auto", False)              # Vorschläge automatisch ins Eingabefeld
     s.setdefault("assistent_sprache", "englisch")      # Sprache der Prompts
     s.setdefault("claude_pfad", "")
+    # HyperFrames-Assistent: Kostenbremse
+    s.setdefault("hf_max_runden", assistent.HF_MAX_RUNDEN)  # Werkzeugrunden je Antwort (OpenRouter und Claude-CLI)
+    s.setdefault("hf_kosten_limit", 1.0)               # USD je Antwort über OpenRouter, 0 = ohne Grenze
+    s.setdefault("hf_cache", True)                     # Prompt-Caching (Anthropic/Gemini über OpenRouter)
     # Video-Clone
     s.setdefault("klon_modell", "google/gemini-3.8-flash")
     s.setdefault("ffmpeg_pfad", "")
     s.setdefault("ytdlp_pfad", "")
+    s.setdefault("whisper_pfad", "")                   # whisper-cli für Wortzeiten (leer: automatisch suchen)
     # Audio & Ablage
     s.setdefault("standard_audio", "x-ai/grok-voice-tts-1.0")
     s.setdefault("stimmprofile", [dict(p) for p in PROFIL_VORGABE])
@@ -2185,7 +2194,7 @@ def im_explorer_zeigen(pfad_: Path) -> None:
 
 
 # --------------------------------------------------------------------------- Seitenchat
-CHAT_MODI =("assistent", "drehbuch", "klon")
+CHAT_MODI = ("assistent", "drehbuch", "klon", "hyperframes")
 CHAT_LAEUFT: dict[str, threading.Event] = {}
 CLAUDE_INFO: dict = {}
 
@@ -2293,19 +2302,39 @@ def werkzeug_status(s: dict) -> dict:
     return {k: bool(v) for k, v in werkzeug_pfade(s).items()}
 
 
+# Werkzeugordner im Repo einrichten (werkzeugkiste.py): erst übernehmen, dann laden – im Hintergrund, ein Lauf zur Zeit.
+WK_JOB: dict = {"laeuft": False, "log": [], "ergebnis": {}}
+
+
+def werkzeuge_einrichten(s: dict, laden_ok: bool) -> None:
+    def melden(t: str) -> None:
+        WK_JOB["log"] = (WK_JOB["log"] + [str(t)])[-40:]
+    try:
+        WK_JOB["ergebnis"] = wk.einrichten({"ffmpeg": s.get("ffmpeg_pfad", ""), "yt-dlp": s.get("ytdlp_pfad", ""),
+                                            "whisper-cli": s.get("whisper_pfad", "")}, laden_ok, melden)
+    except Exception as err:          # der Hintergrundlauf darf nie still sterben
+        melden(f"FEHLER: {err}")
+    finally:
+        WK_JOB["laeuft"] = False
+
+
+def werkzeuge_stand() -> dict:
+    return {**wk.stand(), "job": {k: WK_JOB[k] for k in ("laeuft", "log", "ergebnis")}}
+
+
 def klon_starten(name: str, e: dict) -> dict:
     chat = chat_laden(name, str(e.get("chat") or ""))
     s = einstellungen()
     w = werkzeug_pfade(s)
     if not (w["ffmpeg"] and w["ffprobe"]):
-        raise Fehler(400, "ffmpeg/ffprobe nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
+        raise Fehler(400, "ffmpeg/ffprobe ist nicht eingerichtet – Einstellungen → Assistent → Werkzeuge einrichten.")
     if not api_key():
         raise Fehler(400, "Für die Analyse wird ein OpenRouter-Schlüssel gebraucht (Einstellungen → Anschluss).")
     url, datei, vorlage = str(e.get("url") or "").strip(), None, None
     if url:
         url = klon.url_pruefen(url)
         if not w["ytdlp"]:
-            raise Fehler(400, "yt-dlp nicht gefunden – Pfad unter Einstellungen → Assistent angeben.")
+            raise Fehler(400, "yt-dlp ist nicht eingerichtet – Einstellungen → Assistent → Werkzeuge einrichten.")
     elif e.get("vorlage"):
         vorlage, mime = vorlage_datei(str(e["vorlage"]))
         if not mime.startswith("video/") or vorlage.stat().st_size > KLON_MAX:
@@ -2403,9 +2432,284 @@ def chatmodelle() -> list:
                       "kontext": m.get("context_length") or 0, "frei": preis[0] == 0 and preis[1] == 0,
                       "vision": "image" in (a.get("input_modalities") or []),
                       "video": "video" in (a.get("input_modalities") or []), "preis_ein": round(preis[0], 3),
+                      "tools": "tools" in (m.get("supported_parameters") or []),
                       "preis_aus": round(preis[1], 3)})
     CHATMODELLE.update({"liste": sorted(liste, key=lambda x: x["id"]), "stand": time.time()})
     return CHATMODELLE["liste"]
+
+
+# --------------------------------------------------------------------------- HyperFrames
+# Ein Projektordner je Chat: <Ablage>\hyperframes\[<konto>\]<JJJJ-MM-TT_HHMM_stichwort_chat>\video\…
+# Der Assistent darf nur dort lesen/schreiben und nur die HyperFrames-CLI aufrufen (hyperframes_werkzeuge.py).
+HF_SKILLS = ROOT / ".claude" / "skills"
+HF_ORDNER = "hyperframe-filme"                     # in <Ablage>/uploads
+HF_MUSIK = "musik"                                 # Uploads-Ordner, aus dem das Onboarding Audio anbietet
+HF_AUDIO_ARTEN = ("takt", "de", "en")
+HF_FORMATE = {"16:9": ("landscape", "1920x1080"), "9:16": ("portrait", "1080x1920"), "1:1": ("square", "1080x1080")}
+HF_QUELLEN = {"klon": "Video-Link klonen", "produkt": "Produkt", "webseite": "Webseite", "idee": "Freie Idee"}
+HF_VORSCHLAG = ("anthropic/claude-sonnet", "google/gemini", "openai/gpt", "anthropic/claude", "qwen/qwen3")
+
+
+def hf_aktiv(chat: dict) -> bool:
+    return chat.get("modus") == "hyperframes" or bool((chat.get("hyperframes") or {}).get("briefing"))
+
+
+def hf_projekt(owner: str, chat: dict, neu: bool = False) -> Path:
+    """Projektordner des Chats (legt ihn an). neu=True beginnt ein frisches Projekt (nach erneutem Onboarding)."""
+    hf = chat.setdefault("hyperframes", {})
+    if neu or not hf.get("projekt"):
+        hf.update({"projekt": f"{datetime.now():%Y-%m-%d_%H%M}_{stichwort(chat.get('titel') or 'video')[:24]}_{chat['id'][:6]}",
+                   "importiert": {}})
+    p = hf_wurzel(owner) / hf["projekt"]
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def hf_wurzel(owner: str) -> Path:
+    """Alle Bestandteile eines HyperFrames-Films (Komposition, Material, Audio, Takt, Text, Renders) liegen beisammen
+    in <Ablage>/uploads/hyperframe-filme/<projekt>. Die Uploads-Ansicht liest nur eine Ebene tief, die Projektdateien
+    erscheinen dort also nicht einzeln; der fertige Film steht in der Bibliothek und bleibt im Projektordner liegen."""
+    return uploads_ordner() / HF_ORDNER / nutzerordner(owner)
+
+
+def hf_sieht_bilder(modell: str) -> bool:
+    """Kann das OpenRouter-Modell Bilder lesen? Unbekannte Modelle: ja (die Werkzeugantwort sagt sonst Bescheid)."""
+    m = next((x for x in chatmodelle() if x["id"] == modell), None)
+    return not m or bool(m.get("vision"))
+
+
+def hf_tools_pruefen(modell: str) -> str:
+    """Leer, wenn das Modell Werkzeuge kann (oder es unbekannt ist) – sonst eine Meldung mit Vorschlag."""
+    liste = chatmodelle()
+    m = next((x for x in liste if x["id"] == modell), None)
+    if not m or m.get("tools"):
+        return ""
+    kandidaten = [x for x in liste if x.get("tools") and not x.get("frei")]
+    vorschlag = next((x for p_ in HF_VORSCHLAG for x in sorted(kandidaten, key=lambda x: -x["erstellt"])
+                      if x["id"].startswith(p_)), None)
+    return (f"{m['name']} kann keine Werkzeuge (tool calling) – für HyperFrames unter Profil → Einstellungen → Assistent "
+            f"ein Modell mit Werkzeugen wählen{', z. B. ' + vorschlag['id'] if vorschlag else ''}.")
+
+
+def _hf_bild(owner: str, ref: str) -> tuple[bytes, str] | None:
+    url = referenz_daten(ref, owner) if ref else None
+    if not url or "," not in url:
+        return None
+    daten = base64.b64decode(url.split(",", 1)[1])
+    typ = bild_typ(daten)
+    return (daten, typ[1]) if typ and typ[0].startswith("image/") else None
+
+
+def hf_start(owner: str, e: dict) -> dict:
+    """POST /api/hyperframes/start – Onboarding: Projekt anlegen (init), Material nach assets/, BRIEF.md schreiben.
+    Gibt den Auftrag zurück, den die Oberfläche als erste Nachricht an den Assistenten schickt."""
+    chat = chat_laden(owner, str(e.get("chat") or ""))
+    quelle = str(e.get("quelle") or "")
+    if quelle not in HF_QUELLEN:
+        raise Fehler(400, "Bitte einen Ausgangspunkt wählen.")
+    try:
+        laenge = int(e.get("laenge") or 10)
+    except (TypeError, ValueError):
+        laenge = 10
+    laenge = max(5, min(30, laenge))
+    fmt = str(e.get("format") or "16:9")
+    if fmt not in HF_FORMATE:
+        raise Fehler(400, "Unbekanntes Format.")
+    txt = {k: re.sub(r"[\x00-\x08\x0b-\x1f]", "", str(e.get(k) or "")).strip()[:3000]
+           for k in ("marke", "story", "produkt", "idee", "titel")}
+    webseite = ""
+    if str(e.get("webseite") or "").strip():
+        try:
+            webseite = klon.url_pruefen(str(e["webseite"]))
+        except ValueError as err:
+            raise Fehler(400, str(err)) from None
+    analyse = (chat.get("klon") or {}).get("bericht") or ""
+    if quelle == "klon" and not analyse:
+        raise Fehler(400, "Erst das Referenzvideo analysieren – dann kann es geklont werden.")
+    if quelle == "webseite" and not webseite:
+        raise Fehler(400, "Bitte den Link zur Webseite angeben.")
+    if quelle == "produkt" and not (txt["produkt"] or e.get("produktbild")):
+        raise Fehler(400, "Bitte ein Produktbild oder eine Beschreibung angeben.")
+    if quelle == "idee" and not txt["idee"]:
+        raise Fehler(400, "Bitte die Idee kurz beschreiben.")
+    bilder_ = {}
+    for feld, name_ in (("logo", "logo"), ("produktbild", "produkt")):
+        if e.get(feld):
+            b = _hf_bild(owner, str(e[feld]))
+            if not b:
+                raise Fehler(400, f"{'Logo' if feld == 'logo' else 'Produktbild'} ist kein lesbares Bild.")
+            bilder_[name_] = b
+    audio = None
+    if e.get("audio"):                    # Voice-Over, Song oder Musik: Bilder und Übergänge folgen Takt und Wort
+        up = lies_json("uploads.json", {}).get(str(e["audio"]))
+        f = upload_pfad(up) if up and up.get("owner") == owner else None
+        if not f or not f.is_file() or f.suffix.lower() not in ha.AUDIO_ENDUNGEN:
+            raise Fehler(400, "Die Audiodatei ist nicht verfügbar.")
+        art = str(e.get("audio_art") or "takt")
+        if art not in HF_AUDIO_ARTEN:
+            raise Fehler(400, "Unbekannte Audio-Art.")
+        try:
+            ab = max(0.0, float(e.get("audio_ab") or 0))
+        except (TypeError, ValueError):
+            ab = 0.0
+        w = werkzeug_pfade(einstellungen())
+        if not (w["ffmpeg"] and w["ffprobe"]):
+            raise Fehler(400, "ffmpeg/ffprobe ist nicht eingerichtet – Einstellungen → Assistent → Werkzeuge einrichten.")
+        try:
+            gesamt = ha.dauer(w["ffprobe"], f)
+        except (ValueError, OSError, subprocess.SubprocessError) as err:
+            raise Fehler(400, str(err)) from None
+        if ab > gesamt - 1:
+            raise Fehler(400, f"Der Startpunkt liegt hinter dem Ende der Audiodatei ({gesamt:.0f} s).")
+        laenge = round(min(ha.AUDIO_MAX, gesamt - ab) if e.get("audio_ganz") else min(laenge, gesamt - ab), 2)
+        audio = {"datei": f, "art": art, "ab": ab, "werkzeuge": w}
+    if not chat.get("titel"):
+        chat["titel"] = ("HyperFrames: " + (txt["titel"] or txt["idee"] or txt["produkt"] or webseite
+                                             or (chat.get("klon") or {}).get("titel") or "Video"))[:60]
+    projekt = hf_projekt(owner, chat, neu=(hf_projekt(owner, chat) / "video").exists())
+    res, masse = HF_FORMATE[fmt]
+    kasten = hw.Werkzeugkasten(projekt, HF_SKILLS)
+    ausgabe = kasten.hyperframes_ausfuehren("init", ["video", "--resolution", res])
+    video = projekt / "video"
+    if not (video / "index.html").is_file():
+        raise Fehler(500, "HyperFrames konnte das Projekt nicht anlegen: " + ausgabe[-400:])
+    assets = []
+    for name_, (daten, endung) in bilder_.items():
+        (video / "assets").mkdir(exist_ok=True)
+        (video / "assets" / f"{name_}.{endung}").write_bytes(daten)
+        assets.append(f"- assets/{name_}.{endung} — {'Logo der Marke, im Abspann/Packshot zeigen' if name_ == 'logo' else 'Produktfoto des Nutzers, Held des Videos'}")
+    ton = None
+    if audio:
+        try:
+            ton = ha.vorbereiten(video, audio["datei"], audio["ab"], laenge, audio["art"], audio["werkzeuge"],
+                                 ha.whisper_finden(einstellungen().get("whisper_pfad", "")))
+        except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as err:
+            raise Fehler(500, f"Audio konnte nicht vorbereitet werden: {err}") from None
+    if quelle == "klon":
+        workflow = "general-video"
+    elif ton:
+        workflow = "music-to-video"
+    elif quelle == "webseite":
+        workflow = "product-launch-video" if laenge >= 15 else "motion-graphics"
+    elif quelle == "produkt":
+        workflow = "product-launch-video" if laenge >= 20 else "motion-graphics"
+    else:
+        workflow = "motion-graphics" if laenge <= 10 else "general-video"
+    botschaft = txt["titel"] or txt["idee"][:120] or txt["produkt"][:120] or "Die Marke des Nutzers"
+    brief = ["---", f"workflow: {workflow}", "flow: automation", "storyboard: no",
+             f"message: {json.dumps(botschaft, ensure_ascii=False)}", f"aspect: {masse}", "language: de",
+             f"length: {laenge:g}s", f"source: {quelle}", *([f"audio: {ton['art']}"] if ton else []), "---", "", "## Intent", "",
+             {"klon": "Das Referenzvideo (Analyse unten) wird in Aufbau, Rhythmus, Hook und CTA nachgebaut – "
+                      "mit der Marke und Geschichte des Nutzers statt der Inhalte des Originals.",
+              "produkt": "Ein kurzes Produktvideo, das das Produkt des Nutzers in Szene setzt.",
+              "webseite": f"Ein kurzes Video für die Webseite {webseite}: Texte, Farben, Schrift und Logo dort holen "
+                          "(hyperframes capture) und in die Produktion übernehmen.",
+              "idee": "Ein kurzes Video nach der Idee des Nutzers."}[quelle]]
+    if txt["idee"]:
+        brief += ["", "Idee: " + txt["idee"]]
+    if txt["produkt"]:
+        brief += ["", "Produkt: " + txt["produkt"]]
+    if txt["marke"]:
+        brief += ["", "## Brand-Guideline", "", txt["marke"]]
+    if txt["story"]:
+        brief += ["", "## Storytelling", "", txt["story"]]
+    if assets:
+        brief += ["", "## Assets", ""] + assets
+    if ton:
+        brief += ["", "## Audio (Bild folgt dem Ton)", "",
+                  f"- assets/musik.mp3 — {'Song/Sprache (' + ha.SPRACHEN[ton['art']] + ')' if ton['art'] in ha.SPRACHEN else 'Musik, nur Takt'}: "
+                  f"Ausschnitt ab {ton['ab']:g} s aus „{audio['datei'].name}“, {laenge:g} s. Ist schon als "
+                  "<audio id=\"musik\" data-timeline-role=\"music\"> in index.html eingebunden – nicht entfernen, nicht verschieben."]
+        if ton["takt"]:
+            brief.append("- beats/TAKT.md — Takt. Jeder Szenenwechsel, Schnitt und Übergang liegt exakt auf einer Schlagzeit "
+                         "(große Wechsel auf Akzente); Bewegungen setzen auf Schlägen ein und enden auf Schlägen.")
+        if ton["text"]:
+            brief.append("- transcript/TEXT.md und transcript.json — Wortzeiten von Gesang/Sprache. Text-Einblendungen, Bildwechsel "
+                         "und Hervorhebungen laufen synchron zu den Wörtern (erscheinen mit dem ersten, gehen mit dem letzten Wort).")
+        if ton.get("songinfo"):
+            brief.append("- assets/songinfo.txt — Songtext/Stil-Notizen des Nutzers: Schreibweise der Texte daran prüfen.")
+        brief += [f"- Hinweis: {h}" for h in ton["hinweise"]]
+        brief.append("- Ton am Ende 0,5 s ausblenden (hyperframes-audio), am Anfang nicht abschneiden.")
+    if webseite:
+        brief += ["", "## Customizations", "", f"- Webseite erfassen: hyperframes capture {webseite}"]
+    brief += ["", "## Notes", "", f"- Genau {laenge:g} Sekunden, Format {fmt} ({masse}).",
+              "- Bildschirmtexte auf Deutsch, kurz und gut lesbar.",
+              "- Keine fremden Marken, Logos, Personen oder Texte übernehmen."]
+    if analyse:
+        brief += ["", "## Referenz (Video-Clone-Analyse)", "", str(analyse)[:12000]]
+    (video / "BRIEF.md").write_text("\n".join(brief) + "\n", "utf-8")
+    briefing = {"quelle": HF_QUELLEN[quelle], "laenge": laenge, "format": fmt, "workflow": workflow,
+                "logo": "logo" in bilder_, "produktbild": "produkt" in bilder_, "webseite": webseite,
+                **{k: v for k, v in txt.items() if v}}
+    if ton:
+        briefing["audio"] = {"datei": audio["datei"].name, "art": ton["art"], "ab": ton["ab"], "takt": ton["takt"],
+                             "text": ton["text"], "hinweise": ton["hinweise"]}
+    with LOCK:
+        frisch = chat_laden(owner, chat["id"])         # Clone-Analyse o. Ä. könnte inzwischen dazugekommen sein
+        frisch["hyperframes"] = {**chat["hyperframes"], "briefing": briefing}
+        frisch["titel"] = frisch.get("titel") or chat["titel"]
+        chat_speichern(owner, frisch)
+    auftrag = (f"Baue jetzt das HyperFrames-Video laut video/BRIEF.md: {laenge:g} Sekunden, Format {fmt}, "
+               f"Ausgangspunkt „{HF_QUELLEN[quelle]}“. Lies zuerst den Skill hyperframes, dann {workflow} und hyperframes-core, "
+               "schreibe die Komposition, prüfe sie mit lint und rendere sie nach renders/.")
+    if ton:
+        auftrag += (" Das Audio ist eingebunden: lies video/beats/TAKT.md" + (" und video/transcript/TEXT.md" if ton["text"] else "")
+                    + " und lege jeden Bildwechsel und Übergang genau darauf.")
+    return {"projekt": hf_projekt(owner, chat).name, "auftrag": auftrag, "workflow": workflow,
+            "audio": briefing.get("audio")}
+
+
+def hf_film_eintragen(owner: str, f: Path, info: dict) -> dict | None:
+    """Fertigen Film in die Bibliothek eintragen, ohne ihn zu kopieren: der Eintrag zeigt in den Projektordner
+    (uploads/hyperframe-filme/…). Nur wenn der Film unter dem Ablageordner des Kontos liegt, sonst None (→ Kopie)."""
+    wurzel = ablage_wurzel()
+    basis = (wurzel / nutzerordner(owner)).resolve()
+    try:
+        rel = f.resolve().relative_to(basis).as_posix()
+    except ValueError:
+        return None
+    daten = f.read_bytes()
+    typ = bild_typ(daten)
+    if not typ or not typ[0].startswith("video/"):
+        return None
+    breite, hoehe, dauer_ = video_masse(daten)
+    eintrag = {"id": neue_id(), "owner": owner, "datei": rel, "wurzel": str(wurzel), "mime": typ[0], "breite": breite,
+               "hoehe": hoehe, "erstellt": jetzt(), "like": False, "ordner": None, "veroeffentlicht": False,
+               "geloescht": None, "typ": "video", "dauer": dauer_, **info}
+    if not eintrag.get("breite"):
+        eintrag.pop("breite", None)
+        eintrag.pop("hoehe", None)
+    with LOCK:
+        liste = bilder()
+        liste.append(eintrag)
+        schreib_json("bilder.json", liste)
+    return eintrag
+
+
+def hf_videos_uebernehmen(owner: str, chat: dict) -> list:
+    """Neue Renders des Projekts in die Bibliothek übernehmen (einmal je Datei und Stand)."""
+    hf = chat.get("hyperframes") or {}
+    if not hf.get("projekt"):
+        return []
+    projekt = hf_wurzel(owner) / hf["projekt"]
+    bekannt = hf.setdefault("importiert", {})
+    neu = []
+    for f in hw.renders_finden(projekt):
+        rel = f.relative_to(projekt).as_posix()
+        stand = f"{f.stat().st_mtime:.0f}:{f.stat().st_size}"
+        if bekannt.get(rel) == stand or f.stat().st_size > 500 * 1024 * 1024 or f.stat().st_size < 1000:
+            continue
+        info = {"prompt": re.sub(r"^(HyperFrames:\s*)?", "HyperFrames: ", str(chat.get("titel") or f.stem))[:300],
+                "modell": "hyperframes", "modell_name": "HyperFrames", "kosten": 0,
+                "parameter": {"quelle": "hyperframes", "projekt": hf["projekt"], "datei": rel}}
+        try:
+            e = hf_film_eintragen(owner, f, info) or bild_speichern(owner, f.read_bytes(), info)
+        except (OSError, RuntimeError):
+            continue
+        if e and e.get("typ") == "video":
+            bekannt[rel] = stand
+            neu.append(e)
+    return neu
 
 
 # --------------------------------------------------------------------------- Prompt übersetzen
@@ -2790,9 +3094,16 @@ class Handler(BaseHTTPRequestHandler):
                 s["video_takt"] = max(5, min(int(e["video_takt"]), 120))
             if e.get("startbild_anpassung") in ("ki", "zuschneiden", "aus"):
                 s["startbild_anpassung"] = e["startbild_anpassung"]
-            for k in ("assistent_claude", "assistent_rueckfall", "assistent_auto"):
+            for k in ("assistent_claude", "assistent_rueckfall", "assistent_auto", "hf_cache"):
                 if k in e:
                     s[k] = bool(e[k])
+            try:
+                if "hf_max_runden" in e:
+                    s["hf_max_runden"] = max(5, min(int(e["hf_max_runden"]), 150))
+                if "hf_kosten_limit" in e:
+                    s["hf_kosten_limit"] = round(max(0.0, min(float(e["hf_kosten_limit"]), 50.0)), 2)
+            except (TypeError, ValueError):
+                raise Fehler(400, "HyperFrames: Rundenlimit und Kostengrenze als Zahl angeben.") from None
             if "assistent_claude_modell" in e:
                 cm = str(e["assistent_claude_modell"]).strip()
                 if cm and not assistent.CLAUDE_MODELL_RE.match(cm):
@@ -2811,7 +3122,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not re.match(r"^[a-z0-9._-]+/[A-Za-z0-9._:-]+$", v):
                     raise Fehler(400, "Analyse-Modell im Format anbieter/modell angeben.")
                 s["klon_modell"] = v
-            for k, stamm in (("ffmpeg_pfad", "ffmpeg"), ("ytdlp_pfad", "yt-dlp")):
+            for k, stamm in (("ffmpeg_pfad", "ffmpeg"), ("ytdlp_pfad", "yt-dlp"), ("whisper_pfad", "whisper-cli")):
                 if k in e:
                     pf = str(e[k]).strip().strip('"')
                     if pf and (not Path(pf).is_file() or Path(pf).stem.lower() != stamm):
@@ -2860,7 +3171,21 @@ class Handler(BaseHTTPRequestHandler):
             s = einstellungen()
             return self.json({"ok": True, "claude": claude_status(s), "schluessel": bool(api_key()),
                               "werkzeuge": werkzeug_status(s), "klon_modell": s["klon_modell"],
+                              "hyperframes": {"skills": len(hw.skills_liste(HF_SKILLS)), "node": bool(hw.hf_befehl()),
+                                              "whisper": bool(ha.whisper_finden(s.get("whisper_pfad", "")) and ha.whisper_modell_bereit()),
+                                              "musik": HF_MUSIK},
                               "modelle_claude": assistent.CLAUDE_MODELLE, "laeuft": name in CHAT_LAEUFT})
+        if p == "werkzeuge" and not post:
+            return self.json({"ok": True, **werkzeuge_stand()})
+        if p == "werkzeuge/einrichten" and post:
+            if not admin:
+                raise Fehler(403, "Nur für Administratoren.")
+            if WK_JOB["laeuft"]:
+                raise Fehler(409, "Die Einrichtung läuft schon.")
+            WK_JOB.update({"laeuft": True, "log": [], "ergebnis": {}})
+            threading.Thread(target=werkzeuge_einrichten, args=(einstellungen(), bool(e.get("laden", True))),
+                             daemon=True).start()
+            return self.json({"ok": True, **werkzeuge_stand()})
         if p == "assistent/modelle" and not post:
             return self.json({"ok": True, "modelle": chatmodelle()})
         if p == "assistent/test" and post:
@@ -2874,6 +3199,8 @@ class Handler(BaseHTTPRequestHandler):
             chat = {"id": neue_id(), "titel": "", "modus": modus, "erstellt": jetzt(), "nachrichten": []}
             chat_speichern(name, chat)
             return self.json({"ok": True, "chat": chat})
+        if p == "hyperframes/start" and post:
+            return self.json({"ok": True, **hf_start(name, e)})
         if p == "klon/start" and post:
             return self.json({"ok": True, "job": klon_starten(name, e)})
         if p == "klon/status" and not post:
@@ -3303,11 +3630,21 @@ class Handler(BaseHTTPRequestHandler):
                 chat["titel"] = re.sub(r"\s+", " ", text)[:60]
             chat_speichern(name, chat)
             kontext = e.get("kontext") if isinstance(e.get("kontext"), dict) else {}
-            bm, vm = prompt_modelle(s, kontext)
-            anweisung = assistent.anweisungen(chat.get("modus", "assistent"), bm, vm, kontext, s["assistent_sprache"])
             analyse = (chat.get("klon") or {}).get("bericht")
-            if analyse:                     # Video-Clone: Analyse des Referenzvideos
-                anweisung += "\n\n# Analyse des Referenzvideos\n" + str(analyse)[:30000]
+            projekt = None
+            if hf_aktiv(chat):              # HyperFrames: Werkzeuge in der Sandbox des Projekts
+                projekt = hf_projekt(name, chat)
+                chat_speichern(name, chat)
+                hf_bilder = reihenfolge[0] == "claude" or hf_sieht_bilder(s["assistent_or_modell"])
+                anweisung = assistent.hf_anweisungen(
+                    hw.skills_index(HF_SKILLS), str(projekt),
+                    hw.Werkzeugkasten(projekt, HF_SKILLS).ordner_auflisten(".", 3),
+                    (chat.get("hyperframes") or {}).get("briefing"), str(analyse or ""), bilder=hf_bilder)
+            else:
+                bm, vm = prompt_modelle(s, kontext)
+                anweisung = assistent.anweisungen(chat.get("modus", "assistent"), bm, vm, kontext, s["assistent_sprache"])
+                if analyse:                 # Video-Clone: Analyse des Referenzvideos
+                    anweisung += "\n\n# Analyse des Referenzvideos\n" + str(analyse)[:30000]
         except BaseException:
             CHAT_LAEUFT.pop(name, None)
             raise
@@ -3323,38 +3660,63 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write((json.dumps(obj, ensure_ascii=False) + "\n").encode("utf-8"))
             self.wfile.flush()
 
-        antwort, gehirn, fehlermeldung, info = "", "", "", {}
+        antwort, gehirn, fehlermeldung, info, schritte, videos, mcp, status = "", "", "", {}, [], [], None, ""
+        ffmpeg = werkzeug_pfade(s)["ffmpeg"] if projekt else ""
+        runden = int(s.get("hf_max_runden") or assistent.HF_MAX_RUNDEN)
         try:
             for i, g in enumerate(reihenfolge):
                 if g == "claude":
                     modell = s["assistent_claude_modell"]
+                    if projekt:
+                        mcp = assistent.mcp_config_schreiben(DATA / "assistent_arbeit" / f"mcp_{neue_id()}.json",
+                                                             sys.executable, projekt, HF_SKILLS, ffmpeg)
                     strom = assistent.claude_strom(assistent.claude_finden(s.get("claude_pfad", "")), modell,
                                                    assistent.verlauf_als_text(anweisung, chat["nachrichten"]),
-                                                   DATA / "assistent_arbeit", env("CLAUDE_CODE_OAUTH_TOKEN"), abbruch)
+                                                   DATA / "assistent_arbeit", env("CLAUDE_CODE_OAUTH_TOKEN"), abbruch,
+                                                   **({"zeitlimit": 2400, "mcp_config": str(mcp), "max_runden": runden}
+                                                      if mcp else {}))
                     bez = f"Claude-CLI · {modell}"
                 else:
                     modell = s["assistent_vision_modell"] if g == "vision" else s["assistent_or_modell"]
-                    strom = assistent.openrouter_strom(api_key(), modell, assistent.verlauf_als_nachrichten(
-                        anweisung, chat["nachrichten"], urls), abbruch, or_basis())
+                    nachrichten_ = assistent.verlauf_als_nachrichten(anweisung, chat["nachrichten"], urls)
+                    if projekt:
+                        kein_werkzeug = hf_tools_pruefen(modell)
+                        strom = (iter([("fehler", kein_werkzeug)]) if kein_werkzeug else assistent.openrouter_agent(
+                            api_key(), modell, nachrichten_, hw.Werkzeugkasten(projekt, HF_SKILLS, abbruch, ffmpeg=ffmpeg),
+                            abbruch, or_basis(), max_runden=runden, max_kosten=float(s.get("hf_kosten_limit") or 0),
+                            bilder=hf_sieht_bilder(modell),
+                            cache=None if s.get("hf_cache", True) else False))
+                    else:
+                        strom = assistent.openrouter_strom(api_key(), modell, nachrichten_, abbruch, or_basis())
                     bez = f"OpenRouter · {modell}"
                 fehlermeldung = ""
                 for art, wert in strom:
                     if art == "text":
                         antwort += wert
                         senden({"t": "text", "d": wert})
+                    elif art == "schritt":
+                        schritte.append(str(wert)[:200])
+                        senden({"t": "schritt", "d": str(wert)[:200]})
+                    elif art == "status":          # laufende Kosten/Runde – ersetzt die vorige Statuszeile
+                        status = str(wert)[:200]
+                        senden({"t": "status", "d": status})
                     elif art == "ende":
                         info = wert
                     elif art == "fehler":
                         fehlermeldung = str(wert)
-                if antwort or not fehlermeldung or abbruch.is_set():
+                if antwort or schritte or not fehlermeldung or abbruch.is_set():
                     gehirn = bez
                     break
                 if i + 1 < len(reihenfolge):
                     senden({"t": "hinweis", "d": f"{fehlermeldung} – weiter mit OpenRouter."})
+            if projekt:                     # fertige Renders → Bibliothek
+                for v in hf_videos_uebernehmen(name, chat):
+                    videos.append(v["id"])
+                    senden({"t": "video", "id": v["id"], "dauer": v.get("dauer")})
             if gehirn.startswith("OpenRouter") and info.get("kosten"):
                 verbrauch_schreiben({"zeit": jetzt(), "owner": name, "modell": gehirn.split(" · ", 1)[1], "art": "chat",
                                      "bilder": 0, "kosten": float(info["kosten"]), "tokens": 0, "status": "fertig"})
-            if fehlermeldung and not antwort:
+            if fehlermeldung and not antwort and not schritte:
                 senden({"t": "fehler", "d": fehlermeldung})
             else:
                 senden({"t": "ende", "gehirn": gehirn, "abgebrochen": abbruch.is_set(),
@@ -3363,9 +3725,19 @@ class Handler(BaseHTTPRequestHandler):
             abbruch.set()          # Browser hat abgebrochen → Unterprozess/Strom beenden
         finally:
             CHAT_LAEUFT.pop(name, None)
-            if antwort.strip():
+            if mcp:
+                mcp.unlink(missing_ok=True)
+            if projekt and not videos:      # auch nach Abbruch/Fehler: schon fertige Renders nicht verlieren
+                videos = [v["id"] for v in hf_videos_uebernehmen(name, chat)]
+            if fehlermeldung and not antwort and schritte:
+                antwort = f"⚠ {fehlermeldung}"
+            if antwort.strip() or videos:
                 chat["nachrichten"].append({"rolle": "assistent", "text": antwort, "zeit": jetzt(), "gehirn": gehirn,
+                                            **({"schritte": schritte[-80:]} if schritte else {}),
+                                            **({"status": status} if status else {}),
+                                            **({"videos": videos} if videos else {}),
                                             **({"abgebrochen": True} if abbruch.is_set() else {})})
+            if antwort.strip() or videos or projekt:
                 chat_speichern(name, chat)
 
     def _anmelden(self, name: str, u: dict):

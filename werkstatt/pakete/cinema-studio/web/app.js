@@ -1979,11 +1979,19 @@ async function einstellungenDialog() {
       <div class="feld"><label class="haken-zeile"><input type="checkbox" id="efAuto" ${s.assistent_auto ? 'checked' : ''} ${dis}> Vorschläge standardmäßig automatisch ins Eingabefeld eintragen</label>
         <small>Im Chat selbst lässt sich das je Browser umschalten.</small></div>
       <div class="feld"><label>Pfad zur Claude-CLI (optional)</label><input id="efPfad" placeholder="leer = automatisch suchen" value="${esc(s.claude_pfad || '')}" ${dis}></div>
+      <h3 style="font-size:14px;margin:18px 0 10px">HyperFrames-Assistent · Kostenbremse</h3>
+      <div class="feld"><label>Rundenlimit je Antwort</label><input id="efHfRunden" type="number" min="5" max="150" step="1" value="${esc(s.hf_max_runden ?? 60)}" ${dis}>
+        <small>Höchstzahl der Werkzeugrunden, bevor der Assistent anhält und auf „weiter“ wartet (OpenRouter und Claude-CLI).</small></div>
+      <div class="feld"><label>Kostengrenze je Antwort (USD, 0 = ohne)</label><input id="efHfKosten" type="number" min="0" max="50" step="0.05" value="${esc(s.hf_kosten_limit ?? 1)}" ${dis}>
+        <small>Nur OpenRouter: Ist die Grenze erreicht, hält der Assistent an. Die laufenden Kosten stehen während der Arbeit über den Arbeitsschritten.</small>
+        <label class="haken-zeile"><input type="checkbox" id="efHfCache" ${s.hf_cache !== false ? 'checked' : ''} ${dis}> Prompt-Caching nutzen (Anthropic- und Gemini-Modelle, spart bei langen Läufen deutlich)</label></div>
       <h3 style="font-size:14px;margin:18px 0 10px">Video-Clone</h3>
       <div class="feld"><label>Analyse-Modell (sieht die Standbilder des Referenzvideos)</label>${wahlFeld('efKlon', 'vision', s.klon_modell)}</div>
-      <div class="feld"><label>Werkzeuge</label><small id="efWerkzeuge">Prüfe ffmpeg, ffprobe, yt-dlp …</small></div>
-      <div class="feld"><label>Pfad zu ffmpeg (optional, ffprobe wird daneben gesucht)</label><input id="efFfmpeg" placeholder="leer = automatisch suchen" value="${esc(s.ffmpeg_pfad || '')}" ${dis}></div>
-      <div class="feld"><label>Pfad zu yt-dlp (optional)</label><input id="efYtdlp" placeholder="leer = automatisch suchen" value="${esc(s.ytdlp_pfad || '')}" ${dis}></div>
+      <div class="feld"><label>Werkzeuge (im Programmordner, nichts außerhalb des Repos)</label><small id="efWerkzeuge">Prüfe ffmpeg, yt-dlp, whisper, HyperFrames …</small>
+        <small id="efWkOrt" class="wk-ort"></small>
+        ${adm ? '<div class="klon-zeile"><button type="button" class="btn klein" id="efWkEin">Werkzeuge einrichten</button><small id="efWkLog"></small></div>' : ''}</div>
+      <div class="feld"><label>Quelle für ffmpeg beim Einrichten (optional, ffprobe wird daneben gesucht)</label><input id="efFfmpeg" placeholder="leer = bekannte Orte, sonst Download" value="${esc(s.ffmpeg_pfad || '')}" ${dis}></div>
+      <div class="feld"><label>Quelle für yt-dlp beim Einrichten (optional)</label><input id="efYtdlp" placeholder="leer = bekannte Orte, sonst Download" value="${esc(s.ytdlp_pfad || '')}" ${dis}></div>
       <div class="hinweis">Chatinhalte gehen an Anthropic (Claude-CLI) bzw. an OpenRouter und den Modellanbieter. Keine vertraulichen oder personenbezogenen Daten eingeben.</div>
     </div>
     <div data-rs="au" class="hidden">${audioEinstellungenHtml(s, dis)}</div>
@@ -2004,9 +2012,14 @@ async function einstellungenDialog() {
       c.querySelector('#efCliStatus').innerHTML = st.claude.gefunden
         ? `<span class="status ok">Gefunden (${esc(st.claude.ort)})${st.claude.version ? ' · ' + esc(st.claude.version) : ''}</span>`
         : '<span class="status">Nicht gefunden – installieren oder den Pfad unten angeben</span>';
-      c.querySelector('#efWerkzeuge').innerHTML = [['ffmpeg', 'ffmpeg'], ['ffprobe', 'ffprobe'], ['ytdlp', 'yt-dlp']]
-        .map(([k, n]) => `<span class="status ${st.werkzeuge[k] ? 'ok' : ''}">${n}</span>`).join(' &nbsp; ');
     }).catch(() => {});
+    werkzeugeZeigen(c);
+    const wkEin = c.querySelector('#efWkEin');
+    if (wkEin) wkEin.onclick = async () => {
+      if (!confirm('Fehlende Werkzeuge einrichten?\n\nVorhandene Kopien auf diesem Rechner werden übernommen. Was fehlt, wird geladen (feste Versionen, SHA-256 geprüft): ffmpeg und yt-dlp von GitHub, whisper.cpp von GitHub, das Sprachmodell (ca. 490 MB) von Hugging Face, HyperFrames über npm. Alles landet im Programmordner.')) return;
+      wkEin.disabled = true;
+      try { await api('werkzeuge/einrichten', { laden: true }); werkzeugeZeigen(c); } catch (e) { fehler(e); wkEin.disabled = false; }
+    };
     if (adm) audioEinstellungenBinden(c); else wahlFelderBinden(c);
     c.querySelector('#efAblageAuf').onclick = () => imOrdnerZeigen(null);
     const test = c.querySelector('#efCliTest');
@@ -2041,6 +2054,8 @@ async function einstellungenDialog() {
         assistent_auto: c.querySelector('#efAuto').checked, assistent_sprache: c.querySelector('#efSpr').value,
         assistent_claude_modell: claudeModellWahl(c), assistent_or_modell: c.querySelector('#efOr').value.trim(),
         assistent_vision_modell: c.querySelector('#efVis').value.trim(), claude_pfad: c.querySelector('#efPfad').value.trim(),
+        hf_max_runden: parseInt(c.querySelector('#efHfRunden').value, 10) || 60,
+        hf_kosten_limit: Math.max(0, parseFloat(c.querySelector('#efHfKosten').value) || 0), hf_cache: c.querySelector('#efHfCache').checked,
         klon_modell: c.querySelector('#efKlon').value.trim(), ffmpeg_pfad: c.querySelector('#efFfmpeg').value.trim(),
         ytdlp_pfad: c.querySelector('#efYtdlp').value.trim(), ablage_pfad: c.querySelector('#efAblage').value.trim(),
         ...audioEinstellungenWerte(c),
@@ -2092,3 +2107,22 @@ symboleEinsetzen();
     zeigeZugang(meldung);
   } catch (e) { zeigeZugang(e.message); }
 })();
+
+// Werkzeugordner im Repo (werkzeugkiste.py): Stand zeigen, während einer Einrichtung nachfragen
+async function werkzeugeZeigen(c) {
+  const ziel = c.querySelector('#efWerkzeuge');
+  if (!ziel) return;
+  let st;
+  try { st = await api('werkzeuge'); } catch { return; }
+  ziel.innerHTML = [['ffmpeg', 'ffmpeg + ffprobe'], ['yt-dlp', 'yt-dlp'], ['whisper', 'whisper'], ['modell', 'Sprachmodell'],
+    ['hyperframes', 'HyperFrames ' + (st.hyperframes_version || '')], ['chrome', 'Chrome (lädt HyperFrames sonst selbst)'], ['node', 'Node.js']]
+    .map(([k, n]) => `<span class="status ${st[k] ? 'ok' : ''}">${esc(n)}</span>`).join(' &nbsp; ');
+  const ort = c.querySelector('#efWkOrt');
+  if (ort) ort.textContent = st.ordner;
+  const log = c.querySelector('#efWkLog'), knopf = c.querySelector('#efWkEin');
+  if (log) log.textContent = st.job.laeuft ? (st.job.log.at(-1) || 'Startet …')
+    : Object.entries(st.job.ergebnis).filter(([, v]) => v !== 'vorhanden').map(([k, v]) => `${k}: ${v}`).join(' · ');
+  if (knopf) knopf.disabled = st.job.laeuft;
+  if (st.job.laeuft && document.body.contains(ziel)) setTimeout(() => werkzeugeZeigen(c), 1500);
+  else if (!st.job.laeuft && typeof C !== 'undefined' && C.status) api('assistent/status').then(x => { C.status = x; }).catch(() => {});
+}

@@ -82,7 +82,7 @@ Voraussetzung: Python 3.10+ (nur Standardbibliothek, keine Pakete).
 - **Seitenchat rechts** (`web/chat.js`, `assistent.py`): Gehirn Claude-CLI über das Abo
   (`claude -p --output-format stream-json`, Modell wählbar: `opus`/`sonnet`/feste Opus-/Sonnet-IDs) oder
   OpenRouter; bei CLI-Fehler Ausweichen auf OpenRouter, Bilder im Chat immer über ein Vision-Modell.
-  Die CLI läuft **ohne Werkzeuge** (`--tools ""`), ohne MCP-Server (`--strict-mcp-config`), in
+  Die CLI läuft **ohne Werkzeuge** (`--tools ""`), ohne fremde MCP-Server (`--strict-mcp-config`; im Modus HyperFrames nur der eigene `hf`), in
   `data/assistent_arbeit/`, `ANTHROPIC_API_KEY`/`ANTHROPIC_AUTH_TOKEN` werden entfernt. Hooks der
   Nutzereinstellungen laufen weiter (Audit-Trail). Antworten kommen als NDJSON-Strom.
   Vorschläge als ```` ```bildprompt ```` / ```` ```videoprompt ```` → Karten mit „In Eingabe“ /
@@ -94,6 +94,21 @@ Voraussetzung: Python 3.10+ (nur Standardbibliothek, keine Pakete).
   (Hook, Stil, Rhythmus, CTA, Szenen, Fremdmarken). Die Analyse hängt am Chat (`chat.klon.bericht`) und
   geht in jede Assistenten-Anweisung; der Assistent baut daraus Bauplan und Szenen-Prompts für die
   eigene Marke. Das Quellvideo wird nach der Analyse gelöscht, Standbilder bleiben in `data/klon/<job>/`.
+- **HyperFrames-Video** (Chat-Modus, `hyperframes_werkzeuge.py`, `hyperframes_mcp.py`, `hyperframes_audio.py`):
+  Onboarding (Idee, Produkt, Webseite oder Video-Clone · 5–30 s · Logo · optional Audio aus Uploads › musik), dann
+  plant, baut, prüft und rendert der Assistent das Video. Claude-CLI bekommt dafür nur den lokalen MCP-Server `hf`
+  (`--strict-mcp-config`, keine Bash/Write), OpenRouter dieselben Werkzeuge per tool calling. Sandbox: Projektordner
+  `ablage/uploads/hyperframe-filme/<konto>/<projekt>/`, nur freigegebene `hyperframes`-Unterbefehle ohne Shell.
+  Mit Audio: Ausschnitt nach `video/assets/musik.mp3`, `hyperframes beats` → `beats/TAKT.md`, bei Gesang/Sprache
+  `hyperframes transcribe` (whisper) → `transcript/TEXT.md`; Schnitte und Übergänge liegen auf Takt bzw. Wort.
+- **Werkzeuge im Repo** (`werkzeugkiste.py`): ffmpeg/ffprobe, yt-dlp, whisper-cli + Modell `ggml-small.bin`,
+  HyperFrames (fest 0.8.143) und dessen Caches (Chrome, Schriften, Verlauf) liegen in `werkzeuge\` am festen Ort
+  (`werkstatt\scripts\cinema-studio\werkzeuge`, in git ausgeschlossen, wird nie gespiegelt). Gestartet wird nur von
+  dort; HyperFrames-Prozesse bekommen `USERPROFILE`/`HOME`/`TEMP` auf `werkzeuge\heim` bzw. `werkzeuge\tmp`, damit
+  nichts im Benutzerprofil landet. Einrichten: Einstellungen → Assistent → „Werkzeuge einrichten“ oder
+  `python werkzeugkiste.py einrichten [--nur-uebernehmen]` – erst vorhandene Kopien übernehmen, sonst laden (feste
+  Versionen, SHA-256 geprüft; Quellen GitHub, Hugging Face, npm). Voraussetzung bleiben Python, Node.js 22+ und für
+  das Gehirn „Claude“ die angemeldete Claude-CLI.
 - **Anzahl > n des Modells:** der Server schickt dann mehrere Einzelaufrufe parallel.
 - **Sicherheit:** Sitzungs-Cookie HttpOnly/SameSite=Strict + CSRF-Kopf, Host-Prüfung gegen
   DNS-Rebinding, Einlass nur mit Marke aus der Werkstatt (`zugang.py`), Bilder mit `sandbox`-CSP ausgeliefert.

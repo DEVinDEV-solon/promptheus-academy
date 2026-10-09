@@ -6,7 +6,13 @@ const C = {
   chats: [], chat: null, laeuft: false, steuerung: null, anhang: [], status: null,
   auto: speicher.lies('chatAuto', null),
 };
-const CHAT_MODI = { assistent: 'Assistent', drehbuch: 'Drehbuch', klon: 'Video-Clone' };
+const CHAT_MODI = { assistent: 'Assistent', drehbuch: 'Drehbuch', klon: 'Video-Clone', hyperframes: 'HyperFrames' };
+// Vorschlag bei „Wobei kann ich helfen?“: startet das HyperFrames-Onboarding statt einer Nachricht
+const HF_START = 'HyperFrames-Video';
+// Zustand des Onboardings (bleibt beim Neuzeichnen erhalten)
+const HF = { offen: '', quelle: 'idee', laenge: 10, format: '16:9', logo: null, produktbild: null, videoUrl: '', webseite: '',
+  titel: '', idee: '', produkt: '', marke: '', story: '', laeuft: '', job: null,
+  audio: null, audioArt: 'de', audioAb: '0', audioGanz: false };
 
 // ------------------------------------------------------------------ Grundgerüst
 function chatUmschalten(offen = !C.offen) {
@@ -56,7 +62,7 @@ $('#chatNeu').onclick = () => chatNeu().catch(fehler);
 $('#chatVerlauf').onclick = () => {
   menue($('#chatVerlauf'), [
     { kopf: 'Letzte Chats' },
-    ...(C.chats.length ? C.chats.slice(0, 30).map(c => ({ ico: c.modus === 'drehbuch' ? 'video' : 'text', txt: c.titel || 'Neuer Chat',
+    ...(C.chats.length ? C.chats.slice(0, 30).map(c => ({ ico: c.modus === 'drehbuch' || c.modus === 'hyperframes' ? 'video' : 'text', txt: c.titel || 'Neuer Chat',
       klein: `${CHAT_MODI[c.modus] || ''} · ${c.anzahl} Nachricht(en)`, haken: c.id === C.chat?.id, fn: () => chatOeffnen(c.id) })) : [{ txt: 'Noch keine Chats', aus: true }]),
     '-',
     { ico: 'text', txt: 'Umbenennen …', aus: !C.chat, fn: async () => {
@@ -179,7 +185,8 @@ function chatZeichnen() {
   const box = $('#chatNachrichten');
   if (!C.chat) { box.innerHTML = ''; return; }
   if (C.chat.modus === 'klon') {
-    box.innerHTML = (C.chat.klon ? klonUebersicht(C.chat.klon) : klonStartHtml()) + C.chat.nachrichten.map((n, i) => nachrichtHtml(n, i)).join('');
+    box.innerHTML = (C.chat.klon ? klonUebersicht(C.chat.klon) : klonStartHtml()) + (HF.offen === C.chat.id ? hfOnboardingHtml(true) : '') +
+      C.chat.nachrichten.map((n, i) => nachrichtHtml(n, i)).join('');
     preiseNachladen(box);
     if (C.chat.nachrichten.length) box.scrollTop = box.scrollHeight;
     return;
@@ -188,6 +195,11 @@ function chatZeichnen() {
     box.innerHTML = `<div class="cleer">${ico('zauber')}<h4>Influencer bauen</h4>
       <p>Ich helfe dir, eine auffällige Figur zu erfinden. Jeder Vorschlag kommt als Karte – „Ins Panel“ übernimmt ihn links.</p>
       <div class="cvorschlaege">${IF_CHAT_VORSCHLAEGE.map(v => `<button data-vorschlag="${esc(v)}">${esc(v)}</button>`).join('')}</div></div>`;
+    return;
+  }
+  if (C.chat.modus === 'hyperframes' && (!C.chat.nachrichten.length || HF.offen === C.chat.id)) {
+    box.innerHTML = C.chat.nachrichten.map((n, i) => nachrichtHtml(n, i)).join('') + hfOnboardingHtml(false);
+    if (C.chat.nachrichten.length) box.scrollTop = box.scrollHeight;
     return;
   }
   if (!C.chat.nachrichten.length) {
@@ -199,7 +211,9 @@ function chatZeichnen() {
         ? ['30-Sekunden-Werbeclip für ein Café', 'Erklärvideo in 5 Szenen', 'Social-Reel 9:16 mit Hook']
         : S.modus === 'audio'
           ? ['Begrüssung für meinen Podcast', 'Sprechertext für ein 30-Sekunden-Produktvideo', 'Verbessere meinen aktuellen Text']
-          : ['Produktfoto für einen Onlineshop', 'Filmische Landschaft bei Sonnenaufgang', 'Verbessere meinen aktuellen Prompt']).map(v => `<button data-vorschlag="${esc(v)}">${esc(v)}</button>`).join('')}</div></div>`;
+          : [HF_START, 'Produktfoto für einen Onlineshop', 'Filmische Landschaft bei Sonnenaufgang', 'Verbessere meinen aktuellen Prompt']).map(v =>
+            v === HF_START ? `<button data-vorschlag="${esc(v)}" class="hf-start">${ico('video')}<b>${esc(v)}</b><small>Motion-Graphic aus Link, Produkt, Webseite oder Idee – 5 bis 30 s</small></button>`
+              : `<button data-vorschlag="${esc(v)}">${esc(v)}</button>`).join('')}</div></div>`;
     return;
   }
   box.innerHTML = C.chat.nachrichten.map((n, i) => nachrichtHtml(n, i)).join('');
@@ -219,6 +233,8 @@ function nachrichtHtml(n, i) {
     html += `<div class="calle"><button class="btn primaer klein" data-alle="${i}" data-tip="Alle ${szenen.length} Video-Prompts nacheinander als Aufträge starten">${ico('video')}Alle ${szenen.length} Szenen erzeugen</button>
       <button class="btn klein" data-export="${i}" data-tip="Drehbuch als Markdown-Datei herunterladen">${ico('download')}Drehbuch speichern</button><span class="cpreis" data-preisalle="${i}"></span></div>`;
   }
+  html = hfSchritteHtml(n) + html + (n.videos || []).map(id => `<div class="cvideo"><video src="/bild/${esc(id)}" controls playsinline preload="metadata"></video>
+    <div class="cknoepfe"><a class="btn klein" href="/bild/${esc(id)}" download>${ico('download')}Herunterladen</a><button class="btn klein" data-zurbib>${ico('bilder')}In der Bibliothek</button></div></div>`).join('');
   return `<div class="cmsg assistent" data-n="${i}"><div class="cinhalt">${html}</div>
     <div class="cfuss">${esc(n.gehirn || '')}${n.abgebrochen ? ' · abgebrochen' : ''}</div></div>`;
 }
@@ -299,6 +315,8 @@ async function karteErzeugen(k) {
 }
 $('#chatNachrichten').addEventListener('click', async ev => {
   const v = ev.target.closest('[data-vorschlag]');
+  if (v && v.dataset.vorschlag === HF_START) return hfOeffnen().catch(fehler);
+  if (ev.target.closest('[data-zurbib]')) { ansicht('bibliothek'); return; }
   if (v) {
     const t = v.dataset.vorschlag;
     $('#chatText').value = t.startsWith('Verbessere')
@@ -377,6 +395,9 @@ async function chatSenden(zusatz = {}) {
         if (!zeile.trim()) continue;
         const e = JSON.parse(zeile);
         if (e.t === 'text') { antwort.text += e.d; liveZeichnen(); }
+        else if (e.t === 'schritt') { (antwort.schritte ||= []).push(e.d); liveZeichnen(); }
+        else if (e.t === 'status') { antwort.status = e.d; liveZeichnen(); }
+        else if (e.t === 'video') { (antwort.videos ||= []).push(e.id); liveZeichnen(); toast('Video fertig – liegt in der Bibliothek.', 'ok'); }
         else if (e.t === 'hinweis') toast(e.d);
         else if (e.t === 'fehler') throw new Error(e.d);
         else if (e.t === 'ende') { fertig = e; antwort.gehirn = e.gehirn; if (e.abgebrochen) antwort.abgebrochen = true; }
@@ -384,10 +405,11 @@ async function chatSenden(zusatz = {}) {
     }
   } catch (e) {
     if (e.name === 'AbortError') antwort.abgebrochen = true;
-    else { fehler(e); if (!antwort.text) C.chat.nachrichten.splice(-2, 2); }
+    else { fehler(e); if (!antwort.text && !antwort.schritte) C.chat.nachrichten.splice(-2, 2); }
   } finally {
     C.laeuft = false; C.steuerung = null; knopfZustand();
-    if (!antwort.text && !antwort.abgebrochen && C.chat.nachrichten.at(-1) === antwort) C.chat.nachrichten.pop();
+    if (!antwort.text && !antwort.schritte && !antwort.abgebrochen && C.chat.nachrichten.at(-1) === antwort) C.chat.nachrichten.pop();
+    if (antwort.videos?.length) bilderLaden().catch(() => {});
     chatZeichnen();
     const eintrag = C.chats.find(c => c.id === C.chat.id);
     if (eintrag && !eintrag.titel) { eintrag.titel = text.slice(0, 60); $('#chatTitel').textContent = eintrag.titel; }
@@ -466,7 +488,7 @@ function klonStartHtml() {
       <small>≈ 0,01–0,05 $ je Analyse</small>
     </div>
     <input type="file" id="klonDatei" accept="video/mp4,video/quicktime,video/webm" hidden>
-    ${fehlt.length ? `<div class="hinweis">${fehlt.join(' und ')} nicht gefunden – Pfad unter Einstellungen → Assistent angeben.</div>` : ''}
+    ${fehlt.length ? `<div class="hinweis">${fehlt.join(' und ')} nicht eingerichtet – Einstellungen → Assistent → Werkzeuge einrichten.</div>` : ''}
     ${!w.ytdlp ? '<div class="hinweis">yt-dlp nicht gefunden – Links gehen erst nach Angabe des Pfads, eigene Videos schon jetzt.</div>' : ''}
     ${j ? `<div class="klon-fortschritt ${j.status}">${j.status === 'laeuft' ? `<span class="spin"></span>Schritt ${j.nr}/${j.von}: ${esc(j.schritt)}` : j.status === 'fehler' ? `⚠ ${esc(j.fehler)}` : ''}</div>` : ''}
     <div class="hinweis">Nur Videos verwenden, an denen du Rechte hast oder die zur Analyse öffentlich zugänglich sind. Herunterladen kann den
@@ -490,7 +512,10 @@ function klonUebersicht(k) {
       ${a.rhythmus ? `<dt>Rhythmus</dt><dd>${esc(a.rhythmus)}</dd>` : ''}${a.cta ? `<dt>CTA</dt><dd>${esc(a.cta)}</dd>` : ''}
       ${a.fremdmarken?.length ? `<dt>Nicht übernehmen</dt><dd>${esc(a.fremdmarken.join(', '))}</dd>` : ''}
     </dl>
-    ${C.chat.nachrichten.length ? '' : `<button class="btn primaer klein" id="klonBauplan">${ico('zauber')}Klon-Bauplan für meine Marke erstellen</button>`}
+    <div class="klon-zeile">
+      ${C.chat.nachrichten.length ? '' : `<button class="btn primaer klein" id="klonBauplan">${ico('zauber')}Klon-Bauplan für meine Marke erstellen</button>`}
+      ${HF.offen === C.chat.id ? '' : `<button class="btn klein ${C.chat.nachrichten.length ? 'primaer' : ''}" id="hfAusKlon" data-tip="Den Aufbau dieses Videos als Motion-Graphic mit HyperFrames nachbauen – mit deiner Marke, deinem Logo und deiner Geschichte">${ico('video')}Als HyperFrames-Video bauen</button>`}
+    </div>
   </div>`;
 }
 $('#chatNachrichten').addEventListener('click', async ev => {
@@ -508,6 +533,7 @@ $('#chatNachrichten').addEventListener('click', async ev => {
     }, { titel: 'Modelle, die Bilder sehen können' });
   }
   if (ev.target.closest('#klonStart')) return klonStarten().catch(fehler);
+  if (ev.target.closest('#hfAusKlon')) { Object.assign(HF, { offen: C.chat.id, quelle: 'klon' }); chatZeichnen(); $('.hf')?.scrollIntoView({ block: 'nearest' }); return; }
   if (ev.target.closest('#klonBauplan')) {
     $('#chatText').value = 'Erstelle aus dieser Analyse einen Klon-Bauplan für meine Marke. Frag mich zuerst nach Marke, Produkt und Ziel, falls du sie noch nicht kennst.';
     return chatSenden();
@@ -572,3 +598,190 @@ $('#btnVerbessern').onclick = () => {
   setTimeout(() => chatSenden(), 50);
 };
 
+
+// ------------------------------------------------------------------ HyperFrames (Onboarding → Projekt → Assistent baut + rendert)
+const HF_QUELLEN = { klon: ['Video-Link klonen', 'link'], produkt: ['Produkt', 'bilder'], webseite: ['Webseite', 'globus'], idee: ['Freie Idee', 'zauber'] };
+const HF_FORMATE = { '16:9': 'Quer', '9:16': 'Hoch', '1:1': 'Quadrat' };
+
+async function hfOeffnen() {
+  if (!C.chat) await chatStart();
+  if (C.chat.modus !== 'hyperframes') {
+    if (!C.chat.nachrichten.length && !C.chat.klon) C.chat = (await api('chat/' + C.chat.id, { modus: 'hyperframes' })).chat;
+    else await chatNeu('hyperframes');
+    await chatOeffnen(C.chat.id);
+  }
+  HF.offen = C.chat.id;
+  chatZeichnen();
+}
+
+function hfSchritteHtml(n) {
+  const s = n.schritte || [];
+  if (!s.length) return '';
+  const laeuft = C.laeuft && n === C.chat.nachrichten.at(-1);
+  const status = n.status ? `<div class="cstatus">${esc(n.status)}</div>` : '';   // Runde · laufende Kosten · Cache
+  return `${status}<details class="cschritte" ${laeuft ? 'open' : ''}><summary>${laeuft ? '<span class="spin"></span>' : ico('haken')}${s.length} Arbeitsschritt${s.length === 1 ? '' : 'e'}${laeuft ? ' · ' + esc(s.at(-1)) : ''}</summary>
+    <ol>${s.map(z => `<li class="${z.startsWith('⚠') ? 'warn' : ''}">${esc(z)}</li>`).join('')}</ol></details>`;
+}
+
+function hfOnboardingHtml(ausKlon) {
+  const quelle = ausKlon ? 'klon' : HF.quelle;
+  const hf = C.status?.hyperframes || {};
+  const j = HF.job && HF.job.chat === C.chat.id ? HF.job : null;
+  const aus = HF.laeuft ? 'disabled' : '';
+  const feld = (k, label, ph, zeilen = 0) => `<label class="hf-feld"><span>${label}</span>${zeilen
+    ? `<textarea data-hf="${k}" rows="${zeilen}" placeholder="${esc(ph)}" maxlength="3000" ${aus}>${esc(HF[k])}</textarea>`
+    : `<input data-hf="${k}" type="${k === 'webseite' || k === 'videoUrl' ? 'url' : 'text'}" placeholder="${esc(ph)}" maxlength="${k === 'titel' ? 120 : 2000}" value="${esc(HF[k])}" ${aus}>`}</label>`;
+  const bild = (k, label) => `<div class="hf-bild">${HF[k] ? `<img src="${esc(HF[k].url)}" alt=""><button class="x" data-hfweg="${k}" aria-label="Entfernen" ${aus}>✕</button>` : ''}
+    <button class="btn klein" data-hfbild="${k}" ${aus}>${ico('hochladen')}${HF[k] ? 'Anderes Bild' : label}</button></div>`;
+  return `<div class="klon hf">
+    <div class="klon-kopf">${ico('video')}<b>${ausKlon ? 'HyperFrames-Video aus diesem Clone' : 'HyperFrames-Video'}</b><span>Motion-Graphic · 5–30 s</span></div>
+    <p>${ausKlon ? 'Aufbau, Rhythmus, Hook und CTA des analysierten Videos – neu gebaut mit deiner Marke und Geschichte.'
+      : 'Ich frage kurz, worum es geht, baue das Video als HTML-Komposition, prüfe es und rendere eine MP4 in deine Bibliothek.'}</p>
+    ${hf.node === false ? '<div class="hinweis">Node.js nicht gefunden – HyperFrames braucht Node.js 22 oder neuer.</div>' : ''}
+    ${ausKlon ? '' : `<div class="hf-titel">1 · Ausgangspunkt</div>
+    <div class="hf-wahl" data-hfgruppe="quelle">${Object.entries(HF_QUELLEN).map(([k, [t, i]]) =>
+      `<button data-hfwert="${k}" class="${quelle === k ? 'an' : ''}" ${aus}>${ico(i)}${t}</button>`).join('')}</div>
+    ${quelle === 'klon' ? (C.chat.klon?.analyse ? `<div class="hinweis">Analyse vorhanden: ${esc(C.chat.klon.titel || 'Referenzvideo')}</div>`
+      : feld('videoUrl', 'Link zum Referenzvideo (YouTube, TikTok, Instagram …)', 'https://…') +
+        '<div class="hinweis">Das Video wird per Reverse Engineering zerlegt (Szenen, Schnitt, Hook, CTA). Übernommen wird nur die Form – nie fremde Marken, Personen oder Texte. Eigene Videodateien gehen über den Reiter Video-Clone.</div>') : ''}
+    ${quelle === 'produkt' ? bild('produktbild', 'Produktbild hochladen') + feld('produkt', 'Produktbeschreibung', 'Was ist es, was kann es, für wen?', 3) : ''}
+    ${quelle === 'idee' ? feld('idee', 'Deine Idee', 'z. B. Animierter Titel „Sommer-Sale 30 %“ mit Gold-Funken', 3) : ''}`}
+    ${feld('webseite', quelle === 'webseite' ? 'Link zur Webseite – Texte, Farben, Schrift und Logo werden dort geholt' : 'Webseite für Texte und Marke (optional)', 'https://…')}
+    <div class="hf-titel">2 · Länge und Format</div>
+    <div class="hf-laenge"><input type="range" min="5" max="30" step="1" value="${HF.laenge}" data-hf="laenge" ${aus} ${HF.audio && HF.audioGanz ? 'disabled' : ''}><b>${HF.audio && HF.audioGanz ? 'wie Audio' : HF.laenge + ' s'}</b></div>
+    <div class="hf-wahl" data-hfgruppe="format">${Object.entries(HF_FORMATE).map(([k, t]) =>
+      `<button data-hfwert="${k}" class="${HF.format === k ? 'an' : ''}" ${aus}>${k} <small>${t}</small></button>`).join('')}</div>
+    <div class="hf-titel">3 · Ton (optional) – Bilder und Übergänge folgen Takt und Wort</div>
+    ${hfAudioHtml(aus, hf)}
+    <div class="hf-titel">4 · Marke</div>
+    ${bild('logo', 'Logo hinzufügen (optional)')}
+    ${feld('titel', 'Kernbotschaft oder Titel (optional)', 'Die eine Aussage, die hängen bleiben soll')}
+    ${feld('marke', 'Brand-Guideline (optional)', 'Farben, Schriften, Tonalität, No-Gos …', 2)}
+    ${feld('story', 'Storytelling (optional)', 'Problem → Lösung → Aufruf, Zielgruppe, Stimmung …', 2)}
+    ${j?.status === 'laeuft' ? `<div class="klon-fortschritt laeuft"><span class="spin"></span>Analyse ${j.nr}/${j.von}: ${esc(j.schritt)}</div>`
+      : j?.status === 'fehler' ? `<div class="klon-fortschritt fehler">⚠ ${esc(j.fehler)}</div>` : ''}
+    <div class="klon-zeile">
+      <button class="btn primaer klein" id="hfBauen" ${aus}>${HF.laeuft ? '<span class="spin"></span>' + esc(HF.laeuft) : ico('funke') + 'Video bauen'}</button>
+      ${ausKlon || C.chat.nachrichten.length ? `<button class="btn klein" id="hfZu" ${aus}>Abbrechen</button>` : ''}
+      <small>Rendern kostet nichts; nur das Sprachmodell (Abo bzw. OpenRouter).</small>
+    </div>
+  </div>`;
+}
+
+function hfAudioHtml(aus, hf) {
+  if (!HF.audio) return `<div class="klon-zeile">
+      <button class="btn klein" data-hfaudiowahl ${aus}>${ico('ton')}Aus Uploads › ${esc(hf.musik || 'musik')} wählen</button>
+      <button class="btn klein" data-hfaudioup ${aus}>${ico('hochladen')}Audio hochladen</button></div>
+    <small class="hf-klein">Voice-Over, Song oder Musik (mp3, wav, m4a …). Hochgeladenes landet in Uploads › ${esc(hf.musik || 'musik')}.</small>`;
+  const arten = { de: 'Gesang/Sprache Deutsch', en: 'Gesang/Sprache Englisch', takt: 'Nur Takt' };
+  return `<div class="hf-audio">${ico('ton')}<b>${esc(HF.audio.name)}</b><button class="x" data-hfaudioweg aria-label="Audio entfernen" ${aus}>✕</button></div>
+    <div class="hf-wahl" data-hfgruppe="audioArt">${Object.entries(arten).map(([k, t]) =>
+      `<button data-hfwert="${k}" class="${HF.audioArt === k ? 'an' : ''}" ${aus}>${t}</button>`).join('')}</div>
+    ${HF.audioArt !== 'takt' && hf.whisper === false ? '<div class="hinweis">whisper ist nicht eingerichtet – es gibt nur den Takt, keine Wortzeiten (Einstellungen → Assistent → Werkzeuge einrichten).</div>' : ''}
+    <div class="klon-zeile hf-audiozeile">
+      <label class="hf-feld"><span>Ab Sekunde</span><input data-hf="audioAb" type="number" min="0" step="0.5" value="${esc(HF.audioAb)}" ${aus}></label>
+      <label class="auto"><input type="checkbox" data-hf="audioGanz" ${HF.audioGanz ? 'checked' : ''} ${aus}> Länge = Audio (bis 120 s)</label>
+    </div>
+    <small class="hf-klein">${HF.audioArt === 'takt' ? 'Schnitte und Übergänge landen auf den Schlägen.' : 'Takt für Schnitte, dazu Wortzeiten: Texte und Bildwechsel laufen synchron zu Gesang bzw. Sprache.'}</small>`;
+}
+
+const hfWert = el => el.type === 'checkbox' ? el.checked : el.dataset.hf === 'laenge' ? +el.value : el.value;
+function hfFelderMerken() {
+  for (const el of $$('[data-hf]', $('#chatNachrichten'))) HF[el.dataset.hf] = hfWert(el);
+}
+async function hfAudioWaehlen(anker) {
+  const ordner = C.status?.hyperframes?.musik || 'musik';
+  const alle = (await api('uploads?typ=audio')).uploads;
+  const musik = alle.filter(u => u.ordner.toLowerCase() === ordner.toLowerCase());
+  const andere = alle.filter(u => u.ordner.toLowerCase() !== ordner.toLowerCase());
+  const punkt = u => ({ ico: 'ton', txt: u.name, klein: u.ordner || 'ohne Ordner', fn: () => { HF.audio = { id: u.id, name: u.dateiname }; chatZeichnen(); } });
+  menue(anker, [{ kopf: `Uploads › ${ordner}` }, ...(musik.length ? musik.map(punkt) : [{ txt: 'Noch nichts in diesem Ordner', aus: true }]),
+    ...(andere.length ? ['-', { kopf: 'Weitere Audios' }, ...andere.slice(0, 20).map(punkt)] : [])], { seite: 'unten' });
+}
+function hfAudioHochladen() {
+  const ordner = C.status?.hyperframes?.musik || 'musik';
+  const inp = Object.assign(document.createElement('input'), { type: 'file', accept: 'audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac' });
+  inp.onchange = async () => {
+    const f = inp.files[0];
+    if (!f) return;
+    if (f.size > 500 * 1024 * 1024) return toast('Die Datei ist größer als 500 MB.', 'fehler');
+    HF.laeuft = 'Audio wird hochgeladen …'; chatZeichnen();
+    try {
+      const r = await fetch('/api/uploads/datei?ordner=' + encodeURIComponent(ordner), { method: 'POST', body: f,
+        headers: { 'X-CSRF': S.csrf, 'Content-Type': f.type || 'application/octet-stream', 'X-Dateiname': encodeURIComponent(f.name) } });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.fehler || `Upload fehlgeschlagen (${r.status})`);
+      HF.audio = { id: d.upload.id, name: d.upload.dateiname };
+    } catch (e) { fehler(e); }
+    HF.laeuft = ''; chatZeichnen();
+  };
+  inp.click();
+}
+$('#chatNachrichten').addEventListener('input', ev => {
+  const el = ev.target.closest('[data-hf]');
+  if (!el) return;
+  HF[el.dataset.hf] = hfWert(el);
+  if (el.dataset.hf === 'laenge') el.nextElementSibling.textContent = `${el.value} s`;
+  if (el.dataset.hf === 'audioGanz') chatZeichnen();
+});
+$('#chatNachrichten').addEventListener('click', async ev => {
+  const w = ev.target.closest('[data-hfwert]');
+  if (w) { hfFelderMerken(); HF[w.closest('[data-hfgruppe]').dataset.hfgruppe] = w.dataset.hfwert; return chatZeichnen(); }
+  const weg = ev.target.closest('[data-hfweg]');
+  if (weg) { hfFelderMerken(); HF[weg.dataset.hfweg] = null; return chatZeichnen(); }
+  const b = ev.target.closest('[data-hfbild]');
+  if (b) {
+    hfFelderMerken();
+    const inp = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/png,image/jpeg,image/webp' });
+    inp.onchange = async () => {
+      const f = inp.files[0];
+      if (!f) return;
+      try {
+        const daten = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
+        const d = await api('upload', { daten, name: f.name });
+        HF[b.dataset.hfbild] = { id: d.id, url: d.url };
+        chatZeichnen();
+      } catch (e) { fehler(e); }
+    };
+    return inp.click();
+  }
+  const aw = ev.target.closest('[data-hfaudiowahl]');
+  if (aw) { hfFelderMerken(); return hfAudioWaehlen(aw).catch(fehler); }
+  if (ev.target.closest('[data-hfaudioup]')) { hfFelderMerken(); return hfAudioHochladen(); }
+  if (ev.target.closest('[data-hfaudioweg]')) { hfFelderMerken(); HF.audio = null; return chatZeichnen(); }
+  if (ev.target.closest('#hfZu')) { HF.offen = ''; return chatZeichnen(); }
+  if (ev.target.closest('#hfBauen')) { hfFelderMerken(); return hfBauen().catch(e => { HF.laeuft = ''; chatZeichnen(); fehler(e); }); }
+});
+
+async function hfBauen() {
+  if (C.laeuft || HF.laeuft) return;
+  const ausKlon = C.chat.modus === 'klon';
+  const quelle = ausKlon ? 'klon' : HF.quelle;
+  const chatId = C.chat.id;
+  if (quelle === 'klon' && !C.chat.klon?.analyse) {             // erst das Referenzvideo zerlegen
+    if (!HF.videoUrl.trim()) return toast('Bitte den Link zum Referenzvideo einfügen.');
+    HF.laeuft = 'Video wird analysiert …'; chatZeichnen();
+    HF.job = (await api('klon/start', { chat: chatId, url: HF.videoUrl.trim() })).job;
+    while (HF.job.status === 'laeuft') {
+      await new Promise(r => setTimeout(r, 1500));
+      try { HF.job = (await api('klon/status?id=' + HF.job.id)).job; } catch { /* nächster Takt */ }
+      if (C.chat?.id === chatId) chatZeichnen();
+    }
+    if (HF.job.status !== 'fertig') throw new Error(HF.job.fehler || 'Analyse fehlgeschlagen.');
+    C.chat = (await api('chat/' + chatId)).chat;
+    kontoLaden();
+  }
+  HF.laeuft = HF.audio ? 'Projekt, Takt und Wortzeiten werden vorbereitet …' : 'Projekt wird angelegt …'; chatZeichnen();
+  const d = await api('hyperframes/start', { chat: chatId, quelle, laenge: HF.laenge, format: HF.format, logo: HF.logo?.id || '',
+    produktbild: quelle === 'produkt' ? HF.produktbild?.id || '' : '', webseite: HF.webseite.trim(), titel: HF.titel, marke: HF.marke,
+    story: HF.story, produkt: quelle === 'produkt' ? HF.produkt : '', idee: quelle === 'idee' ? HF.idee : '',
+    ...(HF.audio ? { audio: HF.audio.id, audio_art: HF.audioArt, audio_ab: +HF.audioAb || 0, audio_ganz: !!HF.audioGanz } : {}) });
+  for (const h of d.audio?.hinweise || []) toast(h);
+  HF.laeuft = ''; HF.offen = ''; HF.job = null;
+  if (C.chat?.id !== chatId) return;
+  C.chat = (await api('chat/' + chatId)).chat;
+  $('#chatTitel').textContent = C.chat.titel || 'HyperFrames';
+  C.chats = (await api('chats')).chats;
+  $('#chatText').value = d.auftrag;
+  await chatSenden();
+}

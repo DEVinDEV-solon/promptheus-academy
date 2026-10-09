@@ -26,17 +26,18 @@ export const ZIEL = join(WURZEL, 'scripts', 'cinema-studio')
 /**
  * Was gespiegelt wird. Ordner werden am Ziel erst geleert und dann neu
  * kopiert, damit gelöschte Dateien nicht liegen bleiben. Nie in dieser Liste:
- * `.env`, `data`, `zugang`, `Ablage`, `prompts`, `skills`.
+ * `.env`, `data`, `zugang`, `Ablage`, `prompts`, `skills`, `werkzeuge` (ffmpeg, whisper, HyperFrames …).
  */
 export const TEILE = [
   'server.py', 'assistent.py', 'audio.py', 'klon.py', 'zugang.py',
+  'hyperframes_werkzeuge.py', 'hyperframes_mcp.py', 'hyperframes_audio.py', 'werkzeugkiste.py',
   'CINEMA-STUDIO-START.bat', 'README.md', 'env.beispiel', 'logo64.jpg',
   '.gitignore', '.gitattributes',
   'lokal_stimme', 'web', 'tests', 'plan',
 ]
 
 /** Ordner, die nie angefasst werden — eine zweite Sperre neben {@link TEILE}. */
-const GESCHUETZT = new Set(['.env', 'data', 'zugang', 'Ablage', 'prompts', 'skills', '.claude'])
+const GESCHUETZT = new Set(['.env', 'data', 'zugang', 'Ablage', 'prompts', 'skills', '.claude', 'werkzeuge'])
 
 /**
  * Spiegelt den Code an den festen Ort.
