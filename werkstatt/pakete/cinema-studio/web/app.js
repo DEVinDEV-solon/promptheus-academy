@@ -1721,6 +1721,11 @@ async function verbrauchZeigen() {
 // assistent/status); diese zwei Aliase gelten, solange er nicht antwortet. Fehlte die Konstante,
 // öffnete der Dialog gar nicht („CLAUDE_WAHL is not defined“, 07.10.2026).
 let CLAUDE_WAHL = [['opus', 'Opus – immer die neueste Version'], ['sonnet', 'Sonnet – immer die neueste Version']];
+// Gewähltes Claude-Modell im Einstellungsdialog: Listeneintrag oder die eigene Modell-ID.
+const claudeModellWahl = c => {
+  const w = c.querySelector('#efCm').value;
+  return w === 'eigen' ? c.querySelector('#efCmEigen').value.trim() : w;
+};
 async function einstellungenDialog() {
   let d;
   try { d = await api('einstellungen'); } catch (e) { return fehler(e); }
@@ -1837,6 +1842,15 @@ async function einstellungenDialog() {
     c.querySelector('#ef').onsubmit = async ev => {
       ev.preventDefault();
       if (!adm) return;
+      // Jeder Fehler – auch einer beim Einsammeln der Felder – muss sichtbar werden,
+      // sonst passiert beim Klick auf „Speichern“ scheinbar nichts.
+      const knopf = c.querySelector('#ef button.primaer');
+      if (knopf.disabled) return;
+      knopf.disabled = true; knopf.textContent = 'Speichert …';
+      try { await einstellungenSpeichern(); } catch (e) { fehler(e); }
+      knopf.disabled = false; knopf.textContent = 'Speichern';
+    };
+    const einstellungenSpeichern = async () => {
       const body = { anpassung: c.querySelector('#efAnp').value, standard_modell: c.querySelector('#efStd').value, empfohlen: $$('#efEmpf input:checked', c).map(x => x.value),
         standard_video: c.querySelector('#efVStd').value, empfohlen_video: $$('#efVEmpf input:checked', c).map(x => x.value),
         video_takt: parseInt(c.querySelector('#efTakt').value, 10) || 15, startbild_anpassung: c.querySelector('#efStartAnp').value,
@@ -1851,11 +1865,11 @@ async function einstellungenDialog() {
       const key = c.querySelector('#efKey')?.value.trim();
       if (key) body.schluessel = key;
       if (d.werkstatt?.ablage) delete body.ablage_pfad;   // gebunden: der Arbeitsordner der Werkstatt gilt
+      await api('einstellungen', body);
+      if (c.querySelector('#efKey')) c.querySelector('#efKey').value = '';
+      toast('Einstellungen gespeichert.', 'ok');
+      zu('ok');
       try {
-        await api('einstellungen', body);
-        if (c.querySelector('#efKey')) c.querySelector('#efKey').value = '';
-        toast('Einstellungen gespeichert.', 'ok');
-        zu('ok');
         await Promise.all([katalogLaden(), videoKatalogLaden(), audioKatalogLaden()]); kontoLaden();
         if (bildAnsicht(S.ansicht)) wandZeichnen(); else ansicht(S.ansicht);
       } catch (e) { fehler(e); }
