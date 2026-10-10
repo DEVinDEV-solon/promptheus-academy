@@ -17,8 +17,10 @@ Die Zentrale für alle Programme auf diesem Rechner, auf **http://127.0.0.1:8800
 ## Start
 
 - `PROMPTHEUS-DECK-START.bat` (Doppelklick), oder automatisch: `PROMPTHEUS-START.bat` startet DECK beim
-  ersten Start der Academy mit und übergibt ihm die Academy. Beim Systemstart startet DECK über den Autostart.
+  ersten Start der Academy mit und übergibt ihm die Academy. Beim Systemstart nur, wenn der Autostart an ist.
 - Braucht **Python 3.10+**. Fehlt Python, läuft die Academy wie bisher allein.
+- **Autostart** richtet DECK nicht von selbst ein (`profil.json`: `"autostart": false`); einschalten unter
+  Einstellungen oder mit `PROMPTHEUS-DECK-START.bat --autostart-setzen an`.
 - DECK hinterlegt Port und Startweg in `%LOCALAPPDATA%\PROMPTHEUS\deck.json`. Daran erkennt die Academy, dass
   es installiert ist (Knopf „PROMPTHEUS DECK ›“ in der Community).
 

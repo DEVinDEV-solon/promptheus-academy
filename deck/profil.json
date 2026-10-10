@@ -9,6 +9,7 @@
  "melden": true,
  "vorlage": false,
  "einstellungen": {
+  "autostart": false,
   "farbe": "schmiede",
   "favoriten": [],
   "programmordner": [],
