@@ -80,6 +80,17 @@ PU.gemeindeZeichnen = async function () {
   film.type = 'button';
   film.addEventListener('click', PU.gemeindeFilm);
   titelzeile.appendChild(film);
+  // PROMPTHEUS DECK — nur, wenn es auf diesem Rechner installiert ist; index.php
+  // trägt dann seinen Port ein (srv/deck.php). Ohne DECK steht hier nichts.
+  const deckPort = Number(ziel.dataset.deck || 0);
+  if (deckPort >= 1024 && deckPort <= 65535) {
+    const deck = PU.el('a', 'knopf gemeinde-deck-knopf', 'PROMPTHEUS DECK <span aria-hidden="true">›</span>');
+    deck.href = 'http://127.0.0.1:' + deckPort + '/';
+    deck.target = '_blank';
+    deck.rel = 'noopener';
+    deck.title = 'Alle Programme auf diesem Rechner · Port ' + deckPort;
+    titelzeile.appendChild(deck);
+  }
   ziel.innerHTML = '';
   ziel.appendChild(titelzeile);
   const laden = PU.el('p', 'leer-hinweis', 'Lade Community …');

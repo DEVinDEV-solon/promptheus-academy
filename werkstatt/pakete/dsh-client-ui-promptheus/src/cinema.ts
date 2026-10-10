@@ -276,6 +276,38 @@ export function starterUmgebung(umgebung: Record<string, string | undefined>): R
  * geprüft; sonst steht nichts Veränderliches in der Zeile.
  */
 export function starterAufrufen(ordner: string): void {
+  void deckStarten(ordner).then((ok) => { if (!ok) fensterStarten(ordner) })
+}
+
+/**
+ * PROMPTHEUS DECK installiert (`%LOCALAPPDATA%\PROMPTHEUS\deck.json`)? Dann
+ * startet DECK Cinema Studio ohne eigenes Fenster. Das Ticket liegt schon im
+ * Ordner; `zugang.py` prüft es wie immer. Nur für den festen Ort
+ * (`werkstatt\scripts\cinema-studio`) — einen anderen kennt DECK nicht.
+ * @param ordner - der Programmordner von Cinema Studio.
+ * @returns true, wenn DECK den Start angenommen hat.
+ */
+export async function deckStarten(ordner: string): Promise<boolean> {
+  try {
+    if (!/[\\/]werkstatt[\\/]scripts[\\/]cinema-studio[\\/]?$/i.test(ordner)) return false
+    const roh = JSON.parse(readFileSync(join(process.env.LOCALAPPDATA ?? '', 'PROMPTHEUS', 'deck.json'), 'utf8'))
+    const port = Number(roh.port)
+    if (!Number.isInteger(port) || port < 1024 || port > 65535) return false
+    const r = await fetch(`http://127.0.0.1:${port}/api/starten`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-cockpit': '1' },
+      body: JSON.stringify({ id: 'pa-cinema-studio', direkt: true }),
+      signal: AbortSignal.timeout(4000),
+    })
+    const j = await r.json() as { ok?: boolean }
+    return j.ok === true
+  } catch {
+    return false
+  }
+}
+
+/** Der bisherige Weg: `CINEMA-STUDIO-START.bat` in einem eigenen, sichtbaren Fenster. */
+function fensterStarten(ordner: string): void {
   const zeile = `"start "PROMPTHEUS Cinema Studio" /d "${ordner}" "${join(ordner, STARTER)}""`
   const kind = spawn('cmd.exe', ['/d', '/s', '/c', zeile], {
     cwd: ordner,

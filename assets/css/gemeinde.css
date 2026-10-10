@@ -10,6 +10,7 @@
 .gemeinde-titelzeile h1 { margin-right: auto; }
 .gemeinde-film-knopf { display: inline-flex; align-items: center; gap: .45em; white-space: nowrap; }
 .gemeinde-film-knopf span { color: var(--glut); font-size: .85em; }
+.gemeinde-deck-knopf { display: inline-flex; align-items: center; gap: .4em; white-space: nowrap; text-decoration: none; }
 
 /* Das Film-Fenster. Der Film trägt einen eigenen Mäander-Rahmen dicht am
    Bildrand: genau 16:9, nichts beschnitten, keine runden Ecken am Bild. Die

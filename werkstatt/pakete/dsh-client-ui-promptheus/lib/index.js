@@ -122,6 +122,29 @@ function starterUmgebung(umgebung) {
   return sauber;
 }
 function starterAufrufen(ordner) {
+  void deckStarten(ordner).then((ok) => {
+    if (!ok) fensterStarten(ordner);
+  });
+}
+async function deckStarten(ordner) {
+  try {
+    if (!/[\\/]werkstatt[\\/]scripts[\\/]cinema-studio[\\/]?$/i.test(ordner)) return false;
+    const roh = JSON.parse(readFileSync(join(process.env.LOCALAPPDATA ?? "", "PROMPTHEUS", "deck.json"), "utf8"));
+    const port = Number(roh.port);
+    if (!Number.isInteger(port) || port < 1024 || port > 65535) return false;
+    const r = await fetch(`http://127.0.0.1:${port}/api/starten`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-cockpit": "1" },
+      body: JSON.stringify({ id: "pa-cinema-studio", direkt: true }),
+      signal: AbortSignal.timeout(4e3)
+    });
+    const j = await r.json();
+    return j.ok === true;
+  } catch {
+    return false;
+  }
+}
+function fensterStarten(ordner) {
   const zeile = `"start "PROMPTHEUS Cinema Studio" /d "${ordner}" "${join(ordner, STARTER)}""`;
   const kind = spawn("cmd.exe", ["/d", "/s", "/c", zeile], {
     cwd: ordner,
