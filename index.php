@@ -25,6 +25,7 @@ require_once __DIR__ . '/srv/abo.php';
 require_once __DIR__ . '/srv/lernende.php';
 require_once __DIR__ . '/srv/einstellungen.php';
 require_once __DIR__ . '/srv/varianten.php';
+require_once __DIR__ . '/srv/deck.php';
 require_once __DIR__ . '/srv/tutor.php';
 require_once __DIR__ . '/srv/kennzahlen.php';
 require_once __DIR__ . '/srv/persona.php';
@@ -98,6 +99,9 @@ $darfCockpit = !$offen && pu_recht_hat('abo.sehen', $wer);
 $darfGemeinde = !$offen && pu_recht_hat('gemeinde.ansehen', $wer);
 // Updates: die Notiz über „Abmelden“ sieht nur, wer sie auch einspielen darf (Ebene 1).
 $darfUpdate = !$offen && pu_recht_hat('aktualisierung.verwalten', $wer);
+// PROMPTHEUS DECK: der Knopf in der Community steht nur, wenn DECK installiert
+// ist (srv/deck.php), und nur für Ebene 1 — DECK steuert den ganzen Rechner.
+$deck = ($darfGemeinde && $darfUpdate) ? pu_deck() : null;
 
 // Gerendert wird, was das echte Konto darf; ausgeblendet, was die Sicht nicht
 // sähe. So schaltet das „P" ohne Neuladen hin und zurück (assets/js/persona.js).
@@ -832,7 +836,7 @@ $webseite = 'https://promptheus-academy.de/';
     <section class="view hidden" id="view-cockpit"></section>
   <?php endif; ?>
   <?php if ($darfGemeinde): ?>
-    <section class="view hidden" id="view-gemeinde"></section>
+    <section class="view hidden" id="view-gemeinde"<?= $deck ? ' data-deck="' . (int)$deck['port'] . '"' : '' ?>></section>
   <?php endif; ?>
 </main>
 

@@ -26,6 +26,23 @@ if exist ".env" for /f "tokens=1,* delims==" %%A in ('findstr /b /i /c:"PU_PORT=
 for /f "delims=0123456789" %%X in ("%PORT%") do set "PORT=8801"
 if "%PORT%"=="" set "PORT=8801"
 
+rem --- PROMPTHEUS DECK: die Academy laeuft dort mit, ohne eigenes Fenster ---
+rem   DECK (Ordner deck\, Port 8800, Python) startet und verwaltet die Programme
+rem   auf diesem Rechner unsichtbar. Ist es da und Python vorhanden, uebernimmt es
+rem   hier den Start - beim ersten Mal installiert es sich damit (Autostart,
+rem   %LOCALAPPDATA%\PROMPTHEUS\deck.json). Nicht, wenn ein Cockpit diese Datei
+rem   selbst startet (PU_COCKPIT_START), und nur fuer die Haupt-Academy auf 8801.
+rem   Klappt die Uebergabe nicht, startet die Academy wie bisher hier im Fenster.
+if not defined PU_COCKPIT_START if "%PORT%"=="8801" if exist "%~dp0deck\server.py" (
+    echo   Uebergebe an PROMPTHEUS DECK ...
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0srv\deck.ps1" -Eintrag pa-lokal >nul 2>&1
+    if not errorlevel 1 (
+        echo   PROMPTHEUS laeuft jetzt ueber PROMPTHEUS DECK.
+        exit /b 0
+    )
+    echo   PROMPTHEUS DECK hat nicht uebernommen - die Academy startet hier.
+)
+
 rem --- PHP bestimmen ------------------------------------------------
 set "PHP_DIR=%~dp0PHP\php8.2"
 if not exist "%PHP_DIR%\php.exe" set "PHP_DIR=%~dp0php\php8.2"
@@ -124,6 +141,8 @@ rem --- Merker: diese Academy laeuft unter der bat -----------------
 rem   Nur dann darf sie sich fuer ein Update selbst beenden; die Schleife
 rem   unten startet sie wieder. Der Browser oeffnet sich nur beim ersten Lauf.
 set "PU_START_BAT=1"
+rem   Startet DECK die Academy still mit (PU_OHNE_BROWSER), oeffnet sich kein Browser.
+if defined PU_OHNE_BROWSER set "PU_ERSTER_LAUF=0"
 if not defined PU_ERSTER_LAUF set "PU_ERSTER_LAUF=1"
 set "AKT=%~dp0data\aktualisierung"
 

@@ -23,6 +23,7 @@ declare(strict_types=1);
  */
 
 require_once PU_ROOT . '/srv/coder.php';
+require_once PU_ROOT . '/srv/deck.php';
 
 /** Der Port der Werkstatt (werkzeuge/starten.mjs, Vorgabe). */
 const PU_WERKSTATT_PORT = 3081;
@@ -269,6 +270,13 @@ function pu_werkstatt_adresse(int $lernender, ?bool $laeuft = null): array
 function pu_werkstatt_starten(): void
 {
     $w = pu_werkstatt_ordner();
+    // PROMPTHEUS DECK installiert? Dann startet es die Werkstatt ohne eigenes
+    // Fenster (srv/deck.php). Das Ticket liegt schon; WERKSTATT-START.bat prüft
+    // es wie immer. Nur für den eigenen Werkstatt-Ordner — DECK kennt keinen anderen.
+    if (PHP_OS_FAMILY === 'Windows' && getenv('PU_TEST_WERKSTATT') === false
+        && pu_deck_starten('pa-werkstatt')) {
+        return;
+    }
     if (PHP_OS_FAMILY === 'Windows') {
         $bat = str_replace('/', '\\', $w . '/WERKSTATT-START.bat');
         // Einfache Anführungszeichen sind in PowerShell der einzige Sonderfall
