@@ -1,0 +1,96 @@
+{
+ "titel": "PROMPTHEUS DECK",
+ "marke": "PROMPTHEUS",
+ "zusatz": "- DECK -",
+ "port": 8800,
+ "daten": "../data/deck",
+ "autostart": "PROMPTHEUS DECK",
+ "start_bat": "PROMPTHEUS-DECK-START.bat",
+ "melden": true,
+ "vorlage": false,
+ "einstellungen": {
+  "farbe": "schmiede",
+  "favoriten": [],
+  "programmordner": [],
+  "chrome_profil": "Default"
+ },
+ "ordner": [
+  {
+   "id": "p-eigene",
+   "name": "Meine Programme",
+   "bereich": "programme"
+  },
+  {
+   "id": "w-eigene",
+   "name": "Meine Seiten",
+   "bereich": "web"
+  }
+ ],
+ "feste_ordner": {
+  "programme": {
+   "id": "p-academy",
+   "name": "PROMPTHEUS Academy"
+  },
+  "web": {
+   "id": "w-academy",
+   "name": "PROMPTHEUS Academy"
+  }
+ },
+ "feste": [
+  {
+   "id": "pa-webseite",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – Webseite",
+   "url": "https://promptheus-academy.de/",
+   "kuerzel": "WEB"
+  },
+  {
+   "id": "pa-registrieren",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – Registrieren",
+   "url": "https://promptheus-academy.de/registrierung.php",
+   "kuerzel": "REG"
+  },
+  {
+   "id": "pa-lokal",
+   "bereich": "programme",
+   "name": "PROMPTHEUS Academy – Lokal",
+   "url": "http://127.0.0.1:8801/",
+   "port": 8801,
+   "start": "{OBEN}\\PROMPTHEUS-START.bat",
+   "beschreibung": "Die Academy auf diesem Rechner: Kurse, Tutor, Werkstatt-Freigabe.",
+   "kuerzel": "LOK"
+  },
+  {
+   "id": "pa-werkstatt",
+   "bereich": "programme",
+   "name": "PROMPTHEUS Academy – Werkstatt",
+   "url": "http://127.0.0.1:3081/",
+   "port": 3081,
+   "start": "{OBEN}\\werkstatt\\WERKSTATT-START.bat",
+   "ticket": "http://127.0.0.1:8801/#/werkstatt",
+   "ticket_ueber": "pa-lokal",
+   "beschreibung": "Startet nur mit Ticket aus der Academy – DECK startet sie dann ohne Fenster.",
+   "kuerzel": "WST"
+  },
+  {
+   "id": "pa-community",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – Community",
+   "url": "https://promptheus-academy.de/gemeinde/",
+   "kuerzel": "COM"
+  },
+  {
+   "id": "pa-cinema-studio",
+   "bereich": "programme",
+   "name": "PROMPTHEUS Academy – Cinema-Studio",
+   "url": "http://127.0.0.1:8796/",
+   "port": 8796,
+   "start": "{OBEN}\\werkstatt\\scripts\\cinema-studio\\CINEMA-STUDIO-START.bat",
+   "ticket": "http://127.0.0.1:8801/#/werkstatt",
+   "ticket_ueber": "pa-lokal",
+   "beschreibung": "Öffnet sich aus der Werkstatt (Ticket) – DECK startet es dann ohne Fenster.",
+   "kuerzel": "CIN"
+  }
+ ]
+}

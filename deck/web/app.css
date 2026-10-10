@@ -1,0 +1,341 @@
+/* Arbeits-Cockpit — Farbwelt und Bausteine von PROMPTHEUS Cinema Studio (dunkel, Gold-Bronze) */
+:root{
+  --bg:#0a0b0d; --bg2:#0f1114; --panel:#14161b; --panel2:#181b21; --panel3:#1e2129;
+  --border:#252932; --border2:#2f3542;
+  --txt:#e7e8ec; --muted:#8b909b; --muted2:#666b76;
+  --gold:#e6cc88; --gold2:#d4b870; --bronze:#a76f43;
+  --good:#5fd39a; --warn:#e0b24d; --bad:#e07a7a; --blue:#6ea8fe;
+  --radius:12px; --radius-sm:8px;
+  --grad:linear-gradient(90deg,var(--bronze),var(--gold));
+  --shadow:0 24px 60px rgba(0,0,0,.55);
+  --kachel:300px;
+  --auf-gold:#15120a; --feld:#08090b; --feld-rand:#4d5566; --feld-rand2:#5f6879; --rahmen-hell:#454c5b;
+  --serife:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.5 'Segoe UI',system-ui,sans-serif;overflow:hidden}
+button{font-family:inherit;cursor:pointer;color:inherit}
+input,textarea,select{font-family:inherit;color:var(--txt)}
+.hidden,[hidden]{display:none!important}
+svg{display:block}
+[data-i]{display:inline-flex;align-items:center;justify-content:center}
+[data-i] svg,button svg{width:16px;height:16px;flex-shrink:0}
+button:disabled{cursor:default}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- Grundgerüst ---------- */
+.app{height:100%;display:flex}
+.rail{width:var(--rail-b,268px);position:relative;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;
+  padding:10px 10px 12px;gap:3px;flex-shrink:0;transition:width .18s ease;overflow:hidden}
+.rail-head{display:flex;align-items:center;gap:10px;margin:0 0 12px;min-height:32px}
+.rail-toggle{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--panel);color:var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s}
+.rail-toggle:hover{color:var(--gold);border-color:var(--gold)}
+.rail-logo{width:28px;height:28px;flex-shrink:0}
+.wortmarke{display:inline-flex;flex-direction:column;justify-content:center;line-height:.86;white-space:nowrap;min-width:0}
+.wortmarke .wm-name{font-family:var(--serife);font-size:.99rem;font-weight:600;letter-spacing:.05em;color:var(--txt)}
+.wortmarke .wm-zusatz{font-size:.6rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--txt);opacity:.6;margin-top:3px}
+.rail-nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0}
+.rail-nav button,.rail .profile{width:100%;height:40px;border:0;background:transparent;border-radius:9px;color:var(--muted);
+  font-size:13px;display:flex;align-items:center;gap:11px;padding:0 10px;text-align:left;white-space:nowrap;transition:.15s;flex-shrink:0}
+.rail-nav button .ico{width:22px;flex-shrink:0;display:flex;justify-content:center}
+.rail-nav button .ico svg{width:18px;height:18px}
+.rail-nav button .lbl{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rail-nav button:hover{background:var(--panel2);color:var(--txt)}
+.rail-nav button.active{background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold)}
+.rail-nav .badge{margin-left:auto;font-size:10.5px;color:var(--muted2);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 7px;line-height:17px;flex-shrink:0}
+.rail-nav .badge.an{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,transparent)}
+.rail-nav .badge.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.rail-nav .sub-arrow{margin-left:auto;color:var(--muted2);transition:transform .15s;display:flex}
+.rail-nav .open > .sub-arrow{transform:rotate(90deg)}
+.rail-nav .badge + .sub-arrow{margin-left:4px}
+.rail-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 4px 21px;border-left:1px solid var(--border);padding-left:6px}
+.rail-sub button{height:32px;font-size:12.5px;gap:8px}
+.rail-sub .neu{color:var(--muted2)}
+.rail-sub button{position:relative}
+.rail-sub button.davor::before,.rail-sub button.danach::before{content:"";position:absolute;left:6px;right:6px;height:2px;border-radius:2px;background:var(--gold)}
+.rail-sub button.davor::before{top:-1px}
+.rail-sub button.danach::before{bottom:-1px}
+.rail-sub button.zieht{opacity:.45}
+.rail-sub button.ziel{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold);outline:1px dashed var(--gold)}
+.rail-trenn{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);padding:12px 10px 4px}
+.rail .spacer{flex:1;min-height:8px}
+.konto{font-size:11.5px;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:6px;background:var(--panel);white-space:nowrap;display:flex;flex-direction:column;gap:2px}
+.konto b{color:var(--gold);font-weight:600}
+.konto .z{display:flex;align-items:center;gap:7px}
+.profile-wrap{position:relative}
+.rail .profile{border:1px solid var(--border2);color:var(--txt);height:48px}
+.rail .profile:hover{border-color:var(--gold)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--grad);color:var(--auf-gold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.avatar svg{width:15px;height:15px}
+.profile .lbl{display:flex;flex-direction:column;line-height:1.2;overflow:hidden}
+.profile .lbl b{font-weight:600;font-size:13px}
+.profile .lbl small{color:var(--muted2);font-size:11px}
+.profile .chev{margin-left:auto;color:var(--muted2)}
+.rail.zu{width:56px}
+.rail.zu .rail-title,.rail.zu .rail-logo,.rail.zu .lbl,.rail.zu .badge,.rail.zu .sub-arrow,.rail.zu .rail-sub,.rail.zu .konto,.rail.zu .chev,.rail.zu .rail-trenn{display:none!important}
+.rail.zu .rail-nav button,.rail.zu .profile{justify-content:center;padding:0}
+
+/* ---------- Hauptbereich ---------- */
+.main{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:14px 22px 10px;flex-shrink:0;flex-wrap:wrap;
+  background:linear-gradient(var(--bg) 70%,transparent);position:relative;z-index:3}
+.titelblock{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.top h2{margin:0;font-size:17px;font-weight:600}
+.top .count{font-size:12px;color:var(--muted2)}
+.top-tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.suche{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 10px;height:34px;color:var(--muted)}
+.suche:focus-within{border-color:var(--gold)}
+.suche input{background:transparent;border:0;outline:none;width:170px;font-size:13px}
+.icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0;padding:0}
+.icon-btn:hover,.icon-btn.an{color:var(--gold);border-color:var(--gold)}
+.icon-btn.klein{width:30px;height:30px;border-radius:8px}
+.icon-btn.gefahr:hover{color:var(--bad);border-color:var(--bad)}
+.modus,.filter{display:flex;gap:2px;background:color-mix(in srgb,var(--bg2) 80%,transparent);border:1px solid var(--border2);border-radius:11px;padding:3px;flex-shrink:0}
+.modus{height:38px}
+.filter{height:34px;padding:2px}
+.modus button,.filter button{border:0;background:transparent;color:var(--muted);border-radius:8px;padding:0 11px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.15s}
+.modus button:hover,.filter button:hover{color:var(--txt)}
+.modus button.an,.filter button.an{background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
+
+/* ---------- Wand mit Kacheln ---------- */
+.wand{flex:1;overflow-y:auto;padding:4px 22px 190px;outline:none}
+.tag-kopf{font-size:12px;color:var(--muted);margin:20px 2px 10px;display:flex;align-items:center;gap:10px}
+.tag-kopf b{color:var(--txt);font-weight:600;font-size:13px}
+.tag-kopf .ico{color:var(--gold);display:flex}
+.tag-kopf .ico svg{width:15px;height:15px}
+.tag-kopf::after{content:"";flex:1;height:1px;background:var(--border)}
+.tag-kopf.ziel{color:var(--gold)}
+.tag-kopf.ziel::after{background:var(--gold)}
+.raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--kachel),1fr));gap:12px}
+.kachel{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;display:flex;flex-direction:column;gap:9px;transition:border-color .15s,transform .15s,box-shadow .15s;min-width:0}
+.kachel:hover{border-color:var(--border2);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.kachel.laeuft{border-color:color-mix(in srgb,var(--good) 38%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--good) 5%,transparent),transparent 60%),var(--panel)}
+.kachel.startet,.kachel.stoppt{border-color:color-mix(in srgb,var(--gold) 50%,transparent)}
+.kachel.zieht{opacity:.45}
+.kachel.davor::before,.kachel.danach::before{content:"";position:absolute;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--gold);box-shadow:0 0 10px color-mix(in srgb,var(--gold) 60%,transparent)}
+.kachel.davor::before{left:-8px}
+.kachel.danach::before{right:-8px}
+.wand.kompakt .kachel.davor::before,.wand.kompakt .kachel.danach::before{left:6px;right:6px;width:auto;height:3px;top:auto;bottom:auto}
+.wand.kompakt .kachel.davor::before{top:-4px}
+.wand.kompakt .kachel.danach::before{bottom:-4px}
+.raster.ziel{outline:1px dashed color-mix(in srgb,var(--gold) 50%,transparent);outline-offset:6px;border-radius:var(--radius)}
+.kachel.prog .k-kopf,.kachel.prog .k-text,.kachel.prog .k-meta{cursor:grab}
+body.ziehen{user-select:none}
+body.ziehen *{cursor:grabbing!important}
+.geist{position:fixed;z-index:200;pointer-events:none;padding:6px 12px;border-radius:9px;background:var(--panel2);border:1px solid var(--gold);color:var(--gold);font-size:12.5px;box-shadow:var(--shadow);white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.k-kopf{display:flex;align-items:center;gap:11px;min-width:0}
+.mono{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--auf-gold);background:var(--grad);flex-shrink:0;letter-spacing:.02em}
+.mono.web{background:var(--panel3);color:var(--gold);border:1px solid var(--border2)}
+.mono.klein{width:28px;height:28px;font-size:11px;border-radius:8px}
+.k-titel{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.3}
+.k-titel b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-titel small{font-size:11.5px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zustand{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted2);white-space:nowrap;flex-shrink:0}
+.punkt{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.laeuft .punkt,.punkt.an{background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 18%,transparent)}
+.laeuft .zustand{color:var(--good)}
+.startet .punkt,.stoppt .punkt{background:var(--gold);animation:pulsieren 1s ease-in-out infinite}
+.startet .zustand,.stoppt .zustand{color:var(--gold)}
+@keyframes pulsieren{50%{opacity:.3}}
+.k-text{margin:0;font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
+.k-meta{display:flex;flex-wrap:wrap;gap:5px}
+.k-meta span{font-size:11px;border:1px solid var(--border2);border-radius:6px;padding:0 7px;line-height:19px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.k-meta svg{width:11px;height:11px}
+.k-meta .warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.k-info{font-size:11.5px;color:var(--warn);margin:0}
+.k-knoepfe{display:flex;gap:6px;align-items:center;margin-top:auto}
+.k-knoepfe .btn{display:flex;align-items:center;gap:6px}
+.k-knoepfe .btn svg{width:13px;height:13px}
+.k-knoepfe .rechts{margin-left:auto;display:flex;gap:6px}
+.kachel.web{cursor:pointer;padding:12px 12px 12px 14px;gap:0}
+.kachel.web .k-kopf{gap:10px}
+.kachel.web .mehr-btn{opacity:0;transition:.15s}
+.kachel.web:hover .mehr-btn,.kachel.web:focus-within .mehr-btn{opacity:1}
+.kachel.web:hover{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+
+/* Kompakte Liste */
+.wand.kompakt .raster{grid-template-columns:1fr;gap:4px}
+.wand.kompakt .kachel{flex-direction:row;align-items:center;padding:7px 10px;gap:12px;border-radius:10px}
+.wand.kompakt .k-kopf{flex:1}
+.wand.kompakt .mono{width:30px;height:30px;font-size:11px;border-radius:8px}
+.wand.kompakt .k-text,.wand.kompakt .k-info{display:none}
+.wand.kompakt .k-meta{flex-wrap:nowrap}
+.wand.kompakt .k-knoepfe{margin-top:0}
+.wand.kompakt .kachel.web .mehr-btn{opacity:1}
+
+/* Leer- und Hinweisflächen */
+.leer{max-width:480px;margin:12vh auto 0;text-align:center;color:var(--muted)}
+.leer .gross{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;background:var(--panel);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold)}
+.leer .gross svg{width:26px;height:26px}
+.leer h3{color:var(--txt);margin:0 0 6px;font-size:16px}
+.leer p{margin:0;font-size:13px}
+.hinweisband{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:10px;padding:9px 14px;font-size:12.5px;color:var(--muted);margin:6px 0 4px}
+.hinweisband svg{width:15px;height:15px;color:var(--gold)}
+
+/* ---------- Eingabefeld (LLM-Werkzeug) ---------- */
+.composer{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(1000px,calc(100% - 44px));z-index:5;
+  background:color-mix(in srgb,var(--panel2) 88%,transparent);backdrop-filter:blur(18px) saturate(1.2);border:1px solid var(--border2);border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);padding:14px 16px;display:grid;border-color:var(--rahmen-hell);grid-template-columns:1fr;gap:10px}
+.composer.drop{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent),0 20px 60px rgba(0,0,0,.6)}
+.comp-row1{display:flex;gap:12px;align-items:flex-start;padding-right:184px}
+.plus{width:32px;height:32px;border-radius:9px;border:1px solid var(--border2);background:var(--panel);color:var(--txt);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.plus.stumm{color:var(--gold)}
+#link{flex:1;background:var(--feld);border:1px solid var(--feld-rand);border-radius:10px;outline:none;resize:none;font-size:14.5px;line-height:1.5;padding:5px 12px;max-height:150px;min-height:34px;transition:border-color .15s,box-shadow .15s}
+#link:hover{border-color:var(--feld-rand2)}
+#link:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 14%,transparent)}
+#link::placeholder{color:var(--muted)}
+.comp-row2{display:flex;align-items:center;gap:12px;padding-right:184px;min-height:38px;flex-wrap:wrap}
+.comp-hinweis{font-size:11.5px;color:var(--muted2);display:flex;align-items:center;gap:6px;min-width:0}
+.comp-hinweis svg{width:14px;height:14px;flex-shrink:0;color:var(--gold)}
+.generate{position:absolute;right:14px;top:14px;bottom:14px;width:168px;border:0;border-radius:16px;background:var(--grad);color:var(--auf-gold);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:16px;transition:filter .15s,transform .1s}
+.generate:hover{filter:brightness(1.08)}
+.generate:active{transform:scale(.98)}
+.generate:disabled{filter:grayscale(.8) brightness(.6);cursor:progress}
+.generate .preis{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;opacity:.85}
+.generate .preis svg{width:13px;height:13px}
+
+/* ---------- Seitenleiste „Integrieren“ ---------- */
+.laufleiste{width:var(--lauf-b,184px);position:relative;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;padding:14px 10px}
+.lauf-kopf{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:2px 4px 10px}
+.lauf-kopf b{color:var(--txt);font-weight:600;font-size:13px}
+.lauf-kopf [data-i]{color:var(--good)}
+.lauf-kopf .zahl{margin-left:auto;font-size:10.5px;color:var(--good);border:1px solid color-mix(in srgb,var(--good) 35%,transparent);border-radius:10px;padding:0 7px;line-height:17px}
+.lauf-liste{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.lauf-btn{position:relative;display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:6px 10px;border-radius:9px;border:1px solid color-mix(in srgb,var(--good) 30%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--good) 6%,transparent),transparent),var(--panel);font-size:12.5px;text-align:left;transition:.15s}
+.lauf-btn:hover{border-color:var(--gold);color:var(--gold)}
+.lauf-btn .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lauf-btn.startet,.lauf-btn.stoppt{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.lauf-btn .x{display:none;width:20px;height:20px;border-radius:6px;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0}
+.lauf-btn .x svg{width:11px;height:11px}
+.lauf-btn:hover .x{display:flex}
+.lauf-btn .x:hover{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.kachel.blitz{animation:blitz 1.4s ease}
+@keyframes blitz{0%,60%{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 35%,transparent)}}
+.seitenchat{width:var(--panel-b,420px);position:relative;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;transition:width .18s ease;overflow:hidden}
+.seitenchat.zu{width:0;border-left:0}
+.seitenchat > *:not(.griff){min-width:300px}
+.griff{position:absolute;top:0;bottom:0;right:-3px;width:7px;cursor:col-resize;z-index:20;min-width:0}
+.griff.links{left:-3px;right:auto}
+.griff::after{content:"";position:absolute;top:0;bottom:0;left:3px;width:1px;background:transparent;transition:background .15s}
+.griff:hover::after,.griff.an::after{background:var(--gold)}
+.rail.zu .griff,.seitenchat.zu .griff{display:none}
+body.breite-ziehen{user-select:none;cursor:col-resize}
+body.breite-ziehen *{cursor:col-resize!important}
+body.breite-ziehen .rail,body.breite-ziehen .seitenchat{transition:none}
+.chat-kopf{padding:10px 12px 8px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.chat-titelzeile{display:flex;align-items:center;gap:8px}
+.chat-titelzeile b{flex:1;font-size:14px}
+.kopf-ico{color:var(--gold)}
+.chat-status{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:6px}
+.chat-nachrichten{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:12px}
+.cblase{align-self:flex-end;max-width:92%;background:color-mix(in srgb,var(--gold) 12%,transparent);border:1px solid color-mix(in srgb,var(--gold) 25%,transparent);border-radius:14px 14px 4px 14px;padding:7px 12px;font-size:12.5px;word-break:break-all}
+.ckarte{background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:12px}
+.ckarte.fertig{border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+.ckarte.fehler{border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad);font-size:12.5px}
+.ckopf{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--gold);margin-bottom:8px}
+.ckopf svg{width:14px;height:14px}
+.ckopf span{color:var(--muted)}
+.schritte{margin:0 0 10px;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
+.schritte li{font-size:11.5px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.schritte li svg{width:12px;height:12px;color:var(--good);margin-top:3px}
+.fragen{margin:0 0 10px;padding:9px 11px;border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 7%,transparent);border-radius:9px;display:flex;flex-direction:column;gap:5px}
+.fragen p{margin:0;font-size:12.5px;color:var(--warn)}
+.laden{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);border-top-color:var(--gold);animation:dreh 1s linear infinite;flex-shrink:0}
+@keyframes dreh{to{transform:rotate(360deg)}}
+.cleer{text-align:center;color:var(--muted);margin:auto 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cleer svg{width:28px;height:28px;color:var(--gold)}
+.cleer h4{margin:4px 0 0;color:var(--txt);font-size:15px}
+.cleer p{margin:0;font-size:12.5px}
+
+/* ---------- Formular (Vorschlag, Bearbeiten, Einstellungen) ---------- */
+.formular{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.formular .voll{grid-column:1/-1}
+.feld{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;min-width:0}
+.feld label,.feld .lbl{font-size:11.5px;color:var(--muted)}
+.feld input,.feld select,.feld textarea{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;outline:none;width:100%;min-width:0}
+.feld textarea{resize:vertical;min-height:60px;font-family:inherit}
+.feld input:focus,.feld select:focus,.feld textarea:focus{border-color:var(--gold)}
+.feld.fehlt input,.feld.fehlt select{border-color:color-mix(in srgb,var(--warn) 60%,transparent)}
+.feld small{font-size:11px;color:var(--muted2)}
+.haken-zeile{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--txt);cursor:pointer;margin:2px 0 10px}
+.haken-zeile input{accent-color:var(--gold);width:15px;height:15px}
+.haken-zeile small{color:var(--muted2)}
+.knoepfe{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--border2);background:var(--panel2);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.primaer{background:var(--grad);border:0;color:var(--auf-gold)}
+.btn.primaer:hover{filter:brightness(1.08);color:var(--auf-gold)}
+.btn.gefahr{border-color:color-mix(in srgb,var(--bad) 50%,transparent);color:var(--bad)}
+.btn.gefahr:hover{background:color-mix(in srgb,var(--bad) 10%,transparent);color:var(--bad);border-color:var(--bad)}
+.btn.klein{padding:5px 11px;font-size:12px}
+.btn svg{width:13px;height:13px}
+.btn:disabled{opacity:.5}
+
+/* ---------- Aufklappmenüs ---------- */
+.pop{position:fixed;z-index:90;min-width:220px;max-width:min(420px,calc(100vw - 16px));max-height:calc(100vh - 24px);overflow:auto;
+  background:color-mix(in srgb,var(--panel2) 97%,transparent);backdrop-filter:blur(14px);border:1px solid var(--border2);border-radius:14px;box-shadow:var(--shadow);padding:6px}
+.pop .kopf{font-size:12px;color:var(--muted);padding:8px 10px 6px}
+.pop .sep{height:1px;background:var(--border);margin:5px 4px}
+.pop .eintrag{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:9px;padding:8px 10px;text-align:left;font-size:13.5px;min-height:36px}
+.pop .eintrag:hover,.pop .eintrag.fokus{background:var(--panel3)}
+.pop .eintrag .ico{width:18px;display:flex;justify-content:center;color:var(--muted)}
+.pop .eintrag .rechts{margin-left:auto;color:var(--muted2);display:flex;align-items:center;gap:6px}
+.pop .eintrag .haken{color:var(--gold)}
+.pop .eintrag.gefahr,.pop .eintrag.gefahr .ico{color:var(--bad)}
+.pop .eintrag:disabled{opacity:.4;cursor:default}
+.flyout{z-index:91}
+
+/* ---------- Tooltip, Dialoge, Meldungen ---------- */
+.tip{position:fixed;z-index:100;pointer-events:none;background:var(--panel3);border:1px solid var(--border2);color:var(--txt);font-size:12px;
+  padding:5px 9px;border-radius:7px;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;transition:opacity .12s;white-space:pre-line}
+.tip.an{opacity:1}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(5,6,8,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-card{width:min(600px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:22px 24px}
+.modal-card.breit{width:min(900px,100%)}
+.modal-card h3{margin:0 0 4px;font-size:17px}
+.modal-card .unter{color:var(--muted);font-size:12.5px;margin:0 0 16px}
+.log{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:12px/1.45 Consolas,'Cascadia Mono',monospace;color:var(--txt);white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow:auto;margin:0}
+.log-pfad{font-size:11px;color:var(--muted2);word-break:break-all}
+.abschnitt{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
+.abschnitt h4{margin:0 0 10px;font-size:13px;color:var(--gold);font-weight:600}
+.toasts{position:fixed;right:16px;top:16px;z-index:120;display:flex;flex-direction:column;gap:8px;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--panel2);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow);animation:ein .2s ease}
+.toast.fehler{border-left-color:var(--bad)}
+.toast.ok{border-left-color:var(--good)}
+@keyframes ein{from{opacity:0;transform:translateY(-6px)}}
+
+@media (max-width:900px){
+  .rail{width:56px}
+  .rail .rail-title,.rail .rail-logo,.rail .lbl,.rail .badge,.rail .sub-arrow,.rail .rail-sub,.rail .konto,.rail .chev,.rail .rail-trenn{display:none!important}
+  .rail .rail-nav button,.rail .profile{justify-content:center;padding:0}
+  .comp-row1,.comp-row2{padding-right:0}
+  .generate{position:static;width:100%;height:46px;flex-direction:row;gap:10px}
+  .laufleiste{width:132px;padding:12px 6px}
+  .griff{display:none}
+  .seitenchat:not(.zu){position:fixed;right:0;top:0;bottom:0;z-index:60;width:min(420px,100vw)}
+  .formular{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- Farbfilter (Einstellungen) und feste Einträge ---------- */
+.farbwahl{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin:6px 0 8px}
+.farb-zeile{display:flex;align-items:center;gap:10px;text-align:left;padding:7px 9px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+.farb-zeile:hover{border-color:var(--border2);background:var(--panel2)}
+.farb-zeile.an{border-color:var(--gold);background:var(--panel2)}
+.farb-probe{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:5px;border:1px solid var(--border2)}
+.farb-probe i{width:8px;height:8px;border-radius:50%}
+.farb-text{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.farb-text small{color:var(--muted);font-size:11.5px}
+.farb-hinweis{display:flex;align-items:center;gap:5px;color:var(--muted)}
+.farb-hinweis svg{width:13px;height:13px}
+.tag-kopf.fest .ico,.rail-nav button.fest .ico{color:var(--gold)}
+.raster.fest .kachel{border-color:color-mix(in srgb,var(--gold) 28%,var(--border))}
+:root[data-ton="hell"] body{background:var(--bg)}
+:root[data-ton="hell"] .modal{background:rgba(40,32,24,.35)}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROMPTHEUS DECK</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<div id="app" class="app">
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <button class="rail-toggle" id="railToggle" data-tip="Menü ein-/ausklappen" aria-label="Menü ein-/ausklappen"><span data-i="menue"></span></button>
+      <img class="rail-logo" src="/favicon.svg" alt="" width="28" height="28">
+      <span class="rail-title wortmarke" aria-label="PROMPTHEUS DECK"><span class="wm-name">PROMPTHEUS</span><span class="wm-zusatz">- DECK -</span></span>
+    </div>
+    <nav class="rail-nav" id="railNav" aria-label="Hauptmenü"></nav>
+    <div class="spacer"></div>
+    <div class="konto" id="kontoBox"></div>
+    <div class="griff" data-griff="rail" data-tip="Breite ziehen · Doppelklick: Standard"></div>
+    <div class="profile-wrap">
+      <button class="profile" id="einstBtn" data-tip="Einstellungen, Autostart, Favoriten, Cockpit beenden" aria-haspopup="menu">
+        <span class="avatar"><span data-i="zahnrad"></span></span>
+        <span class="lbl"><b>Einstellungen</b><small id="einstUnter">Autostart …</small></span>
+        <span class="chev" data-i="rechts"></span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <header class="top">
+      <div class="titelblock"><h2 id="viewTitel">Übersicht</h2><span class="count" id="viewCount"></span></div>
+      <div class="top-tools">
+        <div class="filter" id="statusFilter" role="tablist" aria-label="Nach Zustand filtern">
+          <button data-f="" class="an" data-tip="Alle Einträge">Alle</button>
+          <button data-f="laeuft" data-tip="Nur laufende Programme">Läuft</button>
+          <button data-f="aus" data-tip="Nur beendete Programme">Aus</button>
+        </div>
+        <div class="filter" id="sortWahl" role="tablist" aria-label="Sortierung">
+          <button data-s="datum" data-tip="Zuletzt eingerichtete zuerst">Neueste</button>
+          <button data-s="name" data-tip="Alphabetisch">A–Z</button>
+          <button data-s="eigen" data-tip="Eigene Reihenfolge – Kacheln per Ziehen anordnen, auch in andere Ordner">Eigene</button>
+        </div>
+        <label class="suche" data-tip="Namen, Beschreibungen und Adressen durchsuchen (Strg+K)">
+          <span class="ico" data-i="suche"></span>
+          <input id="suche" type="search" placeholder="Suchen …" aria-label="Suchen">
+        </label>
+        <button class="icon-btn" id="btnThema" data-tip="Hell / dunkel" aria-label="Hell oder dunkel"><span data-i="sonne"></span></button>
+        <button class="icon-btn" id="btnGroesse" data-tip="Kacheln oder kompakte Liste" aria-label="Ansicht umschalten"><span data-i="raster"></span></button>
+        <button class="icon-btn" id="btnPanel" data-tip="LLM-Werkzeug „Integrieren“ ein-/ausblenden" aria-label="LLM-Werkzeug"><span data-i="zauber"></span></button>
+      </div>
+    </header>
+
+    <div class="wand" id="wand" tabindex="-1"></div>
+
+    <!-- LLM-Werkzeug: Link einfügen → integrieren -->
+    <div class="composer" id="composer">
+      <div class="comp-row1">
+        <span class="plus stumm" data-i="link"></span>
+        <textarea id="link" rows="1" maxlength="4000" aria-label="Link zum Programm"
+          placeholder="Link zum Programm einfügen – Ordner, .bat-Datei oder Adresse wie http://127.0.0.1:3000/"></textarea>
+      </div>
+      <div class="comp-row2">
+        <div class="modus" id="zielBereich" role="tablist" aria-label="Wohin?">
+          <button data-b="" class="an" data-tip="Das Werkzeug entscheidet selbst"><span data-i="zauber"></span>Automatisch</button>
+          <button data-b="programme" data-tip="Als lokales Programm aufnehmen"><span data-i="monitor"></span>Programm</button>
+          <button data-b="web" data-tip="Als Web-Seite aufnehmen"><span data-i="globus"></span>Web-Seite</button>
+        </div>
+        <span class="comp-hinweis" id="llmHinweis"></span>
+      </div>
+      <button class="generate" id="btnIntegrieren" data-tip="Link analysieren und als Eintrag vorschlagen (Strg+Enter)">
+        <b>Integrieren</b>
+        <span class="preis"><span data-i="funke"></span><span id="llmName">Claude</span></span>
+      </button>
+    </div>
+  </main>
+
+  <!-- Laufende Programme: kleine Knöpfe, nur Namen -->
+  <aside class="laufleiste hidden" id="laufLeiste" aria-label="Laufende Programme">
+    <div class="lauf-kopf"><span data-i="strom"></span><b>Läuft</b><span class="zahl" id="laufZahl"></span></div>
+    <div class="lauf-liste" id="laufListe"></div>
+    <div class="griff links" data-griff="lauf" data-tip="Breite ziehen · Doppelklick: Standard"></div>
+  </aside>
+
+  <!-- Seitenleiste rechts: Ergebnisse des LLM-Werkzeugs -->
+  <aside class="seitenchat zu" id="seitenchat" aria-label="LLM-Werkzeug">
+    <div class="chat-kopf">
+      <div class="chat-titelzeile">
+        <span class="kopf-ico" data-i="zauber"></span>
+        <b>Integrieren</b>
+        <button class="icon-btn klein" id="panelLeeren" data-tip="Verlauf leeren" aria-label="Verlauf leeren"><span data-i="muell"></span></button>
+        <button class="icon-btn klein" id="panelZu" data-tip="Einklappen" aria-label="Einklappen"><span data-i="x"></span></button>
+      </div>
+      <div class="chat-status" id="panelStatus"></div>
+    </div>
+    <div class="chat-nachrichten" id="panelInhalt" aria-live="polite"></div>
+    <div class="griff links" data-griff="panel" data-tip="Breite ziehen · Doppelklick: Standard"></div>
+  </aside>
+</div>
+
+<div id="pop" class="pop hidden" role="menu"></div>
+<div id="flyout" class="pop flyout hidden" role="menu"></div>
+<div id="tip" class="tip" role="tooltip"></div>
+<div id="geist" class="geist hidden" aria-hidden="true"></div>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card" id="modalCard"></div></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

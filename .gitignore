@@ -259,3 +259,7 @@ secondbrain/Netzwerk-Vorplan.md
 /secondbrain/90_Quellen/kurs-ideen/Was ist Intelligenz.md
 /secondbrain/90_Quellen/schulen/schulen_ludwigsburg.md
 /secondbrain/90_Quellen/talente-verteilssystem/Talente-Verteilssystem-Konzept.md
+
+# Python-Zwischenstand (PROMPTHEUS DECK: deck/__pycache__) - entsteht bei jedem Start neu.
+**/__pycache__/
+*.pyc
