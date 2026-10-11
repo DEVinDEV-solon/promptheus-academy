@@ -1221,7 +1221,7 @@ function modellPop(art = 'bild') {
     return `<span class="kosten zweizeilig"${md ? ` data-tip="Längste Dauer dieses Modells: ${md} s – geschätzter Gesamtpreis je Video
 Günstigste Einstellung: ${esc(guenstigsteAufl(m.aufloesungen) || 'Standardauflösung')}, ohne Ton"` : ''}>
       <span>${m.schaetzungKurz != null ? '≈ ' + geld(m.schaetzungKurz) + ' / 5 s' : ''}</span>
-      ${md && m.schaetzungMax != null ? `<b>≈ ${geld(m.schaetzungMax)} / ${md} s</b>` : ''}</span>`;
+      ${md && m.schaetzungMax != null ? `<b>≈ ${geld(m.schaetzungMax)} / <span class="${md >= 30 ? 'sek-lang' : md >= 15 ? 'sek-mittel' : ''}">${md} s</span></b>` : ''}</span>`;
   };
   const zeile = m => {
     const alterTage = (Date.now() / 1000 - m.erstellt) / 86400;
