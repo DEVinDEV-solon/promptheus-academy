@@ -254,11 +254,19 @@ $w = $tmp . '/wurzel';
 @mkdir($w . '/srv', 0775, true);
 file_put_contents($w . '/index.php', "<?php echo 'alt';\n");
 file_put_contents($w . '/alt.php', "<?php // entfällt\n");
+// Ordner, die mit dem Update leer werden, verschwinden mit; ein Ordner mit
+// Eigenem der Schule bleibt (nur die entfallene Datei geht).
+@mkdir($w . '/alt/tief', 0775, true);
+file_put_contents($w . '/alt/tief/weg.md', "entfällt\n");
+@mkdir($w . '/eigen', 0775, true);
+file_put_contents($w . '/eigen/weg.md', "entfällt\n");
+file_put_contents($w . '/eigen/notiz.txt', "von der Schule\n");
 file_put_contents($w . '/VERSION', "1.0.0\n");
 file_put_contents($w . '/.env', "PU_GEHEIM=bleibt\n");
 file_put_contents($w . '/promptheus-start.bat', "@echo alt\r\n");
 file_put_contents($w . '/manifest.json', json_encode(['paket' => 1, 'fassung' => '1.0.0', 'dateien' => [
     'index.php' => hash_file('sha256', $w . '/index.php'), 'alt.php' => hash_file('sha256', $w . '/alt.php'),
+    'alt/tief/weg.md' => hash_file('sha256', $w . '/alt/tief/weg.md'), 'eigen/weg.md' => hash_file('sha256', $w . '/eigen/weg.md'),
     'VERSION' => hash_file('sha256', $w . '/VERSION'), 'promptheus-start.bat' => hash_file('sha256', $w . '/promptheus-start.bat')]]));
 $db = $w . '/data/promptheus.db';
 $pdo = new PDO('sqlite:' . $db);
@@ -282,6 +290,10 @@ pruefe('Tausch gelingt', $t['ok'], $t['meldung']);
 gleich('index.php ist neu', "<?php echo 'neu';\n", file_get_contents($w . '/index.php'));
 pruefe('srv/neu.php ist da', is_file($w . '/srv/neu.php'));
 pruefe('alt.php ist weg (stand im alten Manifest, fehlt im neuen)', !is_file($w . '/alt.php'));
+pruefe('leer gewordene Ordner sind weg (alt/tief und alt)', !is_dir($w . '/alt'));
+pruefe('Ordner mit Eigenem bleibt, nur die entfallene Datei ist weg',
+    is_file($w . '/eigen/notiz.txt') && !is_file($w . '/eigen/weg.md'));
+pruefe('data/ und srv/ bleiben', is_dir($w . '/data') && is_dir($w . '/srv'));
 gleich('VERSION ist 1.1.0', "1.1.0\n", file_get_contents($w . '/VERSION'));
 gleich('.env unberührt', $env_vorher, hash_file('sha256', $w . '/.env'));
 gleich('Datenbank unberührt', $db_vorher, hash_file('sha256', $db));
@@ -302,6 +314,7 @@ $z = pu_akt_zurueck($w, $tmp . '/akt', $db);
 pruefe('Rückweg gelingt', $z['ok'], $z['meldung']);
 gleich('index.php wieder alt', "<?php echo 'alt';\n", file_get_contents($w . '/index.php'));
 pruefe('alt.php wieder da', is_file($w . '/alt.php'));
+pruefe('alt/tief/weg.md wieder da (Ordner neu angelegt)', is_file($w . '/alt/tief/weg.md'));
 pruefe('srv/neu.php wieder weg', !is_file($w . '/srv/neu.php'));
 gleich('VERSION wieder 1.0.0', "1.0.0\n", file_get_contents($w . '/VERSION'));
 gleich('die alte bat liegt als .neu daneben (die laufende bleibt)', "@echo alt\r\n", (string)@file_get_contents($w . '/promptheus-start.bat.neu'));

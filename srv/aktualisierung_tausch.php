@@ -13,7 +13,8 @@ declare(strict_types=1);
  *      wird, als ZIP nach data/aktualisierung/sicherung/<Zeit>-<alt>-<neu>/.
  *   3. Neue Dateien an ihren Platz; `PROMPTHEUS-START.bat` nur als `.neu`
  *      daneben (die laufende bat liest sich zeilenweise selbst nach).
- *   4. Dateien löschen, die im alten Manifest standen und im neuen fehlen.
+ *   4. Dateien löschen, die im alten Manifest standen und im neuen fehlen —
+ *      und Ordner, die dadurch leer geworden sind.
  *   5. `manifest.json` der neuen Fassung in die Wurzel.
  * Geht dazwischen etwas schief, wird aus der Sicherung zurückgelegt.
  *
@@ -196,6 +197,29 @@ function pu_akt_sichern(string $wurzel, string $ordner, string $db_datei, array 
 }
 
 /**
+ * Ordner, die durch das Löschen von `$pfade` leer geworden sind, ebenfalls
+ * entfernen — die tiefsten zuerst, nie die Wurzel. `rmdir` scheitert an jedem
+ * Ordner, in dem noch etwas liegt; Eigenes der Schule bleibt so unberührt.
+ * (1.0.8 → 1.1.0 liess z. B. `secondbrain/90_Bibliothek/Glossar` leer stehen.)
+ */
+function pu_akt_leere_ordner_weg(string $wurzel, array $pfade): void
+{
+    $ordner = [];
+    foreach ($pfade as $p) {
+        for ($d = dirname((string)$p); $d !== '.' && $d !== '/' && $d !== '\\' && $d !== ''; $d = dirname($d)) {
+            $ordner[$d] = substr_count($d, '/');
+        }
+    }
+    arsort($ordner);
+    foreach (array_keys($ordner) as $d) {
+        $voll = $wurzel . '/' . $d;
+        if (pu_akt_pfad_ok($d . '/x') && is_dir($voll) && !is_link($voll) && count((array)@scandir($voll)) === 2) {
+            @rmdir($voll);
+        }
+    }
+}
+
+/**
  * Legt die Programmdateien einer Sicherung zurück. Dateien, die es vorher
  * nicht gab (`$dazu`), werden entfernt.
  */
@@ -314,6 +338,7 @@ function pu_akt_tausch(string $wurzel, string $ordner, string $db_datei): array
                 @unlink($wurzel . '/' . $p);
             }
         }
+        pu_akt_leere_ordner_weg($wurzel, $entfallen);
         pu_akt_ablegen_datei($neu . '/manifest.json', $wurzel . '/manifest.json');
     } catch (Throwable $f) {
         try {
