@@ -520,6 +520,19 @@ def anweisungen(modus: str, bildmodelle: list, videomodelle: list, kontext: dict
                   "Stand im Panel: "
                   f"Typ {str(ik.get('typ') or '-')[:20]} · Besonderheiten: {str(ik.get('besonderheiten') or '(leer)')[:500]} · "
                   f"Basis: {str(ik.get('basis') or '(keine)')[:80]} · nächster Schritt: {str(ik.get('schritt') or '-')[:80]}"]
+    ve = k.get("videoeinstellung") if isinstance(k.get("videoeinstellung"), dict) else {}
+    if ve.get("modell"):
+        def wert(x, n=40):
+            return re.sub(r"[^\w:./ -]", "", str(x or ""))[:n] or "-"
+        dauer = ve.get("dauer") if isinstance(ve.get("dauer"), int) and 0 < ve["dauer"] <= 600 else None
+        teile += ["", "# Video-Einstellung des Nutzers (gilt für JEDEN ```videoprompt```-Block)",
+                  f"Modell {wert(ve.get('modell'), 120)} · Format {wert(ve.get('seitenverhaeltnis'))} · Auflösung "
+                  f"{wert(ve.get('aufloesung'))} · Dauer {f'{dauer} s' if dauer else '-'} · Ton {'an' if ve.get('ton') is True else 'aus'}",
+                  "Trage genau diese Werte in jeden Block ein. Das Programm übernimmt beim Eintragen und Erzeugen ohnehin nur "
+                  "den Prompt und behält diese Einstellung, damit alle Szenen einer Produktion gleich bleiben. Schreibe Handlung "
+                  "und Kamera so, dass sie die Dauer sinnvoll füllen, und beschreibe Geräusche nur bei Ton an. Wünscht der "
+                  "Nutzer ein anderes Modell, Format oder eine andere Länge, sag ihm, dass er das unten in der Video-Eingabe "
+                  "umstellt, und schreibe die Prompts danach passend neu."]
     teile += ["", "# Bildmodelle (id | Fähigkeiten)"] + [modell_zeile_bild(m) for m in bildmodelle]
     teile += ["", "# Videomodelle (id | Fähigkeiten)"] + [modell_zeile_video(m) for m in videomodelle]
     teile += ["", "# Aktueller Stand im Eingabefeld",

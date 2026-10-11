@@ -426,6 +426,8 @@ button:disabled{cursor:default}
 .pop.modelle .kosten{font-size:11px;color:var(--muted2);margin-left:auto;white-space:nowrap;padding-left:8px}
 .pop.modelle .kosten.zweizeilig{display:flex;flex-direction:column;align-items:flex-end;line-height:1.35;flex-shrink:0}
 .pop.modelle .kosten.zweizeilig b{color:var(--txt);font-weight:700}
+.pop.modelle .kosten .sek-lang{color:#ffd84d}      /* ab 30 s: gelb */
+.pop.modelle .kosten .sek-mittel{color:var(--good)} /* 15–29 s: grün */
 .plakette{font-size:9.5px;font-weight:800;letter-spacing:.04em;border-radius:5px;padding:1px 6px;color:#111}
 .plakette.neu{background:var(--gold)}
 .plakette.premium{background:linear-gradient(90deg,#c58a5a,#e6cc88)}

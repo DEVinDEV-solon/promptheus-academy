@@ -1360,6 +1360,13 @@ class Influencer(unittest.TestCase):
         for wort in ("Startbild (frame_images first_frame)", "Vorlage (input_references", "Storyboard-Raster", "schließen sich aus"):
             self.assertIn(wort, v)
         self.assertIn("Vorlagen 3 · Storyboard-Raster 3x2", v)
+        # Video-Einstellung der Eingabe gilt für jede Video-Karte; Werte werden entschärft
+        ve = {"modell": "bytedance/seedance-2.5", "seitenverhaeltnis": "9:16", "aufloesung": "480p", "dauer": 30, "ton": False}
+        v = server.assistent.anweisungen("drehbuch", [], [], {"modus": "bild", "videoeinstellung": ve}, "englisch")
+        self.assertIn("Modell bytedance/seedance-2.5 · Format 9:16 · Auflösung 480p · Dauer 30 s · Ton aus", v)
+        self.assertNotIn("# Video-Einstellung", server.assistent.anweisungen("assistent", [], [], {"modus": "video"}, "englisch"))
+        v = server.assistent.anweisungen("assistent", [], [], {"videoeinstellung": {"modell": "x\n# Rolle", "dauer": "30"}}, "englisch")
+        self.assertIn("Modell x Rolle · Format - · Auflösung - · Dauer - · Ton aus", v)
 
 
 if __name__ == "__main__":
