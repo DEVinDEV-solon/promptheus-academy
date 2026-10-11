@@ -492,6 +492,35 @@ async function videoKatalogLaden(neu = false) {
   }
   modusSetzen(S.modus);
 }
+// Der Server holt die Kataloge alle 6 h von OpenRouter. Die offene Seite holt sie alle 30 min (und beim
+// Zurückkehren in den Tab) leise ab: nur die Listen werden getauscht, Eingabe, Modellwahl und Stimme bleiben.
+const KATALOG_ABHOLEN_MS = 30 * 60 * 1000;
+let katalogAbgeholt = Date.now();
+async function katalogeAbholen() {
+  if (!S.nutzer || POP.anker) return;      // nicht angemeldet oder eine Auswahl ist offen → beim nächsten Mal
+  katalogAbgeholt = Date.now();
+  const [b, v, a] = await Promise.all([api('modelle'), api('videomodelle'), api('audiomodelle')]);
+  const neu = (alt, liste) => (alt.length ? liste.filter(m => !alt.some(x => x.id === m.id)) : []);
+  const namen = [...neu(S.modelle, b.modelle), ...neu(S.vmodelle, v.modelle), ...neu(A.modelle, a.modelle)].map(m => m.name);
+  const weg = [];
+  if (b.modelle.length) {
+    if (S.gen.modell && !b.modelle.some(m => m.id === S.gen.modell)) weg.push(aktModell()?.name || S.gen.modell);
+    Object.assign(S, { modelle: b.modelle, empfohlen: b.empfohlen, eurKurs: b.eur_kurs });
+  }
+  if (v.modelle.length) {
+    if (S.vgen.modell && !v.modelle.some(m => m.id === S.vgen.modell)) weg.push(aktVModell()?.name || S.vgen.modell);
+    Object.assign(S, { vmodelle: v.modelle, vempfohlen: v.empfohlen });
+  }
+  if (a.modelle.length) A.modelle = a.modelle;
+  katalogHolen().catch(() => {});
+  if (S.modus === 'video') videoAktualisieren(); else if (S.modus === 'audio') audioAktualisieren(); else genAktualisieren();
+  if (namen.length) toast(`Neu im Modellkatalog: ${namen.slice(0, 3).join(', ')}${namen.length > 3 ? ` und ${namen.length - 3} weitere` : ''}`, 'ok');
+  if (weg.length) toast(`Nicht mehr bei OpenRouter: ${weg.join(', ')} – bitte ein anderes Modell wählen.`, 'fehler');
+}
+setInterval(() => katalogeAbholen().catch(() => {}), KATALOG_ABHOLEN_MS);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && Date.now() - katalogAbgeholt > KATALOG_ABHOLEN_MS) katalogeAbholen().catch(() => {});
+});
 async function ordnerLaden() { S.ordner = (await api('ordner')).ordner; railBauen(); }
 async function elementeLaden() { S.elemente = (await api('elemente')).elemente; }
 async function kontoLaden() {
