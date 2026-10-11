@@ -1208,6 +1208,14 @@ function modellPop(art = 'bild') {
   const pop = $('#pop');
   $('#flyout').classList.add('hidden');
   pop.className = 'pop modelle';
+  const maxDauer = m => (m.dauern?.length ? Math.max(...m.dauern) : null);
+  // Video: oben der Preis für 5 s zum Vergleich, darunter (hell, fett) der Gesamtpreis für die längste Dauer des Modells
+  const vKosten = m => {
+    const md = maxDauer(m);
+    return `<span class="kosten zweizeilig"${md ? ` data-tip="Längste Dauer dieses Modells: ${md} s – geschätzter Gesamtpreis je Video"` : ''}>
+      <span>${m.schaetzungKurz != null ? '≈ ' + geld(m.schaetzungKurz) + ' / 5 s' : ''}</span>
+      ${md && m.schaetzungMax != null ? `<b>≈ ${geld(m.schaetzungMax)} / ${md} s</b>` : ''}</span>`;
+  };
   const zeile = m => {
     const alterTage = (Date.now() / 1000 - m.erstellt) / 86400;
     const neu = m.erstellt && alterTage < 60;
@@ -1216,7 +1224,7 @@ function modellPop(art = 'bild') {
     return `<button class="eintrag ${m.id === aktuell ? 'gewaehlt' : ''}" data-m="${esc(m.id)}" role="option" data-tip="${esc(m.id)}">
       <span class="mono">${esc(mono(m))}</span>
       <span class="txt"><span class="name">${esc(m.name)}${neu ? '<span class="plakette neu">NEU</span>' : ''}${premium ? '<span class="plakette premium">PREMIUM</span>' : ''}</span><small>${esc(m.beschreibung)}</small></span>
-      <span class="kosten">${est != null ? '≈ ' + geld(est) + (vid ? ' / 5 s' : '') : ''}</span>
+      ${vid ? vKosten(m) : `<span class="kosten">${est != null ? '≈ ' + geld(est) : ''}</span>`}
       ${m.id === aktuell ? `<span class="haken" style="color:var(--gold)">${ico('haken')}</span>` : ''}
     </button>`;
   };
@@ -1250,9 +1258,11 @@ function modellPop(art = 'bild') {
       const p = m.parameter;
       try {
         if (vid) {
-          const s = await api('schaetzen_video', { modell: m.id, anzahl: 1, dauer: 5, ton: m.ton === true,
+          // Mit der längsten Dauer schätzen: je_video enthält dann auch einen Mindestpreis des Modells
+          const s = await api('schaetzen_video', { modell: m.id, anzahl: 1, dauer: maxDauer(m) || 5, ton: m.ton === true,
             aufloesung: passend(m.aufloesungen, '720p', ['720p', '1080p']) });
           m.schaetzungKurz = s.quelle === 'unbekannt' ? null : s.je_sekunde * 5;
+          m.schaetzungMax = s.quelle === 'unbekannt' || !maxDauer(m) ? null : s.je_video;
           return;
         }
         const s = await api('schaetzen', { modell: m.id, anzahl: 1, aufloesung: passend(p.resolution?.werte, '1K', ['1K']), qualitaet: passend(p.quality?.werte, 'high', ['high', 'medium']) });
