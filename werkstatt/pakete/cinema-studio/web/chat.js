@@ -131,13 +131,11 @@ function karteBereinigen(k) {
     return { art: 'audio', prompt: String(k.prompt), modell: m?.id || '', titel: k.titel, fremd: !!k.modell && m?.id !== k.modell };
   }
   if (k.art === 'video') {
-    const m = S.vmodelle.find(x => x.id === k.modell) || aktVModell();
-    const d = Number(k.dauer);
-    return { art: 'video', prompt: String(k.prompt), modell: m?.id || '', szene: k.szene, titel: k.titel,
-      seitenverhaeltnis: m?.formate.includes(k.seitenverhaeltnis) ? k.seitenverhaeltnis : '',
-      aufloesung: m?.aufloesungen.includes(k.aufloesung) ? k.aufloesung : '',
-      dauer: m?.dauern.includes(d) ? d : 0, ton: k.ton === undefined ? S.vgen.ton : !!k.ton,
-      anzahl: Math.max(1, Math.min(4, +k.anzahl || 1)), fremd: !!k.modell && m?.id !== k.modell };
+    // Vom Assistenten zählt nur der Prompt: Modell (zuletzt benutzt), Format, Auflösung, Dauer, Ton und Anzahl
+    // kommen immer aus der Video-Eingabe, damit alle Szenen einer Produktion gleich bleiben.
+    const e = vEinstellung();
+    return { art: 'video', prompt: String(k.prompt), szene: k.szene, titel: k.titel, ...e,
+      fremd: !!k.modell && !!e.modell && k.modell !== e.modell };
   }
   const m = S.modelle.find(x => x.id === k.modell) || aktModell();
   const p = m?.parameter || {};
@@ -158,7 +156,7 @@ function karteHtmlChat(k, idx) {
     <div class="ckopf">${ico(vid ? 'video' : 'bilder')}<b>${vid ? 'Video-Prompt' : 'Bild-Prompt'}${k.szene ? ` · Szene ${esc(k.szene)}` : ''}</b>
       ${k.titel ? `<span>${esc(k.titel)}</span>` : ''}<span class="cpreis" data-preis="${idx}"></span></div>
     <div class="cprompt">${esc(k.prompt)}</div>
-    <div class="cchips">${chips.map(c => `<span>${esc(c)}</span>`).join('')}${k.fremd ? '<span class="warn" data-tip="Das vorgeschlagene Modell gibt es nicht – das aktuelle wird genutzt">Modell ersetzt</span>' : ''}</div>
+    <div class="cchips">${chips.map(c => `<span>${esc(c)}</span>`).join('')}${k.fremd ? `<span class="warn" data-tip="${vid ? 'Der Assistent hatte ein anderes Modell vorgeschlagen – es gilt dein zuletzt benutztes Modell mit deinen Video-Einstellungen' : 'Das vorgeschlagene Modell gibt es nicht – das aktuelle wird genutzt'}">Modell ersetzt</span>` : ''}</div>
     <div class="cknoepfe">
       <button class="btn klein" data-ka="eintragen" data-tip="Prompt und Einstellungen ins ${vid ? 'Video' : 'Bild'}-Eingabefeld übernehmen">${ico('kopie')}In ${vid ? 'Video' : 'Bild'}-Eingabe</button>
       <button class="btn klein primaer" data-ka="erzeugen" data-tip="Sofort erzeugen – Kosten siehe oben">${ico('funke')}Direkt erzeugen</button>
@@ -252,7 +250,7 @@ async function karteKosten(k) {
     }
     if (k.art === 'video') {
       const m = S.vmodelle.find(x => x.id === k.modell);
-      const s = await api('schaetzen_video', { modell: k.modell, aufloesung: k.aufloesung || passend(m?.aufloesungen, '720p', ['720p']),
+      const s = await api('schaetzen_video', { modell: k.modell, aufloesung: k.aufloesung || guenstigsteAufl(m?.aufloesungen),
         dauer: k.dauer || m?.dauern[0], ton: m?.ton === true && k.ton, anzahl: k.anzahl });
       return s.quelle === 'unbekannt' ? null : s.gesamt;
     }
@@ -282,12 +280,7 @@ function karteEintragen(k) {
     if (k.modell && k.modell !== A.gen.modell) { A.gen.modell = k.modell; A.gen.profil = ''; }
     audioAktualisieren();
   } else if (k.art === 'video') {
-    modusSetzen('video');
-    if (k.modell) S.vgen.modell = k.modell;
-    Object.assign(S.vgen, Object.fromEntries(Object.entries({ seitenverhaeltnis: k.seitenverhaeltnis, aufloesung: k.aufloesung,
-      dauer: k.dauer, anzahl: k.anzahl }).filter(([, v]) => v)));
-    S.vgen.ton = k.ton;
-    videoAktualisieren();
+    modusSetzen('video');   // Einstellungen bleiben, wie sie sind (siehe karteBereinigen) – nur der Prompt kommt neu
   } else {
     modusSetzen('bild');
     if (k.modell) S.gen.modell = k.modell;
@@ -377,7 +370,8 @@ async function chatSenden(zusatz = {}) {
   C.steuerung = new AbortController();
   const kontext = { modus: S.modus, modell: S.modus === 'video' ? S.vgen.modell : S.modus === 'audio' ? A.gen.modell : S.gen.modell,
     bildmodell: S.gen.modell, videomodell: S.vgen.modell, audiomodell: A.gen.modell, prompt: pr.value, ...influencerKontext(),
-    bildrollen: { start: !!S.vgen.start, ende: !!S.vgen.ende, vorlagen: S.vgen.vorlagen.length, raster: S.vgen.raster }, ...zusatz };
+    bildrollen: { start: !!S.vgen.start, ende: !!S.vgen.ende, vorlagen: S.vgen.vorlagen.length, raster: S.vgen.raster },
+    videoeinstellung: vEinstellung(), ...zusatz };
   let fertig = null;
   try {
     const r = await fetch(`/api/chat/${C.chat.id}/senden`, { method: 'POST', signal: C.steuerung.signal,

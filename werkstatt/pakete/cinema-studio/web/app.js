@@ -1560,14 +1560,27 @@ function modusSetzen(modus) {
 }
 $('#modus').addEventListener('click', ev => { const b = ev.target.closest('[data-modus]'); if (b) modusSetzen(b.dataset.modus); });
 
+/** Format, Auflösung und Dauer an das Modell anpassen (fehlende Auflösung → günstigste, Dauer → nächstliegende). */
+function vEinstellungAnpassen(m, g) {
+  g.seitenverhaeltnis = passend(m.formate, g.seitenverhaeltnis, ['16:9', '9:16']);
+  g.aufloesung = m.aufloesungen.includes(g.aufloesung) ? g.aufloesung : guenstigsteAufl(m.aufloesungen);
+  if (m.dauern.length && !m.dauern.includes(g.dauer)) {
+    g.dauer = m.dauern.reduce((a, d) => (Math.abs(d - g.dauer) < Math.abs(a - g.dauer) ? d : a), m.dauern[0]);
+  }
+  return g;
+}
+/** Aktuelle Video-Einstellung (zuletzt benutztes Modell), ohne S.vgen zu verändern – gilt auch für Assistenten-Karten. */
+function vEinstellung() {
+  const m = aktVModell(), g = S.vgen;
+  const e = { modell: m?.id || '', seitenverhaeltnis: g.seitenverhaeltnis, aufloesung: g.aufloesung, dauer: g.dauer,
+    ton: m?.ton === true && !!g.ton, anzahl: g.anzahl };
+  return m ? vEinstellungAnpassen(m, e) : e;
+}
+
 function videoAktualisieren() {
   const m = aktVModell(), g = S.vgen;
   if (m) {
-    g.seitenverhaeltnis = passend(m.formate, g.seitenverhaeltnis, ['16:9', '9:16']);
-    g.aufloesung = m.aufloesungen.includes(g.aufloesung) ? g.aufloesung : guenstigsteAufl(m.aufloesungen);
-    if (m.dauern.length && !m.dauern.includes(g.dauer)) {
-      g.dauer = m.dauern.reduce((a, d) => (Math.abs(d - g.dauer) < Math.abs(a - g.dauer) ? d : a), m.dauern[0]);
-    }
+    vEinstellungAnpassen(m, g);
     if (g.start && !m.frames.includes('first_frame')) { g.start = null; toast(`${m.name} nimmt kein Startbild – entfernt.`); }
     if (g.ende && !m.frames.includes('last_frame')) { g.ende = null; toast(`${m.name} nimmt kein Endbild – entfernt.`); }
   }
