@@ -68,6 +68,7 @@ const speicher = {
   setz(k, v) { try { localStorage.setItem('bildgen.' + k, JSON.stringify(v)); } catch { /* egal */ } },
 };
 
+const VSTANDARD_DAUER = 30;   // Startwert der Videolänge; wird auf die nächstliegende Dauer des Modells gesetzt
 const S = {
   nutzer: null, csrf: null, admin: false,
   modelle: [], empfohlen: [], standard: '', waehrung: 'USD', eurKurs: 0.86, katalogFehler: '',
@@ -77,7 +78,7 @@ const S = {
   schaetzung: null, ordnerOffen: speicher.lies('ordnerOffen', true), influencerOffen: speicher.lies('influencerOffen', false),
   // Video
   modus: speicher.lies('modus', 'bild'), typFilter: '', vmodelle: [], vempfohlen: [], vstandard: '', vkatalogFehler: '',
-  vgen: { modell: '', seitenverhaeltnis: '', aufloesung: '', dauer: 5, ton: true, anzahl: 1, start: null, ende: null, vorlagen: [], raster: '' },
+  vgen: { modell: '', seitenverhaeltnis: '', aufloesung: '', dauer: VSTANDARD_DAUER, ton: true, anzahl: 1, start: null, ende: null, vorlagen: [], raster: '' },
 };
 
 async function api(pfad, body) {
@@ -486,6 +487,8 @@ async function videoKatalogLaden(neu = false) {
   if (!S.vgen.modell) {
     if (gespeichert && S.vmodelle.some(m => m.id === gespeichert.modell)) Object.assign(S.vgen, gespeichert, { start: null, ende: null });
     else S.vgen.modell = S.vmodelle.some(m => m.id === S.vstandard) ? S.vstandard : (S.vmodelle[0]?.id || '');
+    // Beim Öffnen immer günstigste Auflösung und lange Dauer (videoAktualisieren passt beides ans Modell an)
+    Object.assign(S.vgen, { aufloesung: '', dauer: VSTANDARD_DAUER });
   }
   modusSetzen(S.modus);
 }
@@ -1115,6 +1118,9 @@ function passend(werte, wunsch, vorzug) {
   if (werte.includes(wunsch)) return wunsch;
   return vorzug.find(v => werte.includes(v)) || werte[0];
 }
+// Kleinste (= günstigste) Videoauflösung, z. B. 480p vor 720p vor 1080p/1k/2k/4k
+const auflHoehe = a => { const s = String(a).toLowerCase(), z = parseFloat(s) || 0; return s.endsWith('k') ? z * 1080 : z || 1e6; };
+const guenstigsteAufl = werte => [...(werte || [])].sort((a, b) => auflHoehe(a) - auflHoehe(b))[0] || '';
 
 function genAktualisieren() {
   const m = aktModell();
@@ -1212,7 +1218,8 @@ function modellPop(art = 'bild') {
   // Video: oben der Preis für 5 s zum Vergleich, darunter (hell, fett) der Gesamtpreis für die längste Dauer des Modells
   const vKosten = m => {
     const md = maxDauer(m);
-    return `<span class="kosten zweizeilig"${md ? ` data-tip="Längste Dauer dieses Modells: ${md} s – geschätzter Gesamtpreis je Video"` : ''}>
+    return `<span class="kosten zweizeilig"${md ? ` data-tip="Längste Dauer dieses Modells: ${md} s – geschätzter Gesamtpreis je Video
+Günstigste Einstellung: ${esc(guenstigsteAufl(m.aufloesungen) || 'Standardauflösung')}, ohne Ton"` : ''}>
       <span>${m.schaetzungKurz != null ? '≈ ' + geld(m.schaetzungKurz) + ' / 5 s' : ''}</span>
       ${md && m.schaetzungMax != null ? `<b>≈ ${geld(m.schaetzungMax)} / ${md} s</b>` : ''}</span>`;
   };
@@ -1258,9 +1265,10 @@ function modellPop(art = 'bild') {
       const p = m.parameter;
       try {
         if (vid) {
-          // Mit der längsten Dauer schätzen: je_video enthält dann auch einen Mindestpreis des Modells
-          const s = await api('schaetzen_video', { modell: m.id, anzahl: 1, dauer: maxDauer(m) || 5, ton: m.ton === true,
-            aufloesung: passend(m.aufloesungen, '720p', ['720p', '1080p']) });
+          // Günstigste Einstellung (kleinste Auflösung, ohne Ton) mit der längsten Dauer schätzen:
+          // je_video enthält dann auch einen Mindestpreis des Modells
+          const s = await api('schaetzen_video', { modell: m.id, anzahl: 1, dauer: maxDauer(m) || 5, ton: false,
+            aufloesung: guenstigsteAufl(m.aufloesungen) });
           m.schaetzungKurz = s.quelle === 'unbekannt' ? null : s.je_sekunde * 5;
           m.schaetzungMax = s.quelle === 'unbekannt' || !maxDauer(m) ? null : s.je_video;
           return;
@@ -1556,7 +1564,7 @@ function videoAktualisieren() {
   const m = aktVModell(), g = S.vgen;
   if (m) {
     g.seitenverhaeltnis = passend(m.formate, g.seitenverhaeltnis, ['16:9', '9:16']);
-    g.aufloesung = passend(m.aufloesungen, g.aufloesung, ['720p', '1080p']);
+    g.aufloesung = m.aufloesungen.includes(g.aufloesung) ? g.aufloesung : guenstigsteAufl(m.aufloesungen);
     if (m.dauern.length && !m.dauern.includes(g.dauer)) {
       g.dauer = m.dauern.reduce((a, d) => (Math.abs(d - g.dauer) < Math.abs(a - g.dauer) ? d : a), m.dauern[0]);
     }
