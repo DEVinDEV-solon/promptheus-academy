@@ -5,7 +5,7 @@ description: "Was PROMPTHEUS verarbeitet: lokal auf dem eigenen Rechner (fast ni
 tags: [recht, datenschutz, dsgvo, minderjaehrige, prometheus]
 timestamp: 2026-08-23T00:00:00+02:00
 kontext: "[[recht/README]]"
-stand: entwurf
+stand: 2026-10-12
 status: zur-pruefung
 ---
 
@@ -39,11 +39,20 @@ Was den Rechner verlässt, sind genau drei Dinge, und jedes einzeln:
 
 ## 1. Verantwortlicher
 
-‹Firmierung, Anschrift, Kontakt — identisch mit dem [Impressum](IMPRESSUM.md)›
+SmartBusinessHQ LLC\
+Próspera ZEDE · St. John's Bay\
+Roatán, Bay Islands\
+Honduras
 
-**Datenschutzbeauftragter:** ‹Name und Kontakt, oder: „Ein Datenschutzbeauftragter
-ist nicht bestellt; die Voraussetzungen des Art. 37 DSGVO / § 38 BDSG liegen
-nicht vor."›
+**Vertreten durch:** Alexander Mitchell (MSc), CEO\
+**E-Mail:** service@smartbusinesshq.de
+
+**Abwicklung in der EU:** für Kundinnen und Kunden in der EU läuft die Abwicklung von Registrierung,
+Vertrag und Zahlung über **Agent0.de**, ein Angebot der SmartBusinessHQ LLC.
+
+Die SmartBusinessHQ LLC hat ihren Sitz in Honduras, also ausserhalb der EU.
+Weil sich die Academy an Menschen in der EU richtet, gilt die DSGVO trotzdem
+vollständig (Art. 3 Abs. 2 DSGVO).
 
 ## 2. Deine Rechte
 
@@ -52,10 +61,11 @@ Du hast das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung
 (Art. 20) und Widerspruch (Art. 21 DSGVO). Eine erteilte Einwilligung kannst du
 jederzeit für die Zukunft widerrufen (Art. 7 Abs. 3 DSGVO).
 
-Wende dich dafür an ‹datenschutz@domain›.
+Wende dich dafür an service@smartbusinesshq.de.
 
 Du kannst dich außerdem bei einer Aufsichtsbehörde beschweren, insbesondere bei
-der für uns zuständigen: ‹Name und Anschrift der Landesdatenschutzbehörde›.
+der deines Wohnorts in der EU (Art. 77 DSGVO); in Deutschland ist das die
+Datenschutzbehörde deines Bundeslands.
 
 **Der praktische Teil bei uns:** Für die lokale Academy brauchst du uns dafür
 nicht. Die Daten liegen bei dir; „Löschung" heißt dort, die Datei zu löschen,
@@ -195,7 +205,7 @@ Art. 46 Abs. 2 lit. c DSGVO.
 sind — die Liste ändert sich, und ein falscher Verweis ist schlimmer als
 keiner.›
 
-## 9. Server-Protokolle der Online-Seite
+## 9. Die Online-Seite
 
 Beim Aufruf unserer Online-Seite verarbeitet der Server: gekürzte IP-Adresse,
 Zeitpunkt, aufgerufene Adresse, Statuscode, übertragene Datenmenge, Browser-
@@ -204,12 +214,16 @@ und Betriebssystemkennung.
 **Zweck:** Betrieb und Abwehr von Angriffen.
 **Rechtsgrundlage:** Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am
 sicheren Betrieb).
-**Löschung:** nach ‹7 / 14› Tagen.
+**Löschung:** nach 14 Tagen.
 
-**Keine Cookies außer den technisch erforderlichen.** Kein Tracking, keine
-Reichweitenmessung, keine eingebetteten Schriften, keine Netzwerke Dritter. Ein
-Einwilligungsbanner ist deshalb nicht nötig — und das ist der Grund, warum du
-keins siehst.
+**Reichweitenmessung nur auf der Online-Seite.** Die Webseite
+promptheus-academy.de misst ihre Reichweite mit Matomo, ohne Cookies. Was dabei
+erfasst wird, steht in der Datenschutzerklärung der Webseite
+(promptheus-academy.de/datenschutz.php).
+
+**Die Academy selbst misst nichts.** Kein Tracking, keine Reichweitenmessung,
+keine eingebetteten Schriften, keine Netzwerke Dritter und keine Cookies außer
+den technisch erforderlichen. Ein Einwilligungsbanner ist deshalb nicht nötig.
 
 ## 10. Änderungen
 
@@ -217,4 +231,4 @@ Wir passen diese Erklärung an, wenn sich der Dienst ändert. Maßgeblich ist di
 Fassung, die beim Aufruf abrufbar ist. Wesentliche Änderungen kündigen wir
 Bestandskunden vorher an.
 
-**Stand:** ‹Datum›
+**Stand:** 12.10.2026

@@ -209,12 +209,15 @@ $thema = PU_EINST_PERSON['thema']['vorgabe'];
 
   <!-- Der Entwurfshinweis steht am Ende und nicht am Anfang: wer die Seite
        aufruft, sucht eine Anschrift oder einen Absatz, nicht unsere Selbst-
-       auskunft. Verschwiegen wird er deshalb nicht. -->
+       auskunft. Verschwiegen wird er deshalb nicht. Er erscheint, solange
+       der Text noch Platzhalter in ‹spitzen Klammern› enthält. -->
+  <?php if ($roh === false || str_contains(pu_recht_rumpf($roh), '‹')): ?>
   <aside class="recht-warnung">
     <p><b>Entwurf.</b> Dieser Text ist noch nicht anwaltlich geprüft und enthält
       Stellen, die noch zu füllen sind. Er beschreibt, was gelten soll, und ist
       noch keine verbindliche Erklärung.</p>
   </aside>
+  <?php endif; ?>
 </main>
 
 <footer class="lp-fuss">
