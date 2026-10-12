@@ -21,10 +21,23 @@ GLOSSAR = os.path.join(VAULT, '70_Bibliothek', 'Glossar')
 
 # Die Achsen, nach denen sortiert wird. Ein Glossar allein alphabetisch ist eine
 # Wand; nach Feldern gruppiert findet man auch, wonach man nicht suchen kann.
+#
+# Die zehn Felder zwischen „ki" und „hardware" kamen mit dem Ausbau um 500
+# Begriffe (12.10.2026) dazu; je Feld ein Paket.
 FELDER = [
     ('ki',              'Wie ein Sprachmodell arbeitet'),
+    ('netze',           'Wie neuronale Netze lernen'),
+    ('modellbau',       'Transformer und Modellbau'),
+    ('training',        'Training und Daten'),
+    ('denken',          'Denken lassen und gut fragen'),
+    ('betrieb',         'Inferenz und Betrieb'),
+    ('wissen',          'Wissen, Suche und Gedächtnis'),
     ('agentik',         'Agenten, Werkzeuge und ihre Grenzen'),
+    ('agentenbau',      'Agenten: wie sie gebaut sind'),
+    ('protokolle',      'Protokolle, Werkzeuge und Programmieren mit Agenten'),
+    ('pruefen',         'Prüfen, messen, verstehen'),
     ('hardware',        'Womit gerechnet wird'),
+    ('skalierung',      'Hardware, Energie und Skalierung'),
     ('offenheit',       'Offen und geschlossen'),
     ('automation',      'Automatisierung und Robotik'),
     ('erkennung',       'Erkennen, was von einer Maschine stammt'),

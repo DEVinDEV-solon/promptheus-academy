@@ -112,6 +112,25 @@ foreach ($alle as $slug => $b) {
 }
 pruefe('Kein Verweis zeigt ins Leere', $tot === [], implode(' · ', $tot));
 
+// **Kein Suchwort gehört zwei Begriffen.** Sonst gewinnt still der, der später
+// gelesen wird, und ein Klick auf „Agent" öffnet die Planung.
+$wem = [];
+$doppelt = [];
+foreach ($alle as $slug => $b) {
+    foreach ($b['worte'] as $w) {
+        $k = mb_strtolower($w);
+        if (isset($wem[$k]) && $wem[$k] !== $slug) $doppelt[] = "$w: {$wem[$k]} / $slug";
+        $wem[$k] = $slug;
+    }
+}
+pruefe('Kein Suchwort gehört zwei Begriffen', $doppelt === [], implode(' · ', $doppelt));
+
+// `verlinken:` ersetzt die Wörter aus dem Titel, statt sie zu ergänzen.
+gleich('verlinken: gilt allein', ['Agentenplanung'],
+       pu_glossar_worte('Planung (Agent)', ['verlinken' => ['Agentenplanung'], 'aliase' => ['Plan']]));
+gleich('Ohne verlinken: Titel, Klammer und Aliase', ['LLM', 'Sprachmodell', 'Modell'],
+       pu_glossar_worte('LLM (Sprachmodell)', ['aliase' => ['Modell']]));
+
 // Die Nachbarn im Fenster sind gesiebt: nur echte Begriffe, nie der Begriff selbst.
 $b = pu_glossar_begriff('token');
 pruefe('„token" existiert', $b !== null);
