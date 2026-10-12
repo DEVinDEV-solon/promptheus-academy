@@ -1,16 +1,13 @@
 ---
 type: reference
-title: "Impressum (Entwurf)"
-description: "Anbieterkennzeichnung nach § 5 DDG für die kostenpflichtige Online-Seite von PROMPTHEUS. Entwurf mit Platzhaltern, ungeprüft."
+title: "Impressum"
+description: "Anbieterkennzeichnung nach § 5 DDG: SmartBusinessHQ LLC, Abwicklung für die EU über Agent0.de. Angaben wie auf smartbusinesshq.de/impressum.php."
 tags: [recht, impressum, prometheus]
 timestamp: 2026-08-23T00:00:00+02:00
 kontext: "[[recht/README]]"
-stand: entwurf
+stand: 2026-10-12
 status: zur-pruefung
 ---
-
-> **Entwurf, ungeprüft.** Platzhalter in `‹spitzen Klammern›`. Siehe
-> [README.md](README.md).
 
 # Impressum
 
@@ -18,59 +15,34 @@ Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG).
 
 ## Anbieter
 
-‹Firmierung inkl. Rechtsform›\
-‹Straße und Hausnummer›\
-‹PLZ Ort›\
-‹Land›
+SmartBusinessHQ LLC\
+Próspera ZEDE · St. John's Bay\
+Roatán, Bay Islands\
+Honduras
 
-**Vertreten durch:** ‹Name der vertretungsberechtigten Person›
+**Rechtsform:** Limited Liability Company (LLC)\
+**Vertreten durch:** Alexander Mitchell (MSc), CEO
 
 ## Kontakt
 
-**E-Mail:** ‹kontakt@domain›\
-**Telefon:** ‹Rufnummer›
+**E-Mail:** service@smartbusinesshq.de
 
-Eine E-Mail-Adresse ist Pflicht; eine Telefonnummer nicht, solange ein zweiter,
-gleich schneller Kanal angegeben ist. Wer keine Nummer nennen will, setzt hier
-ein Kontaktformular ein und lässt die Zeile weg.
+## Abwicklung in der EU
 
-## Registereintrag
-
-**Registergericht:** ‹Amtsgericht›\
-**Registernummer:** ‹HRB / Genossenschaftsregister / entfällt bei Einzelunternehmen›
-
-## Umsatzsteuer
-
-**Umsatzsteuer-Identifikationsnummer** gemäß § 27 a UStG: ‹DE…›
-
-*Bei Kleinunternehmerregelung nach § 19 UStG stattdessen:* „Als
-Kleinunternehmer im Sinne von § 19 Abs. 1 UStG wird keine Umsatzsteuer
-berechnet." — Und dann darf sie auch auf keiner Rechnung stehen.
+Für Kundinnen und Kunden in der EU läuft die Abwicklung von Registrierung,
+Vertrag und Zahlung über **Agent0.de**, ein Angebot der SmartBusinessHQ LLC.
 
 ## Redaktionell verantwortlich
 
 Gemäß § 18 Abs. 2 Medienstaatsvertrag (MStV):
 
-‹Name›\
-‹Anschrift — dieselbe wie oben oder eine abweichende›
-
-Diese Angabe ist nur nötig, wenn die Seite journalistisch-redaktionelle
-Inhalte hat (ein Blog, ein Magazin). Reine Produktseiten brauchen sie nicht.
+Alexander Mitchell (MSc)\
+Anschrift wie oben
 
 ## Verbraucherstreitbeilegung
 
-‹Eines von beiden wählen:›
-
-**a) Nicht teilnahmebereit:** Wir sind nicht bereit und nicht verpflichtet, an
-Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-
-**b) Teilnahmebereit:** Zur Teilnahme an einem Streitbeilegungsverfahren vor
-folgender Verbraucherschlichtungsstelle sind wir bereit: ‹Name und Anschrift
-der Stelle›.
-
-*Hinweis:* Die EU-Plattform zur Online-Streitbeilegung (OS-Plattform) wurde zum
-20.07.2025 eingestellt. Ein Link darauf gehört **nicht** mehr ins Impressum —
-er ist inzwischen ein Fehler, kein Versäumnis.
+Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor
+einer Verbraucherschlichtungsstelle teilzunehmen.
 
 ## Haftung für Inhalte
 
@@ -86,19 +58,16 @@ umgehend.
 
 ## Von Nutzern veröffentlichte Inhalte
 
-*Dieser Abschnitt gilt erst, wenn die Gemeinde-Plattform nach
-[[COMMUNITY-VPS-PLAN]] in Betrieb ist. Bis dahin bitte streichen.*
-
-Auf ‹gemeinde.domain› veröffentlichen Nutzerinnen und Nutzer eigene Werke
+In der Community der PROMPTHEUS Academy veröffentlichen Nutzerinnen und Nutzer eigene Werke
 (Skripte, Bausteine, Präsentationen, Seiten). Das sind fremde Inhalte im Sinne
 der §§ 7 ff. DDG. Wir prüfen sie nicht vorab auf Rechtsverletzungen. Wer eine
-Rechtsverletzung bemerkt, meldet sie an ‹melden@domain›; wir entfernen den
+Rechtsverletzung bemerkt, meldet sie an service@smartbusinesshq.de; wir entfernen den
 Inhalt nach Prüfung unverzüglich.
 
 ## Urheberrecht
 
 Die durch die Betreiber erstellten Inhalte und Werke auf diesen Seiten
-unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
+unterliegen dem Urheberrecht. Die Vervielfältigung, Bearbeitung,
 Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts
 bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
 Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen
