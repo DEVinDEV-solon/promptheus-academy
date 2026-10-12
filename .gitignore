@@ -232,6 +232,9 @@ secondbrain/000_Kontext/user/*
 secondbrain/90_Quellen/schulen/schulen_*
 secondbrain/Login-Level-Rechte-Plan.md
 secondbrain/Netzwerk-Vorplan.md
+# Influencer Promino Heus: eigener Arbeitsordner, wird direkt bearbeitet
+# (eigene Sitzung ohne Worktree). Gehört nicht ins Repo.
+secondbrain/80_Promino_Heus/
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/index.md
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/_hot.md
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/entities/Daniel Kokotajlo.md
