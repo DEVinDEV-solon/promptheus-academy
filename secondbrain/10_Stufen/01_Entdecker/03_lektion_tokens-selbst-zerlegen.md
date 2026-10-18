@@ -42,7 +42,7 @@ eher bei 2,5 bis 3. Genau darin steckt der ganze Preisunterschied.
 
 ## Der erste Versuch
 
-Tippe die beiden Zeilen nacheinander ein, Modell **GPT-5.5**:
+Tippe die beiden Zeilen nacheinander ein, Modell **Claude**:
 
 ```
 Künstliche Intelligenz
@@ -59,7 +59,7 @@ id: E1-15
 typ: mathe
 titel: "Nachmessen: ein deutsches Wortungetüm"
 punkte: 25
-frage: "Tippe im Tokenicer bei Modell GPT-5.5 das Wort »Wasserzeichenentfernung« ein — nur das Wort, ohne Leerzeichen davor. Wie viele Tokens sind es?"
+frage: "Tippe im Tokenicer bei Modell Claude das Wort »Wasserzeichenentfernung« ein — nur das Wort, ohne Leerzeichen davor. Wie viele Tokens sind es?"
 loesung: 6
 toleranz: 0
 richtzeit_s: 90
@@ -126,7 +126,7 @@ erklaerung: |
 
 ## Der Vergleich, den du im Kopf behalten sollst
 
-Miss selbst nach, Modell GPT-5.5:
+Miss selbst nach, Modell Claude:
 
 | Text | Tokens |
 |---|---|
@@ -147,7 +147,7 @@ id: E1-17
 typ: uebereinstimmung
 titel: "Vier Wörter, vier Zahlen"
 punkte: 30
-frage: "Miss jedes Wort einzeln im Tokenicer nach (Modell GPT-5.5) und ordne die Tokenzahl zu."
+frage: "Miss jedes Wort einzeln im Tokenicer nach (Modell Claude) und ordne die Tokenzahl zu."
 links: [street, Straße, Erdbeere, Donaudampfschifffahrtsgesellschaft]
 rechts:
   - "1 Token"
