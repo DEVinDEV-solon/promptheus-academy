@@ -45,7 +45,7 @@ body.zeigt-login .lp-bar { display: none; }
   font-family: var(--serif); font-size: 1.15rem; letter-spacing: .14em;
   text-decoration: none; color: var(--schrift);
 }
-.lp-wort .lp-flamme { font-size: 1.1rem; transform: translateY(1px); }
+.lp-wort .lp-flamme { width: 28px; height: 28px; border-radius: 50%; flex: none; align-self: center; }
 .lp-wort b {
   font-weight: 700; letter-spacing: .14em;
   background: linear-gradient(180deg, var(--gold), var(--glut));

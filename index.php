@@ -139,7 +139,11 @@ $kennzahlen = $offen ? [] : pu_kennzahlen($sicht);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title<?= pu_wort_html('fenster', 'PROMPTHEUS ACADEMY — KI-Feuer für junge Köpfe', $stil) ?></title>
-<link rel="icon" href="<?= pu_v('assets/img/promptheus.svg') ?>" type="image/svg+xml">
+<!-- Reiterzeichen: der Fackel-Pin, wie auf der Webseite (promptheus-devindev,
+     assets/img/marke). ICO für alle Browser, PNG für grosse Kacheln. -->
+<link rel="icon" href="<?= pu_v('assets/img/marke/favicon.ico') ?>" sizes="16x16 32x32 48x48">
+<link rel="icon" href="<?= pu_v('assets/img/marke/fackel-pin-192.png') ?>" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="<?= pu_v('assets/img/marke/apple-touch-icon.png') ?>">
 <link rel="stylesheet" href="<?= pu_v('assets/css/promptheus.css') ?>">
 <!-- Die Markenebene liegt darüber: Ornamente, Lapis, durchscheinende Flächen,
      das Hintergrundbild. Zuerst die Bausteine, dann die Marke — die
@@ -204,7 +208,9 @@ $webseite = 'https://promptheus-academy.de/';
      Preise nennt sie nicht: die pflegt die Webseite. -->
 <header class="lp-bar" id="lp-bar">
   <a class="lp-wort" href="#">
-    <span class="lp-flamme" aria-hidden="true">🔥</span><b>PROMPTHEUS</b><span>Academy</span>
+    <img class="lp-flamme marke-pin" src="<?= pu_v('assets/img/marke/fackel-pin-72.png') ?>"
+         srcset="<?= pu_v('assets/img/marke/fackel-pin-72.png') ?> 2x, <?= pu_v('assets/img/marke/fackel-pin-108.png') ?> 3x"
+         width="28" height="28" alt="" decoding="async"><b>PROMPTHEUS</b><span>Academy</span>
   </a>
   <nav class="lp-bar-nav" aria-label="Abschnitte">
     <a class="lp-nav-fern" href="#methode">Methode</a>
@@ -449,14 +455,8 @@ $webseite = 'https://promptheus-academy.de/';
   <button class="login-zurueck" type="button" data-login-zu>← Zurück zur Startseite</button>
   <div class="tor-karte">
     <div class="flamme" aria-hidden="true">
-      <svg viewBox="0 0 48 64" width="56" height="74">
-        <path d="M24 2C24 2 8 20 8 36a16 16 0 0 0 32 0C40 26 30 22 30 12c0 0-6 6-6 14 0 0-6-6-6-16 0 0 6-8 6-8z"
-              fill="url(#g)"/>
-        <defs><linearGradient id="g" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stop-color="#ff4d1c"/><stop offset=".55" stop-color="#ff9d2e"/>
-          <stop offset="1" stop-color="#ffe08a"/>
-        </linearGradient></defs>
-      </svg>
+      <img class="marke-pin" src="<?= pu_v('assets/img/marke/fackel-pin-192.png') ?>"
+           width="72" height="72" alt="" decoding="async">
     </div>
     <h1>PROMPTHEUS</h1>
     <p class="wortmarke-fuss">Academy</p>
@@ -538,7 +538,9 @@ $webseite = 'https://promptheus-academy.de/';
 <nav class="leiste" id="leiste" aria-label="Hauptmenü">
   <div class="leiste-kopf">
     <a class="marke" href="#/lernen" data-ansicht="lernen">
-      <span class="marke-flamme">🔥</span>
+      <img class="marke-flamme marke-pin" src="<?= pu_v('assets/img/marke/fackel-pin-72.png') ?>"
+           srcset="<?= pu_v('assets/img/marke/fackel-pin-72.png') ?> 2x, <?= pu_v('assets/img/marke/fackel-pin-108.png') ?> 3x"
+           width="30" height="30" alt="" decoding="async">
       <span class="marke-text">PROMPTHEUS</span>
       <span class="marke-zusatz">Academy</span>
     </a>
