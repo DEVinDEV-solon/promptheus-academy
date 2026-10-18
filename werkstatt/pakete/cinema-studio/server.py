@@ -43,6 +43,24 @@ ROOT = Path(__file__).resolve().parent
 WEB = ROOT / "web"
 DATA = Path(os.environ.get("BILDGEN_DATA") or (ROOT / "data"))
 OR_BASE = "https://openrouter.ai/api/v1"
+# Die Guideline aus dem 7. Kurs: Die Academy legt sie beim Öffnen der Werkstatt für das öffnende Konto ab
+# (srv/handschrift.php). ROOT ist werkstatt/scripts/cinema-studio (bzw. pakete/…) – drei Ebenen höher liegt die Academy.
+HANDSCHRIFT = Path(os.environ.get("PROMPTHEUS_HANDSCHRIFT") or (ROOT.parents[2] / "data" / "werkstatt" / "handschrift.json"))
+
+
+def handschrift() -> dict:
+    """Die Handschrift des Kontos, das die Werkstatt geöffnet hat – {} ohne (oder als Entwurf).
+
+    Bei jeder Anfrage frisch gelesen: Wer seine Guideline in der Academy ändert, soll das hier ohne Neustart merken.
+    """
+    try:
+        j = json.loads(HANDSCHRIFT.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(j, dict) or not isinstance(j.get("block"), str) or not j["block"].strip():
+        return {}
+    return {"block": j["block"].strip()[:6000], "kurz": str(j.get("kurz") or "")[:2000],
+            "art": "marke" if j.get("art") == "marke" else "persoenlich", "stand": str(j.get("stand") or "")[:40]}
 
 MAX_BODY = 40 * 1024 * 1024          # JSON-Körper inkl. Base64-Uploads
 MAX_UPLOAD = 12 * 1024 * 1024        # je Referenzbild (dekodiert)
@@ -2609,8 +2627,9 @@ def hf_start(owner: str, e: dict) -> dict:
         brief += ["", "Idee: " + txt["idee"]]
     if txt["produkt"]:
         brief += ["", "Produkt: " + txt["produkt"]]
-    if txt["marke"]:
-        brief += ["", "## Brand-Guideline", "", txt["marke"]]
+    marke = txt["marke"] or handschrift().get("kurz", "")      # leer gelassen: die Guideline aus dem 7. Kurs
+    if marke:
+        brief += ["", "## Brand-Guideline", "", marke]
     if txt["story"]:
         brief += ["", "## Storytelling", "", txt["story"]]
     if assets:
@@ -3174,6 +3193,7 @@ class Handler(BaseHTTPRequestHandler):
                               "hyperframes": {"skills": len(hw.skills_liste(HF_SKILLS)), "node": bool(hw.hf_befehl()),
                                               "whisper": bool(ha.whisper_finden(s.get("whisper_pfad", "")) and ha.whisper_modell_bereit()),
                                               "musik": HF_MUSIK},
+                              "handschrift": {k: v for k, v in handschrift().items() if k != "block"} or None,
                               "modelle_claude": assistent.CLAUDE_MODELLE, "laeuft": name in CHAT_LAEUFT})
         if p == "werkzeuge" and not post:
             return self.json({"ok": True, **werkzeuge_stand()})
@@ -3645,6 +3665,9 @@ class Handler(BaseHTTPRequestHandler):
                 anweisung = assistent.anweisungen(chat.get("modus", "assistent"), bm, vm, kontext, s["assistent_sprache"])
                 if analyse:                 # Video-Clone: Analyse des Referenzvideos
                     anweisung += "\n\n# Analyse des Referenzvideos\n" + str(analyse)[:30000]
+            hs = handschrift()              # 7. Kurs: jeder Prompt und jedes Video in der Handschrift des Nutzers
+            if hs:
+                anweisung += "\n\n" + hs["block"]
         except BaseException:
             CHAT_LAEUFT.pop(name, None)
             raise

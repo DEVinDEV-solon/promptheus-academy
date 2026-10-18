@@ -398,4 +398,36 @@ foreach (['srv/aktualisierung.php', 'srv/relay.php', 'srv/tutor.php', 'srv/katal
            substr_count($t, 'curl_init(') === substr_count($t, 'pu_curl_vertrauen($'));
 }
 
+// ================================================================ Nach dem Update
+gruppe('Nach dem Update');
+
+putenv('PU_TEST_AKT=' . $tmp . '/akt-nachher');
+$jetzt = pu_fassung();
+pruefe('frische Installation: kein Hinweis', pu_akt_nachher() === null);
+
+$sich_ordner = pu_akt_ordner('sicherung') . '/20261018-1.1.0';
+mkdir($sich_ordner, 0775, true);
+file_put_contents($sich_ordner . '/info.json', json_encode(['von' => '1.1.0', 'nach' => $jetzt, 'zeit' => '2026-10-18T10:00:00Z']));
+putenv('PU_TEST_NACH_UPDATE=' . $tmp . '/nach_update.json');
+file_put_contents($tmp . '/nach_update.json', json_encode([
+    'immer' => ['Strg+F5', 'Werkstatt neu starten'],
+    'fassungen' => [$jetzt => ['titel' => 'Probe', 'neu' => 'Etwas Neues', 'schritte' => ['Lektion 7 öffnen', 42]]],
+]));
+$h = pu_akt_nachher();
+gleich('nach dem Einspielen: Hinweis mit Fassung und Herkunft', [$jetzt, '1.1.0'], [$h['fassung'] ?? '', $h['von'] ?? '']);
+gleich('… mit den Schritten dieser Fassung (nur Texte)', ['Lektion 7 öffnen'], $h['schritte'] ?? null);
+gleich('… und den Schritten für jedes Update', ['Strg+F5', 'Werkstatt neu starten'], $h['immer'] ?? null);
+pruefe('die Oberfläche bekommt ihn mit', (pu_akt_oberflaeche(1)['nachher']['fassung'] ?? '') === $jetzt);
+
+pu_akt_nachher_ok();
+pruefe('„Erledigt“ blendet ihn aus', pu_akt_nachher() === null);
+
+pu_setting_setzen('update_nachher_ok', '0.0.1');
+file_put_contents($sich_ordner . '/info.json', json_encode(['von' => $jetzt, 'nach' => '0.0.1', 'zeit' => '']));
+pruefe('eine Sicherung zu einer anderen Fassung zeigt nichts', pu_akt_nachher() === null);
+
+$echt = json_decode((string)file_get_contents(__DIR__ . '/../srv/nach_update.json'), true);
+pruefe('srv/nach_update.json ist gültig und hat Schritte für jedes Update', is_array($echt) && count($echt['immer'] ?? []) >= 3);
+pruefe('… und einen Eintrag für die laufende Fassung', is_array($echt['fassungen'][$jetzt] ?? null), $jetzt);
+
 bilanz();

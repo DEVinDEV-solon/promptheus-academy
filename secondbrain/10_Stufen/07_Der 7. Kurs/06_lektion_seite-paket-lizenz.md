@@ -197,3 +197,6 @@ Das merkst du daran, dass die Prüfliste keine Überraschungen mehr bringt.
 Danach ist es kein Schlusspunkt, sondern ein Werkzeug: Bei jedem neuen Bot,
 jedem neuen Agenten, jeder neuen Seite ist die erste Frage nicht mehr „wie soll
 das klingen?", sondern „wo hänge ich die Datei ein?".
+
+Für die Werkstatt und das Cinema Studio beantwortet die nächste Lektion diese
+Frage: Dort trägst du dein Dokument einmal ein, und beide arbeiten danach.
