@@ -15,7 +15,12 @@ rem    Fenster sie neu (Sprungmarke :lauf), ohne neues Browserfenster.
 rem ===============================================================
 setlocal
 cd /d "%~dp0"
-title PROMPTHEUS
+rem --- Fassung aus VERSION: im Fenstertitel und in der Startzeile ----
+rem   Der Titel beginnt weiter mit PROMPTHEUS - die Academy verweist auf das
+rem   Fenster "PROMPTHEUS" in der Taskleiste.
+set "FASSUNG="
+if exist "VERSION" set /p FASSUNG=<"VERSION"
+title PROMPTHEUS %FASSUNG%
 set "PORT=8801"
 
 rem --- Anderer Port? Eine Zeile PU_PORT=8802 in der .env genuegt ---
@@ -37,7 +42,7 @@ if not defined PU_COCKPIT_START if "%PORT%"=="8801" if exist "%~dp0deck\server.p
     echo   Uebergebe an PROMPTHEUS DECK ...
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0srv\deck.ps1" -Eintrag pa-lokal >nul 2>&1
     if not errorlevel 1 (
-        echo   PROMPTHEUS laeuft jetzt ueber PROMPTHEUS DECK.
+        echo   PROMPTHEUS %FASSUNG% laeuft jetzt ueber PROMPTHEUS DECK.
         exit /b 0
     )
     echo   PROMPTHEUS DECK hat nicht uebernommen - die Academy startet hier.
@@ -59,6 +64,7 @@ if not exist "%RUN%" (
 
 echo.
 echo   PROMPTHEUS Start
+echo   Fassung: %FASSUNG%
 echo   PHP: %PHP_DIR%
 echo.
 
@@ -197,8 +203,11 @@ rem --- Datenordner ----------------------------------------------
 if not exist "data\logs" mkdir "data\logs" >nul 2>&1
 
 rem --- Browser + Server starten ---------------------------------
+rem   Fassung neu lesen: Ein eben eingespieltes Update hat VERSION geaendert.
+if exist "VERSION" set /p FASSUNG=<"VERSION"
+title PROMPTHEUS %FASSUNG%
 echo.
-echo   Starte PROMPTHEUS:  http://127.0.0.1:%PORT%/
+echo   Starte PROMPTHEUS %FASSUNG%:  http://127.0.0.1:%PORT%/
 if "%PU_ERSTER_LAUF%"=="1" start "" "http://127.0.0.1:%PORT%/"
 set "PU_ERSTER_LAUF=0"
 
