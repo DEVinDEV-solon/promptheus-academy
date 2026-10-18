@@ -79,7 +79,11 @@ pruefe('der 7. Kurs liegt im Vault', $kurs !== null);
 
 if ($kurs !== null) {
     $ids = [];
-    foreach ($kurs['lektionen'] as $l) foreach ($l['aufgaben'] as $a) $ids[] = (string)$a['id'];
+    // Nur Pflichtaufgaben: Übungslektionen (`uebung: true`) zählen nicht zur Freigabe.
+    foreach ($kurs['lektionen'] as $l) {
+        if (!empty($l['uebung'])) continue;
+        foreach ($l['aufgaben'] as $a) $ids[] = (string)$a['id'];
+    }
 
     if ($ids === []) {
         gleich('ein leerer Kurs schaltet nichts frei', 'kurs_leer', pu_coder_stand($schueler)['grund']);

@@ -6,5 +6,5 @@
     "dauer_h": "15-20",
     "voraussetzung": 5,
     "bestehen_prozent": 60,
-    "geruest": true
+    "geruest": false
 }

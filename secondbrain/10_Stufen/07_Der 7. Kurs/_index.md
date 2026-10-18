@@ -68,6 +68,11 @@ als eine Frage (Stufe 2), schreibt ein Dokument, das gut klingt und nichts
 | 5 | Einsatz II — Agenten und Mehr-Agenten-Systeme |
 | 6 | Deine Seite, dein Paket, deine Lizenz |
 | 7 | Deine Guideline einrichten — für Werkstatt und Cinema Studio |
+| 8 | Übung: Die Gegenprobe — wirkt deine Guideline? |
+| 9 | Übung: Eine Guideline, viele Werkzeuge |
+
+Lektion 8 und 9 sind **Übungen**: Sie bringen Punkte, zählen aber nicht zum
+Kursstand. Die Werkstatt ist frei, sobald Lektion 1 bis 6 gelöst sind.
 
 ## Das Musterstück
 

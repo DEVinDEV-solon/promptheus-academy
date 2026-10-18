@@ -861,6 +861,10 @@ function pu_lektion_lesen(string $rel, array &$fehler): ?array
         'beschreibung' => (string)($fm['meta']['description'] ?? ''),
         'dauer_min'=> (int)($fm['meta']['dauer_min'] ?? 0),
         'typ'      => (string)($fm['meta']['type'] ?? 'lesson'),
+        // Eine Übungslektion (`uebung: true`) gibt Punkte, zählt aber nicht
+        // zum Kursstand — sonst sperrte jede neue Übung im 7. Kurs fertigen
+        // Konten die Werkstatt wieder (pu_kurs7_weg verlangt 100 %).
+        'uebung'   => ($fm['meta']['uebung'] ?? false) === true,
         'rumpf'    => $fm['rumpf'],
         'aufgaben' => $aufgaben,
     ];

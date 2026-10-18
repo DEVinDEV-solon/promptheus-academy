@@ -309,6 +309,9 @@ PU.kursZeichnen = async function (pfad) {
     const marke = fertig
       ? '<span class="marke-stufe fertig">durch</span>'
       : (l.dauer_min ? '<span class="marke-stufe">' + l.dauer_min + ' min</span>' : '');
+    // Übungslektionen geben Punkte, zählen aber nicht zum Kursstand.
+    const uebung = l.uebung
+      ? '<p class="klein">Übung — zählt nicht zum Kursstand, bringt aber Punkte.</p>' : '';
 
     karte.innerHTML =
       '<div class="karte-kopf"><h3>' + (i + 1) + '. ' + PU.h(l.titel) + '</h3>' + marke + '</div>' +
@@ -317,6 +320,7 @@ PU.kursZeichnen = async function (pfad) {
         ? '<div class="balken"><i style="width:' + anteil + '%"></i></div>' +
           '<p class="klein">' + l.gelöst + ' von ' + l.aufgaben + ' Aufgaben gelöst</p>'
         : '<p class="klein">Zum Lesen — hier gibt es nichts abzugeben.</p>') +
+      uebung +
       (hier ? '<p class="klein hier-marke">Hier warst du gerade.</p>' : '');
 
     karte.addEventListener('click', () => PU.lektionOeffnen(l.pfad));
