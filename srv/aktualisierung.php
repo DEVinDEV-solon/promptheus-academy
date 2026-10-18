@@ -424,7 +424,7 @@ function pu_akt_nachher_schritte(): array
  * wurde genau diese gerade eingespielt (eine frische Installation hat keine).
  * Weg ist der Hinweis, sobald jemand „Erledigt“ klickt — für diese Fassung.
  *
- * @return ?array{fassung:string, von:string, zeit:string, titel:string, neu:string, schritte:list<string>, immer:list<string>}
+ * @return ?array{fassung:string, von:string, zeit:string, abschnitte:list<array{fassung:string, titel:string, neu:string, schritte:list<string>}>, schritte:list<string>, immer:list<string>}
  */
 function pu_akt_nachher(): ?array
 {
@@ -434,16 +434,34 @@ function pu_akt_nachher(): ?array
     if (pu_setting('update_nachher_ok', '') === $f) return null;
 
     $j = pu_akt_nachher_schritte();
-    $eigen = is_array($j['fassungen'][$f] ?? null) ? $j['fassungen'][$f] : [];
     $liste = static fn($x): array => array_values(array_filter(is_array($x) ? $x : [], 'is_string'));
+
+    // Jede Fassung, die dieses Update mitgebracht hat — wer 1.1.1 übersprungen
+    // hat und von 1.1.0 auf 1.1.2 geht, braucht auch die Schritte von 1.1.1.
+    // Die neueste steht oben.
+    $ab = pu_akt_rang($letzte['von']);
+    $bis = pu_akt_rang($f);
+    $abschnitte = [];
+    foreach (is_array($j['fassungen'] ?? null) ? $j['fassungen'] : [] as $fassung => $e) {
+        $r = pu_akt_rang((string)$fassung);
+        if (!is_array($e) || $r < 0 || $r > $bis || ($ab >= 0 && $r <= $ab)) continue;
+        $abschnitte[$r] = [
+            'fassung'  => (string)$fassung,
+            'titel'    => is_string($e['titel'] ?? null) ? $e['titel'] : '',
+            'neu'      => is_string($e['neu'] ?? null) ? $e['neu'] : '',
+            'schritte' => $liste($e['schritte'] ?? []),
+        ];
+    }
+    krsort($abschnitte);
+    $abschnitte = array_values($abschnitte);
+
     return [
-        'fassung'  => $f,
-        'von'      => $letzte['von'],
-        'zeit'     => $letzte['zeit'],
-        'titel'    => is_string($eigen['titel'] ?? null) ? $eigen['titel'] : '',
-        'neu'      => is_string($eigen['neu'] ?? null) ? $eigen['neu'] : '',
-        'schritte' => $liste($eigen['schritte'] ?? []),
-        'immer'    => $liste($j['immer'] ?? []),
+        'fassung'    => $f,
+        'von'        => $letzte['von'],
+        'zeit'       => $letzte['zeit'],
+        'abschnitte' => $abschnitte,
+        'schritte'   => array_merge(...array_column($abschnitte, 'schritte') ?: [[]]),
+        'immer'      => $liste($j['immer'] ?? []),
     ];
 }
 

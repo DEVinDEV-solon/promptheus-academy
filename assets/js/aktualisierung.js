@@ -85,11 +85,15 @@ window.PU = window.PU || {};
     };
     flaeche.appendChild(PU.el('p', 'hinweis', 'Die Academy ist ' + (h.von ? 'von ' + PU.h(h.von) + ' ' : '') +
       'auf <b>' + PU.h(h.fassung) + '</b> aktualisiert. Deine Lernstände und Daten sind unverändert.'));
-    if (h.neu) {
-      flaeche.appendChild(PU.el('h3', '', 'Neu in ' + PU.h(h.fassung) + (h.titel ? ': ' + PU.h(h.titel) : '')));
-      flaeche.appendChild(PU.el('p', '', PU.h(h.neu)));
-    }
-    liste('Für diese Fassung', h.schritte);
+    // Je mitgebrachte Fassung ein Abschnitt, die neueste oben — wer eine
+    // Fassung übersprungen hat, sieht auch deren Schritte.
+    (h.abschnitte || []).forEach(a => {
+      if (a.neu) {
+        flaeche.appendChild(PU.el('h3', '', 'Neu in ' + PU.h(a.fassung) + (a.titel ? ': ' + PU.h(a.titel) : '')));
+        flaeche.appendChild(PU.el('p', '', PU.h(a.neu)));
+      }
+      liste(a.neu ? 'Zu tun für ' + a.fassung : 'Für ' + a.fassung, a.schritte);
+    });
     liste('Nach jedem Update', h.immer);
     const fuss = PU.el('div', 'akt-fuss');
     const ok = PU.el('button', 'knopf', 'Erledigt');

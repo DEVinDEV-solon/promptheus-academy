@@ -419,6 +419,25 @@ gleich('… mit den Schritten dieser Fassung (nur Texte)', ['Lektion 7 öffnen']
 gleich('… und den Schritten für jedes Update', ['Strg+F5', 'Werkstatt neu starten'], $h['immer'] ?? null);
 pruefe('die Oberfläche bekommt ihn mit', (pu_akt_oberflaeche(1)['nachher']['fassung'] ?? '') === $jetzt);
 
+// Übersprungene Fassung: von 1.1.0 direkt auf die laufende. Dazwischen liegt
+// eine Fassung mit eigenen Schritten; ältere und künftige gehören nicht dazu.
+[$ma, $mi, $pa] = array_map('intval', explode('.', $jetzt));
+$dazwischen = $ma . '.' . $mi . '.' . max(0, $pa - 1);
+file_put_contents($tmp . '/nach_update.json', json_encode([
+    'immer' => ['Strg+F5'],
+    'fassungen' => [
+        '9.9.9'     => ['schritte' => ['aus der Zukunft']],
+        $jetzt      => ['neu' => 'Jetzt neu', 'schritte' => ['Schritt jetzt']],
+        $dazwischen => ['neu' => 'Davor neu', 'schritte' => ['Schritt davor']],
+        '1.0.0'     => ['schritte' => ['schon erledigt']],
+    ],
+]));
+file_put_contents($sich_ordner . '/info.json', json_encode(['von' => '1.0.9', 'nach' => $jetzt, 'zeit' => '']));
+$h = pu_akt_nachher();
+gleich('übersprungene Fassung: beide Abschnitte, neueste oben', [$jetzt, $dazwischen],
+       array_column($h['abschnitte'] ?? [], 'fassung'));
+gleich('… und alle Schritte dazwischen, nichts Älteres, nichts Künftiges', ['Schritt jetzt', 'Schritt davor'], $h['schritte'] ?? null);
+
 pu_akt_nachher_ok();
 pruefe('„Erledigt“ blendet ihn aus', pu_akt_nachher() === null);
 

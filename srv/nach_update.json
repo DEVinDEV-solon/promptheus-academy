@@ -1,5 +1,5 @@
 {
-  "_lies_mich": "Was nach einem Update zu tun ist. 'immer' gilt nach jeder Fassung, 'fassungen' nur nach genau dieser. Gezeigt von srv/aktualisierung.php (pu_akt_nachher) als Notiz über „Abmelden“, sobald ein Update eingespielt wurde, bis jemand „Erledigt“ klickt. Bei jeder neuen Fassung hier einen Eintrag ergänzen, auch wenn es nur „nichts weiter“ ist.",
+  "_lies_mich": "Was nach einem Update zu tun ist. 'immer' gilt nach jeder Fassung, 'fassungen' für jede Fassung, die ein Update mitbringt (übersprungene eingeschlossen, neueste oben). Gezeigt von srv/aktualisierung.php (pu_akt_nachher) als Notiz über „Abmelden“, sobald ein Update eingespielt wurde, bis jemand „Erledigt“ klickt. Bei jeder neuen Fassung hier einen Eintrag ergänzen, auch wenn es nur „nichts weiter“ ist.",
   "immer": [
     "Diese Seite einmal mit Strg+F5 neu laden — dann holt der Browser die neuen Skripte und Farben statt der alten aus dem Zwischenspeicher.",
     "Läuft die Werkstatt: Einstellungen › Werkstatt › „Werkstatt neu starten“. Sie liest ihre Anweisungen und den Code des Cinema Studios nur beim Start.",
@@ -7,6 +7,11 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.2": {
+      "titel": "Tokenicer-Lektion und Hinweise nach dem Update",
+      "neu": "Lektion 3 im Entdecker-Kurs nennt beim Nachmessen das Modell Claude statt GPT-5.5, das es im Tokenicer nicht mehr gibt. Die Zahlen und Lösungen bleiben gleich. Wer eine Fassung übersprungen hat, sieht hier jetzt auch deren Schritte.",
+      "schritte": []
+    },
     "1.1.1": {
       "titel": "Deine Guideline aus dem 7. Kurs",
       "neu": "Der 7. Kurs hat eine Lektion 7 „Deine Guideline einrichten“. Wer den Kurs abgeschlossen hat, trägt dort seine Brand-Guideline oder persönliche Guideline ein. Danach arbeiten Hephaistos in der Werkstatt und der Assistent im Cinema Studio nach ihr.",
