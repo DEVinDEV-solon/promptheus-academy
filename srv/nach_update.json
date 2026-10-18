@@ -7,6 +7,15 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.4": {
+      "titel": "Neun Lektionen je Stufe und Prüfungen für Stufe 3–6",
+      "neu": "Alle sieben Stufenkurse haben jetzt 9 Lektionen, jede baut auf der vorigen auf. Stufe 3 bis 6 haben eine Prüfung, damit lassen sie sich bestehen und der 7. Kurs wird erreichbar. Der 7. Kurs hat zwei Übungslektionen (Gegenprobe, eine Guideline für viele Werkzeuge), die die Werkstatt-Freigabe nicht berühren. Die Academy trägt den Fackel-Pin der Webseite als Logo.",
+      "schritte": [
+        "Gelöste Aufgaben bleiben gelöst. Weil neue Lektionen dazukommen, zeigt ein Kurs, der vorher bei 100 % stand, jetzt weniger an.",
+        "Stufe 3 bis 6 gelten erst mit bestandener Prüfung als bestanden. Bereits bestandene Prüfungen bleiben gültig.",
+        "Im 7. Kurs ändert sich an der Freigabe nichts, die Werkstatt bleibt frei. Lektion 8 und 9 sind freiwillige Übungen."
+      ]
+    },
     "1.1.3": {
       "titel": "Fassung im Startfenster",
       "neu": "Das Startfenster (PROMPTHEUS-START.bat) zeigt die Fassung jetzt im Fenstertitel, in der Startzeile und bei der Übergabe an PROMPTHEUS DECK — nach einem Update gleich die neue.",
