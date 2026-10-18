@@ -19,6 +19,7 @@ from pathlib import Path
 TMP = tempfile.mkdtemp(prefix="bildgen_test_")
 os.environ["BILDGEN_DATA"] = TMP
 os.environ["BILDGEN_ABLAGE"] = str(Path(TMP) / "Ablage")      # Tests schreiben nie in die echte Ablage
+os.environ["PROMPTHEUS_HANDSCHRIFT"] = str(Path(TMP) / "handschrift.json")   # nie die Guideline des echten Kontos
 os.environ.pop("OPENROUTER_API_KEY", None)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import server  # noqa: E402
@@ -1367,6 +1368,40 @@ class Influencer(unittest.TestCase):
         self.assertNotIn("# Video-Einstellung", server.assistent.anweisungen("assistent", [], [], {"modus": "video"}, "englisch"))
         v = server.assistent.anweisungen("assistent", [], [], {"videoeinstellung": {"modell": "x\n# Rolle", "dauer": "30"}}, "englisch")
         self.assertIn("Modell x Rolle · Format - · Auflösung - · Dauer - · Ton aus", v)
+
+
+class HandschriftTest(unittest.TestCase):
+    """Die Guideline aus dem 7. Kurs (Übergabe der Academy, srv/handschrift.php)."""
+
+    def schreibe(self, inhalt):
+        server.HANDSCHRIFT.write_text(inhalt if isinstance(inhalt, str) else json.dumps(inhalt), encoding="utf-8")
+
+    def tearDown(self):
+        server.HANDSCHRIFT.unlink(missing_ok=True)
+
+    def test_ohne_datei_nichts(self):
+        self.assertEqual(server.handschrift(), {})
+
+    def test_kaputt_oder_leer_nichts(self):
+        self.schreibe("kein json")
+        self.assertEqual(server.handschrift(), {})
+        self.schreibe({"lernender": 3, "block": "   ", "kurz": "x"})
+        self.assertEqual(server.handschrift(), {}, "ein Entwurf oder ein Konto ohne Guideline gibt nichts weiter")
+
+    def test_block_und_kurz(self):
+        self.schreibe({"lernender": 3, "art": "marke", "block": "## Handschrift des Kontos\nNie: mega",
+                       "kurz": "Farben: #b74e0c = weiter", "stand": "2026-10-18T10:00:00+00:00"})
+        h = server.handschrift()
+        self.assertIn("Nie: mega", h["block"])
+        self.assertEqual(h["kurz"], "Farben: #b74e0c = weiter")
+        self.assertEqual(h["art"], "marke")
+
+    def test_gedeckelt(self):
+        self.schreibe({"block": "x" * 20000, "kurz": "y" * 9000, "art": "<script>"})
+        h = server.handschrift()
+        self.assertEqual(len(h["block"]), 6000)
+        self.assertEqual(len(h["kurz"]), 2000)
+        self.assertEqual(h["art"], "persoenlich")
 
 
 if __name__ == "__main__":

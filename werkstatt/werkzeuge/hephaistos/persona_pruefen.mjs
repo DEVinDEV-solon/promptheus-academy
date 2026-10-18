@@ -11,7 +11,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  ANFANG, ENDE, PRESET_ORDNER, blockEntfernen, fremdeVariablen, hephaistosBlock, hephaistosPruefen,
+  ANFANG, ENDE, PERSONA_DATEI, PRESET_ORDNER, blockEntfernen, handschriftLesen, fremdeVariablen, hephaistosBlock, hephaistosPruefen,
   personaLesen, presetUmschreiben, profilHephaistos,
 } from './persona.mjs'
 
@@ -131,6 +131,21 @@ const fremd = join(ort, 'persona.md')
 writeFileSync(fremd, '---\ntitle: x\n---\nDu bist Hephaistos auf {{platform}}.\n')
 pruefe('fremde Variable gemeldet', hephaistosBlock({ presetOrdner: presets, personaDatei: fremd }).fehler.some(f => f.includes('{{platform}}')))
 pruefe('fehlendes Profil: nichts geändert', profilHephaistos(join(ort, 'gibt-es-nicht.yml'), o).geaendert.length === 0)
+
+// ── 3b: die Handschrift aus dem 7. Kurs ─────────────────────────────────────
+const hs = join(ort, 'handschrift.json')
+writeFileSync(hs, JSON.stringify({ lernender: 7, block: '## Handschrift des Kontos\n\nDiese Wörter kommen nie vor: mega. {{model}}' }))
+const mitHs = hephaistosBlock({ presetOrdner: presets, personaDatei: PERSONA_DATEI, handschriftDatei: hs })
+const mitText = mitHs.zeilen.join('\n')
+pruefe('Handschrift steht in der Persona', mitText.includes('Diese Wörter kommen nie vor: mega.'))
+pruefe('Handschrift steht auch in jedem Preset', mitText.split('Diese Wörter kommen nie vor').length - 1 === 1 + mitHs.presets.length)
+pruefe('{{ aus der Handschrift wird entschärft', !mitHs.fehler.some(f => f.includes('{{model}}')) && mitText.includes('mega. { {model} }'))
+pruefe('ohne Datei keine Handschrift', handschriftLesen(join(ort, 'fehlt.json')) === '')
+writeFileSync(hs, 'kein json')
+pruefe('kaputte Datei: keine Handschrift', handschriftLesen(hs) === '')
+writeFileSync(hs, JSON.stringify({ lernender: 7, block: '' }))
+pruefe('leerer Block (anderes Konto ohne Guideline): keine Handschrift',
+  !hephaistosBlock({ presetOrdner: presets, personaDatei: PERSONA_DATEI, handschriftDatei: hs }).zeilen.join('\n').includes('Handschrift des Kontos'))
 
 // ── 4: die echten Presets des Harness ───────────────────────────────────────
 if (existsSync(PRESET_ORDNER)) {

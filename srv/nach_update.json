@@ -1,0 +1,20 @@
+{
+  "_lies_mich": "Was nach einem Update zu tun ist. 'immer' gilt nach jeder Fassung, 'fassungen' nur nach genau dieser. Gezeigt von srv/aktualisierung.php (pu_akt_nachher) als Notiz über „Abmelden“, sobald ein Update eingespielt wurde, bis jemand „Erledigt“ klickt. Bei jeder neuen Fassung hier einen Eintrag ergänzen, auch wenn es nur „nichts weiter“ ist.",
+  "immer": [
+    "Diese Seite einmal mit Strg+F5 neu laden — dann holt der Browser die neuen Skripte und Farben statt der alten aus dem Zwischenspeicher.",
+    "Läuft die Werkstatt: Einstellungen › Werkstatt › „Werkstatt neu starten“. Sie liest ihre Anweisungen und den Code des Cinema Studios nur beim Start.",
+    "War das Cinema Studio offen: sein Fenster schliessen und links in der Werkstatt neu öffnen.",
+    "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
+  ],
+  "fassungen": {
+    "1.1.1": {
+      "titel": "Deine Guideline aus dem 7. Kurs",
+      "neu": "Der 7. Kurs hat eine Lektion 7 „Deine Guideline einrichten“. Wer den Kurs abgeschlossen hat, trägt dort seine Brand-Guideline oder persönliche Guideline ein. Danach arbeiten Hephaistos in der Werkstatt und der Assistent im Cinema Studio nach ihr.",
+      "schritte": [
+        "Alle, die den 7. Kurs abgeschlossen haben: Kurs 7 › Lektion 7 öffnen und die Guideline einrichten (etwa zwanzig Minuten). Am Kursstand ändert sich nichts, die Werkstatt bleibt frei.",
+        "Danach die Werkstatt einmal neu starten — erst dann liest Hephaistos die Guideline. Das Cinema Studio nimmt sie bei der nächsten Anfrage.",
+        "Die Werkstatt muss nicht neu eingerichtet werden."
+      ]
+    }
+  }
+}

@@ -17,6 +17,7 @@ import { SCHUTZ_PORT, schluesselLesen, schutzschichtStarten } from './schutz/sch
 import { arbeitsordnerBereinigen, laufMerken, profilAbsichern, profilPruefen, schluesselUmziehen, schutzAdresse } from './schutz/absichern.mjs'
 import { profilHephaistos } from './hephaistos/persona.mjs'
 import { begruessungAbgleichen } from './begruessung.mjs'
+import { cinemaSpiegeln, ZIEL as CINEMA_ZIEL } from './cinema_spiegeln.mjs'
 import { adresseAusZeile, adresseLoeschen, adresseSchreiben, ausgabeMitlesen } from './adresse.mjs'
 
 /** Wurzel dieses Werkzeugs (…/werkstatt). */
@@ -297,6 +298,14 @@ for (const f of hephaistos.fehler) console.warn(`starten: Hinweis   ${f}`)
 const begruessung = begruessungAbgleichen(ZUHAUSE)
 for (const z of begruessung.geaendert) console.log(`starten: Profil    ${z}`)
 for (const f of begruessung.fehler) console.warn(`starten: Hinweis   ${f}`)
+
+// Cinema Studio läuft aus seiner Kopie in scripts\cinema-studio. Ein Update der
+// Academy bringt neuen Code nur nach pakete\cinema-studio — ohne diesen Abgleich
+// liefe bis zum nächsten Einrichten die alte Fassung. Nur wenn es eingerichtet ist.
+if (existsSync(join(CINEMA_ZIEL, 'server.py'))) {
+  try { console.log(`starten: Cinema   ${cinemaSpiegeln()} Teile abgeglichen`) }
+  catch (e) { console.warn(`starten: Hinweis   Cinema Studio nicht abgeglichen: ${e.message}`) }
+}
 
 // Startsperre: Ein Modellweg, der nicht über die Schutzschicht geht, wäre ein
 // Loch im Riegel. Dann startet die Werkstatt nicht.

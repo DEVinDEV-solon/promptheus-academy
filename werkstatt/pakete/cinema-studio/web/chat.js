@@ -28,6 +28,8 @@ $('#chatZu').onclick = () => chatUmschalten(false);
 
 async function chatStart() {
   C.status = await api('assistent/status');
+  // Die Guideline aus dem 7. Kurs füllt das Feld „Brand-Guideline“ vor – je Produktion änderbar.
+  if (!HF.marke && C.status.handschrift?.kurz) HF.marke = C.status.handschrift.kurz;
   const auto = C.auto ?? (await api('einstellungen').catch(() => null))?.einstellungen?.assistent_auto;
   C.auto = !!auto;
   $('#chatAuto').checked = C.auto;
@@ -650,7 +652,7 @@ function hfOnboardingHtml(ausKlon) {
     <div class="hf-titel">4 · Marke</div>
     ${bild('logo', 'Logo hinzufügen (optional)')}
     ${feld('titel', 'Kernbotschaft oder Titel (optional)', 'Die eine Aussage, die hängen bleiben soll')}
-    ${feld('marke', 'Brand-Guideline (optional)', 'Farben, Schriften, Tonalität, No-Gos …', 2)}
+    ${feld('marke', C.status?.handschrift ? 'Brand-Guideline (aus deinem 7. Kurs, hier änderbar)' : 'Brand-Guideline (optional)', 'Farben, Schriften, Tonalität, No-Gos …', 2)}
     ${feld('story', 'Storytelling (optional)', 'Problem → Lösung → Aufruf, Zielgruppe, Stimmung …', 2)}
     ${j?.status === 'laeuft' ? `<div class="klon-fortschritt laeuft"><span class="spin"></span>Analyse ${j.nr}/${j.von}: ${esc(j.schritt)}</div>`
       : j?.status === 'fehler' ? `<div class="klon-fortschritt fehler">⚠ ${esc(j.fehler)}</div>` : ''}

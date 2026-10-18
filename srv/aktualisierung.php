@@ -406,6 +406,53 @@ function pu_akt_ausblenden(int $lernender, string $fassung): void
     pu_setting_setzen('update_aus_' . $lernender, $fassung . '|' . time());
 }
 
+// ─────────────────────────────────────────────────────────────── Nach dem Update
+
+/** Die Schritte nach einem Update (srv/nach_update.json). Tests legen die Datei über PU_TEST_NACH_UPDATE um. */
+function pu_akt_nachher_schritte(): array
+{
+    $t = getenv('PU_TEST_NACH_UPDATE');
+    $datei = is_string($t) && $t !== '' ? $t : __DIR__ . '/nach_update.json';
+    $j = is_file($datei) ? json_decode((string)file_get_contents($datei), true) : null;
+    return is_array($j) ? $j : [];
+}
+
+/**
+ * Was jetzt zu tun ist — nur direkt nach einem eingespielten Update.
+ *
+ * Erkannt an der jüngsten Sicherung: Sie zeigt auf die laufende Fassung, also
+ * wurde genau diese gerade eingespielt (eine frische Installation hat keine).
+ * Weg ist der Hinweis, sobald jemand „Erledigt“ klickt — für diese Fassung.
+ *
+ * @return ?array{fassung:string, von:string, zeit:string, titel:string, neu:string, schritte:list<string>, immer:list<string>}
+ */
+function pu_akt_nachher(): ?array
+{
+    $f = pu_fassung();
+    $letzte = pu_akt_sicherungen()[0] ?? null;
+    if ($letzte === null || $letzte['nach'] !== $f) return null;
+    if (pu_setting('update_nachher_ok', '') === $f) return null;
+
+    $j = pu_akt_nachher_schritte();
+    $eigen = is_array($j['fassungen'][$f] ?? null) ? $j['fassungen'][$f] : [];
+    $liste = static fn($x): array => array_values(array_filter(is_array($x) ? $x : [], 'is_string'));
+    return [
+        'fassung'  => $f,
+        'von'      => $letzte['von'],
+        'zeit'     => $letzte['zeit'],
+        'titel'    => is_string($eigen['titel'] ?? null) ? $eigen['titel'] : '',
+        'neu'      => is_string($eigen['neu'] ?? null) ? $eigen['neu'] : '',
+        'schritte' => $liste($eigen['schritte'] ?? []),
+        'immer'    => $liste($j['immer'] ?? []),
+    ];
+}
+
+/** „Erledigt“: Der Hinweis zu dieser Fassung erscheint nicht mehr. */
+function pu_akt_nachher_ok(): void
+{
+    pu_setting_setzen('update_nachher_ok', pu_fassung());
+}
+
 /** Was die Oberfläche braucht (Notiz und Wartung). */
 function pu_akt_oberflaeche(int $lernender, bool $jetzt = false): array
 {
@@ -424,6 +471,7 @@ function pu_akt_oberflaeche(int $lernender, bool $jetzt = false): array
         'medien'      => $medAngebot,
         'medien_stand'=> $med['stand'],
         'fassung'     => pu_fassung(),
+        'nachher'     => pu_akt_nachher(),
         'kanal'       => pu_akt_kanal(),
         'weg'         => $s['weg'],
         'geprueft_am' => $s['geprueft_am'],

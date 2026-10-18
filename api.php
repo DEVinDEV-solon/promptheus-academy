@@ -106,6 +106,19 @@ function api_fremde_herkunft(): bool
     return strcasecmp(rtrim($origin, '/'), $eigen) !== 0;
 }
 
+/**
+ * Vor jeder ändernden Handschrift-Aktion: nur per POST und erst mit dem
+ * 7. Kurs zu 100 % (srv/handschrift.php). Das Recht prüft der Zweig selbst.
+ */
+function api_handschrift_tor(int $ich): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+    require_once PU_ROOT . '/srv/handschrift.php';
+    if (!pu_handschrift_frei($ich)['frei']) {
+        pu_fehler('Deine Guideline richtest du ein, wenn der 7. Kurs abgeschlossen ist.', 403);
+    }
+}
+
 /** Aktionen, die ausdrücklich von fremden Seiten kommen dürfen. */
 const API_FREMD_ERLAUBT = [
     // Der Knopf „Community“ der Werkstatt: ein Seitenaufruf, der nur weiterleitet.
@@ -330,12 +343,25 @@ try {
                 },
                 $rumpfquelle
             ) ?? $rumpfquelle;
+            // Ein Einrichtungs-Fenster mitten in der Lektion (```einrichtung,
+            // etwa die Guideline im 7. Kurs). Nur bekannte Arten — der Rest
+            // bliebe als Codeblock stehen, statt etwas Fremdes zu öffnen.
+            $rumpf = preg_replace_callback(
+                '/^```einrichtung[ \t]*\r?\n(.*?)^```[ \t]*$/ms',
+                function (array $m): string {
+                    preg_match('/^art:\s*([a-z]+)/m', $m[1], $t);
+                    return in_array($t[1] ?? '', ['handschrift'], true) ? "\n<<<EINRICHTUNG:" . $t[1] . ">>>\n" : $m[0];
+                },
+                $rumpf
+            ) ?? $rumpf;
 
             // Fachbegriffe werden anklickbar. Erst rendern, dann verlinken:
             // im Markdown stünde der Begriff auch in Codeblöcken.
             $html = pu_glossar_verlinken(pu_ohne_erste_h1(pu_md($rumpf)));
             $html = preg_replace('#<p>&lt;&lt;&lt;AUFGABE:([A-Za-z0-9_-]+)&gt;&gt;&gt;</p>#',
                 '<div class="aufgabe-platz" data-aufgabe="$1"></div>', $html) ?? $html;
+            $html = preg_replace('#<p>&lt;&lt;&lt;EINRICHTUNG:([a-z]+)&gt;&gt;&gt;</p>#',
+                '<div class="einrichtung-platz" data-einrichtung="$1"></div>', $html) ?? $html;
 
             $aufgaben = [];
             foreach ($lek['aufgaben'] as $a) {
@@ -1117,6 +1143,10 @@ try {
             // Die Werkstatt soll wissen, wo diese Academy läuft (Port aus der
             // .env, PU_PORT): Ihr Knopf „Community“ führt hierher zurück.
             pu_werkstatt_ticket($ichId, 'http://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
+            // Die Handschrift aus dem 7. Kurs für Hephaistos und das Cinema
+            // Studio — die des Kontos, das hier öffnet (srv/handschrift.php).
+            require_once PU_ROOT . '/srv/handschrift.php';
+            try { pu_handschrift_uebergeben($ichId); } catch (Throwable $e) { /* ohne Handschrift startet die Werkstatt trotzdem */ }
             $erster = pu_werkstatt_erster_start();
             // Die Namen dieser Academy für die Schutzschicht — als Fingerabdrücke.
             try { pu_werkstatt_schutzliste(); } catch (Throwable $e) { /* ohne Liste schützt die Schicht weiter mit Werten und Regeln */ }
@@ -1124,6 +1154,45 @@ try {
             pu_protokoll($ichId, 'werkstatt', $neu ? 'neustart' : 'oeffnen', $st['grund']);
             pu_json_out(['ok' => true, 'laeuft' => false, 'gestartet' => true, 'neu' => $neu,
                          'erster' => $erster, 'port' => $st['port']]);
+        }
+
+        // ---------------------------------------------------------- Handschrift
+        /* Die Guideline des Kontos aus dem 7. Kurs (srv/handschrift.php).
+           Lesen darf jeder sein eigenes; einrichten erst mit dem 7. Kurs zu
+           100 % — geprüft hier, nicht am Knopf. Fremde Konten gibt es hier
+           nicht: Jede Aktion gilt dem angemeldeten. */
+        case 'handschrift_lesen': {
+            pu_recht_fordern('dashboard.view');
+            require_once PU_ROOT . '/srv/handschrift.php';
+            pu_json_out(['ok' => true, 'handschrift' => pu_handschrift_stand($ichId)]);
+        }
+
+        case 'handschrift_loeschen': {
+            pu_recht_fordern('dashboard.view');
+            api_handschrift_tor($ichId);
+            pu_handschrift_loeschen($ichId);
+            pu_protokoll($ichId, 'handschrift', 'loeschen', '');
+            pu_json_out(['ok' => true, 'handschrift' => pu_handschrift_stand($ichId)]);
+        }
+
+        case 'handschrift_paket': {
+            pu_recht_fordern('dashboard.view');
+            api_handschrift_tor($ichId);
+            $h = pu_handschrift($ichId);
+            if ($h === null) pu_fehler('Es gibt noch keine Guideline zum Herunterladen.', 404);
+            pu_json_out(['ok' => true, 'datei' => 'guideline-' . gmdate('Y-m-d') . '.zip',
+                         'inhalt' => base64_encode(pu_handschrift_paket($h))]);
+        }
+
+        case 'handschrift_speichern': {
+            pu_recht_fordern('dashboard.view');
+            api_handschrift_tor($ichId);
+            $roh = d('daten', []);
+            if (!is_array($roh)) pu_fehler('Die Guideline kam in unlesbarer Form an.');
+            try { $r = pu_handschrift_speichern($ichId, $roh); }
+            catch (DomainException $e) { pu_fehler($e->getMessage()); }
+            pu_protokoll($ichId, 'handschrift', 'speichern', $r['fehlt'] === [] ? 'vollständig' : 'Entwurf');
+            pu_json_out(['ok' => true, 'treffer' => $r['treffer'], 'handschrift' => pu_handschrift_stand($ichId)]);
         }
 
         // ---------------------------------------------------------- Audit-Trail
@@ -1259,6 +1328,12 @@ try {
                 pu_fehler($f->getMessage());
             }
             pu_json_out(['ok' => true]);
+
+        case 'update_nachher_ok':
+            pu_recht_fordern('aktualisierung.verwalten');
+            pu_akt_nachher_ok();
+            pu_protokoll($ichId, 'aktualisierung', 'nachher_ok', pu_fassung());
+            pu_json_out(['ok' => true] + pu_akt_oberflaeche($ichId));
 
         case 'update_einstellen':
             pu_recht_fordern('aktualisierung.verwalten');

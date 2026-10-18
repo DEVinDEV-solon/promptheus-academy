@@ -1713,6 +1713,9 @@ function coderZeichnen(ziel) {
   stand.innerHTML = text;
   ziel.appendChild(stand);
 
+  // Die Guideline, nach der er baut — dasselbe Fenster wie in Lektion 7.
+  if (c.frei && PU.handschriftKarte) PU.handschriftKarte(ziel);
+
   // Die Wahl steht auch vor der Freigabe da — wer weiss, womit er später
   // arbeitet, hat einen Grund mehr, den Kurs fertigzumachen.
   const modelle = c.modelle || [];

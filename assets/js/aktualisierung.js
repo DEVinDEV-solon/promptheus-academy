@@ -31,6 +31,7 @@ window.PU = window.PU || {};
     const leisteKnopf = document.getElementById('knopf-leiste');
     if (leisteKnopf) leisteKnopf.classList.toggle('akt-punkt', sichtbar || medienSichtbar);
     if (medienSichtbar) { medienNotiz(n, m, leisteKnopf); return; }
+    if (!sichtbar && stand && stand.nachher) { nachherNotiz(n, stand.nachher, leisteKnopf); return; }
     if (!sichtbar) { n.hidden = true; n.innerHTML = ''; return; }
 
     const bereit = stand.bereit === a.fassung;
@@ -53,6 +54,58 @@ window.PU = window.PU || {};
     });
     n.querySelector('.akt-los').addEventListener('click', (ev) => installieren(ev.currentTarget));
   }
+
+  /* Nach dem Update: was jetzt zu tun ist, mit der Fassungsnummer. Steht da,
+     bis jemand „Erledigt“ klickt — ein × allein wäre zu leicht weggeklickt,
+     bevor die Werkstatt neu gestartet ist. Die Schritte kommen aus
+     srv/nach_update.json: erst die dieser Fassung, dann die für jedes Update. */
+  function nachherNotiz(n, h, leisteKnopf) {
+    n.innerHTML =
+      '<div class="akt-kopf"><b>Aktualisiert auf ' + PU.h(h.fassung) + '</b></div>' +
+      '<p class="akt-klein">' + (h.von ? 'Vorher: ' + PU.h(h.von) + ' · ' : '') +
+        (h.schritte.length + h.immer.length) + ' Schritte, damit alles sauber läuft</p>' +
+      '<button type="button" class="knopf akt-los">So geht es weiter</button>';
+    n.hidden = false;
+    if (leisteKnopf) leisteKnopf.classList.add('akt-punkt');
+    n.querySelector('.akt-los').addEventListener('click', () => PU.aktNachher());
+  }
+
+  /** Das Fenster mit den Schritten — aus der Notiz und aus Einstellungen › Wartung. */
+  PU.aktNachher = function () {
+    const h = stand && stand.nachher;
+    if (!h) return;
+    const flaeche = PU.modalZeigen('Aktualisiert auf ' + h.fassung);
+    if (!flaeche) return;
+    const liste = (titel, punkte) => {
+      if (!punkte.length) return;
+      flaeche.appendChild(PU.el('h3', '', titel));
+      const ol = PU.el('ol', 'akt-schritte');
+      punkte.forEach(p => ol.appendChild(PU.el('li', '', PU.h(p))));
+      flaeche.appendChild(ol);
+    };
+    flaeche.appendChild(PU.el('p', 'hinweis', 'Die Academy ist ' + (h.von ? 'von ' + PU.h(h.von) + ' ' : '') +
+      'auf <b>' + PU.h(h.fassung) + '</b> aktualisiert. Deine Lernstände und Daten sind unverändert.'));
+    if (h.neu) {
+      flaeche.appendChild(PU.el('h3', '', 'Neu in ' + PU.h(h.fassung) + (h.titel ? ': ' + PU.h(h.titel) : '')));
+      flaeche.appendChild(PU.el('p', '', PU.h(h.neu)));
+    }
+    liste('Für diese Fassung', h.schritte);
+    liste('Nach jedem Update', h.immer);
+    const fuss = PU.el('div', 'akt-fuss');
+    const ok = PU.el('button', 'knopf', 'Erledigt');
+    ok.type = 'button';
+    ok.addEventListener('click', async () => {
+      ok.disabled = true;
+      try { stand = await PU.ruf('update_nachher_ok'); PU.modalSchliessen(); zeichnen(); wartungNeu(); }
+      catch (e) { PU.melden(PU.h(e.message), 'schlecht'); ok.disabled = false; }
+    });
+    const spaeter = PU.el('button', 'knopf still', 'Später');
+    spaeter.type = 'button';
+    spaeter.addEventListener('click', () => PU.modalSchliessen());
+    fuss.appendChild(ok);
+    fuss.appendChild(spaeter);
+    flaeche.appendChild(fuss);
+  };
 
   /* Kursmedien: Video, Hörfolge und Song neben den Kursen. Kommen über den
      eigenen Server (srv/kursmedien.php), ohne Neustart. × blendet die Notiz
@@ -185,6 +238,16 @@ window.PU = window.PU || {};
     if (!s.schluessel) {
       ziel.appendChild(PU.el('p', 'hinweis', 'In dieser Fassung ist noch kein Update-Schlüssel eingebaut. ' +
         'Neue Fassungen werden erst erkannt, wenn er es ist.'));
+    }
+    if (s.nachher) {
+      const p = PU.el('p', 'merkzettel');
+      p.innerHTML = '<b>Gerade auf ' + PU.h(s.nachher.fassung) + ' aktualisiert.</b> Ein paar Schritte, ' +
+        'damit alles sauber läuft. ';
+      const k = PU.el('button', 'knopf klein', 'Schritte ansehen');
+      k.type = 'button';
+      k.addEventListener('click', () => PU.aktNachher());
+      p.appendChild(k);
+      ziel.appendChild(p);
     }
     if (s.fehler) ziel.appendChild(PU.el('p', 'fehler', PU.h(s.fehler)));
     ziel.appendChild(PU.el('p', '', a

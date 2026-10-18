@@ -25,6 +25,9 @@ Am Ende steht deine eigene Webseite, gebaut nach deinem eigenen Dokument. Nicht
 als Vorlage mit ausgetauschten Farben, sondern aus Entscheidungen, die du
 begründen kannst.
 
+Danach richtest du dein Dokument ein (Lektion 7): Es gilt ab dann für alles,
+was die Werkstatt und das Cinema Studio für dich herstellen.
+
 ## Warum das wichtig ist
 
 Ein Sprachmodell hat keinen Stil. Es hat einen Durchschnitt.
@@ -64,6 +67,7 @@ als eine Frage (Stufe 2), schreibt ein Dokument, das gut klingt und nichts
 | 4 | Einsatz I — der einzelne ChatBot |
 | 5 | Einsatz II — Agenten und Mehr-Agenten-Systeme |
 | 6 | Deine Seite, dein Paket, deine Lizenz |
+| 7 | Deine Guideline einrichten — für Werkstatt und Cinema Studio |
 
 ## Das Musterstück
 

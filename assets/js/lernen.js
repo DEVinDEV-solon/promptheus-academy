@@ -493,6 +493,12 @@ PU.lektionZeichnen = async function (pfad) {
     if (platz) platz.classList.remove('aufgabe-platz');
   });
 
+  // Einrichtungs-Fenster im Text (```einrichtung), etwa die Guideline in
+  // Lektion 7 des 7. Kurses. Unbekannte Arten bleiben leer.
+  rahmen.querySelectorAll('.einrichtung-platz').forEach(platz => {
+    if (platz.dataset.einrichtung === 'handschrift' && PU.handschriftKarte) PU.handschriftKarte(platz);
+  });
+
   rahmen.appendChild(lektionFuss(l));
 };
 

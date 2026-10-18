@@ -889,6 +889,8 @@ $webseite = 'https://promptheus-academy.de/';
 <script src="<?= pu_v('assets/js/medien.js') ?>"></script>
 <script src="<?= pu_v('assets/js/aufgabe.js') ?>"></script>
 <script src="<?= pu_v('assets/js/lernen.js') ?>"></script>
+<!-- Die Guideline aus dem 7. Kurs: Fenster für Lektion 7 und Einstellungen › Werkstatt. -->
+<script src="<?= pu_v('assets/js/handschrift.js') ?>"></script>
 <!-- Die Zielseite hängt an der Zielkarte, und die steht in `lernen.js` wie in
      `fortschritt.js`. Deshalb dazwischen: `zielbilder.js` legt nur Zeichnungen
      ab, `ziel.js` baut daraus das Fenster. -->

@@ -27,6 +27,29 @@ export const ENDE = '# <<< PROMPTHEUS Hephaistos'
 
 /** Die Persona-Datei (Prompt mit Kopfdaten). */
 export const PERSONA_DATEI = join(WERKSTATT, 'vorlage', 'hephaistos', 'persona.md')
+/**
+ * Die Handschrift des Kontos, das die Werkstatt geöffnet hat — die Guideline
+ * aus dem 7. Kurs. Die Academy legt sie beim Öffnen neben das Ticket
+ * (srv/handschrift.php, pu_handschrift_uebergeben).
+ */
+export const HANDSCHRIFT_DATEI = join(WERKSTATT, '..', 'data', 'werkstatt', 'handschrift.json')
+
+/** Höchstens so lang wird der Block. Er geht mit jeder Anfrage mit. */
+const HANDSCHRIFT_MAX = 6000
+
+/**
+ * Liest den Block der Handschrift. Fehlt die Datei, ist sie kaputt oder leer,
+ * kommt '' zurück — dann arbeitet Hephaistos ohne, wie vor dem 7. Kurs.
+ * @returns {string}
+ */
+export function handschriftLesen(datei = HANDSCHRIFT_DATEI) {
+  let j
+  try { j = JSON.parse(readFileSync(datei, 'utf8').replace(/^﻿/, '')) } catch { return '' }
+  const block = j && typeof j.block === 'string' ? j.block.replace(/\r\n/g, '\n').trim() : ''
+  // `{{…}}` liesse den Harness abbrechen; die Academy entschärft schon, hier noch einmal.
+  return block.slice(0, HANDSCHRIFT_MAX).replaceAll('{{', '{ {').replaceAll('}}', '} }')
+}
+
 /** Wo der Harness seine Presets mitbringt. */
 export const PRESET_ORDNER = join(WERKSTATT, 'deepseek-harness', 'packages', 'bundle', 'web-app', 'presets')
 
@@ -130,10 +153,15 @@ export function presetUmschreiben(text, prefix) {
  * Der ganze Block für das Profil.
  * @returns {{zeilen:string[], presets:string[], fehler:string[]}}
  */
-export function hephaistosBlock({ presetOrdner = PRESET_ORDNER, personaDatei = PERSONA_DATEI } = {}) {
+export function hephaistosBlock({ presetOrdner = PRESET_ORDNER, personaDatei = PERSONA_DATEI,
+  handschriftDatei = HANDSCHRIFT_DATEI } = {}) {
   // `%WERKSTATT%` steht für den Ordner dieser Werkstatt — der Befehl für die
   // Begrüssung braucht ihn, und er ist auf jedem Rechner ein anderer.
-  const prefix = personaLesen(personaDatei).replaceAll('%WERKSTATT%', WERKSTATT)
+  // Dahinter die Handschrift des Kontos: Sie gilt für alles, was Hephaistos
+  // herstellt, auch in jedem Preset.
+  const handschrift = handschriftLesen(handschriftDatei)
+  const prefix = personaLesen(personaDatei).replaceAll('%WERKSTATT%', WERKSTATT) +
+    (handschrift !== '' ? '\n\n' + handschrift : '')
   const fehler = fremdeVariablen(prefix).map(n => `Persona: unbekannte Variable {{${n}}}`)
   const zeilen = [
     ANFANG,
