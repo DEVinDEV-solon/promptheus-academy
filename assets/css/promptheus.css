@@ -369,6 +369,11 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
   cursor: pointer; user-select: none; text-decoration: none;
 }
 .marke-flamme { grid-column: 1; grid-row: 1 / span 2; font-size: 1.35rem; }
+/* Der Fackel-Pin (assets/img/marke, wie auf der Webseite): rund freigestellt,
+   ein Bild statt des früheren Flammen-Zeichens. */
+.marke-pin { display: block; border-radius: 50%; object-fit: cover; flex: none; }
+img.marke-flamme { width: 30px; height: 30px; }
+.flamme .marke-pin { width: 72px; height: 72px; box-shadow: 0 6px 22px rgba(0, 0, 0, .35); }
 .marke-text {
   grid-column: 2; grid-row: 1;
   font-family: var(--serif); font-weight: 700; letter-spacing: .13em; font-size: .95rem;

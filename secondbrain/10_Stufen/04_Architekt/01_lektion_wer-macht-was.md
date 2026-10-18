@@ -1,11 +1,11 @@
 ---
 type: lesson
 title: "Wer macht was"
-description: "Beispiellektion der Stufe 4 — zeigt die Form, nicht den vollen Stoff."
+description: "Ein System scheitert selten an der Technik, sondern am Schnitt: wer entscheidet was, und wer darf es ändern."
 tags:
   - lesson
   - stufe-4
-  - geruest
+  - systemdenken
 timestamp: 2026-08-18T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 stufe: 4
@@ -13,8 +13,6 @@ dauer_min: 12
 ---
 
 # Wer macht was
-
-> **Beispiellektion.** Stufe 4 wird noch ausgearbeitet. Diese Lektion ist vollständig und benutzbar — sie zeigt, wie der Kurs aussehen wird.
 
 Ein System aus mehreren Agenten scheitert selten an der Technik. Es scheitert am **Schnitt**: zwei Agenten, die dieselbe Entscheidung treffen dürfen, treffen sie früher oder später verschieden.
 

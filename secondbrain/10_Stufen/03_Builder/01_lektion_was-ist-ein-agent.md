@@ -1,11 +1,11 @@
 ---
 type: lesson
 title: "Was ein Agent ist"
-description: "Beispiellektion der Stufe 3 — zeigt die Form, nicht den vollen Stoff."
+description: "Wahrnehmen, Entscheiden, Handeln — die Schleife hinter jedem Agenten, und warum ein Modell an der Entscheidungsstelle meistens richtig liegt und nicht immer."
 tags:
   - lesson
   - stufe-3
-  - geruest
+  - agenten
 timestamp: 2026-08-18T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 stufe: 3
@@ -13,8 +13,6 @@ dauer_min: 12
 ---
 
 # Was ein Agent ist
-
-> **Beispiellektion.** Stufe 3 wird noch ausgearbeitet. Diese Lektion ist vollständig und benutzbar — sie zeigt, wie der Kurs aussehen wird.
 
 Ein **Agent** ist ein Programm, das drei Dinge in einer Schleife tut:
 

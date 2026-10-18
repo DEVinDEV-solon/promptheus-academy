@@ -19,18 +19,29 @@ Was du nach dieser Stufe kannst: eine Aufgabe aus deinem eigenen Umfeld nehmen u
 
 Die Abschlussarbeit ist ein eigenes Projekt in einer selbst gewählten Domäne. Der Rest der Stufe ist Handwerk, das dorthin führt.
 
-## Geplante Lektionen
+## Die Lektionen
 
-| # | Lektion |
-|---|---|
-| 1 | Von der Idee zum Plan |
-| 2 | Vom Plan zum lauffähigen Programm |
-| 3 | Testen: woher weißt du, dass es stimmt |
-| 4 | Betrieb, Fehler, Wartung |
-| 5 | Die eigene Domäne wählen und anwenden |
+| # | Lektion | Dauer |
+|---|---|---|
+| 1 | Von der Idee zum Plan | 12 min |
+| 2 | Vom Plan zum lauffähigen Programm | 18 min |
+| 3 | Testen: woher weißt du, dass es stimmt? | 18 min |
+| 4 | Mit Menschen testen | 15 min |
+| 5 | Betrieb, Fehler, Wartung | 16 min |
+| 6 | Dokumentation und Übergabe | 15 min |
+| 7 | Lohnt es sich? | 15 min |
+| 8 | Die eigene Domäne wählen | 15 min |
+| 9 | Das Abschlussprojekt | 45 min |
 
-## Stand
+Die Lektionen 1 bis 4 führen von der Idee über den Bau zu Tests mit Maschine
+und Mensch. 5 bis 7 handeln vom Leben danach: Betrieb, Übergabe und die
+ehrliche Rechnung. 8 und 9 bringen alles in einem eigenen Projekt zusammen —
+in einer Domäne, in der du Ergebnisse selbst beurteilen kannst.
 
-**Dieser Kurs ist ein Gerüst.** Der Aufbau steht, eine Beispiel-lektion ist da, der Rest wird ausgearbeitet. Was hier liegt, zeigt die Form — nicht den vollen Stoff.
+Danach die **Abschlussprüfung**. Wer sie besteht, hat alle sechs Stufen
+geschafft — und der 7. Kurs wird frei.
 
-Warum er trotzdem schon im Programm steht: so lässt sich der Weg durch die Academy von Anfang an sehen, und die Prüfung `kurse_test.php` deckt ihn ab. Ein Kurs, der erst beim Ausarbeiten zum ersten Mal geparst wird, bringt seine Fehler alle auf einmal mit.
+## Voraussetzung
+
+Stufe 5 muss bestanden sein. Das Abschlussprojekt setzt voraus, dass du einen
+Entwurf auf Rechte, Geheimnisse und Datenschutz prüfen kannst.

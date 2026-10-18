@@ -19,18 +19,31 @@ Was du nach dieser Stufe kannst: einem System ansehen, wo es angreifbar ist — 
 
 **Erkennen, nicht ausnutzen.** Diese Stufe zeigt, woran man eine Lücke sieht. Sie liefert keine Anleitung zum Angriff. Alle Geheimnisse in den Aufgaben sind Attrappen im Format `PROMPTHEUS{…}`.
 
-## Geplante Lektionen
+## Die Lektionen
 
-| # | Lektion |
-|---|---|
-| 1 | Geheimnisse: wo sie hingehören und wo sie landen |
-| 2 | Hashes, symmetrisch, asymmetrisch |
-| 3 | Prompt-Injection erkennen |
-| 4 | Ledger und Transaktionen |
-| 5 | DSGVO in der Praxis, besonders Artikel 22 |
+| # | Lektion | Dauer |
+|---|---|---|
+| 1 | Wo Geheimnisse landen | 12 min |
+| 2 | Hashes, Prompt-Injection und ein Blick auf den Ledger | 18 min |
+| 3 | Prompt-Injection erkennen | 18 min |
+| 4 | Rechte und Zugänge | 15 min |
+| 5 | Symmetrisch und asymmetrisch | 18 min |
+| 6 | Ledger und Transaktionen | 16 min |
+| 7 | DSGVO in der Praxis | 18 min |
+| 8 | Artikel 22 und der Weg zum Modell | 18 min |
+| 9 | Dein System prüfen | 30 min |
 
-## Stand
+Die Lektionen 1 bis 4 handeln von Angriffen und Zugängen: wo Geheimnisse
+hinwandern, wie Text zum Angriff wird, wer was darf. 5 und 6 sind
+Kryptografie: Schlüssel, Signaturen und ein Buch ohne Radiergummi. 7 und 8
+sind Datenschutz — mit dem Weg, den Daten zu einem Modellanbieter nehmen.
+Lektion 9 prüft deinen eigenen Systementwurf aus Stufe 4.
 
-**Dieser Kurs ist ein Gerüst.** Der Aufbau steht, eine Beispiel-lektion ist da, der Rest wird ausgearbeitet. Was hier liegt, zeigt die Form — nicht den vollen Stoff.
+Danach die **Abschlussprüfung**. Zum Bestehen sind 60 % nötig, Wiederholen ist
+erlaubt und kostet nichts.
 
-Warum er trotzdem schon im Programm steht: so lässt sich der Weg durch die Academy von Anfang an sehen, und die Prüfung `kurse_test.php` deckt ihn ab. Ein Kurs, der erst beim Ausarbeiten zum ersten Mal geparst wird, bringt seine Fehler alle auf einmal mit.
+## Voraussetzung
+
+Stufe 4 muss bestanden sein. Hier wird vorausgesetzt, dass du ein System aus
+Teilen, Pfeilen und Rechten entwerfen kannst — Lektion 9 prüft genau diesen
+Entwurf.

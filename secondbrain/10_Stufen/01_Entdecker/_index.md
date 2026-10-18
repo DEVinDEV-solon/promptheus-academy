@@ -46,11 +46,18 @@ weiß, glaubt entweder alles oder nichts — und beides ist falsch.
 | 4 | Wie ein Modell wählt: warum es nie zweimal dasselbe sagt | 15 min |
 | 5 | KI im Alltag: wo sie schon längst ist | 10 min |
 | 6 | Mensch oder Maschine? | 12 min |
+| 7 | Was ein Modell weiß — und seit wann | 12 min |
+| 8 | Mehr als Text: Bilder, Stimmen, Videos | 13 min |
+| 9 | Was du einer KI nie anvertraust | 11 min |
 
 Lektion 3 ist die erste, in der du **nachmisst** statt zu lesen: der
 **Tokenicer** im Menü zerlegt jeden Text mit denselben Tabellen, die das
 Modell selbst benutzt. Was Lektion 2 behauptet, prüfst du dort nach — und
 siehst nebenbei, warum ein Sprachmodell keine Buchstaben zählen kann.
+
+Die Lektionen 7 bis 9 führen das Bild weiter: was ein Modell überhaupt wissen
+kann, wie dieselbe Idee Bilder, Stimmen und Videos erzeugt, und was deshalb
+nie in einen Chat gehört. Lektion 9 schlägt die Brücke zu Stufe 2.
 
 Danach die **Abschlussprüfung**. Zum Bestehen sind 60 % nötig, Wiederholen ist
 erlaubt und kostet nichts.

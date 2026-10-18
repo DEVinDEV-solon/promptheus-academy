@@ -33,11 +33,17 @@ function pu_kurs_stand(int $lernender, string $pfad): array
 
     // ---------------------------------------------------------- Aufgaben sammeln
     $alle    = [];      // id => ['titel','typ','punkte','lektion','lektion_titel','nr']
+    $uebung  = [];      // id => true — Aufgaben aus Übungslektionen
     $lektion = [];
 
+    // Übungslektionen (`uebung: true`) stehen in der Lektionsliste, aber ihre
+    // Aufgaben zählen nicht zu Prozent, Gelöst und Offen: Der Kurs ist fertig,
+    // wenn die Pflicht fertig ist. Punkte bringen sie trotzdem.
     foreach ($k['lektionen'] as $i => $l) {
         $ids = [];
+        $ist_uebung = !empty($l['uebung']);
         foreach ($l['aufgaben'] as $a) {
+            if ($ist_uebung) $uebung[(string)$a['id']] = true;
             $alle[(string)$a['id']] = [
                 'titel'         => (string)$a['titel'],
                 'typ'           => (string)$a['typ'],
@@ -50,11 +56,13 @@ function pu_kurs_stand(int $lernender, string $pfad): array
         }
         $lektion[] = [
             'pfad' => (string)$l['pfad'], 'titel' => (string)$l['titel'],
-            'nr' => $i + 1, 'ids' => $ids,
+            'nr' => $i + 1, 'ids' => $ids, 'uebung' => $ist_uebung,
         ];
     }
 
-    if ($alle === []) {
+    // Ein Kurs nur aus Übungen hätte keine Pflicht — er gilt als leer, damit
+    // er niemandem etwas freischaltet.
+    if (count($alle) === count($uebung)) {
         return [
             'kurs' => ['pfad' => $k['pfad'], 'titel' => $k['titel'],
                        'art' => $k['art'], 'stufe' => (int)$k['stufe']],
@@ -116,15 +124,21 @@ function pu_kurs_stand(int $lernender, string $pfad): array
     // ---------------------------------------------------------- Zusammenzählen
     $geloest = 0; $punkte = 0; $moeglich = 0;
     $offene  = []; $starkTyp = []; $zuletzt = null;
+    $ueGes   = 0; $ueGeloest = 0;
 
     foreach ($alle as $id => $a) {
-        $moeglich += $a['punkte'];
         $s = $stand[$id] ?? null;
 
-        if ($s !== null && $s['richtig']) {
+        if (isset($uebung[$id])) {
+            // Nur mitgezählt; Stärke und „zuletzt" rechnen unten trotzdem mit.
+            $ueGes++;
+            if ($s !== null && $s['richtig']) $ueGeloest++;
+        } elseif ($s !== null && $s['richtig']) {
+            $moeglich += $a['punkte'];
             $geloest++;
             $punkte += $s['punkte'];
         } else {
+            $moeglich += $a['punkte'];
             $offene[] = [
                 'id' => $id, 'titel' => $a['titel'], 'typ' => $a['typ'],
                 'punkte' => $a['punkte'], 'lektion' => $a['lektion'],
@@ -179,28 +193,32 @@ function pu_kurs_stand(int $lernender, string $pfad): array
             'aufgaben' => $ges, 'geloest' => $ok,
             'fertig' => $ges > 0 && $ok === $ges,
             'angefangen' => $ok > 0,
+            'uebung' => $l['uebung'],
         ];
     }
 
     // ---------------------------------------------------------- Nächster Schritt
     //
     // Genau EIN Vorschlag, nie eine Liste zum Aussuchen. Wer fragt, was als
-    // Nächstes dran ist, will keine zweite Entscheidung.
-    $naechster = null;
-    foreach ($lekAus as $l) {
-        if ($l['aufgaben'] > 0 && !$l['fertig']) {
-            $naechster = [
+    // Nächstes dran ist, will keine zweite Entscheidung. Erst die Pflicht,
+    // dann die Prüfung, dann die Übungen.
+    $offeneLektion = function (bool $uebung) use ($lekAus): ?array {
+        foreach ($lekAus as $l) {
+            if ($l['uebung'] !== $uebung || $l['aufgaben'] === 0 || $l['fertig']) continue;
+            return [
                 'art' => 'lektion', 'pfad' => $l['pfad'], 'titel' => $l['titel'],
                 'nr' => $l['nr'], 'offen' => $l['aufgaben'] - $l['geloest'],
-                'angefangen' => $l['angefangen'],
+                'angefangen' => $l['angefangen'], 'uebung' => $uebung,
             ];
-            break;
         }
-    }
+        return null;
+    };
+    $naechster = $offeneLektion(false);
     if ($naechster === null && $k['pruefung'] !== null) {
         $naechster = ['art' => 'pruefung', 'pfad' => $k['pfad'],
                       'titel' => (string)$k['pruefung']['titel'], 'nr' => 0, 'offen' => 0];
     }
+    if ($naechster === null) $naechster = $offeneLektion(true);
     if ($naechster === null) {
         $naechster = ['art' => 'fertig', 'pfad' => $k['pfad'],
                       'titel' => $k['titel'], 'nr' => 0, 'offen' => 0];
@@ -210,9 +228,11 @@ function pu_kurs_stand(int $lernender, string $pfad): array
         'kurs' => ['pfad' => $k['pfad'], 'titel' => $k['titel'],
                    'art' => $k['art'], 'stufe' => (int)$k['stufe']],
         'leer'             => false,
-        'aufgaben_ges'     => count($alle),
+        'aufgaben_ges'     => count($alle) - $ueGes,
         'geloest'          => $geloest,
-        'prozent'          => (int)round($geloest * 100 / max(1, count($alle))),
+        'prozent'          => (int)round($geloest * 100 / max(1, count($alle) - $ueGes)),
+        'uebungen_ges'     => $ueGes,
+        'uebungen_geloest' => $ueGeloest,
         'punkte'           => $punkte,
         'punkte_moeglich'  => $moeglich,
         'lektionen'        => $lekAus,

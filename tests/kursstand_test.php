@@ -171,4 +171,46 @@ gleich('der zweite Lernende hat nichts gelöst', 0, $s2['geloest']);
 gleich('…und keine Stärken',                    0, count($s2['stark']));
 pruefe('während der erste weiterhin seine hat', pu_kurs_stand($ich, KURS)['geloest'] > 0);
 
+// ================================================================ Übungslektionen
+//
+// Der 7. Kurs hat Übungslektionen (`uebung: true`). Sie dürfen den Kursstand
+// nicht unter 100 % drücken — sonst sperrte jede neue Übung fertigen Konten
+// die Werkstatt wieder (pu_kurs7_weg verlangt geloest == aufgaben_ges).
+gruppe('Übungen zählen nicht zum Kursstand');
+
+const KURS7 = '10_Stufen/07_Der 7. Kurs';
+$k7 = pu_kurs(KURS7);
+pruefe('der 7. Kurs ist da', $k7 !== null);
+
+$pflicht = []; $uebung = [];
+foreach ($k7['lektionen'] as $l) {
+    foreach ($l['aufgaben'] as $a) {
+        if (!empty($l['uebung'])) $uebung[] = $a; else $pflicht[] = $a;
+    }
+}
+pruefe('er hat Pflichtaufgaben', $pflicht !== []);
+pruefe('…und Übungsaufgaben', $uebung !== []);
+
+$dritte = pu_lernenden_anlegen('dritte', 'Dritte', 'probe1234', 'schueler');
+foreach ($pflicht as $a) versuch($dritte, $a, true);
+
+$s = pu_kurs_stand($dritte, KURS7);
+gleich('Pflicht gelöst heißt 100 %',          100,            $s['prozent']);
+gleich('gelöst = alle gezählten Aufgaben',    $s['aufgaben_ges'], $s['geloest']);
+gleich('die Übungen zählen nicht mit',        count($pflicht), $s['aufgaben_ges']);
+gleich('die Übungen stehen extra',            count($uebung),  $s['uebungen_ges']);
+gleich('…noch keine gelöst',                  0,              $s['uebungen_geloest']);
+gleich('keine offene Pflichtaufgabe',         0,              $s['offene_ges']);
+gleich('der nächste Schritt ist eine Lektion', 'lektion',     $s['naechster_schritt']['art']);
+gleich('…und zwar eine Übung',                true,           $s['naechster_schritt']['uebung']);
+
+$markiert = array_filter($s['lektionen'], fn($l) => $l['uebung']);
+gleich('die Übungslektionen sind markiert',   count(array_filter($k7['lektionen'], fn($l) => !empty($l['uebung']))), count($markiert));
+
+foreach ($uebung as $a) versuch($dritte, $a, true);
+$s = pu_kurs_stand($dritte, KURS7);
+gleich('mit allen Übungen bleibt es 100 %',   100,      $s['prozent']);
+gleich('alle Übungen gelöst',                 count($uebung), $s['uebungen_geloest']);
+gleich('danach ist der Kurs fertig',          'fertig', $s['naechster_schritt']['art']);
+
 bilanz();

@@ -1,11 +1,11 @@
 ---
 type: lesson
 title: "Von der Idee zum Plan"
-description: "Beispiellektion der Stufe 6 — zeigt die Form, nicht den vollen Stoff."
+description: "Drei Fragen, ohne die kein Plan trägt — und warum der kleinste nützliche Schritt über Erfolg oder Abbruch entscheidet."
 tags:
   - lesson
   - stufe-6
-  - geruest
+  - projekt
 timestamp: 2026-08-18T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 stufe: 6
@@ -13,8 +13,6 @@ dauer_min: 12
 ---
 
 # Von der Idee zum Plan
-
-> **Beispiellektion.** Stufe 6 wird noch ausgearbeitet. Diese Lektion ist vollständig und benutzbar — sie zeigt, wie der Kurs aussehen wird.
 
 Ein Plan ist nicht die Beschreibung dessen, was du bauen willst. Ein Plan ist die Beschreibung dessen, **woran man merkt, dass es fertig ist** — und was du dafür in welcher Reihenfolge tust.
 

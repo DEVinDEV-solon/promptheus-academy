@@ -22,7 +22,9 @@ $ErrorActionPreference = 'Stop'
 
 $bat    = (Resolve-Path -LiteralPath $Start).Path
 $ordner = Split-Path -Parent $bat
-$ikone  = Join-Path $ordner 'assets\img\promptheus.ico'
+# Der Fackel-Pin wie auf der Webseite; die alte Flamme nur, falls er fehlt.
+$ikone  = Join-Path $ordner 'assets\img\marke\fackel-pin.ico'
+if (-not (Test-Path -LiteralPath $ikone)) { $ikone = Join-Path $ordner 'assets\img\promptheus.ico' }
 $desk   = if ($Desktop -ne '') { $Desktop } else { [Environment]::GetFolderPath('Desktop') }   # auch bei OneDrive-Desktop richtig
 $shell  = New-Object -ComObject WScript.Shell
 

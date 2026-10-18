@@ -1,11 +1,11 @@
 ---
 type: lesson
 title: "Wo Geheimnisse landen"
-description: "Beispiellektion der Stufe 5 — zeigt die Form, nicht den vollen Stoff."
+description: "Ein Schlüssel geht selten dort verloren, wo er steht. Er wandert mit — in Protokolle, Fehlermeldungen und Commits."
 tags:
   - lesson
   - stufe-5
-  - geruest
+  - geheimnisse
 timestamp: 2026-08-18T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 stufe: 5
@@ -13,8 +13,6 @@ dauer_min: 12
 ---
 
 # Wo Geheimnisse landen
-
-> **Beispiellektion.** Stufe 5 wird noch ausgearbeitet. Diese Lektion ist vollständig und benutzbar — sie zeigt, wie der Kurs aussehen wird.
 
 Ein Schlüssel ist selten dort verloren gegangen, wo jemand ihn hingeschrieben hat. Er ist **mitgewandert**: in ein Protokoll, eine Fehlermeldung, einen Screenshot, eine Zwischenablage, einen Commit.
 

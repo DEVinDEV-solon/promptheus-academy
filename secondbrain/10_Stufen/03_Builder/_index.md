@@ -19,17 +19,29 @@ Was du nach dieser Stufe kannst: einen Ablauf beschreiben, der ohne dich läuft 
 
 Der Stoff baut unmittelbar auf der Wenn-Dann-Kette aus Stufe 2 auf: ein Agent ist nichts anderes, nur mit einem Modell an der Entscheidungsstelle.
 
-## Geplante Lektionen
+## Die Lektionen
 
-| # | Lektion |
-|---|---|
-| 1 | Python-Grundlagen mit einem Modell an der Seite |
-| 2 | Was ein Agent ist: Wahrnehmen, Entscheiden, Handeln |
-| 3 | Bausteine zusammenstecken statt programmieren |
-| 4 | Ein Mini-Projekt planen und fertigstellen |
+| # | Lektion | Dauer |
+|---|---|---|
+| 1 | Was ein Agent ist: Wahrnehmen, Entscheiden, Handeln | 12 min |
+| 2 | Ein Ablauf auf Papier — Regel oder Modell? | 14 min |
+| 3 | Python lesen, mit einem Modell an der Seite | 18 min |
+| 4 | Code vom Modell prüfen | 16 min |
+| 5 | Werkzeuge: wie ein Agent handelt | 16 min |
+| 6 | Bausteine zusammenstecken statt programmieren | 15 min |
+| 7 | Wenn es schiefgeht | 15 min |
+| 8 | Was ein Ablauf kostet | 14 min |
+| 9 | Ein Mini-Projekt planen und fertigstellen | 30 min |
 
-## Stand
+Die Lektionen 1 bis 5 bauen das Werkzeug: die Schleife, den Ablauf, den Code
+und den Werkzeugaufruf. Die Lektionen 6 bis 8 machen daraus etwas, das
+allein läuft — mit Fehlerfall und Kostendeckel. Lektion 9 setzt alles in
+einem eigenen kleinen Projekt zusammen.
 
-**Dieser Kurs ist ein Gerüst.** Der Aufbau steht, eine Beispiel-lektion ist da, der Rest wird ausgearbeitet. Was hier liegt, zeigt die Form — nicht den vollen Stoff.
+Danach die **Abschlussprüfung**. Zum Bestehen sind 60 % nötig, Wiederholen ist
+erlaubt und kostet nichts.
 
-Warum er trotzdem schon im Programm steht: so lässt sich der Weg durch die Academy von Anfang an sehen, und die Prüfung `kurse_test.php` deckt ihn ab. Ein Kurs, der erst beim Ausarbeiten zum ersten Mal geparst wird, bringt seine Fehler alle auf einmal mit.
+## Voraussetzung
+
+Stufe 2 muss bestanden sein. Hier wird vorausgesetzt, dass du einen Auftrag
+aus fünf Bausteinen schreiben und eine Wenn-Dann-Kette lesen kannst.

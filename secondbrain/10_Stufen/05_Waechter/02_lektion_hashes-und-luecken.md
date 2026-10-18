@@ -1,13 +1,12 @@
 ---
 type: lesson
 title: "Hashes, Prompt-Injection und ein Blick auf den Ledger"
-description: "Beispiellektion der Stufe 5 — die drei technischen Aufgabentypen an je einem echten Gegenstand."
+description: "Ein Fingerabdruck, ein Angriff aus Text und eine Kontoadresse — drei Werkzeuge des Wächters an je einem echten Gegenstand."
 tags:
   - lesson
   - stufe-5
   - sicherheit
   - krypto
-  - geruest
 timestamp: 2026-08-18T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 stufe: 5
@@ -15,9 +14,6 @@ dauer_min: 18
 ---
 
 # Hashes, Prompt-Injection und ein Blick auf den Ledger
-
-> **Beispiellektion.** Stufe 5 wird noch ausgearbeitet. Diese Lektion ist
-> vollständig und zählt.
 
 ## Ein Hash ist kein Passwortschutz — er ist ein Fingerabdruck
 

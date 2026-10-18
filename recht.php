@@ -171,7 +171,8 @@ $thema = PU_EINST_PERSON['thema']['vorgabe'];
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <title><?= pu_h($doku['titel']) ?> — PROMPTHEUS ACADEMY</title>
-<link rel="icon" href="<?= pu_v('assets/img/promptheus.svg') ?>" type="image/svg+xml">
+<link rel="icon" href="<?= pu_v('assets/img/marke/favicon.ico') ?>" sizes="16x16 32x32 48x48">
+<link rel="icon" href="<?= pu_v('assets/img/marke/fackel-pin-192.png') ?>" type="image/png" sizes="192x192">
 <link rel="stylesheet" href="<?= pu_v('assets/css/promptheus.css') ?>">
 <link rel="stylesheet" href="<?= pu_v('assets/css/marke.css') ?>">
 <link rel="stylesheet" href="<?= pu_v('assets/css/landing.css') ?>">

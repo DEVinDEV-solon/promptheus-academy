@@ -85,3 +85,4 @@ wieder ohne deine Handschrift.
 - [[10_Stufen/07_Der 7. Kurs/02_lektion_die-acht-felder|Die acht Felder]] — was in jedes Feld gehört
 - [[10_Stufen/07_Der 7. Kurs/04_lektion_einsatz-chatbot|Einsatz im ChatBot]] — woraus der Baustein entsteht
 - [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — das Musterstück
+- [[10_Stufen/07_Der 7. Kurs/08_lektion_die-gegenprobe|Die Gegenprobe]] — Übung: wirkt dein Dokument?

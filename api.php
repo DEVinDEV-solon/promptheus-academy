@@ -219,6 +219,7 @@ try {
                 $frei = pu_kurs_frei($ichId, $k) || pu_recht_hat('lektionen.manage');
                 $gel  = 0; $ges = 0;
                 foreach ($k['lektionen'] as $l) {
+                    if (!empty($l['uebung'])) continue;   // Übungen zählen nicht zum Kursstand
                     foreach ($l['aufgaben'] as $a) {
                         $ges++;
                         if (!empty($stand['gelöst'][$a['id']]['richtig'])) $gel++;
@@ -294,6 +295,7 @@ try {
                 $lek[] = [
                     'pfad' => $l['pfad'], 'titel' => $l['titel'],
                     'beschreibung' => $l['beschreibung'], 'dauer_min' => $l['dauer_min'],
+                    'uebung' => !empty($l['uebung']),
                     'aufgaben' => count($l['aufgaben']),
                     'gelöst'  => count(array_filter($l['aufgaben'],
                                     fn($a) => !empty($stand[$a['id']]['richtig']))),
