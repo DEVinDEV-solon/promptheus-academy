@@ -52,20 +52,35 @@ function cockpitMalen(ziel) {
   gitter.appendChild(tokenKasten(d));
   ziel.appendChild(gitter);
 
+  // Einlösen steht weit oben: Wer ein Kärtchen in der Hand hat, sucht
+  // genau dieses Feld und sonst nichts im Cockpit.
+  if (d.darf_einloesen && PU.einloesenKasten) ziel.appendChild(PU.einloesenKasten(d));
+
   ziel.appendChild(serverKasten());
   ziel.appendChild(verbrauchKasten(d));
-  ziel.appendChild(buchungenKasten(d));
+  ziel.appendChild(PU.tokenbuchKasten ? PU.tokenbuchKasten(d) : PU.el('section'));
 
   if (d.darf_einzahlen) ziel.appendChild(nachlegenKasten(d));
-  if (d.darf_senden)    ziel.appendChild(talentKasten(d));
+  if (d.darf_senden || d.senden_ohne_klassen) ziel.appendChild(talentKasten(d));
+  if (d.darf_codes && PU.gutscheinKasten) ziel.appendChild(PU.gutscheinKasten(d));
   if (d.darf_buchen)    ziel.appendChild(verwaltungKasten(d));
 }
 
-/* -------------------------------------------------------- Talente weitergeben
+/** Nach einer Buchung neu zeichnen, mit dem Stand in PU.cockpitStand. */
+PU.cockpitNeuMalen = function () {
+  const ziel = document.getElementById('view-cockpit');
+  if (ziel && PU.cockpitStand) cockpitMalen(ziel);
+};
+
+/* ------------------------------------------------------------- Token senden
+ *
+ * (Früher „Talente weitergeben" — ein Talent ist ein Token, gebucht wird als
+ * `talent_aus`/`talent_ein`.)
  *
  * Der Kasten erscheint nur, wenn dieses Konto das Recht `talente.senden` hat
  * UND jemanden unter sich — beides wird auf dem Server entschieden, nicht
- * hier. Eine Oberfläche, die selbst rechnet, wer unter wem steht, hätte die
+ * hier. Eine Lehrkraft ohne zugeordnete Klasse bekommt statt des Formulars
+ * den Grund (`senden_ohne_klassen`). Eine Oberfläche, die selbst rechnet, wer unter wem steht, hätte die
  * Kette ein zweites Mal, und die zweite wäre irgendwann die falsche.
  *
  * **Die Empfängerliste wird nachgeladen, nicht mit dem Cockpit geliefert.**
@@ -74,12 +89,21 @@ function cockpitMalen(ziel) {
  */
 function talentKasten(d) {
   const k = PU.el('section', 'cockpit-block');
-  k.appendChild(PU.el('h2', '', 'Talente weitergeben'));
+  k.appendChild(PU.el('h2', '', 'Token senden'));
   k.appendChild(PU.el('p', 'hinweis',
-    'Talente sind Token. Was du hier überweist, wird <b>dir abgebucht</b> und ' +
-    'dem Empfänger sofort gutgeschrieben — auf beiden Seiten mit Eintrag im ' +
-    'Journal und im Protokoll. Weitergeben geht die Kette hinunter: an die ' +
-    'Ebenen unter dir, in deinem Umkreis. Nicht nach oben und nicht zurück.'));
+    'Was du hier sendest, wird <b>dir abgebucht</b> und dem Empfänger sofort ' +
+    'gutgeschrieben — auf beiden Seiten im Tokenbuch mit Absender und Empfänger ' +
+    'und im Protokoll. Gesendet wird nur nach unten und nur in deinem Umkreis: ' +
+    'die Schule an ihre Lehrkräfte, Eltern und Schüler, eine Lehrkraft an die ' +
+    'Schüler ihrer Klassen und deren Eltern, Eltern an ihr Kind. ' +
+    '(Talente sind Token — ein Talent ist ein Token.)'));
+
+  if (!d.darf_senden) {
+    k.appendChild(PU.el('p', 'leer-hinweis',
+      'Dir sind noch keine Klassen zugeordnet, deshalb erreichst du niemanden. ' +
+      'Die Klassen ordnet die Schulleitung unter Konten zu.'));
+    return k;
+  }
 
   const bereich = PU.el('div', 'talent-bereich');
   bereich.innerHTML = '<p class="leer-hinweis">Lade Empfänger …</p>';
@@ -96,7 +120,7 @@ function talentFormular(bereich, j) {
 
   if (!j.ziele.length) {
     bereich.appendChild(PU.el('p', 'leer-hinweis',
-      'Unter dir steht niemand, an den du Talente weitergeben könntest. ' +
+      'Unter dir steht niemand, an den du Token senden könntest. ' +
       'Bei einem Elternkonto heisst das: Es ist noch kein Kind verknüpft — ' +
       'das macht die Academy-Leitung unter Konten.'));
     return;
@@ -123,7 +147,7 @@ function talentFormular(bereich, j) {
   betrag.max = String(j.max);
   betrag.step = '100';
   betrag.value = String(j.min);
-  betrag.setAttribute('aria-label', 'Talente');
+  betrag.setAttribute('aria-label', 'Token');
 
   // ---- Wofür
   const notiz = document.createElement('input');
@@ -132,7 +156,7 @@ function talentFormular(bereich, j) {
   notiz.placeholder = 'Verwendungszweck (freiwillig)';
   notiz.setAttribute('aria-label', 'Verwendungszweck');
 
-  const knopf = PU.el('button', 'knopf', 'Überweisen');
+  const knopf = PU.el('button', 'knopf', 'Senden');
   knopf.type = 'button';
 
   zeile.appendChild(wahl);
@@ -147,7 +171,7 @@ function talentFormular(bereich, j) {
   bereich.appendChild(PU.el('p', 'warum', j.frei
     ? 'Dein Konto verbraucht ohne Grenze — du kannst verteilen, ohne selbst ' +
       'einzuzahlen. Abgebucht wird trotzdem, damit im Journal steht, woher es kam.'
-    : 'Verfügbar: ' + zahl(Math.max(0, j.stand.rest)) + ' Talente. ' +
+    : 'Verfügbar: ' + zahl(Math.max(0, j.stand.rest)) + ' Token. ' +
       'Der Minus-Rahmen zählt nicht dazu — er trägt eine angefangene Lektion ' +
       'über die Ziellinie und ist kein Guthaben zum Verschenken.'));
 
@@ -162,17 +186,17 @@ function talentFormular(bereich, j) {
     /* Die Rückfrage nennt Empfänger UND Betrag. Ein „Wirklich?" ohne Zahlen
        ist keine Rückfrage, sondern ein Klick mehr: Man bestätigt, was man
        ohnehin gerade getan zu haben glaubt. */
-    if (!confirm(zahl(n) + ' Talente an ' + z.name + ' (' + z.ebene_anzeige + ') überweisen?\n\n' +
+    if (!confirm(zahl(n) + ' Token an ' + z.name + ' (' + z.ebene_anzeige + ') senden?\n\n' +
                  'Der Betrag wird dir sofort abgebucht und dort gutgeschrieben. ' +
                  'Zurückholen kann es nur der Empfänger, wenn er selbst weitergeben darf.')) return;
 
     knopf.disabled = true;
-    bericht.textContent = 'Überweise …';
+    bericht.textContent = 'Sende …';
     try {
       PU.cockpitStand = await PU.ruf('talente_senden', {
         an: z.id, betrag: n, notiz: notiz.value, sicher: 'ja'
       });
-      PU.melden(zahl(n) + ' Talente an <b>' + PU.h(z.name) + '</b> überwiesen.', 'gut');
+      PU.melden(zahl(n) + ' Token an <b>' + PU.h(z.name) + '</b> gesendet.', 'gut');
       cockpitMalen(document.getElementById('view-cockpit'));
     } catch (e) {
       bericht.innerHTML = '<b style="color:var(--schlecht)">' + PU.h(e.message) + '</b>';
@@ -542,46 +566,6 @@ function verbrauchKasten(d) {
   });
 
   k.appendChild(liste);
-  return k;
-}
-
-/* ---------------------------------------------------------------- Buchungen */
-function buchungenKasten(d) {
-  const k = PU.el('section', 'cockpit-block');
-  k.appendChild(PU.el('h2', '', 'Letzte Buchungen'));
-
-  if (!d.letzte.length) {
-    k.appendChild(PU.el('p', 'leer-hinweis', 'Noch nichts gebucht.'));
-    return k;
-  }
-
-  // Ohne diese beiden Zeilen stünde in der Spalte roh `talent_ein` — die
-  // Buchung wäre da, aber niemand wüsste, was sie ist.
-  const wort = { einzahlung: 'Einzahlung', kontingent: 'Kontingent',
-                 verbrauch: 'Verbrauch', storno: 'Storno', probe: 'Testzugang',
-                 gutschrift: 'Gutschrift',
-                 talent_ein: 'Talente erhalten', talent_aus: 'Talente gegeben' };
-
-  const rahmen = PU.el('div', 'tabellenrahmen');
-  let html = '<table><thead><tr><th>Wann</th><th>Was</th><th>Wofür</th>' +
-             '<th class="zahl">Token</th><th></th></tr></thead><tbody>';
-
-  d.letzte.forEach(b => {
-    html += '<tr><td class="klein">' + PU.h(b.zeitpunkt.slice(0, 16)) + '</td>' +
-      '<td>' + PU.h(wort[b.art] || b.art) + '</td>' +
-      '<td>' + PU.h(b.wofuer) +
-        (b.modell ? '<br><span class="klein">' + PU.h(b.modell) + '</span>' : '') + '</td>' +
-      '<td class="zahl ' + (b.tokens < 0 ? 'minus' : 'plus') + '">' +
-        (b.tokens > 0 ? '+' : '') + zahl(b.tokens) + '</td>' +
-      '<td class="klein">' +
-        (b.geschaetzt ? 'geschätzt ' : '') +
-        (b.bestaetigt ? '' : '<b>offen</b>') +
-        (b.eur ? ' ' + PU.h(b.eur) : '') +
-      '</td></tr>';
-  });
-
-  rahmen.innerHTML = html + '</tbody></table>';
-  k.appendChild(rahmen);
   return k;
 }
 

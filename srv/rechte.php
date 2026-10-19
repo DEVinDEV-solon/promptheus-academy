@@ -384,7 +384,7 @@ const PU_RECHTE = [
     ['name' => 'abo.sehen', 'gruppe' => 'Plan & Token',
      'was' => 'Den eigenen Plan und den Tokenstand sehen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
-     'aktionen' => ['cockpit', 'relay_zustand', 'relay_stand']],
+     'aktionen' => ['cockpit', 'relay_zustand', 'relay_stand', 'tokenbuch']],
 
     /* Die Installation beim Server registrieren: den Code aus der Zahlung
        gegen eine Bescheinigung tauschen. Dabei entsteht das Schlüsselpaar der
@@ -458,6 +458,31 @@ const PU_RECHTE = [
      'was' => 'Talente an die eigene Kette weiterreichen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 0],
      'aktionen' => ['talente_ziele', 'talente_senden']],
+
+    /* Das Tokenbuch der ganzen Schule: alle Überweisungen und Gutscheine
+     * zwischen Konten der eigenen Schule, mit Woher und Wohin (pu_tokenbuch).
+     * Fremden Verbrauch zeigt es nicht. Ab Werk nur für die Schulleitung —
+     * sie verteilt, also sieht sie, wohin es geht. Gefragt wird es im Zweig
+     * `tokenbuch` (bewacht über abo.sehen); ohne dieses Recht zeigt er nur
+     * das eigene Konto. */
+    ['name' => 'tokenbuch.schule', 'gruppe' => 'Plan & Token',
+     'was' => 'Im Tokenbuch alle Überweisungen und Gutscheine der Schule sehen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 0, 'schueler' => 0],
+     'aktionen' => []],
+
+    /* Token-Gutscheine mit QR-Code ausstellen (srv/codes.php), etwa für den
+     * Elternabend. Der Betrag wird beim Ausstellen reserviert. Für wen, zieht
+     * dieselbe Kette wie beim Weitergeben (PU_TALENT_KETTE) — nur nach unten.
+     * Ab Werk für Schule und Lehrkräfte; Eltern geben direkt weiter. */
+    ['name' => 'codes.ausstellen', 'gruppe' => 'Plan & Token',
+     'was' => 'Token-Gutscheine mit QR-Code ausstellen, drucken und widerrufen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 0, 'schueler' => 0],
+     'aktionen' => ['codes_liste', 'codes_ausstellen', 'code_widerrufen']],
+
+    ['name' => 'codes.einloesen', 'gruppe' => 'Plan & Token',
+     'was' => 'Einen Token-Gutschein einlösen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 1, 'eltern' => 1, 'schueler' => 1],
+     'aktionen' => ['code_einloesen']],
 
     ['name' => 'sprache.nutzen', 'gruppe' => 'Academy-Betrieb',
      'was' => 'Sprachnachrichten diktieren (Erkennung läuft örtlich)',
