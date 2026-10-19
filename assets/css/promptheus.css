@@ -3028,6 +3028,17 @@ a.knopf { display: inline-block; text-decoration: none; }
 
 table.tokenbuch td { vertical-align: top; }
 
+/* Erklärstück neben den Knöpfen (PU.hoerKnopf): der Knopf in der Zeile, der
+   Spieler darunter über die volle Breite — mit Regler, die Stücke dauern
+   zwei Minuten. Lapis, weil es erklärt (Brand/BRAND.md, Abschnitt 1). */
+.knopf.hoer-knopf { border-color: var(--lapis); white-space: nowrap; }
+.knopf.hoer-knopf[aria-pressed=true] { background: var(--lapis-flor); }
+.hoer-spieler {
+  margin: .6rem 0 0; padding: .5rem .7rem; border-left: 3px solid var(--lapis);
+  background: var(--lapis-flor); border-radius: var(--radius-klein);
+}
+.hoer-spieler audio { display: block; width: 100%; }
+
 @media (max-width: 640px) {
   .gut-feld, .gut-feld input[type=number], .gut-feld input[type=text] { width: 100%; }
   .gut-vorschau { flex-direction: column; align-items: flex-start; }
