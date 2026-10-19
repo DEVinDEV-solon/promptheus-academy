@@ -22,6 +22,12 @@ gleich('zwei Leerzeichen am Zeilenende: sichtbarer Umbruch', '<p>Zeile eins<br>Z
        pu_md("Zeile eins  \nZeile zwei"));
 gleich('Windows-Zeilenenden ebenso', '<p>a b</p>', pu_md("a\r\nb"));
 gleich('eine Überschrift beendet den Absatz', '<p>Text</p><h2>Titel</h2>', $ohneUmbruch(pu_md("Text\n## Titel")));
+gleich('Fettdruck über einen Zeilenumbruch', '<p>Die <strong>wichtige Frage über zwei</strong> Zeilen.</p>',
+       pu_md("Die **wichtige Frage über\nzwei** Zeilen."));
+gleich('… auch im Listenpunkt', '<ul><li>ein <strong>fetter Punkt</strong></li></ul>',
+       $ohneUmbruch(pu_md("- ein **fetter\n  Punkt**")));
+gleich('harter Umbruch im Fettdruck bleibt ein <br>', '<p><strong>eins<br>zwei</strong></p>',
+       pu_md("**eins  \nzwei**"));
 
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Zitate');
