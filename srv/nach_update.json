@@ -7,6 +7,14 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.6": {
+      "titel": "Lob mit Titel, passend zu Person und Aufgabe",
+      "neu": "Nach einer richtigen Antwort steht im Lob-Fenster jetzt ein kurzer Titel wie „Genau richtig!“ und darunter der längere Satz. Titel und Satz richten sich nach der Person — Alter oder Klasse bei Lernenden, sonst Eltern, Lehrkraft oder Schulleitung — und nach der Art der Aufgabe. Eltern, Lehrkräfte und Schulleitung bekommen eigene Sätze.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst zeigt das Lob-Fenster noch das alte Wort „Motivation“.",
+        "Eigene Titel lassen sich ohne Programmänderung ergänzen: in secondbrain/00_Fundament/promptheus/lob-titel.md."
+      ]
+    },
     "1.1.5": {
       "titel": "Zehn Fachkurse mit neun Lektionen und Quizkarten",
       "neu": "Alle zehn Fachkurse (Handel, Dienstleistung, Bürobetrieb, Verkauf, Beratung, Jura, Sicherheit, Buchhaltung, Personal, Verwaltung) haben jetzt 9 Lektionen für Erwachsene im Berufsalltag. Neu ist der Aufgabentyp Quizkarten: Karten lesen und auf Stapel legen. Außerdem wird Fettdruck, der im Stoff über eine Zeile hinausgeht, jetzt überall richtig angezeigt.",
