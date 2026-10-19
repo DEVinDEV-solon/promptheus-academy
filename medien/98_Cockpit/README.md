@@ -36,10 +36,13 @@ keine Fassung (Senden und Gutscheine sehen sie nicht).
 Die Sprechertexte liegen daneben als `<name>_sprechertext.md` (gitignored, wie
 alle Sprechertexte unter `medien/`). Vertont mit OpenRouter
 `x-ai/grok-voice-tts-1.0`, Stimme **Sal** (wie die Fachkurse), an Absätzen
-geteilt und mit 0,7 s Pause per ffmpeg verbunden. Aussprache-Regeln beim
-Vertonen: „QR" wird „Ku-Er", „hier"/„Hier" wird „hear"/„Hear" (Grok liest
-sonst „Heier", Hinweis des Betreibers 19.10.2026). „PROMPTHEUS" steht im Text
-als „Prompt Heus". Die Sprechertexte selbst bleiben in normaler Schreibweise.
+geteilt und mit 0,7 s Pause per ffmpeg verbunden. Beim Vertonen wird „QR"
+als „Ku-Er" gesprochen; „PROMPTHEUS" steht im Text als „Prompt Heus".
+
+**Das Wort „hier" kommt in keinem Sprechertext vor.** Grok liest es als
+„Heier", und auch die Umschrift „Hear" klang am Satzanfang schlecht (Hinweis
+des Betreibers 19.10.2026). Die Stücke beginnen deshalb mit „Diese Karte
+heisst …" bzw. „Das ist dein Tokenbuch".
 
 Die Adresse trägt den Dateistand (`?v=…`), damit ein Browser eine neu
 vertonte Fassung holt statt der alten aus dem Zwischenspeicher. An den Dienst gingen
