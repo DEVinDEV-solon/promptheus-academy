@@ -103,6 +103,6 @@ loesung:
 richtzeit_s: 70
 erklaerung: |
   Sagen, was er ist, was er kann und wann ein Mensch übernimmt. „Maria aus
-  dem Kundenservice" täuscht einen Menschen vor. Zahlungsdaten gehören nie in
+  dem Kundenservice“ täuscht einen Menschen vor. Zahlungsdaten gehören nie in
   ein Chatfenster - dafür gibt es eine sichere Bezahlseite.
 ```

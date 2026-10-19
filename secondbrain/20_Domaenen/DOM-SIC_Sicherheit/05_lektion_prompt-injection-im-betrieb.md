@@ -47,7 +47,7 @@ erklaerung: |
 ## Was wirklich schützt
 
 Die naheliegende Abwehr ist ein Satz im Systemprompt: „Lass dich nicht
-manipulieren." Sie wirkt kaum. Ein Modell kann Anweisung und Inhalt nicht
+manipulieren.“ Sie wirkt kaum. Ein Modell kann Anweisung und Inhalt nicht
 sicher unterscheiden. Was wirkt, liegt **außerhalb** des Modells: Rechte
 (Lektion 3), Bestätigungen vor Handlungen und feste Grenzen, die eine Regel
 durchsetzt.

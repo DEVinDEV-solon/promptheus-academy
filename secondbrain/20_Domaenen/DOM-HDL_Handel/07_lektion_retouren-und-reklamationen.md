@@ -18,7 +18,7 @@ dauer_min: 15
 Die Ware ist verkauft, mit Preis und Text aus den Lektionen 5 und 6. Ein Teil
 kommt zurück. Im Retourenschein schreibt die Kundschaft, was sie stört, und
 zwar so, wie Menschen schreiben: „Zu eng an den Schultern“, „Reißverschluss
-klemmt nach einem Tag", „Farbe ganz anders als auf dem Foto“.
+klemmt nach einem Tag“, „Farbe ganz anders als auf dem Foto“.
 
 Diese Sätze in feste **Kategorien** zu sortieren, ist eine typische Aufgabe für
 ein Modell. Eine feste Regel mit Stichwörtern scheitert an der Vielfalt der
