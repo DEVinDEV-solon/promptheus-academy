@@ -7,6 +7,15 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.12": {
+      "titel": "Ein Hörstück zu jeder Lektion",
+      "neu": "Jede der 153 Lektionen hat jetzt oben ein Hörstück („Hör zu: …“), gesprochen von Rex in den Stufen und von Sal in den Fachkursen. Liest ein Tutor im Seitenchat vor, zeigt neben dem Mikro ein kleiner Pegelmesser in Regenbogenfarben, dass gesprochen wird. Auf der Kurskarte steht bei bestandener Abschlussprüfung kurz „bestanden“. PROMPTHEUS DECK hat neue feste Web-Seiten (3D-Game, Preise, ODEION, GitHub, Releases) und einen Ordner GAMES mit Schach und Splash.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst fehlt der Pegelmesser im Seitenchat.",
+        "Fehlen oben in den Lektionen die Hörstücke: Einstellungen › Wartung › „Kursmedien laden“.",
+        "Läuft PROMPTHEUS DECK: einmal beenden und neu starten, dann erscheinen die neuen Web-Seiten und der Ordner GAMES."
+      ]
+    },
     "1.1.11": {
       "titel": "Ruhe beim Schliessen und Vorlesen ohne Emojis",
       "neu": "Schliesst du das Glossar, ein anderes Fenster oder den Tutor-Chat, hört das Vorlesen sofort auf. Ein Seitenwechsel hält allen Ton an. Beim Vorlesen werden Emojis nicht mehr mitgesprochen, auch nicht im Social-Media-Format. Auf dem Bildschirm bleiben sie stehen.",
