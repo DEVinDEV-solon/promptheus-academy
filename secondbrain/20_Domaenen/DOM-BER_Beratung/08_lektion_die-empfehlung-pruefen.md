@@ -15,7 +15,7 @@ dauer_min: 14
 
 ## Das Modell, das zustimmt
 
-Fragst du ein Modell „Ist meine Empfehlung gut?", sagt es meistens ja.
+Fragst du ein Modell „Ist meine Empfehlung gut?“, sagt es meistens ja.
 Sprachmodelle neigen dazu, der Richtung der Frage zu folgen. Eine
 Zustimmung vom Modell ist deshalb fast nichts wert.
 

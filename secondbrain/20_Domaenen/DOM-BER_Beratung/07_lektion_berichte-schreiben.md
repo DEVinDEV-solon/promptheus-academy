@@ -23,7 +23,7 @@ trägt.
 
 | Ebene | Inhalt | Beispiel |
 |---|---|---|
-| Spitze | die Antwort | „Den Außendienst Nord bis Mitte 2027 auf Telefon umstellen." |
+| Spitze | die Antwort | „Den Außendienst Nord bis Mitte 2027 auf Telefon umstellen.“ |
 | Gründe | drei bis fünf Stützen | Fahrzeiten, Auftragsgrößen, Abbruchquote |
 | Belege | Zahlen und Quellen | die Materialliste aus Lektion 4, die Rechnungen aus Lektion 5 |
 
@@ -79,7 +79,7 @@ richtzeit_s: 50
 erklaerung: |
   Eine Zahl ohne Beleg ist im Bericht eine Behauptung unter deinem Namen.
   Abrunden macht sie nicht wahrer, und die Antwort des Modells auf
-  „Woher?" entsteht genauso wie die Zahl selbst.
+  „Woher?“ entsteht genauso wie die Zahl selbst.
 ```
 
 ## Die Zusammenfassung für die Geschäftsführung

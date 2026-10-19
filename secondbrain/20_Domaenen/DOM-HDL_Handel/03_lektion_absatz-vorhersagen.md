@@ -39,7 +39,7 @@ hinweise:
 erklaerung: |
   120 + 135 + 110 + 135 = 500, geteilt durch 4 ergibt 125 Stück. Nächste
   Woche kommt die neue Woche dazu und die älteste fällt heraus - daher
-  „gleitend".
+  „gleitend“.
 ```
 
 ## Wochen, die nicht mitzählen dürfen

@@ -17,7 +17,7 @@ dauer_min: 15
 
 Die Online-Buchung aus Lektion 2 deckt nur einen Teil ab. Der Rest kommt als
 freier Text: „Können Sie nächste Woche mal vorbeikommen, die Heizung macht
-komische Geräusche?" oder „Ich habe die Rechnung doppelt bekommen."
+komische Geräusche?" oder „Ich habe die Rechnung doppelt bekommen.“
 
 Freier Text lässt sich mit Stichwortregeln schlecht sortieren. Hier ist ein
 Modell stark: Es ordnet jede Anfrage einer **festen Liste von Kategorien** zu.

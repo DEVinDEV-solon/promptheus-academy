@@ -18,7 +18,7 @@ dauer_min: 15
 Jeden Morgen dasselbe: Briefe, eingescannte Post, Anhänge aus E-Mails. Bevor
 irgendjemand damit arbeiten kann, muss klar sein, **was** es ist. Diese
 Einordnung heißt **Klassifikation**, und sie ist eine Stärke von Modellen:
-Sie erkennen eine Rechnung auch dann, wenn das Wort „Rechnung" nirgends steht.
+Sie erkennen eine Rechnung auch dann, wenn das Wort „Rechnung“ nirgends steht.
 
 Wie bei jeder Sortierung gilt: Die Klassen legst du fest, nicht das Modell.
 
@@ -55,7 +55,7 @@ erklaerung: |
 
 Was tut das Modell mit einem Dokument, das in keine Klasse passt? Ohne
 Ausweg steckt es das Dokument in die Klasse, die am wenigsten falsch
-aussieht. Ein Gerichtsbescheid landet dann bei „Werbung".
+aussieht. Ein Gerichtsbescheid landet dann bei „Werbung“.
 
 ```aufgabe
 id: D3-04
@@ -72,7 +72,7 @@ loesung: "Weil das Modell sonst Dokumente, die nirgends passen, in die am wenigs
 richtzeit_s: 60
 erklaerung: |
   Ein Modell muss sich entscheiden, wenn du ihm keinen Ausweg gibst. Die
-  Klasse „unklar" ist dieser Ausweg. Besser zehn Dokumente zu viel beim
+  Klasse „unklar“ ist dieser Ausweg. Besser zehn Dokumente zu viel beim
   Menschen als ein Bescheid mit Frist im Werbeordner.
 ```
 

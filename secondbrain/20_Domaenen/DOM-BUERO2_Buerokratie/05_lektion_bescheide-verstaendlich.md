@@ -49,7 +49,7 @@ erklaerung: |
 ## Die Falle der Vereinfachung
 
 Vereinfachen heißt auch: weglassen und umschreiben. Bei Zahlen und Fristen
-ist das gefährlich, weil ein Modell gern „ungefähr gleich" formuliert.
+ist das gefährlich, weil ein Modell gern „ungefähr gleich“ formuliert.
 
 ```aufgabe
 id: D10-13

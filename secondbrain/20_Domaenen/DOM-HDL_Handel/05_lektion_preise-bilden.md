@@ -41,7 +41,7 @@ hinweise:
     kostet: 5
 erklaerung: |
   (12 - 8) / 12 = 0,333, also rund 33,3 Prozent. Der Aufschlag wäre
-  (12 - 8) / 8 = 50 Prozent. Lass dir vom Modell nicht „die Marge" nennen,
+  (12 - 8) / 8 = 50 Prozent. Lass dir vom Modell nicht „die Marge“ nennen,
   ohne zu fragen, welche gemeint ist.
 ```
 

@@ -40,7 +40,7 @@ erklaerung: |
 ## Zahlungseingänge zuordnen
 
 Umgekehrt kommen Zahlungen herein, und nicht jede trägt eine saubere
-Rechnungsnummer. „Rg März danke" reicht dem Kunden, der Buchhaltung nicht.
+Rechnungsnummer. „Rg März danke“ reicht dem Kunden, der Buchhaltung nicht.
 Ein Werkzeug sucht passende **offene Posten** und schlägt eine Zuordnung vor.
 Eindeutig heißt: genau ein Treffer bei Betrag und Kunde.
 

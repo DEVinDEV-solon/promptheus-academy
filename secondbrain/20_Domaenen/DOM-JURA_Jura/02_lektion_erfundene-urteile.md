@@ -98,5 +98,5 @@ richtzeit_s: 50
 erklaerung: |
   Fragt man ein Modell, ob seine Quelle echt ist, bestätigt es oft - das ist
   keine Prüfung. Was sich nicht finden lässt, existiert für dein Schreiben
-  nicht. Ein „vgl." macht aus einer Erfindung keine Quelle.
+  nicht. Ein „vgl.“ macht aus einer Erfindung keine Quelle.
 ```

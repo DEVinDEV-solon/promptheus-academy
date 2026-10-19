@@ -15,7 +15,7 @@ dauer_min: 14
 
 ## Der Auftrag ist noch keine Frage
 
-„Schauen Sie sich mal unseren Vertrieb an." So beginnen viele Aufträge.
+„Schauen Sie sich mal unseren Vertrieb an.“ So beginnen viele Aufträge.
 Das ist ein Thema, keine Frage. Wer damit losrecherchiert, findet alles und
 beantwortet nichts.
 
@@ -79,7 +79,7 @@ hinweise:
     kostet: 5
 erklaerung: |
   Fahrzeiten, Auftragsgrößen und Abbruchquoten stehen in Daten, die es
-  gibt. „Nicht motiviert genug" und „irgendwie besser" kann man glauben,
+  gibt. „Nicht motiviert genug“ und „irgendwie besser“ kann man glauben,
   aber nicht prüfen - sie gehören nicht in die Hypothesenliste.
 ```
 

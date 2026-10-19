@@ -39,7 +39,7 @@ einheit: "Punkte"
 richtzeit_s: 80
 erklaerung: |
   30 (Branche) + 20 (Entscheider) + 25 (Zeitraum) = 75 Punkte, das Budget
-  fehlt. Der Wert sagt nicht nur „gut", sondern auch, was fehlt: Im
+  fehlt. Der Wert sagt nicht nur „gut“, sondern auch, was fehlt: Im
   Gespräch fragst du nach dem Budget.
 ```
 
@@ -48,7 +48,7 @@ erklaerung: |
 Ein Kriterium muss etwas mit dem Geschäft zu tun haben. Merkmale einer
 Person — Alter, Herkunft, Geschlecht — haben in einer Bewertung nichts zu
 suchen. Sie sind nicht nur unfair, sie sagen auch nichts über den Bedarf. Ein
-Modell, das aus alten Abschlüssen „lernt", kann solche Muster unbemerkt
+Modell, das aus alten Abschlüssen „lernt“, kann solche Muster unbemerkt
 übernehmen, wenn niemand die Kriterien festlegt.
 
 ```aufgabe
@@ -78,7 +78,7 @@ erklaerung: |
 
 ## Ein Wert braucht Gründe
 
-Manche Programme liefern nur eine Zahl: „Lead-Score 82". Woher? Unklar. Damit
+Manche Programme liefern nur eine Zahl: „Lead-Score 82“. Woher? Unklar. Damit
 kann niemand arbeiten, und niemand kann prüfen, ob das Programm sich irrt.
 
 ```aufgabe

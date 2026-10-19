@@ -47,7 +47,7 @@ erklaerung: |
 ## Was ein Modell nicht verknüpfen darf
 
 Technisch wäre es einfach: Melderegister, Fahrzeugregister und Leistungsakten
-zusammenführen und ein Modell „Auffälligkeiten" finden lassen. Rechtlich ist
+zusammenführen und ein Modell „Auffälligkeiten“ finden lassen. Rechtlich ist
 das in aller Regel unzulässig.
 
 ```aufgabe
@@ -67,6 +67,6 @@ erklaerung: |
   Daten aus verschiedenen Zwecken zu einem Profil zu verbinden, ist genau
   das, was die Zweckbindung verhindern soll. Eine Bewertung von Menschen aus
   zusammengeführten Daten, die zu Nachteilen führt, kommt dem nahe, was der
-  AI Act als Social Scoring verbietet. Und ein „Verdacht" vom Modell ist
+  AI Act als Social Scoring verbietet. Und ein „Verdacht“ vom Modell ist
   bereits eine Belastung für die Betroffenen.
 ```

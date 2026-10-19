@@ -21,7 +21,7 @@ dreimal, mit drei verschiedenen Ansprechpersonen und drei Ständen, rechnet
 jedes Werkzeug falsch, und drei Kolleginnen rufen denselben Kunden an.
 
 Dubletten zu finden, ist eine gute Aufgabe für ein Werkzeug. Es erkennt, dass
-„Müller GmbH" und „Mueller GmbH" vermutlich dieselbe Firma sind. Ob sie es
+„Müller GmbH“ und „Mueller GmbH“ vermutlich dieselbe Firma sind. Ob sie es
 wirklich sind, ist eine andere Frage.
 
 ```aufgabe
@@ -49,7 +49,7 @@ hinweise:
     kostet: 5
 erklaerung: |
   Umlaute, Abkürzungen und Punkte ändern nichts an der Firma. Ein anderer Ort
-  oder eine andere Branche dagegen schon - „Schmidt & Partner" in Berlin und
+  oder eine andere Branche dagegen schon - „Schmidt & Partner“ in Berlin und
   München können zwei Kanzleien sein, die nichts miteinander zu tun haben.
 ```
 

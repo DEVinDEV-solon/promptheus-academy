@@ -41,8 +41,8 @@ loesung:
   "im Großen und Ganzen zu unserer Zufriedenheit": mangelhaft
 richtzeit_s: 100
 erklaerung: |
-  „Stets" und der Grad der Zufriedenheit tragen die Note. Ein Modell kennt
-  diese Formeln gut und kann ein Zeugnis zuverlässig „übersetzen" - bei den
+  „Stets“ und der Grad der Zufriedenheit tragen die Note. Ein Modell kennt
+  diese Formeln gut und kann ein Zeugnis zuverlässig „übersetzen“ - bei den
   festen Formeln.
 ```
 

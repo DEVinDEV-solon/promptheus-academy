@@ -19,7 +19,7 @@ dauer_min: 15
 Viele Mailprogramme bieten heute einen KI-Assistenten: Er fasst lange
 Mailverläufe zusammen, schlägt Antworten vor und legt Anhänge ab. Das ist
 nützlich. Die Grenze kennst du aus Lektion 1: **Vorbereiten ja, nach außen
-handeln nur mit Freigabe.** Ein Entwurf im Ordner „Entwürfe" schadet
+handeln nur mit Freigabe.** Ein Entwurf im Ordner „Entwürfe“ schadet
 niemandem. Eine Mail, die ungeprüft an einen Kunden geht, vielleicht schon.
 
 ```aufgabe

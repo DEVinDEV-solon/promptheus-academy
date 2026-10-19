@@ -68,7 +68,7 @@ hinweise:
   - text: "In Python: hashlib.sha256(\"Rechnung 2026-117 freigegeben\".encode()).hexdigest()"
     kostet: 8
 erklaerung: |
-  Ein einziges geändertes Zeichen - etwa „2026-118" - ergibt einen völlig
+  Ein einziges geändertes Zeichen - etwa „2026-118“ - ergibt einen völlig
   anderen Hash. Genau das macht die Kette fälschungssicher: Niemand kann
   einen Eintrag ändern, ohne dass die Prüfsummen auseinanderlaufen.
 ```

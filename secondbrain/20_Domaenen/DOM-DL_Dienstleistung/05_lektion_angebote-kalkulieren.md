@@ -15,7 +15,7 @@ dauer_min: 16
 
 ## Woher der Stundensatz kommt
 
-Aus Lektion 3 kommt die Anfrage „Bitte ein Angebot". Bevor ein Werkzeug ein
+Aus Lektion 3 kommt die Anfrage „Bitte ein Angebot“. Bevor ein Werkzeug ein
 Angebot vorbereitet, muss klar sein, was eine Stunde kostet. Der
 **Stundensatz** ist keine Schätzung, sondern eine Rechnung:
 
@@ -64,7 +64,7 @@ hinweise:
     kostet: 5
 erklaerung: |
   6 × 75 = 450 Euro Arbeit, plus 130 Euro Material ergibt 580 Euro netto.
-  Mal 1,19 sind 690,20 Euro brutto. Ein Modell, das diese Rechnung „im Kopf"
+  Mal 1,19 sind 690,20 Euro brutto. Ein Modell, das diese Rechnung „im Kopf“
   macht, liegt manchmal ein paar Euro daneben - in einem Angebot ist das ein
   Fehler mit Unterschrift.
 ```

@@ -15,7 +15,7 @@ dauer_min: 10
 
 ## Die Frage, die in jeder Domäne zuerst kommt
 
-Nicht „Was kann KI hier tun?", sondern: **Welche Entscheidung wird hier
+Nicht „Was kann KI hier tun?“, sondern: **Welche Entscheidung wird hier
 getroffen, und was passiert, wenn sie falsch ist?**
 
 Im Verkauf triffst du jeden Tag drei Arten von Entscheidungen: **Wem** widme

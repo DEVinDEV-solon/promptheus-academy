@@ -16,8 +16,8 @@ dauer_min: 14
 ## Ein Name, der etwas sagt
 
 Das Dokument ist erkannt (Lektion 2) und ausgelesen (Lektion 3). Jetzt muss es
-irgendwo hin, unter einem Namen, unter dem man es wiederfindet. „scan0034.pdf"
-und „Rechnung neu final2.pdf" findet niemand wieder.
+irgendwo hin, unter einem Namen, unter dem man es wiederfindet. „scan0034.pdf“
+und „Rechnung neu final2.pdf“ findet niemand wieder.
 
 Ein festes **Namensschema** löst das, zum Beispiel:
 
@@ -46,7 +46,7 @@ loesung:
   - "2026-02-27_Finanzamt_Bescheid.pdf"
 richtzeit_s: 70
 erklaerung: |
-  Drei Namen folgen dem Schema. „14.03.2026" hat das Datum in der falschen
+  Drei Namen folgen dem Schema. „14.03.2026“ hat das Datum in der falschen
   Reihenfolge - sortiert nach Namen landet der März dann zwischen Januar und
   Februar anderer Jahre. Eine Regel erkennt das sofort.
 ```

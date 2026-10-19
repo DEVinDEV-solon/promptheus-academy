@@ -15,7 +15,7 @@ dauer_min: 10
 
 ## Die Frage, die in jeder Domäne zuerst kommt
 
-Nicht „Was kann KI hier tun?", sondern: **Welche Entscheidung wird hier
+Nicht „Was kann KI hier tun?“, sondern: **Welche Entscheidung wird hier
 getroffen, und was passiert, wenn sie falsch ist?**
 
 In der Verwaltung entscheidet ein Bescheid über Rechte: ob jemand eine

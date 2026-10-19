@@ -75,7 +75,7 @@ erklaerung: |
 
 Ein Modell soll die Prognose nicht rechnen (Stufe 3). Es kann aber etwas, was
 die Tabelle nicht kann: **Notizen lesen**. „Kunde wartet auf Budgetfreigabe
-im Herbst", „Ansprechpartner hat gekündigt" — solche Sätze stehen in den
+im Herbst", „Ansprechpartner hat gekündigt“ — solche Sätze stehen in den
 Gesprächsnotizen und nie in der Wahrscheinlichkeitsspalte.
 
 ```aufgabe
@@ -92,7 +92,7 @@ optionen:
 loesung: "Die Prognose aus der gewichteten Pipeline rechnen lassen und das Modell nur Risiken aus den Notizen benennen lassen."
 richtzeit_s: 60
 erklaerung: |
-  „Sicher" ist bei einer Prognose ein Warnsignal. Die Zahl kommt aus der
+  „Sicher“ ist bei einer Prognose ein Warnsignal. Die Zahl kommt aus der
   Rechnung, das Modell liefert die Gründe, warum sie wackeln könnte. So sieht
   die Leitung beides: den Wert und das Risiko.
 ```

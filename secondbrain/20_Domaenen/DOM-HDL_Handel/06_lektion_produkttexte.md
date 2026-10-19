@@ -21,7 +21,7 @@ in einheitlichem Ton und in mehreren Sprachen.
 
 Die Gefahr kennst du aus Stufe 1: Ein Modell füllt Lücken mit dem
 Wahrscheinlichen. Steht im Datenblatt nichts über Wasser, schreibt es bei
-einer Outdoor-Jacke trotzdem gern „wasserdicht", weil das bei Jacken oft so
+einer Outdoor-Jacke trotzdem gern „wasserdicht“, weil das bei Jacken oft so
 ist. Im Shop ist das ein **Versprechen**. Stimmt es nicht, ist der Text
 irreführende Werbung, und die Retoure kommt sicher.
 
@@ -47,8 +47,8 @@ hinweise:
   - text: "Wasserabweisend und wasserdicht sind zwei verschiedene Eigenschaften."
     kostet: 5
 erklaerung: |
-  „Wasserdicht" ist mehr als „wasserabweisend", „recycelt" und „atmungsaktiv"
-  stehen nirgends. Gerade Umweltaussagen wie „recycelt" oder „klimaneutral"
+  „Wasserdicht“ ist mehr als „wasserabweisend“, „recycelt“ und „atmungsaktiv“
+  stehen nirgends. Gerade Umweltaussagen wie „recycelt“ oder „klimaneutral“
   sind heikel: Sie brauchen einen Beleg, sonst sind sie unlauter.
 ```
 

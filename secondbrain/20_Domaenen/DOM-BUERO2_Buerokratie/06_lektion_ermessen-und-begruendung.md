@@ -21,9 +21,9 @@ klare Antwort (§ 35a): Ein Verwaltungsakt darf **vollständig automatisch**
 erlassen werden, wenn eine Rechtsvorschrift das zulässt **und** weder ein
 **Ermessen** noch ein **Beurteilungsspielraum** besteht.
 
-Ermessen heißt: Das Gesetz sagt „kann" statt „muss" und überlässt der Behörde
-eine Abwägung. Beurteilungsspielraum heißt: Ein Begriff wie „Härtefall" oder
-„Eignung" muss im Einzelfall ausgefüllt werden.
+Ermessen heißt: Das Gesetz sagt „kann“ statt „muss“ und überlässt der Behörde
+eine Abwägung. Beurteilungsspielraum heißt: Ein Begriff wie „Härtefall“ oder
+„Eignung“ muss im Einzelfall ausgefüllt werden.
 
 ```aufgabe
 id: D10-14

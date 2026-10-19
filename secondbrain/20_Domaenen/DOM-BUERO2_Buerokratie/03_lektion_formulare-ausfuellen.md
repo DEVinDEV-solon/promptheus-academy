@@ -103,5 +103,5 @@ richtzeit_s: 75
 erklaerung: |
   Was ein Register oder die Akte verlässlich weiß, muss niemand abtippen.
   Was nur die Person selbst sagen kann - ihre Gründe -, darf auch kein
-  Modell erfinden oder „sinngemäß ergänzen".
+  Modell erfinden oder „sinngemäß ergänzen“.
 ```

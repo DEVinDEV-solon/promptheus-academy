@@ -20,11 +20,11 @@ Wer Geld will, geht dorthin, wo Geld bewegt wird. Die häufigsten Maschen
 kennst du teilweise aus dem Fachkurs Sicherheit, hier in ihrer Form für die
 Buchhaltung:
 
-- **Geänderte Bankverbindung:** Eine täuschend echte Mail „vom Lieferanten"
+- **Geänderte Bankverbindung:** Eine täuschend echte Mail „vom Lieferanten“
   teilt eine neue IBAN mit. Mit Sprachmodellen sind solche Mails fehlerfrei.
 - **Rechnungen für nie Bestelltes:** etwa für den Eintrag in ein angebliches
   Register oder Branchenbuch, aufgemacht wie eine amtliche Gebühr.
-- **Druck von oben:** eine weitergeleitete „dringende" Zahlungsbitte der
+- **Druck von oben:** eine weitergeleitete „dringende“ Zahlungsbitte der
   Geschäftsführung, kurz vor Feierabend.
 
 ```aufgabe

@@ -53,7 +53,7 @@ hinweise:
     kostet: 5
 erklaerung: |
   Sprachkenntnisse und Führerschein beschreiben, was die Arbeit braucht.
-  „Jung", „Muttersprache" und „Mann" beschreiben, wer man sein soll - nach
+  „Jung“, „Muttersprache“ und „Mann“ beschreiben, wer man sein soll - nach
   Alter, Herkunft und Geschlecht. Gerichte haben solche Anzeigen immer wieder
   als Indiz für Benachteiligung gewertet.
 ```
@@ -78,7 +78,7 @@ optionen:
 loesung: "„Sie arbeiten sicher mit Office-Programmen und unserem Warenwirtschaftssystem.“"
 richtzeit_s: 60
 erklaerung: |
-  „Digital Native" meint Menschen, die mit dem Internet aufgewachsen sind -
+  „Digital Native“ meint Menschen, die mit dem Internet aufgewachsen sind -
   also eine Altersgruppe. Die konkrete Fähigkeit ist fair und sagt
   Bewerbenden genauer, was erwartet wird. Ein Prüfschritt, der solche
   Begriffe im Entwurf markiert, kann eine Regel mit Wortliste übernehmen.

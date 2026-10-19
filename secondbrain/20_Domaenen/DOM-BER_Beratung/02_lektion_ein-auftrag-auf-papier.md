@@ -59,11 +59,11 @@ Beratung gibt es eine dritte Antwort, die du ernst nehmen musst: **Mensch.**
 Nicht, weil eine Maschine es nicht könnte, sondern weil jemand dafür
 geradestehen muss.
 
-- *„Wie hoch war das Umsatzwachstum von 2024 auf 2025?"* — eine **Regel**:
+- *„Wie hoch war das Umsatzwachstum von 2024 auf 2025?“* — eine **Regel**:
   zwei Zahlen, eine Formel.
-- *„Welche Themen kommen in zwanzig Interviewnotizen immer wieder vor?"* —
+- *„Welche Themen kommen in zwanzig Interviewnotizen immer wieder vor?“* —
   ein **Modell**: Bedeutung erkennen kann keine Regel.
-- *„Soll der Kunde die Filiale schließen?"* — ein **Mensch**.
+- *„Soll der Kunde die Filiale schließen?“* — ein **Mensch**.
 
 ```aufgabe
 id: D5-04

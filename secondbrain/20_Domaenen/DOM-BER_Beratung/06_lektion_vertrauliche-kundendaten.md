@@ -31,8 +31,8 @@ Haus — das war die Lehre aus Stufe 5.
 
 Die einfachste Schutzmaßnahme ist die, bei der nichts Schutzwürdiges mehr
 übrig ist. **Pseudonymisieren** heißt: Namen und Kennungen durch Platzhalter
-ersetzen, die Zuordnung bleibt bei dir. Aus „Frau Berger, Leiterin Einkauf"
-wird „Person A, Einkauf". Für die Themenanalyse aus Lektion 2 reicht das
+ersetzen, die Zuordnung bleibt bei dir. Aus „Frau Berger, Leiterin Einkauf“
+wird „Person A, Einkauf“. Für die Themenanalyse aus Lektion 2 reicht das
 völlig.
 
 ```aufgabe
@@ -96,7 +96,7 @@ erklaerung: |
   Prüfung, was der Anbieter wirklich tut.
 ```
 
-Wichtig für alle folgenden Lektionen: Die Frage „Darf das ans Modell?"
+Wichtig für alle folgenden Lektionen: Die Frage „Darf das ans Modell?“
 stellst du **vor** jedem Schritt, nicht nachher. Ein Text, der einmal
 verschickt ist, kommt nicht zurück.
 

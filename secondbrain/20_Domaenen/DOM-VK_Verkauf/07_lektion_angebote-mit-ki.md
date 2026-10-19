@@ -15,7 +15,7 @@ dauer_min: 15
 
 ## Der Preis kommt aus der Liste
 
-Das Geschäft ist in der Phase „Angebot" (Lektion 6). Ein Werkzeug kann das
+Das Geschäft ist in der Phase „Angebot“ (Lektion 6). Ein Werkzeug kann das
 Angebot in Minuten zusammenstellen: Positionen aus dem Katalog, Preise aus
 der **Preisliste**, ein Anschreiben vom Modell. Der Preis kommt dabei nie vom
 Modell, sondern immer aus der Liste. Rabatte und Skonto rechnet die Tabelle.

@@ -17,8 +17,8 @@ dauer_min: 15
 
 Die Ware ist verkauft, mit Preis und Text aus den Lektionen 5 und 6. Ein Teil
 kommt zurück. Im Retourenschein schreibt die Kundschaft, was sie stört, und
-zwar so, wie Menschen schreiben: „Zu eng an den Schultern", „Reißverschluss
-klemmt nach einem Tag", „Farbe ganz anders als auf dem Foto".
+zwar so, wie Menschen schreiben: „Zu eng an den Schultern“, „Reißverschluss
+klemmt nach einem Tag", „Farbe ganz anders als auf dem Foto“.
 
 Diese Sätze in feste **Kategorien** zu sortieren, ist eine typische Aufgabe für
 ein Modell. Eine feste Regel mit Stichwörtern scheitert an der Vielfalt der
@@ -93,7 +93,7 @@ erklaerung: |
 ## Was die Retouren erzählen
 
 Die Kategorien sind kein Selbstzweck. Fallen 30 Prozent der Retouren eines
-Schuhs in „Passform: zu klein", dann stimmt etwas mit dem Artikel oder seinem
+Schuhs in „Passform: zu klein“, dann stimmt etwas mit dem Artikel oder seinem
 Text nicht. Das ist eine Information für Einkauf und Produkttext, nicht nur für
 das Lager.
 
