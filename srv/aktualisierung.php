@@ -319,7 +319,7 @@ function pu_akt_stand(): array
 {
     $j = json_decode(pu_setting('update_stand', ''), true);
     return (is_array($j) ? $j : []) + ['geprueft_am' => '', 'naechste' => 0, 'letzter_feed' => '',
-        'angebot' => null, 'medien' => null, 'fehler' => '', 'weg' => ''];
+        'angebot' => null, 'medien' => null, 'fehler' => '', 'weg' => '', 'gemeldet' => ''];
 }
 
 function pu_akt_stand_setzen(array $s): void
@@ -331,17 +331,30 @@ function pu_akt_stand_setzen(array $s): void
  * Fragt nach, wenn es fällig ist (oder `$jetzt`), und legt das Ergebnis ab.
  * Fällig: automatische Prüfung an und die letzte länger her als die
  * eingestellten Stunden. Nach einem Fehlschlag frühestens eine Stunde später.
+ *
+ * **Oder die eigene Fassung hat sich seit der letzten Nachfrage geändert.**
+ * Registriert meldet die Nachfrage dem Server die Fassung; das Web-Cockpit
+ * zeigt sie bei den Installationen. Bis 19.10.2026 galt nur der Termin — nach
+ * einem Update stand dort bis zu einen Tag lang die alte Fassung, nach mehreren
+ * Updates an einem Tag nie die richtige. Jetzt fragt die Academy nach einem
+ * Update (auch nach einem `git pull`) beim nächsten Öffnen sofort nach, einmal.
  */
 function pu_akt_pruefen(bool $jetzt = false): array
 {
     $s = pu_akt_stand();
-    $faellig = $jetzt || (pu_regel_an('update_pruefen') && time() >= (int)$s['naechste']);
+    $neu = (string)$s['gemeldet'] !== pu_fassung() && (string)$s['fehler'] === '';
+    $faellig = $jetzt || (pu_regel_an('update_pruefen') && (time() >= (int)$s['naechste'] || $neu));
     if (!$faellig) {
         return $s;
     }
     $h = pu_akt_feed_holen();
     $s['geprueft_am'] = gmdate('Y-m-d\TH:i:s\Z');
     $s['weg'] = $h['weg'];
+    // Der Server hat geantwortet: über den Relay hat er die Fassung damit
+    // übernommen (anonym erfährt er sie nicht — dann ist es nur der Merker).
+    if ($h['ok']) {
+        $s['gemeldet'] = pu_fassung();
+    }
     if ($h['ok']) {
         $p = pu_akt_feed_pruefen($h['umschlag'], (string)$s['letzter_feed']);
         if ($p['ok']) {
