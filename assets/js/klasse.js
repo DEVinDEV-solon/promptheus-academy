@@ -32,8 +32,35 @@ PU.klasseZeichnen = async function () {
   }
   const zuordnung = j.lehrer_klassen || {};
 
+  /* Eltern ↔ Kind (Recht eltern.manage). `kind_von` steht am Elternkonto und
+     fasst genau ein Kind. Zur Wahl stehen die Schülerkonten unter ihrem
+     Pseudonym, wie überall, wo Lernende in einer Liste auftauchen. */
+  const kindWahl = PU.darf('eltern.manage') && j.klasse.some(l => l.rolle === 'eltern');
+  const kinder = kindWahl
+    ? j.klasse.filter(l => l.rolle === 'schueler')
+        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename, gruppe: l.gruppe || '' }))
+        .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+    : [];
+  const kindOptionen = (gewaehlt) => {
+    let o = '<option value="0">— kein Kind —</option>';
+    let gefunden = gewaehlt === 0;
+    kinder.forEach(k => {
+      if (k.id === gewaehlt) gefunden = true;
+      o += '<option value="' + k.id + '"' + (k.id === gewaehlt ? ' selected' : '') + '>' +
+           PU.h(k.name + (k.gruppe ? ' · ' + k.gruppe : '')) + '</option>';
+    });
+    // Zeigt kind_von auf ein Konto, das hier nicht (mehr) als Schüler steht,
+    // bleibt die Verknüpfung sichtbar, statt still auf „kein Kind" zu springen.
+    if (!gefunden) o += '<option value="' + gewaehlt + '" selected>anderes Konto (Nr. ' + gewaehlt + ')</option>';
+    return o;
+  };
+
+  const spalte = ['Gruppe'];
+  if (Object.keys(zuordnung).length) spalte.push('Klassen');
+  if (kindWahl) spalte.push('Kind');
+
   const rahmen = PU.el('div', 'tabellenrahmen');
-  let html = '<table><tr><th>Name</th><th>Kennung</th><th>' + (Object.keys(zuordnung).length ? 'Gruppe · Klassen' : 'Gruppe') + '</th>' +
+  let html = '<table><tr><th>Name</th><th>Kennung</th><th>' + spalte.join(' · ') + '</th>' +
              '<th>Punkte</th><th>Titel</th><th>Serie</th>' +
              '<th>Stufen</th><th>Abzeichen</th><th>Versuche</th><th></th></tr>';
   j.klasse.forEach(l => {
@@ -47,6 +74,11 @@ PU.klasseZeichnen = async function () {
           PU.h(zuordnung[l.id].join(', ')) + '" placeholder="z. B. 7a, 8c" size="10" ' +
           'aria-label="Klassen von ' + PU.h(l.anzeigename) + '">' +
           '<button class="knopf still schmal" type="button" data-klassen-speichern="' + l.id + '">Zuordnen</button></span>'
+        : kindWahl && l.rolle === 'eltern'
+        // Beim Elternkonto steht hier das Kind, mit dem es verknüpft ist.
+        ? '<span class="klassen-zuordnen"><select data-kind="' + l.id + '" ' +
+          'aria-label="Kind von ' + PU.h(l.anzeigename) + '">' + kindOptionen(Number(l.kind_von) || 0) + '</select>' +
+          '<button class="knopf still schmal" type="button" data-kind-speichern="' + l.id + '">Verknüpfen</button></span>'
         : PU.h(l.gruppe)) + '</td>' +
       '<td>' + l.punkte + '</td>' +
       '<td>' + PU.h(l.titel) + '</td>' +
@@ -93,6 +125,18 @@ PU.klasseZeichnen = async function () {
         if (feld) feld.value = r.klassen.join(', ');
         PU.melden(r.klassen.length ? 'Klassen zugeordnet: ' + PU.h(r.klassen.join(', ')) + '.'
                                    : 'Keine Klasse mehr zugeordnet.', 'gut');
+      } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
+    });
+  });
+
+  rahmen.querySelectorAll('[data-kind-speichern]').forEach(k => {
+    k.addEventListener('click', async () => {
+      const wahl = rahmen.querySelector('[data-kind="' + k.dataset.kindSpeichern + '"]');
+      if (!wahl) return;
+      try {
+        await PU.ruf('kind_setzen', { eltern: Number(k.dataset.kindSpeichern), kind: Number(wahl.value) });
+        const name = wahl.value !== '0' ? wahl.options[wahl.selectedIndex].textContent : '';
+        PU.melden(name ? 'Kind verknüpft: ' + PU.h(name) + '.' : 'Keine Verknüpfung mehr.', 'gut');
       } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
     });
   });

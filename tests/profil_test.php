@@ -249,4 +249,15 @@ wirft('ein erfundenes Kind wird abgewiesen',
 pu_profil_kind_setzen($eltern, 0);
 gleich('die Verknüpfung lässt sich lösen', 0, pu_profil($eltern)['kind_von']);
 
+/* Die Oberfläche bietet die Auswahl nur bei Elternkonten an — der Server
+   darf sich darauf nicht verlassen: ein „Kind" an einer Lehrkraft gäbe ihr
+   einen Token-Empfänger vorbei an der Klassenzuordnung. */
+wirft('nur ein Elternkonto bekommt ein Kind',
+      fn() => pu_profil_kind_setzen($lehrer, $id), 'nur bei einem Elternkonto');
+gleich('…und die Lehrkraft bleibt ohne', 0, pu_profil($lehrer)['kind_von']);
+wirft('ein Elternkonto ist kein Kind',
+      fn() => pu_profil_kind_setzen($eltern, $lehrer), 'nur ein Schülerkonto');
+wirft('ein erfundenes Elternkonto wird abgewiesen',
+      fn() => pu_profil_kind_setzen(99999, $id), 'gibt es nicht');
+
 bilanz();
