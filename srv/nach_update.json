@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.11": {
+      "titel": "Ruhe beim Schliessen und Vorlesen ohne Emojis",
+      "neu": "Schliesst du das Glossar, ein anderes Fenster oder den Tutor-Chat, hört das Vorlesen sofort auf. Ein Seitenwechsel hält allen Ton an. Beim Vorlesen werden Emojis nicht mehr mitgesprochen, auch nicht im Social-Media-Format. Auf dem Bildschirm bleiben sie stehen.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst läuft noch das alte Skript, und der Ton stoppt beim Schliessen nicht."
+      ]
+    },
     "1.1.10": {
       "titel": "Klare Meldung bei ungültigem Schlüssel und grösseres Glossar",
       "neu": "Nimmt OpenRouter den Schlüssel dieser Academy nicht an (Meldung 401), sagt der Probelauf jetzt, dass es am Schlüssel liegt und wo man einen neuen einträgt. Er erklärt auch, warum andere Stimmen trotzdem klingen: Ein schon einmal vorgelesener Satz kommt 30 Tage lang aus dem Zwischenspeicher. Ausserdem ist das Glossar auf über 500 Begriffe zu KI-Technik und Agenten gewachsen, alle verlinkt.",
