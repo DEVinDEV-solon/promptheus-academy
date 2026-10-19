@@ -667,6 +667,33 @@ function pu_stimme_archivieren(int $lernender, string $text, string $roh,
 
 // ---------------------------------------------------------------- Vorlesen
 /**
+ * Nimmt Emojis aus einem Text, bevor er vorgelesen wird.
+ *
+ * Das Vorlesemodell spricht sie sonst mit aus, als Wort oder als Laut. Am meisten trifft es Antworten im Social-Media-Format (der Smiley-Knopf),
+ * die bewusst voller Emojis sind, aber auch Glossar und Tutoren streuen sie
+ * ein. Auf dem Bildschirm bleiben sie stehen; nur das Ohr bekommt sie nicht.
+ *
+ * Mit weg: was ein Emoji zusammensetzt (Hautton, Verbinder, Varianten-
+ * zeichen, Flaggenbuchstaben, Tastenkappe). Sonst bliebe aus 👍🏽 ein Rest,
+ * den das Modell als „mittlerer Hautton" vorliest. Aus 1️⃣ wird so „1".
+ * © ® ™ bleiben: Sie gehören zum Text und werden sinnvoll gesprochen.
+ */
+function pu_stimme_ohne_emoji(string $text): string
+{
+    $ohne = preg_replace(
+        '/[ \t]*(?:(?![\x{A9}\x{AE}\x{2122}])\p{Extended_Pictographic}'
+        . '|[\x{1F3FB}-\x{1F3FF}\x{1F1E6}-\x{1F1FF}\x{FE0E}\x{FE0F}\x{200D}\x{20E3}\x{E0020}-\x{E007F}])+[ \t]*/u',
+        ' ', $text);
+    if ($ohne === null) return trim($text);   // kein gültiges UTF-8: lieber unverändert
+
+    // Was das Wegnehmen hinterlässt: Leerzeichen am Zeilenrand und Zeilen,
+    // die nur aus Emojis bestanden.
+    $ohne = preg_replace('/^[ \t]+|[ \t]+$/m', '', $ohne);
+    $ohne = preg_replace('/(?:\r?\n){3,}/', "\n\n", $ohne);
+    return trim($ohne);
+}
+
+/**
  * Liest einen Text vor.
  *
  * @return array{ok: bool, ton: string, mime: string, format: string,
@@ -685,7 +712,9 @@ function pu_vorlesen(int $lernender, string $text, array $zusatz = []): array
              'transkript' => '', 'tokens' => 0, 'dauer' => 0.0,
              'aus_speicher' => false, 'fehler' => ''];
 
-    $text = trim($text);
+    // Vor dem Zwischenspeicher: Derselbe Satz mit und ohne Emoji ist für das
+    // Ohr derselbe und soll nur einmal bezahlt werden.
+    $text = pu_stimme_ohne_emoji($text);
     if ($text === '') {
         return array_merge($leer, ['fehler' => 'Es ist kein Text da, der vorgelesen werden könnte.']);
     }
