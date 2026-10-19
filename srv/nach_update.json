@@ -7,6 +7,14 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.5": {
+      "titel": "Zehn Fachkurse mit neun Lektionen und Quizkarten",
+      "neu": "Alle zehn Fachkurse (Handel, Dienstleistung, Bürobetrieb, Verkauf, Beratung, Jura, Sicherheit, Buchhaltung, Personal, Verwaltung) haben jetzt 9 Lektionen für Erwachsene im Berufsalltag. Neu ist der Aufgabentyp Quizkarten: Karten lesen und auf Stapel legen. Außerdem wird Fettdruck, der im Stoff über eine Zeile hinausgeht, jetzt überall richtig angezeigt.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — erst dann kennt der Browser die Quizkarten. Ohne Neuladen steht dort „Unbekannter Aufgabentyp“.",
+        "Fachkurse setzen weiter Stufe 3 voraus. Wer einen Fachkurs schon begonnen hat: Die Einstiegsaufgabe bleibt gelöst, der Kurs zeigt wegen der neuen Lektionen weniger Prozent."
+      ]
+    },
     "1.1.4": {
       "titel": "Neun Lektionen je Stufe und Prüfungen für Stufe 3–6",
       "neu": "Alle sieben Stufenkurse haben jetzt 9 Lektionen, jede baut auf der vorigen auf. Stufe 3 bis 6 haben eine Prüfung, damit lassen sie sich bestehen und der 7. Kurs wird erreichbar. Der 7. Kurs hat zwei Übungslektionen (Gegenprobe, eine Guideline für viele Werkzeuge), die die Werkstatt-Freigabe nicht berühren. Die Academy trägt den Fackel-Pin der Webseite als Logo.",
