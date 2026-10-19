@@ -1,28 +1,32 @@
 ---
 type: lesson
 title: "Beratung — Einstieg"
-description: "Beispielaufgabe. Der Kurs wird aus 90_Quellen/anons gebaut."
+description: "Was eine Beratung eigentlich verkauft — und warum ein Werkzeug vorbereiten darf, aber nicht unterschreiben."
 tags:
   - lesson
   - domaene
   - dom-ber
-  - geruest
-timestamp: 2026-08-18T00:00:00+02:00
+timestamp: 2026-10-19T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
-dauer_min: 8
+dauer_min: 10
 ---
 
 # Beratung — Einstieg
 
-> **Gerüst.** Dieser Kurs wird noch ausgearbeitet. Die Aufgabe unten ist vollständig und zählt.
-
 ## Die Frage, die in jeder Domäne zuerst kommt
 
-Nicht 'was kann KI hier tun', sondern: **welche Entscheidung wird hier getroffen, und was passiert, wenn sie falsch ist?**
+Nicht „Was kann KI hier tun?“, sondern: **Welche Entscheidung wird hier
+getroffen, und was passiert, wenn sie falsch ist?**
 
-In Beratung entscheidet sich daran, ob ein Werkzeug hilft oder schadet. Ein Vorschlag, den ein Mensch prüft, ist etwas anderes als eine Entscheidung, die durchläuft.
+In der Beratung trifft der Kunde die Entscheidung — eine Filiale schließen,
+eine Software kaufen, einen Markt betreten. Die Beratung liefert die
+Grundlage dafür: Recherche, Zahlen, einen Bericht und am Ende eine
+Empfehlung. Ist die Grundlage falsch, ist es die Entscheidung auch, und
+bezahlt hat der Kunde für beides.
 
-Der Stoff für diesen Kurs liegt geerntet unter `90_Quellen/anons/`.
+Ein Vorschlag, den ein Mensch prüft, ist etwas anderes als eine
+Entscheidung, die durchläuft. Das hast du in Stufe 3 als **Freigabe**
+kennengelernt. In diesem Kurs wendest du es auf die Beratung an.
 
 ```aufgabe
 id: D5-01
@@ -41,5 +45,47 @@ erklaerung: |
   Geschwindigkeit und Trefferquote sagen nichts über die Folgen eines
   Fehlers. 95 Prozent heißt: jeder zwanzigste Fall geht daneben - bei
   tausend Vorgängen sind das fünfzig Menschen.
-quelle: "[[90_Quellen/anons/_index]]"
 ```
+
+## Was eine Beratung verkauft
+
+Recherche kann heute fast jeder, und ein Modell schreibt in Minuten einen
+Bericht, der nach Beratung klingt. Trotzdem bezahlen Kunden Beratungen.
+Wofür eigentlich?
+
+Für ein **Urteil, für das jemand geradesteht.** Der Kunde will wissen: Was
+würdest du an meiner Stelle tun — und warum? Und er will jemanden, der
+diese Antwort mit seinem Namen vertritt. Ein Modell kann viel vorbereiten.
+Geradestehen kann es nicht.
+
+Daraus folgt die Arbeitsteilung für den ganzen Kurs:
+
+| Das Werkzeug | Der Mensch |
+|---|---|
+| sammelt, sortiert, fasst zusammen | wählt aus, was zählt |
+| rechnet (mit Code, nicht im Kopf) | prüft, ob die Rechnung die richtige ist |
+| entwirft Text | unterschreibt die Empfehlung |
+
+```aufgabe
+id: D5-02
+typ: denkaufgabe
+titel: "Wofür bezahlt der Kunde?"
+punkte: 20
+frage: "Ein Modell kann Recherche und Berichtsentwurf in einem Bruchteil der Zeit liefern. Was bleibt der Kern der Beratungsleistung?"
+optionen:
+  - "Die Menge an Seiten im Bericht."
+  - "Ein Urteil, für das ein Mensch mit seinem Namen geradesteht."
+  - "Die Geschwindigkeit, mit der der Bericht fertig wird."
+  - "Die Zahl der verwendeten Quellen."
+loesung: "Ein Urteil, für das ein Mensch mit seinem Namen geradesteht."
+richtzeit_s: 50
+erklaerung: |
+  Seitenzahl, Tempo und Quellenmenge kann ein Werkzeug steigern. Die
+  Verantwortung für die Empfehlung nicht. Genau deshalb gehört an das Ende
+  jedes Beratungsablaufs eine menschliche Freigabe.
+```
+
+In den nächsten Lektionen gehst du den Weg eines Beratungsauftrags einmal
+ganz durch: vom Auftrag über Recherche und Zahlen bis zum Bericht — und an
+jeder Station fragst du, was eine Regel, was ein Modell und was nur ein
+Mensch tun darf.

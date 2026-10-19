@@ -12,3 +12,6 @@ kontext: "[[PROMPTHEUS WISSEN]]"
 # Die zwölf Aufgabentypen
 
 Steckbrief je Typ: wofür er taugt, welche Felder er braucht, wie bewertet wird.
+
+Seit 19.10.2026 gibt es einen dreizehnten: [[quizkarten]] — Karten einzeln
+lesen und auf zwei bis vier Stapel legen.

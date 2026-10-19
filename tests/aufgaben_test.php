@@ -140,6 +140,18 @@ wirft('Secret ohne Marke',
 wirft('Zuordnung unvollständig',
   block("id: X1\ntyp: uebereinstimmung\ntitel: T\npunkte: 20\nlinks: [a, b]\nrechts: [A, B]\nloesung:\n  a: A"),
   'genau ein Paar');
+wirft('Quizkarte ohne Stapel in der Lösung',
+  block("id: X1\ntyp: quizkarten\ntitel: T\npunkte: 20\nkarten: [a, b]\nstapel: [ja, nein]\nloesung:\n  a: ja"),
+  'genau einen Stapel');
+wirft('Quizkarte auf unbekanntem Stapel',
+  block("id: X1\ntyp: quizkarten\ntitel: T\npunkte: 20\nkarten: [a, b]\nstapel: [ja, nein]\nloesung:\n  a: ja\n  b: vielleicht"),
+  "Stapel 'vielleicht'");
+wirft('Quizkarten mit nur einem Stapel',
+  block("id: X1\ntyp: quizkarten\ntitel: T\npunkte: 20\nkarten: [a, b]\nstapel: [ja]\nloesung:\n  a: ja\n  b: ja"),
+  'zwei bis vier Stapel');
+wirft('Quizkarten mit doppelter Karte',
+  block("id: X1\ntyp: quizkarten\ntitel: T\npunkte: 20\nkarten: [a, a]\nstapel: [ja, nein]\nloesung:\n  a: ja"),
+  'denselben Text');
 wirft('Prüfungen ergeben nicht die Gesamtpunktzahl',
   block("id: X1\ntyp: planung\ntitel: T\npunkte: 50\npruefungen:\n  - art: mindestens_woerter\n    wert: 10\n    punkte: 20"),
   'die Aufgabe nennt 50');
@@ -193,6 +205,17 @@ $e = pu_aufgaben_aus_text(
   "```aufgabe\nid: S5\ntyp: mathe\ntitel: \"T\"\npunkte: 20\n"
   . "loesung: 42\ntoleranz: 3\n```", 'test.md')[0];
 pruefe('toleranz ist entfernt', !isset(pu_aufgabe_oeffentlich($e)['toleranz']));
+
+$q = pu_aufgaben_aus_text(
+  "```aufgabe\nid: S6\ntyp: quizkarten\ntitel: \"T\"\npunkte: 20\n"
+  . "karten:\n  - \"Karte: eins\"\n  - \"Karte zwei\"\n  - \"Karte drei\"\nstapel: [stimmt, stimmt nicht]\n"
+  . "loesung:\n  \"Karte: eins\": stimmt\n  \"Karte zwei\": stimmt nicht\n  \"Karte drei\": stimmt\n```", 'test.md')[0];
+$qo = pu_aufgabe_oeffentlich($q);
+pruefe('Quizkarten: Lösung ist entfernt', !isset($qo['loesung']));
+gleich('Quizkarten: Karten bleiben vollständig', ['Karte drei', 'Karte zwei', 'Karte: eins'],
+  (function ($x) { sort($x); return $x; })($qo['karten']));
+gleich('Quizkarten: Stapel bleiben in ihrer Reihenfolge', ['stimmt', 'stimmt nicht'], $qo['stapel']);
+gleich('Quizkarten: Schlüssel mit Doppelpunkt gelesen', 'stimmt', $q['loesung']['Karte: eins']);
 
 gruppe('Mischen ist reproduzierbar');
 $m1 = pu_aufgabe_oeffentlich($a)['bausteine'];

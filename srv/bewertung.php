@@ -32,6 +32,7 @@ function pu_bewerten(array $a, $antwort): array
         'plugplay'                 => pu_b_menge((array)$a['loesung'], $antwort),
         'schiebe'                  => pu_b_folge((array)$a['loesung'], $antwort),
         'uebereinstimmung'         => pu_b_paare((array)$a['loesung'], $antwort),
+        'quizkarten'               => pu_b_paare((array)$a['loesung'], $antwort),   // Karte => Stapel
         'mathe'                    => pu_b_zahl($a, $antwort),
         'secret'                   => pu_b_secret((string)$a['loesung'], $antwort),
         'sicherheit'               => pu_b_zeilen((array)$a['zeilen'], $antwort),

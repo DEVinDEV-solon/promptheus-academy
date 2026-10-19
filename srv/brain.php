@@ -172,18 +172,24 @@ function pu_md(string $text): string
  * Zeilen eines Absatzes zu einem Text. Ein Umbruch im Quelltext ist ein
  * Leerzeichen; nur zwei Leerzeichen oder ein `\` am Zeilenende erzwingen
  * einen sichtbaren Umbruch (wie in jedem Markdown).
+ *
+ * Erst zusammensetzen, dann auszeichnen: Wurde jede Zeile einzeln
+ * ausgezeichnet, blieb ein Fettdruck über einen Zeilenumbruch als `**…**`
+ * stehen (bis 19.10.2026 in rund achtzig Absätzen des Stoffs). Der harte
+ * Umbruch wartet als "\n" — das übersteht pu_h() — und wird erst danach
+ * zum <br>.
  */
 function pu_md_zeilen(array $zeilen): string
 {
-    $aus = '';
+    $text = '';
     $n = count($zeilen);
     foreach ($zeilen as $i => $z) {
         $hart = preg_match('/(  |\\\\)$/', $z) === 1;
         $z = rtrim(preg_replace('/\\\\$/', '', $z) ?? $z);
-        $aus .= pu_md_inline(ltrim($z));
-        if ($i < $n - 1) $aus .= $hart ? '<br>' : ' ';
+        $text .= ltrim($z);
+        if ($i < $n - 1) $text .= $hart ? "\n" : ' ';
     }
-    return $aus;
+    return str_replace("\n", '<br>', pu_md_inline($text));
 }
 
 /** Wie ein Hinweiskasten heisst, wenn er selbst keinen Titel trägt. */

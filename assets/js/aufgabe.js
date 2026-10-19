@@ -162,6 +162,122 @@ PU.TYPEN.uebereinstimmung = {
   }
 };
 
+/* ============================================================ Quizkarten */
+/**
+ * Ein Stapel Karten, eine nach der anderen: lesen, auf einen Stapel legen.
+ *
+ * Wie bei den Bausteinen zwei Wege: ziehen ODER den Knopf des Stapels
+ * drücken. Eine abgelegte Karte lässt sich anklicken — dann kommt sie oben
+ * auf den Stapel zurück und ist die nächste. Die Antwort steht nur im DOM
+ * (Karte => Stapel), damit `antwort()` wie bei jedem Typ bloss abliest.
+ */
+PU.TYPEN.quizkarten = {
+  zeichnen: (feld, a) => {
+    const karten = (a.karten || []).map(String);
+    const offen = karten.slice();             // noch nicht abgelegt, vorne = oben
+
+    const kasten = PU.el('div', 'quizkarten');
+    const deck   = PU.el('div', 'qk-deck');
+    const karte  = PU.el('div', 'qk-karte');
+    karte.setAttribute('aria-live', 'polite');
+    const zaehler = PU.el('p', 'klein qk-zaehler', '');
+    deck.appendChild(karte);
+    deck.appendChild(zaehler);
+
+    const knoepfe = PU.el('div', 'qk-knoepfe');
+    const reihe   = PU.el('div', 'qk-reihe');
+    const listen  = {};
+
+    function zeigen() {
+      const n = karten.length - offen.length;
+      if (offen.length) {
+        karte.textContent = offen[0];
+        karte.draggable = true;
+        karte.classList.remove('qk-leer');
+        // Neu ansetzen, damit die Umdreh-Bewegung bei jeder Karte läuft.
+        karte.classList.remove('qk-neu'); void karte.offsetWidth; karte.classList.add('qk-neu');
+        zaehler.textContent = 'Karte ' + (n + 1) + ' von ' + karten.length;
+      } else {
+        karte.textContent = 'Alle Karten liegen.';
+        karte.draggable = false;
+        karte.classList.add('qk-leer');
+        zaehler.textContent = 'Jetzt abgeben — oder eine abgelegte Karte anklicken, um sie zurückzuholen.';
+      }
+      knoepfe.querySelectorAll('button').forEach(b => { b.disabled = !offen.length; });
+      Object.keys(listen).forEach(s => {
+        const z = listen[s].parentElement.querySelector('.qk-anzahl');
+        if (z) z.textContent = String(listen[s].children.length);
+      });
+    }
+
+    function ablegen(text, stapel) {
+      // Eine Karte liegt höchstens einmal: erst von überall wegnehmen.
+      const i = offen.indexOf(text);
+      if (i >= 0) offen.splice(i, 1);
+      feld.querySelectorAll('.qk-abgelegt').forEach(c => { if (c.dataset.wert === text) c.remove(); });
+
+      const chip = PU.el('span', 'baustein qk-abgelegt', PU.h(text));
+      chip.dataset.wert = text;
+      chip.tabIndex = 0;
+      chip.draggable = true;
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-label', text + ' — liegt auf „' + stapel + '“, zurückholen');
+      const zurueck = () => { chip.remove(); offen.unshift(text); zeigen(); };
+      chip.addEventListener('click', zurueck);
+      chip.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); zurueck(); }
+      });
+      chip.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', text));
+      listen[stapel].appendChild(chip);
+      zeigen();
+    }
+
+    karte.addEventListener('dragstart', e => {
+      if (offen.length) e.dataTransfer.setData('text/plain', offen[0]);
+    });
+
+    (a.stapel || []).map(String).forEach(stapel => {
+      const knopf = PU.el('button', 'knopf klein still', '→ ' + PU.h(stapel));
+      knopf.type = 'button';
+      knopf.addEventListener('click', () => { if (offen.length) ablegen(offen[0], stapel); });
+      knoepfe.appendChild(knopf);
+
+      const zone = PU.el('div', 'qk-stapel');
+      zone.appendChild(PU.el('div', 'qk-stapel-kopf',
+        PU.h(stapel) + ' <span class="qk-anzahl">0</span>'));
+      const liste = PU.el('div', 'qk-liste');
+      liste.dataset.stapel = stapel;
+      listen[stapel] = liste;
+      zone.appendChild(liste);
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('ueber'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('ueber'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('ueber');
+        const wert = e.dataTransfer.getData('text/plain');
+        if (karten.includes(wert)) ablegen(wert, stapel);
+      });
+      reihe.appendChild(zone);
+    });
+
+    kasten.appendChild(deck);
+    kasten.appendChild(knoepfe);
+    kasten.appendChild(reihe);
+    feld.appendChild(kasten);
+    feld.appendChild(PU.el('p', 'klein',
+      'Lies die Karte und lege sie auf einen Stapel — Knopf drücken oder hinüberziehen.'));
+    zeigen();
+  },
+  antwort: (feld) => {
+    const aus = {};
+    feld.querySelectorAll('.qk-liste').forEach(liste => {
+      const stapel = liste.dataset.stapel;
+      liste.querySelectorAll('.qk-abgelegt').forEach(c => { aus[c.dataset.wert] = stapel; });
+    });
+    return aus;
+  }
+};
+
 /* ============================================================ Zahl / Text */
 function textfeldZeichnen(feld, a, mehrzeilig, platzhalter) {
   const el = document.createElement(mehrzeilig ? 'textarea' : 'input');
@@ -294,6 +410,7 @@ function tokenicerText(a) {
   if (Array.isArray(a.optionen))   teile.push(a.optionen.join('\n'));
   if (Array.isArray(a.bausteine))  teile.push(a.bausteine.join('\n'));
   if (Array.isArray(a.links))      teile.push(a.links.join('\n'));
+  if (Array.isArray(a.karten))     teile.push(a.karten.join('\n'));
 
   return teile.filter(t => t && String(t).trim() !== '').join('\n');
 }
@@ -303,7 +420,8 @@ PU.AUFGABE_ART = {
   denkaufgabe: 'Denkaufgabe', raeumlich: 'Räumlich denken', schiebe: 'Reihenfolge',
   plugplay: 'Bausteine', uebereinstimmung: 'Zuordnen', mathe: 'Rechnen',
   technisch: 'Technik', krypto: 'Verschlüsselung', planung: 'Eigene Antwort',
-  secret: 'Spurensuche', sicherheit: 'Sicherheit', multitask: 'Mehrteilig'
+  secret: 'Spurensuche', sicherheit: 'Sicherheit', multitask: 'Mehrteilig',
+  quizkarten: 'Quizkarten'
 };
 
 /** Das Punkteschild: ein Angebot, bis die Aufgabe gelöst ist — dann Gold mit ✓. */
