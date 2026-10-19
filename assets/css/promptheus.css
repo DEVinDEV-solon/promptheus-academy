@@ -784,6 +784,32 @@ html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
 .paar-links { font-weight: 600; }
 .paar-pfeil { color: var(--schrift-3); }
 
+/* Quizkarten: oben die Karte, darunter je Stapel ein Knopf und eine Ablage */
+.quizkarten { margin: 1rem 0; }
+.qk-deck { display: grid; justify-items: center; gap: .4rem; perspective: 900px; }
+.qk-karte {
+  width: min(100%, 26rem); min-height: 7.5rem; display: grid; place-items: center;
+  padding: 1.1rem 1.3rem; text-align: center; font-size: 1.02rem; line-height: 1.45;
+  background: var(--grund-3); border: 1px solid var(--rand-hell); border-top: 3px solid var(--glut);
+  border-radius: var(--radius-klein); box-shadow: 0 6px 18px rgba(0,0,0,.18); cursor: grab;
+}
+.qk-karte.qk-leer { cursor: default; color: var(--schrift-3); border-top-color: var(--rand-hell); box-shadow: none; }
+.qk-karte.qk-neu { animation: qk-umdrehen .32s ease-out; }
+@keyframes qk-umdrehen { from { transform: rotateY(80deg); opacity: .2; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .qk-karte.qk-neu { animation: none; } }
+.qk-zaehler { text-align: center; margin: 0; }
+.qk-knoepfe { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: .8rem 0; }
+.qk-reihe { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .6rem; }
+.qk-stapel {
+  min-height: 4.5rem; background: var(--grund-3); border: 1px dashed var(--rand-hell);
+  border-radius: var(--radius-klein); padding: .5rem .6rem;
+}
+.qk-stapel.ueber { border-color: var(--glut); background: rgba(255,122,28,.07); }
+.qk-stapel-kopf { font-weight: 600; margin-bottom: .4rem; display: flex; justify-content: space-between; gap: .5rem; }
+.qk-anzahl { color: var(--schrift-3); font-weight: 400; }
+.qk-liste { display: flex; flex-wrap: wrap; gap: .4rem; }
+.qk-liste .baustein { font-size: .85rem; cursor: pointer; }
+
 /* Code mit Zeilennummern (Sicherheits-Aufgaben) */
 .codezeilen { border: 1px solid var(--rand); border-radius: var(--radius-klein); overflow: hidden; margin: 1rem 0; }
 .codezeile {

@@ -57,10 +57,14 @@ define('PU_BRAIN', is_dir(PU_ROOT . '/secondbrain') || !is_dir(PU_ROOT . '/brain
 const PU_PROMPTS   = PU_ROOT . '/prompts';
 const PU_VORLAGEN  = PU_ROOT . '/vorlagen';
 
-/** Die zwölf Aufgabentypen aus dem Konzeptplan. Ein dreizehnter ist ein Fehler. */
+/**
+ * Die zwölf Aufgabentypen aus dem Konzeptplan und die Quizkarten (1.1.5).
+ * Ein vierzehnter ist ein Fehler.
+ */
 const PU_TYPEN = [
     'denkaufgabe', 'plugplay', 'schiebe', 'uebereinstimmung', 'multitask',
     'mathe', 'raeumlich', 'secret', 'sicherheit', 'technisch', 'krypto', 'planung',
+    'quizkarten',
 ];
 
 /** Die sechs Stufen. Reihenfolge = Aufstiegsreihenfolge. */

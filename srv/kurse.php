@@ -363,7 +363,8 @@ function pu_aufgabe_pruefen(array $a, string $quelle, int $nr): array
         'plugplay',
         'schiebe'          => ['bausteine', 'loesung'],
         'uebereinstimmung' => ['links', 'rechts', 'loesung'],
-        'multitask'        => ['schritte'],
+        'quizkarten'       => ['karten', 'stapel', 'loesung'],
+        'multitask'      => ['schritte'],
         'mathe'            => ['loesung'],
         'raeumlich'        => ['optionen', 'loesung'],
         'secret'           => ['dump', 'loesung'],
@@ -412,6 +413,23 @@ function pu_aufgabe_pruefen(array $a, string $quelle, int $nr): array
         }
         if (count((array)$a['loesung']) !== count($links)) {
             throw new RuntimeException("$wo: es muss zu jeder linken Seite genau ein Paar geben.");
+        }
+    }
+
+    // Quizkarten: jede Karte gehört auf genau einen Stapel. Zwei bis vier
+    // Stapel — einer wäre keine Entscheidung, fünf passen auf kein Handy.
+    if ($a['typ'] === 'quizkarten') {
+        $karten = array_map('strval', (array)$a['karten']);
+        $stapel = array_map('strval', (array)$a['stapel']);
+        if (count($karten) < 2) throw new RuntimeException("$wo: Quizkarten brauchen mindestens zwei Karten.");
+        if (count($stapel) < 2 || count($stapel) > 4) throw new RuntimeException("$wo: Quizkarten brauchen zwei bis vier Stapel.");
+        if (count(array_unique($karten)) !== count($karten)) throw new RuntimeException("$wo: zwei Karten tragen denselben Text.");
+        foreach ((array)$a['loesung'] as $k => $s) {
+            if (!in_array((string)$k, $karten, true)) throw new RuntimeException("$wo: Lösung nennt die Karte '$k', die es nicht gibt.");
+            if (!in_array((string)$s, $stapel, true)) throw new RuntimeException("$wo: Lösung nennt den Stapel '$s', den es nicht gibt.");
+        }
+        if (count((array)$a['loesung']) !== count($karten)) {
+            throw new RuntimeException("$wo: jede Karte braucht genau einen Stapel in der Lösung.");
         }
     }
 
@@ -480,7 +498,9 @@ function pu_aufgabe_oeffentlich(array $a): array
     // "die dritte Option" sonst für jeden eine andere.
     $mischen = !function_exists('pu_regel_an') || pu_regel_an('mischen');
     if ($mischen) {
-        foreach (['bausteine', 'optionen', 'rechts'] as $feld) {
+        // Die Stapel bleiben, wie sie stehen: „stimmt“ vor „stimmt nicht“ ist
+        // eine Ordnung, keine Antwort.
+        foreach (['bausteine', 'optionen', 'rechts', 'karten'] as $feld) {
             if (isset($oeff[$feld]) && is_array($oeff[$feld])) {
                 $oeff[$feld] = pu_mischen(array_values($oeff[$feld]), $a['id'] . $feld);
             }
@@ -571,7 +591,8 @@ function pu_aufgabe_als_text(array $a): string
     if (($a['frage'] ?? '') !== '') $z[] = (string)$a['frage'];
 
     foreach (['optionen' => 'Antwortmöglichkeiten', 'bausteine' => 'Bausteine',
-              'links' => 'Linke Seite', 'rechts' => 'Rechte Seite'] as $feld => $wie) {
+              'links' => 'Linke Seite', 'rechts' => 'Rechte Seite',
+              'karten' => 'Karten', 'stapel' => 'Stapel'] as $feld => $wie) {
         if (empty($a[$feld]) || !is_array($a[$feld])) continue;
         $z[] = $wie . ":\n- " . implode("\n- ", array_map('strval', $a[$feld]));
     }

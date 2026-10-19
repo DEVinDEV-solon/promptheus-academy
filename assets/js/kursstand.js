@@ -254,6 +254,7 @@ function typName(typ) {
     denkaufgabe: 'Denkaufgaben', raeumlich: 'Räumliches', schiebe: 'Sortieraufgaben',
     plugplay: 'Zuordnen', uebereinstimmung: 'Paare finden', mathe: 'Rechnen',
     technisch: 'Technisches', krypto: 'Verschlüsselung', planung: 'Planen',
-    secret: 'Geheimnisse', sicherheit: 'Sicherheit', multitask: 'Mehrschrittiges'
+    secret: 'Geheimnisse', sicherheit: 'Sicherheit', multitask: 'Mehrschrittiges',
+    quizkarten: 'Quizkarten'
   }[typ] || typ;
 }

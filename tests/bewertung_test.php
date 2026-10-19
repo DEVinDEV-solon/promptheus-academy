@@ -71,6 +71,17 @@ $s = $a; $s['links'] = ['Ein Satz: mit Doppelpunkt']; $s['rechts'] = ['Antwort']
 $s['loesung'] = ['Ein Satz: mit Doppelpunkt' => 'Antwort'];
 pruefe('Schlüssel mit Doppelpunkt', r($s, ['Ein Satz: mit Doppelpunkt' => 'Antwort']));
 
+// ================================================================ quizkarten
+gruppe('quizkarten');
+$a = ['id' => 'T4Q', 'typ' => 'quizkarten', 'titel' => 't', 'punkte' => 30,
+      'karten' => ['Aussage eins', 'Aussage zwei', 'Aussage drei'], 'stapel' => ['stimmt', 'stimmt nicht'],
+      'loesung' => ['Aussage eins' => 'stimmt', 'Aussage zwei' => 'stimmt nicht', 'Aussage drei' => 'stimmt']];
+pruefe('alle Karten richtig',     r($a, ['Aussage drei' => 'stimmt', 'Aussage eins' => 'stimmt', 'Aussage zwei' => 'stimmt nicht']));
+pruefe('eine Karte falsch',      !r($a, ['Aussage eins' => 'stimmt', 'Aussage zwei' => 'stimmt', 'Aussage drei' => 'stimmt']));
+pruefe('eine Karte nicht gelegt',!r($a, ['Aussage eins' => 'stimmt', 'Aussage zwei' => 'stimmt nicht']));
+pruefe('leer ist falsch',        !r($a, []));
+gleich('volle Punkte bei richtig', 30, p($a, ['Aussage eins' => 'stimmt', 'Aussage zwei' => 'stimmt nicht', 'Aussage drei' => 'stimmt']));
+
 // ================================================================ mathe
 gruppe('mathe');
 $a = ['id' => 'T5', 'typ' => 'mathe', 'titel' => 't', 'punkte' => 20,

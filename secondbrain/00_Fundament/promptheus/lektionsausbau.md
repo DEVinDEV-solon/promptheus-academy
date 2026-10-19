@@ -141,7 +141,7 @@ Aufwand:
 
 | Format | Prüft | Bedienung | Aufwand |
 |---|---|---|---|
-| `koerbe` | Einordnen in Kategorien (z. B. „personenbezogen / nicht") | Karten in 2–4 Körbe | klein (Variante von uebereinstimmung) |
+| `koerbe` | Einordnen in Kategorien (z. B. „personenbezogen / nicht") | Karten in 2–4 Körbe | **gebaut** als [[quizkarten]] (19.10.2026) |
 | `schaetzen` | Grössenordnungen: Tokens, Kosten, Wahrscheinlichkeit | Schieberegler mit Toleranzband | klein |
 | `vergleich` | Bewerten: zwei Modellantworten, die bessere wählen **und** das Kriterium | A/B + Kriterium | klein |
 | `markieren` | Analysieren: Fehler, erfundene Quelle, Personendaten *im Text* finden | Wörter/Sätze antippen | mittel |
