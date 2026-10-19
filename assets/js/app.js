@@ -409,7 +409,27 @@ PU.tonStoppen = function (ausser) {
 
   // 2. Das Vorlesen. Es steht nicht im Dokument, also findet die Schleife
   //    oben es nicht — es braucht seinen eigenen Absatz.
-  if (!PU.stimmeLaeuft || PU.stimmeLaeuft === ausser) return;
+  if (PU.stimmeLaeuft === ausser) return;
+  PU.stimmeStoppen();
+};
+
+/**
+ * Nur das Vorlesen anhalten — die Abspielleisten der Seite bleiben.
+ *
+ * **Warum es das allein braucht:** Das Vorlesen ist ein `Audio`-Objekt
+ * ausserhalb des Dokuments. Schliesst ein Fenster (Glossar, Tutor-Chat), wird
+ * dessen Inhalt geleert, und jede `<audio>`-Leiste darin verstummt von selbst.
+ * Das Vorlesen nicht: Es lief weiter, nachdem das Glossar zu war, und störte.
+ *
+ * Auch ein Vorlesen, das noch lädt, wird so abgesagt: `stimmeRunde` zählt
+ * hoch, und `PU.vorlesen` spielt nur, wenn die Runde noch seine ist.
+ */
+PU.stimmeRunde = 0;
+PU.stimmeStoppen = function () {
+  PU.stimmeRunde++;
+  document.querySelectorAll('.nachricht-ton.laedt')
+          .forEach(b => b.classList.remove('laedt'));
+  if (!PU.stimmeLaeuft) return;
   const t = PU.stimmeLaeuft;
   PU.stimmeLaeuft = null;
   try { t.pause(); } catch (e) { /* schon vorbei */ }
@@ -429,6 +449,20 @@ PU.eineStimme = function () {
   document.addEventListener('play', (e) => {
     if (e.target && e.target.pause) PU.tonStoppen(e.target);
   }, true);
+
+  /* Schliesst das Fenster, schweigt das Vorlesen. Gehorcht wird am Fenster
+     selbst und nicht an den Schliessen-Funktionen: Davon gibt es mehrere
+     (PU.modalSchliessen, das Glossar, die Werkstatt), und eine neue, die
+     daran nicht denkt, wäre derselbe Fehler noch einmal. */
+  const modal = document.getElementById('modal');
+  if (modal && window.MutationObserver) {
+    let warZu = modal.classList.contains('hidden');
+    new MutationObserver(() => {
+      const zu = modal.classList.contains('hidden');
+      if (zu && !warZu) PU.stimmeStoppen();
+      warZu = zu;
+    }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+  }
 };
 
 // Nicht auf `DOMContentLoaded` allein verlassen: Steht diese Datei mit
@@ -445,6 +479,7 @@ PU.vorlesen = async function (text, knopf, wofuer, agent) {
   // Abspielknopf, und ohne sie müsste man die Seite neu laden, um Ruhe zu haben.
   if (knopf && knopf.classList.contains('laeuft')) { PU.tonStoppen(); return; }
   PU.tonStoppen();
+  const runde = PU.stimmeRunde;
 
   if (knopf) knopf.classList.add('laedt');
   let j;
@@ -452,10 +487,16 @@ PU.vorlesen = async function (text, knopf, wofuer, agent) {
     j = await PU.ruf('vorlesen', { text: text, wofuer: wofuer || '', agent: agent || '' });
   } catch (e) {
     if (knopf) knopf.classList.remove('laedt');
+    if (runde !== PU.stimmeRunde) return;
     PU.melden(PU.h(e.message), 'schlecht');
     return;
   }
   if (knopf) knopf.classList.remove('laedt');
+
+  // Inzwischen geschlossen oder weitergeblättert: Der Ton kam zu spät und
+  // bleibt stumm. Bezahlt ist er trotzdem — und liegt im Zwischenspeicher,
+  // der nächste Klick auf denselben Text kostet also nichts.
+  if (runde !== PU.stimmeRunde) return;
 
   if (!j.ok) {
     // Ist das Guthaben zu Ende, kommt dasselbe Schild wie beim Tutor.
@@ -513,6 +554,11 @@ PU.wechsel = function (schluessel) {
   const eintrag = PU.ANSICHTEN[schluessel];
   const ziel = document.getElementById('view-' + schluessel);
   if (!eintrag || !ziel) return false;
+
+  // Seitenwechsel: aller Ton aus. Die Ansicht, die geht, wird nur versteckt,
+  // nicht geleert — eine Leiste darin spielte sonst unsichtbar weiter, und das
+  // Vorlesen sowieso.
+  PU.tonStoppen();
 
   document.querySelectorAll('#haupt .view').forEach(v => v.classList.add('hidden'));
   ziel.classList.remove('hidden');

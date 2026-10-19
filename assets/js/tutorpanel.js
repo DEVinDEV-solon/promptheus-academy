@@ -105,6 +105,9 @@ PU.tutorPanelSchliessen = function () {
   document.removeEventListener('mousedown', PU.panelDaneben);
   document.removeEventListener('keydown', PU.panelEscape);
 
+  // Das Vorlesen endet mit dem Chat, wie jede andere Ausgabe darin.
+  if (PU.stimmeStoppen) PU.stimmeStoppen();
+
   // Eine laufende Aufnahme endet mit dem Fenster. Ein Mikrofon, das
   // weiterläuft, nachdem der Chat zu ist, nimmt auf, was niemand mehr für
   // die Academy gesagt hat.
