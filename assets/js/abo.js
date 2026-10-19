@@ -106,7 +106,7 @@ function talentKasten(d) {
   if (!d.darf_senden) {
     k.appendChild(PU.el('p', 'leer-hinweis',
       'Dir sind noch keine Klassen zugeordnet, deshalb erreichst du niemanden. ' +
-      'Die Klassen ordnet die Schulleitung unter Konten zu.'));
+      'Die Klassen ordnet die Schulleitung im Menü „Klasse“ zu.'));
     if (hoer) {
       const zeile = PU.el('div', 'talent-zeile');
       zeile.appendChild(hoer);

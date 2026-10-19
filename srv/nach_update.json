@@ -7,6 +7,15 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.13": {
+      "titel": "Token senden, Tokenbuch und Gutscheine mit QR-Code",
+      "neu": "Im Cockpit gibt es drei neue Karten. „Token senden“ verteilt Guthaben nach unten: die Schule an Lehrkräfte, Eltern und Schüler, eine Lehrkraft an die Schüler ihrer Klassen und deren Eltern, Eltern an ihr Kind. Das „Tokenbuch“ zeigt jede Buchung mit Absender und Empfänger; die Schulleitung sieht dort auch alle Überweisungen und Gutscheine der Schule. Mit „Token-Gutscheine mit QR-Code“ stellen Schule und Lehrkräfte Kärtchen für den Elternabend aus: Der Betrag wird sofort reserviert, ein Code gilt sieben Tage und lässt sich unter „Gutschein einlösen“ einlösen. Neben jeder Karte erklärt ein Hörstück Sinn, Anwendung und Kontrolle.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst fehlen im Cockpit die neuen Karten.",
+        "Lehrkräfte erreichen beim Token senden nur noch die Schüler ihrer Klassen und deren Eltern. Steht dort „niemand“: im Menü „Klasse“ der Lehrkraft ihre Klassen zuordnen.",
+        "Fehlen neben den Karten die Knöpfe „Erklärung anhören“: Die Aufnahmen kommen mit dem nächsten Kursmedien-Paket (Einstellungen › Wartung › „Kursmedien laden“)."
+      ]
+    },
     "1.1.12": {
       "titel": "Ein Hörstück zu jeder Lektion",
       "neu": "Jede der 153 Lektionen hat jetzt oben ein Hörstück („Hör zu: …“), gesprochen von Rex in den Stufen und von Sal in den Fachkursen. Liest ein Tutor im Seitenchat vor, zeigt neben dem Mikro ein kleiner Pegelmesser in Regenbogenfarben, dass gesprochen wird. Auf der Kurskarte steht bei bestandener Abschlussprüfung kurz „bestanden“. PROMPTHEUS DECK hat neue feste Web-Seiten (3D-Game, Preise, ODEION, GitHub, Releases) und einen Ordner GAMES mit Schach und Splash.",
