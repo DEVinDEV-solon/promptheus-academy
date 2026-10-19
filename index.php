@@ -890,6 +890,8 @@ $webseite = 'https://promptheus-academy.de/';
 <script src="<?= pu_v('assets/js/rollen.js') ?>"></script>
 <script src="<?= pu_v('assets/js/medien.js') ?>"></script>
 <script src="<?= pu_v('assets/js/aufgabe.js') ?>"></script>
+<!-- Taschenrechner mit Prozenten neben Tokenicer und Lösungsweg an jeder Aufgabe. -->
+<script src="<?= pu_v('assets/js/rechner.js') ?>"></script>
 <script src="<?= pu_v('assets/js/lernen.js') ?>"></script>
 <!-- Die Guideline aus dem 7. Kurs: Fenster für Lektion 7 und Einstellungen › Werkstatt. -->
 <script src="<?= pu_v('assets/js/handschrift.js') ?>"></script>

@@ -726,7 +726,9 @@ html[data-textschrift] .aufgabe p.aufgabe-frage, .aufgabe-frage {
   margin: 1rem 0 .2rem; font-family: var(--serif);
   font-size: 1.17rem; line-height: 1.5; color: var(--schrift);
 }
-.aufgabe-werkzeuge { display: flex; flex-wrap: wrap; gap: .4rem; margin: .55rem 0 0; }
+/* Die Werkzeuge stehen dicht unter der Frage und halten Abstand zur
+   Bedienung darunter — vorher berührten sie das Eingabefeld. */
+.aufgabe-werkzeuge { display: flex; flex-wrap: wrap; gap: .4rem; margin: .3rem 0 1rem; }
 
 .optionen { display: grid; gap: .55rem; margin: 1.1rem 0 .4rem; counter-reset: option; }
 .option {
@@ -1580,6 +1582,54 @@ html[data-stil="klar"] .stil-academy    { display: inline; }
    bekommt dieselbe Fläche, nur ohne die 210 Pixel links daneben. */
 .modal-inhalt.breit { min-height: 60vh; }
 .modal-inhalt.breit h1 { font-size: 1.5rem; margin-top: 0; }
+
+/* Der Taschenrechner (assets/js/rechner.js): schmaler als der Tokenicer,
+   links der Rechner, rechts der Prozentrechner, auf dem Handy untereinander. */
+.modal-flaeche.rechner-flaeche { max-width: 760px; }
+.rechner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.4rem; }
+@media (max-width: 680px) { .rechner { grid-template-columns: 1fr; } }
+.rechner-teil h3 { margin: 0 0 .6rem; font-size: 1.05rem; }
+.rechner-anzeige, .rechner-feld {
+  width: 100%; font: inherit; font-variant-numeric: tabular-nums;
+  background: var(--grund); color: var(--schrift);
+  border: 1px solid var(--rand-hell); border-radius: var(--radius-klein);
+}
+.rechner-anzeige { font-size: 1.35rem; text-align: right; padding: .55rem .7rem; }
+.rechner-ergebnis {
+  min-height: 1.6rem; margin: .35rem 0 .7rem; text-align: right;
+  color: var(--gold-schrift); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.rechner-ergebnis.fehler { color: var(--schlecht); font-weight: 400; font-size: .9rem; }
+.rechner-tasten { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin-bottom: .8rem; }
+.rechner-taste {
+  font: inherit; font-size: 1.1rem; font-weight: 600; cursor: pointer; padding: .6rem 0;
+  background: var(--grund-3); color: var(--schrift);
+  border: 1px solid var(--rand); border-radius: var(--radius-klein);
+}
+.rechner-taste:hover { border-color: var(--rand-hell); color: var(--gold-schrift); }
+.rechner-taste.op { color: var(--gold-schrift); }
+.rechner-taste.weg { color: var(--schlecht); }
+.rechner-taste.gleich {
+  grid-column: 1 / -1; background: var(--glut); border-color: var(--glut); color: var(--grund);
+}
+.rechner-taste.gleich:hover { color: var(--grund); filter: brightness(1.08); }
+.rechner-verlauf { list-style: none; padding: 0; margin: .8rem 0 0; font-size: .85rem; color: var(--schrift-3); }
+.rechner-verlauf li { padding: .2rem 0; border-top: 1px solid var(--rand); cursor: pointer; text-align: right; }
+.rechner-verlauf li:hover { color: var(--schrift); }
+.rechner-eingaben { display: grid; grid-template-columns: 2fr 1fr; gap: .6rem; margin: .6rem 0 .9rem; }
+.rechner-eingaben label { display: grid; gap: .25rem; font-size: .85rem; color: var(--schrift-2); }
+.rechner-feld { padding: .45rem .6rem; }
+.rechner-prozente { display: grid; gap: .4rem; }
+.rechner-zeile {
+  display: flex; justify-content: space-between; align-items: center; gap: .8rem;
+  font: inherit; text-align: left; cursor: pointer; padding: .5rem .7rem;
+  background: var(--grund-3); color: var(--schrift);
+  border: 1px solid var(--rand); border-radius: var(--radius-klein);
+}
+.rechner-zeile:hover { border-color: var(--rand-hell); }
+.rechner-zeile .was { display: grid; font-size: .88rem; }
+.rechner-zeile small { color: var(--schrift-3); font-size: .78rem; }
+.rechner-zeile b { color: var(--gold-schrift); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Eine Einstellung: Beschriftung links, Bedienung rechts, Begründung darunter. */
 .einst-zeile {

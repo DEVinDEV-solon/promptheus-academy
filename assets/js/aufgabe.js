@@ -497,6 +497,18 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
       werkzeuge.appendChild(t);
     }
 
+    // Der Taschenrechner — seit die Kurse mit Brutto, Netto, Rabatt und
+    // Spanne rechnen lassen. Er steht auch in der Prüfung: Rechnen ist dort
+    // nicht das, was geprüft wird, sondern der Weg zur richtigen Rechnung.
+    // Das Antwortfeld wird erst beim Klick gesucht, denn es entsteht unten.
+    if (PU.rechnerModal) {
+      const r = PU.el('button', 'tok-ruf rechner-ruf', '🧮 Rechner');
+      r.type  = 'button';
+      r.title = 'Taschenrechner mit Prozenten — das Fenster legt sich über die Aufgabe.';
+      r.addEventListener('click', () => PU.rechnerModal(kasten.querySelector('input.antwortfeld')));
+      werkzeuge.appendChild(r);
+    }
+
     kasten.appendChild(frage);
     if (werkzeuge.children.length) kasten.appendChild(werkzeuge);
   }
