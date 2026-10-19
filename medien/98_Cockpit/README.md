@@ -36,8 +36,13 @@ keine Fassung (Senden und Gutscheine sehen sie nicht).
 Die Sprechertexte liegen daneben als `<name>_sprechertext.md` (gitignored, wie
 alle Sprechertexte unter `medien/`). Vertont mit OpenRouter
 `x-ai/grok-voice-tts-1.0`, Stimme **Sal** (wie die Fachkurse), an Absätzen
-geteilt und mit 0,7 s Pause per ffmpeg verbunden. „QR" wird als „Ku-Er"
-gesprochen, „PROMPTHEUS" steht im Text als „Prompt Heus". An den Dienst gingen
+geteilt und mit 0,7 s Pause per ffmpeg verbunden. Aussprache-Regeln beim
+Vertonen: „QR" wird „Ku-Er", „hier"/„Hier" wird „hear"/„Hear" (Grok liest
+sonst „Heier", Hinweis des Betreibers 19.10.2026). „PROMPTHEUS" steht im Text
+als „Prompt Heus". Die Sprechertexte selbst bleiben in normaler Schreibweise.
+
+Die Adresse trägt den Dateistand (`?v=…`), damit ein Browser eine neu
+vertonte Fassung holt statt der alten aus dem Zwischenspeicher. An den Dienst gingen
 nur diese Erklärtexte, keine Daten von Personen.
 
 Ändert sich eine Karte, ändert sich der Text: Sprechertext anpassen, die mp3

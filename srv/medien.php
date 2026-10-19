@@ -454,7 +454,10 @@ function pu_cockpit_hoer(array $wer, string $ordner = 'medien/98_Cockpit'): arra
         foreach ([$gruppe, 'alle'] as $g) {
             $rel = $ordner . '/' . $karte . '_' . $g . '.mp3';
             if (is_file(PU_ROOT . '/' . $rel)) {
-                $aus[$karte] = pu_medien_url($rel);
+                // Der Dateistand hängt an der Adresse: Kommt mit einem neuen
+                // Medienpaket eine neu vertonte Fassung, holt der Browser sie
+                // statt der alten aus seinem Zwischenspeicher.
+                $aus[$karte] = pu_medien_url($rel) . '?v=' . (int)filemtime(PU_ROOT . '/' . $rel);
                 break;
             }
         }

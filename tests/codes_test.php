@@ -222,7 +222,11 @@ foreach (['token-senden_schule', 'token-senden_lehrer', 'token-senden_eltern',
           'einloesen_alle', 'tokenbuch_schule'] as $n) {
     file_put_contents(PU_ROOT . "/$probe/$n.mp3", 'x');
 }
-$fuer = static fn(int $id) => pu_cockpit_hoer(pu_profil($id), $probe);
+// Ohne den angehängten Dateistand (?v=…) verglichen; der steht eigens geprüft.
+$fuer = static fn(int $id) => array_map(static fn($u) => explode('?', $u)[0],
+                                        pu_cockpit_hoer(pu_profil($id), $probe));
+pruefe('die Adresse trägt den Dateistand',
+       (bool)preg_match('/\?v=\d+$/', pu_cockpit_hoer(pu_profil($schule), $probe)['token-senden'] ?? ''));
 
 gleich('Schulleitung: ihre Fassung', $probe . '/token-senden_schule.mp3', $fuer($schule)['token-senden'] ?? null);
 gleich('Lehrkraft: ihre Fassung', $probe . '/token-senden_lehrer.mp3', $fuer($lehrerA)['token-senden'] ?? null);
