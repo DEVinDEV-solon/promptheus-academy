@@ -235,6 +235,15 @@ function panelBauen() {
   }
 
   const form = p.querySelector('.panel-form');
+
+  // Der Pegelmesser: unsichtbar, bis ein Tutor vorliest (PU.stimmeMesser).
+  // Er steht vor „Fragen"; das Mikro setzt sich gleich davor, ganz links.
+  const messer = document.createElement('canvas');
+  messer.className = 'stimm-messer';
+  messer.setAttribute('aria-hidden', 'true');
+  const fuss = form.querySelector('.panel-fuss');
+  fuss.insertBefore(messer, fuss.firstChild);
+
   PU.mikroKnopfBauen(form);
 
   form.addEventListener('submit', (e) => {

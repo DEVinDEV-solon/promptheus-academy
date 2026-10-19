@@ -206,11 +206,11 @@ function kartenGitter(kurse) {
     kartenBild(karte, k.bild);
 
     let marke = '';
-    // „bestanden" allein war irreführend: es stand neben dem Aufgabenbalken
-    // und las sich, als wären alle Aufgaben fertig. Gemeint ist die
-    // Abschlussprüfung — zwei verschiedene Dinge, und beide dürfen
-    // nebeneinander stehen, ohne sich zu widersprechen.
-    if (k.bestanden)   marke = '<span class="marke-stufe fertig">Prüfung bestanden</span>';
+    // Gemeint ist die Abschlussprüfung, nicht „alle Aufgaben fertig“. Auf der
+    // Marke steht trotzdem nur „bestanden“: „Prüfung bestanden“ war neben
+    // langen Kursnamen zu breit und brach aus der Karte aus. Was gemeint ist,
+    // sagt der Hinweis beim Darüberfahren.
+    if (k.bestanden)   marke = '<span class="marke-stufe fertig" title="Abschlussprüfung bestanden">bestanden</span>';
     else if (!k.frei)  marke = '<span class="marke-stufe geruest">gesperrt</span>';
     else if (k.geruest) marke = '<span class="marke-stufe geruest">Gerüst</span>';
     else if (k.art === 'stufe') marke = '<span class="marke-stufe">Stufe ' + k.stufe + '</span>';

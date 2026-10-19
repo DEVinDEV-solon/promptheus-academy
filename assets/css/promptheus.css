@@ -515,6 +515,8 @@ img.marke-flamme { width: 30px; height: 30px; }
 .karte.gesperrt.klickbar { cursor: not-allowed; }
 .karte h3 { margin: 0; font-size: 1.08rem; }
 .karte-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+/* Ein langer Kursname bricht um, statt die Marke aus der Karte zu schieben. */
+.karte-kopf h3 { min-width: 0; overflow-wrap: anywhere; }
 /* Die Zielkarte: Abzeichen in eigener Zeile über der Überschrift. */
 .zielkarte-kopf { display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; }
 .zielkarte-kopf h3 { margin: 0; }
@@ -2545,6 +2547,17 @@ html[data-bewegung="wenig"] .mikro-knopf.aktiv {
   animation: none;
   box-shadow: 0 0 0 .3rem rgba(232,99,90,.35);
 }
+
+/* Der Pegelmesser neben dem Mikro: sichtbar nur, solange ein Tutor vorliest
+   (PU.stimmeMesser in app.js). Sein Platz bleibt stehen, damit „Fragen" und
+   das Mikro nicht springen, wenn er kommt und geht. So hoch wie das Mikro,
+   kaum breiter als es. */
+.panel-fuss { align-items: center; gap: .55rem; }
+.stimm-messer {
+  width: 2.3rem; height: 2.1rem; margin-right: auto;
+  opacity: 0; transition: opacity .25s ease;
+}
+.stimm-messer.an { opacity: 1; }
 
 /* ============================================================ Schmal, Teil 2 */
 @media (max-width: 1000px) {
