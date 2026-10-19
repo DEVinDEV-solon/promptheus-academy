@@ -86,12 +86,18 @@ const PU_VARIANTEN = [
         'was'      => 'Hell und kühl, sehr ruhig. Für Bildschirme in hellen Räumen.',
         'partner'  => 'olymp',
         'grundton' => 'hell',
+        // **Kühl heisst hier: blau-grauer Grund und ein Stahlblau als Akzent.**
+        // Marmor trug bis 19.10. ein Bronze (#9a5b1e) als Glut und einen
+        // Grund, der von Pergaments #f7f3ec kaum abwich — im Betrieb war
+        // zwischen den beiden kein Unterschied zu sehen. Das Blau ist das
+        // helle Gegenstück zu Olymps Glut (#5b9bd8), seinem Partner; Lapis
+        // weicht deshalb auf ein Petrol aus, damit es nicht dieselbe Farbe ist.
         'farben'   => [
-            'grund' => '#f4f5f7', 'grund-2' => '#ffffff', 'grund-3' => '#e8eaee',
-            'rand'  => '#d3d7de', 'rand-hell' => '#b3bac5',
-            'schrift' => '#1a1e26', 'schrift-2' => '#454c58', 'schrift-3' => '#4d535e',
-            'glut' => '#9a5b1e', 'glut-hell' => '#b06d28', 'glut-tief' => '#6d3c0d',
-            'gold' => '#8a6a12', 'lapis' => '#2a5d90',
+            'grund' => '#edf1f6', 'grund-2' => '#fafcfe', 'grund-3' => '#e0e6ee',
+            'rand'  => '#cbd4e0', 'rand-hell' => '#a7b4c6',
+            'schrift' => '#141a25', 'schrift-2' => '#3a4555', 'schrift-3' => '#3f4958',
+            'glut' => '#2b5f96', 'glut-hell' => '#4a7fb8', 'glut-tief' => '#1b4370',
+            'gold' => '#8a6a12', 'lapis' => '#1f6b73',
         ],
     ],
 
@@ -189,6 +195,11 @@ function pu_varianten_css(): string
             $zeilen[] = '  --ornament-staerke: .055; --ornament-fein: .035;';
             $zeilen[] = '  --liquid-staerke: .30;';
             $zeilen[] = '  --glas: rgb(' . pu_hex_rgb($v['farben']['grund-2']) . ' / .78);';
+            // Dasselbe für den zweiten Glaston und den Glasrand: marke.css
+            // setzt sie im Hell-Zweig fest auf Pergaments Creme und Gold.
+            $zeilen[] = '  --glas-hell: rgb(' . pu_hex_rgb($v['farben']['grund-2']) . ' / .62);';
+            $zeilen[] = '  --glas-rand: rgb(' . pu_hex_rgb($v['farben']['gold']) . ' / .18);';
+            $zeilen[] = '  --schatten: 0 2px 10px rgb(' . pu_hex_rgb($v['farben']['schrift']) . ' / .13);';
             // Fachbegriffe stehen mitten im Fliesstext und brauchen darum mehr
             // als eine Auszeichnungsfarbe. Siehe pu_hex_dunkler().
             $zeilen[] = '  --begriff: ' . pu_hex_dunkler($v['farben']['gold'], .70) . ';';
