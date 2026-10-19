@@ -16,10 +16,16 @@ Diese Notiz ist gleichzeitig Lehrstoff und Konfiguration: das Lob-Fenster zieht
 seine Sätze aus den Aufzählungen weiter unten. Wer der Klasse eigene Sprüche
 geben will, ändert diese Datei — nicht den Programmcode.
 
-Bei **jeder** richtigen Antwort wird ein Satz gezogen, und zwar aus dem
-**Altersband** des Lernenden. Der zuletzt gezeigte wird dabei übersprungen, so
-wiederholt sich nichts unmittelbar. Welches Band gilt, entscheidet Alter oder
-Klasse (`pu_altersband()` in `srv/profil.php`).
+Bei **jeder** richtigen Antwort wird ein Satz gezogen, und zwar aus der
+**Zielgruppe** der Person: bei Lernenden das Altersband nach Alter oder Klasse,
+sonst die Rolle — Eltern, Lehrkraft oder Schule (Schulleitung und Verwaltung).
+Der zuletzt gezeigte wird dabei übersprungen, so wiederholt sich nichts
+unmittelbar. Welche Gruppe gilt, entscheidet `pu_lobgruppe()` in
+`srv/profil.php`.
+
+Über dem Satz steht seit 19.10.2026 ein kurzer **Titel** wie „Genau richtig!“.
+Die Titel liegen in einer eigenen Notiz, [[lob-titel]], und richten sich nach
+Zielgruppe und Aufgabenart.
 
 ## Was einen guten Spruch ausmacht
 
@@ -43,7 +49,9 @@ Sätze über 160 Zeichen werden übergangen — das ist keine Geschmacksfrage,
 sondern die Breite des Fensters.
 
 Die Überschrift bestimmt das Band: enthält sie „grundschule", „unterstufe",
-„mittelstufe", „oberstufe" oder „erwachsen", gehören die Sätze darunter dorthin.
+„mittelstufe", „oberstufe", „erwachsen", „eltern", „lehrkraft" oder „schule",
+gehören die Sätze darunter dorthin. Fehlt für Eltern, Lehrkraft oder Schule ein
+eigener Abschnitt, gilt der Abschnitt für Erwachsene.
 
 ## Grundschule — Klasse 1 bis 4 (kindgerecht)
 
@@ -173,6 +181,84 @@ Verlässlichkeit — und wo es passt, der Blick auf die, die man anleitet.
 - Sauber gedacht. Wer es selbst versteht, kann es andere lehren.
 - Ruhig und genau gelöst. Diese Haltung überträgt sich auf ein Team.
 - Belastbar. Auf so eine Antwort lässt sich eine weitere aufbauen.
+
+## Eltern — Begleitung zu Hause
+
+Eltern lösen Aufgaben, um ihr Kind zu begleiten. Der Satz schlägt die Brücke
+dorthin: mitreden können, gelassen erklären, Vorbild sein.
+
+- Richtig. Jetzt kannst du deinem Kind erklären, worauf es ankommt.
+- Gut verstanden. So begleitest du dein Kind sicher durch die Lektion.
+- Du hast geprüft statt geglaubt — genau das lernt dein Kind hier auch.
+- Treffer. Wer es selbst versteht, kann gelassen mitreden.
+- Sauber gelöst. Das ist Wissen für das nächste Gespräch am Küchentisch.
+- Du kennst jetzt die Falle, in die viele tappen. Dein Kind profitiert davon.
+- Richtig eingeordnet. Gute Fragen an dein Kind beginnen genau hier.
+- Gut gemacht. Lernen vorleben wirkt stärker als jede Ermahnung.
+- Klar erkannt. So merkst du auch, wann dein Kind Hilfe braucht.
+- Das sitzt. Jetzt weißt du, was dein Kind in dieser Stufe übt.
+- Verstanden statt überflogen. Diese Ruhe überträgt sich.
+- Richtig. Du sprichst jetzt dieselbe Sprache wie die Lektion deines Kindes.
+- Stark mitgedacht. Begleiten heißt nicht vorsagen — und du weißt jetzt, wie.
+- Gut geprüft. Dieses Misstrauen gegenüber glatten Antworten schützt dein Kind.
+- Sicher gelöst. Den Fragen deines Kindes musst du jetzt nicht mehr ausweichen.
+- Treffer. Neugier ist ansteckend — deine zeigt sich gerade.
+- Gut gewählt. Wer die Regeln kennt, kann sie zu Hause gelassen erklären.
+- Richtig. Ein gemeinsamer Wissensstand macht Gespräche leichter.
+- Klar durchschaut. So schützt du dich und deine Familie vor Täuschungen.
+- Sauber verstanden. Darauf lässt sich zu Hause gut aufbauen.
+
+## Lehrkraft — Unterricht und fachliche Einordnung
+
+Für Lehrerinnen und Lehrer: Ist das fachlich sauber, und trägt es in die
+nächste Stunde?
+
+- Fachlich sauber. Das lässt sich so in die nächste Stunde mitnehmen.
+- Richtig — und mit dieser Begründung auch für die Klasse nachvollziehbar.
+- Gut erkannt. Genau an dieser Stelle stolpern Lernende am häufigsten.
+- Präzise gelöst. Ein gutes Tafelbeispiel für diese Unterscheidung.
+- Treffer. Die falsche Fährte war gut gebaut — und du hast sie gesehen.
+- Sauber hergeleitet. So sieht ein Erwartungshorizont aus.
+- Richtig eingeordnet. Daraus wird eine klare Lernzielformulierung.
+- Belastbar begründet. Diese Antwort hält auch kritischen Nachfragen stand.
+- Gut geprüft. Quellenkritik vorleben ist die beste Unterrichtsmethode.
+- Klar durchdacht. Das lässt sich in drei Schritten an der Tafel zeigen.
+- Richtig. Du weißt jetzt, was die Lernenden in dieser Lektion leisten.
+- Sicher im Stoff. Damit kannst du Fragen im Unterricht gelassen begegnen.
+- Präzise. Fachbegriff und Alltagsbeispiel passen zusammen.
+- Gut unterschieden. Genau diese Trennung brauchen Lernende als Gerüst.
+- Treffer mit Methode. Das ist übertragbar auf eigene Aufgaben.
+- Sauber gelöst. Daraus lässt sich eine gute Übung für die Klasse bauen.
+- Richtig — und du hast den typischen Fehler gleich mitgesehen.
+- Durchdacht. So entsteht Unterricht, der über das Werkzeug hinaus trägt.
+- Klar strukturiert. Lernende danken es mit weniger Rückfragen.
+- Gut gemacht. Wer den Stoff durchdringt, kann ihn auf viele Arten erklären.
+
+## Schule — Schulleitung und Verwaltung
+
+Knapp und bilanzierend: entschieden, verantwortbar, tragfähig für das ganze
+Haus.
+
+- Richtig. Diese Entscheidung ließe sich vor jeder Konferenz vertreten.
+- Sauber abgewogen. So entsteht eine Regel, die im Kollegium trägt.
+- Treffer. Das ist die Grundlage für eine klare Linie im Haus.
+- Belastbar. Darauf lässt sich eine Schulvereinbarung aufbauen.
+- Richtig eingeordnet. Die Verantwortung bleibt beim Menschen — genau so.
+- Klar entschieden. Datenschutz und Nutzen sind hier im Gleichgewicht.
+- Gut geprüft. So vermeidet eine Schule teure Fehlentscheidungen.
+- Präzise. Diese Unterscheidung gehört in jedes Medienkonzept.
+- Sauber gelöst. Das erspart dem Kollegium später Rückfragen.
+- Richtig. Wer das Prinzip kennt, kann Werkzeuge gelassen bewerten.
+- Nachvollziehbar entschieden. Transparenz schafft Vertrauen bei Eltern.
+- Gut gesteuert. Klare Regeln entlasten alle Beteiligten.
+- Treffer. Diese Haltung lässt sich auf das ganze Haus übertragen.
+- Zielsicher. So sieht eine Entscheidung aus, die Aufsicht und Praxis besteht.
+- Richtig priorisiert. Erst die Regel, dann das Werkzeug.
+- Sauber bilanziert. Kosten, Nutzen und Risiko sind benannt.
+- Klar. Damit kann die Schule eine verständliche Linie vorgeben.
+- Verlässlich gelöst. Auf solchen Entscheidungen baut Schulentwicklung auf.
+- Richtig. Das schützt Lernende und Lehrkräfte zugleich.
+- Belastbar begründet. Genau das erwarten Schulträger und Eltern.
 
 ## Wo sie erscheinen
 

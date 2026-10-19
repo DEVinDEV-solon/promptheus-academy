@@ -1768,6 +1768,11 @@ a.einst-wahl:focus-visible { background: var(--grund-2); border-color: var(--gol
   font-family: var(--sans); font-size: .74rem; font-weight: 700;
   letter-spacing: .22em; text-transform: uppercase;
 }
+/* Das Schlagwort über dem Satz: gross, in Gold, wie eine Überschrift. */
+.lob .lob-titel {
+  margin: .6rem 0 .35rem; color: var(--gold-schrift);
+  font-family: var(--serif); font-size: 1.55rem; font-weight: 700; line-height: 1.2;
+}
 .lob .lob-spruch {
   font-family: var(--serif); font-size: 1.18rem; line-height: 1.4;
   color: var(--schrift); margin: 0 auto .5rem; max-width: 30ch;

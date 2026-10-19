@@ -434,7 +434,7 @@ try {
             // Das Altersband ist feiner als das Niveau und wählt den Ton des Lobs.
             $prof   = pu_profil($ichId);
             $niveau = pu_niveau($prof);
-            $band   = pu_altersband($prof);
+            $band   = pu_lobgruppe($prof);
             $a = pu_aufgabe_fuer_niveau($a, $niveau);
 
             $antwort  = d('antwort', null);
@@ -475,6 +475,10 @@ try {
                 // gezeigte (vom Browser mitgeschickt) wird vermieden.
                 'motivation'   => $bew['richtig']
                     ? pu_motivation($band, (string)d('letzte_motivation', '')) : '',
+                // Darüber ein kurzes Schlagwort — nach Zielgruppe und Aufgabenart
+                // (secondbrain/00_Fundament/promptheus/lob-titel.md).
+                'motivation_titel' => $bew['richtig']
+                    ? pu_lobtitel($band, (string)$a['typ'], (string)d('letzter_titel', '')) : '',
 
                 // Ob "Weitere Infos" angeboten wird, entscheidet der Server:
                 // die Vertiefung braucht die CLI, und der Knopf soll nicht

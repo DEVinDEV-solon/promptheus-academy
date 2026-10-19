@@ -49,7 +49,7 @@ erklaerung: |
 ## Wann der Vorschlag reicht
 
 Moderne Buchhaltungsprogramme schlagen das Konto vor: „Lieferant Bürowelt,
-bisher immer auf Bürobedarf gebucht." Bei wiederkehrenden Rechnungen ist das
+bisher immer auf Bürobedarf gebucht.“ Bei wiederkehrenden Rechnungen ist das
 fast immer richtig. Gefährlich sind die Fälle, die **anders** sind als
 bisher. Genau dort liegt der Vorschlag am ehesten daneben, weil das Werkzeug
 nur die Vergangenheit kennt.

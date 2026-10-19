@@ -20,7 +20,7 @@ Bildern, Videos und Texten von außen ist die Frage schwerer: Wer hat das
 gemacht, und ist es verändert worden? Drei Ansätze gibt es heute:
 
 - **Herkunftsdaten** (etwa nach dem Standard C2PA, auch „Content
-  Credentials"): signierte Angaben in der Datei, mit welchem Gerät oder Programm
+  Credentials“): signierte Angaben in der Datei, mit welchem Gerät oder Programm
   ein Inhalt entstand und wie er bearbeitet wurde.
 - **Unsichtbare Wasserzeichen**, die manche KI-Anbieter in erzeugte Bilder,
   Töne oder Texte einbetten.

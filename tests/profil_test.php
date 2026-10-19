@@ -151,6 +151,14 @@ gleich('Erwachsener Schüler (40) → erwachsen', 'erwachsen', pu_altersband(pro
 gleich('Lehrkraft → erwachsen',   'erwachsen',   pu_altersband(prof('lehrer', 38)));
 gleich('nichts bekannt → mittelstufe', 'mittelstufe', pu_altersband(prof('schueler', 0)));
 
+gruppe('Die Zielgruppe des Lobs (Alter bei Lernenden, sonst Rolle)');
+gleich('Schüler Klasse 2a → grundschule', 'grundschule', pu_lobgruppe(profk('2a')));
+gleich('Schüler 17 → oberstufe',  'oberstufe', pu_lobgruppe(prof('schueler', 17)));
+gleich('Eltern → eltern',         'eltern',    pu_lobgruppe(prof('eltern', 41)));
+gleich('Lehrkraft → lehrkraft',   'lehrkraft', pu_lobgruppe(prof('lehrer', 38)));
+gleich('Verwaltung → schule',     'schule',    pu_lobgruppe(prof('verwaltung', 52)));
+gleich('Betreiber → erwachsen',   'erwachsen', pu_lobgruppe(prof('admin', 45)));
+
 // ================================================================ Profilblock
 gruppe('Der Block für das Modell');
 

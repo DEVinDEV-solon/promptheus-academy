@@ -258,6 +258,26 @@ function pu_altersband(array $profil): string
     };
 }
 
+/**
+ * Die Zielgruppe des Lobs (Titel und Satz) — das Kennzeichen z aus Formel 3.
+ *
+ * Lernende bekommen ihr Altersband. Erwachsene, die nicht selbst Lernende
+ * sind, unterscheiden sich im Ton deutlicher als im Alter: Eltern denken an
+ * ihr Kind, Lehrkräfte an die Klasse, Schulleitung und Verwaltung an das ganze
+ * Haus. Der Betreiber (admin) spricht wie ein Erwachsener im Beruf.
+ *
+ * @return 'grundschule'|'unterstufe'|'mittelstufe'|'oberstufe'|'erwachsen'|'eltern'|'lehrkraft'|'schule'
+ */
+function pu_lobgruppe(array $profil): string
+{
+    return match ((string)($profil['rolle'] ?? '')) {
+        'eltern'           => 'eltern',
+        'lehrer', 'tutor'  => 'lehrkraft',
+        'verwaltung'       => 'schule',
+        default            => pu_altersband($profil),
+    };
+}
+
 /** Der Satz, der dem Modell sagt, wie es sprechen soll. */
 function pu_sprachstil_regel(string $stil): string
 {

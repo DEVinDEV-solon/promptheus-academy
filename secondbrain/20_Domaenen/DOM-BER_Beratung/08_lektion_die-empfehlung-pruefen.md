@@ -21,7 +21,7 @@ Zustimmung vom Modell ist deshalb fast nichts wert.
 
 Wertvoll ist das Gegenteil: Lass das Modell **gegen** dich argumentieren.
 „Du bist der Finanzvorstand des Kunden und hältst diese Empfehlung für
-falsch. Nenne die drei stärksten Einwände." So wird aus dem Modell ein
+falsch. Nenne die drei stärksten Einwände.“ So wird aus dem Modell ein
 Gegenspieler — und du siehst, wo die Empfehlung dünn ist.
 
 ```aufgabe

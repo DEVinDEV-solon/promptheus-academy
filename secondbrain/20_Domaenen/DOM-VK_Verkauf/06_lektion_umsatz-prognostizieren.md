@@ -75,7 +75,7 @@ erklaerung: |
 
 Ein Modell soll die Prognose nicht rechnen (Stufe 3). Es kann aber etwas, was
 die Tabelle nicht kann: **Notizen lesen**. „Kunde wartet auf Budgetfreigabe
-im Herbst", „Ansprechpartner hat gekündigt“ — solche Sätze stehen in den
+im Herbst“, „Ansprechpartner hat gekündigt“ — solche Sätze stehen in den
 Gesprächsnotizen und nie in der Wahrscheinlichkeitsspalte.
 
 ```aufgabe

@@ -72,9 +72,9 @@ erklaerung: |
 ## Die Leistungsbeschreibung
 
 Wo das Modell hilft: Aus deinen Stichworten („Bad, Fliesen 12 m², alte Fliesen
-raus") macht es eine verständliche **Leistungsbeschreibung**. Die Gefahr: Es
+raus“) macht es eine verständliche **Leistungsbeschreibung**. Die Gefahr: Es
 ergänzt, was in solchen Angeboten oft steht. Plötzlich steht da „inklusive
-Entsorgung und Endreinigung", obwohl du beides extra berechnest.
+Entsorgung und Endreinigung“, obwohl du beides extra berechnest.
 
 ```aufgabe
 id: D2-12
