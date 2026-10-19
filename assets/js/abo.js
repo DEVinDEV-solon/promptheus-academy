@@ -58,6 +58,8 @@ function cockpitMalen(ziel) {
   // Einlösen steht weit oben: Wer ein Kärtchen in der Hand hat, sucht
   // genau dieses Feld und sonst nichts im Cockpit.
   if (d.darf_einloesen && PU.einloesenKasten) ziel.appendChild(PU.einloesenKasten(d));
+  // Eltern: ihre Kinder, gleich oben — dafür kommen sie ins Cockpit.
+  if (d.darf_familie && PU.familieKasten) ziel.appendChild(PU.familieKasten(d));
 
   ziel.appendChild(serverKasten());
   ziel.appendChild(verbrauchKasten(d));

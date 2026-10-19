@@ -125,29 +125,116 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
     return $wert;
 }
 
+// ---------------------------------------------------------------- Eltern und Kinder
+//
+// Seit Schema v15 (20.10.2026) in `eltern_kinder`: ein Elternkonto kann mehrere
+// Kinder haben (Familienplan: drei). Ein Kind hat vorerst EIN Elternkonto
+// (Entscheid des Betreibers 20.10.2026). `lernende.kind_von` wird als erstes
+// Kind mitgeführt und beim Lesen mit beachtet — so bleiben Stände richtig, in
+// denen nur die alte Spalte gesetzt ist.
+
+/** So viele Kinder höchstens je Elternkonto (Familienplan: 3 Plätze). */
+const PU_KINDER_MAX = 3;
+
+/** Die Kinder eines Elternkontos, aufsteigend. */
+function pu_eltern_kinder(int $eltern): array
+{
+    if ($eltern <= 0) return [];
+    $st = pu_db()->prepare(
+        "SELECT kind FROM eltern_kinder WHERE eltern = ?
+         UNION SELECT kind_von FROM lernende WHERE id = ? AND kind_von > 0
+         ORDER BY 1");
+    $st->execute([$eltern, $eltern]);
+    return array_map('intval', $st->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/** Das Elternkonto eines Kindes, 0 wenn keines verknüpft ist. */
+function pu_kind_eltern(int $kind): int
+{
+    if ($kind <= 0) return 0;
+    $st = pu_db()->prepare(
+        "SELECT eltern FROM eltern_kinder WHERE kind = ?
+         UNION SELECT id FROM lernende WHERE kind_von = ? AND rolle = 'eltern'
+         ORDER BY 1 LIMIT 1");
+    $st->execute([$kind, $kind]);
+    return (int)($st->fetchColumn() ?: 0);
+}
+
+/** `kind_von` auf das erste Kind ziehen — die Altspalte bleibt so stimmig. */
+function pu_eltern_kind_von_nachziehen(int $eltern): void
+{
+    $st = pu_db()->prepare('SELECT MIN(kind) FROM eltern_kinder WHERE eltern = ?');
+    $st->execute([$eltern]);
+    pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?')
+           ->execute([(int)($st->fetchColumn() ?: 0), $eltern]);
+}
+
 /**
- * Verknüpft ein Elternkonto mit genau einem Kind. 0 hebt die Verknüpfung auf.
+ * Verknüpft ein Kind mit einem Elternkonto.
  *
  * Geprüft wird die gespeicherte Rolle, nicht die gedeckelte Ebene: Es geht
  * darum, was das Konto ist, nicht darum, was es auf diesem Rechner darf.
- * Ein `kind_von` an einem Lehrkraftkonto gäbe ihr still ein „Kind", an das
- * sie Token senden könnte — vorbei an der Klassenzuordnung.
+ * Ein „Kind" an einem Lehrkraftkonto gäbe ihr still einen Token-Empfänger
+ * vorbei an der Klassenzuordnung.
  */
-function pu_profil_kind_setzen(int $eltern, int $kind): void
+function pu_eltern_kind_hinzu(int $eltern, int $kind, int $wer = 0): void
 {
     $e = pu_profil($eltern);
     if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
     if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
-    if ($kind !== 0) {
-        $k = pu_profil($kind);
-        if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
-        if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
-        if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
-            throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
-        }
+    $k = pu_profil($kind);
+    if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
+    if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
+    if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
+        throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
     }
-    $st = pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?');
-    $st->execute([$kind, $eltern]);
+
+    // Steht ein Kind nur in der Altspalte, zuerst in die Tabelle — sonst
+    // zöge pu_eltern_kind_von_nachziehen() es gleich wieder heraus.
+    if ((int)$e['kind_von'] > 0) {
+        pu_db()->prepare('INSERT OR IGNORE INTO eltern_kinder (eltern, kind, verknuepft_von, angelegt)
+                          VALUES (?, ?, 0, ?)')->execute([$eltern, (int)$e['kind_von'], pu_jetzt()]);
+    }
+
+    $schon = pu_eltern_kinder($eltern);
+    if (in_array($kind, $schon, true)) return;
+    $anderes = pu_kind_eltern($kind);
+    if ($anderes !== 0 && $anderes !== $eltern) {
+        throw new RuntimeException('Dieses Kind ist schon mit einem anderen Elternkonto verknüpft.');
+    }
+    if (count($schon) >= PU_KINDER_MAX) {
+        throw new RuntimeException('Ein Elternkonto hat höchstens ' . PU_KINDER_MAX . ' Kinder.');
+    }
+
+    pu_db()->prepare('INSERT OR IGNORE INTO eltern_kinder (eltern, kind, verknuepft_von, angelegt)
+                      VALUES (?, ?, ?, ?)')->execute([$eltern, $kind, $wer, pu_jetzt()]);
+    pu_eltern_kind_von_nachziehen($eltern);
+    pu_protokoll($wer > 0 ? $wer : $eltern, 'kind_verknuepft', (string)$eltern, (string)$kind);
+}
+
+/** Löst ein Kind vom Elternkonto. */
+function pu_eltern_kind_loesen(int $eltern, int $kind, int $wer = 0): void
+{
+    pu_db()->prepare('DELETE FROM eltern_kinder WHERE eltern = ? AND kind = ?')->execute([$eltern, $kind]);
+    pu_db()->prepare('UPDATE lernende SET kind_von = 0 WHERE id = ? AND kind_von = ?')->execute([$eltern, $kind]);
+    pu_eltern_kind_von_nachziehen($eltern);
+    pu_protokoll($wer > 0 ? $wer : $eltern, 'kind_geloest', (string)$eltern, (string)$kind);
+}
+
+/**
+ * Die alte Schnittstelle (API `kind_setzen`): ein Kind dazunehmen, oder mit
+ * 0 alle Verknüpfungen dieses Elternkontos lösen.
+ */
+function pu_profil_kind_setzen(int $eltern, int $kind, int $wer = 0): void
+{
+    if ($kind !== 0) {
+        pu_eltern_kind_hinzu($eltern, $kind, $wer);
+        return;
+    }
+    $e = pu_profil($eltern);
+    if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
+    if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
+    foreach (pu_eltern_kinder($eltern) as $k) pu_eltern_kind_loesen($eltern, $k, $wer);
 }
 
 // ---------------------------------------------------------------- Sprachstil

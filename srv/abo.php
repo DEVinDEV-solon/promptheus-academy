@@ -527,6 +527,23 @@ function pu_abo_fuer(int $person): ?array
         if ($a !== false) return pu_abo_aufbereiten($a);
     }
 
+    // 4. Der Familienplan der Eltern (seit 20.10.2026). Nach der Schule: Hat
+    //    ein Kind eine Schule mit Plan, zahlt die Schule (Entscheid des
+    //    Betreibers „Schule vor Familie“). Gilt nur für Pläne mit
+    //    Elternplatz (`eltern` ≥ 1) und nur für verknüpfte Kinder — deren
+    //    Zahl begrenzt pu_eltern_kind_hinzu() auf die Plätze des Plans.
+    $eltern = pu_kind_eltern($person);
+    if ($eltern > 0) {
+        $st = $pdo->prepare(
+            "SELECT * FROM abos WHERE traeger_art = 'person' AND traeger = ? AND laeuft = 1
+             ORDER BY id DESC LIMIT 1");
+        $st->execute([$eltern]);
+        $a = $st->fetch();
+        if ($a !== false && (int)(pu_plan((string)$a['plan'])['eltern'] ?? 0) >= 1) {
+            return pu_abo_aufbereiten($a);
+        }
+    }
+
     return null;
 }
 
@@ -577,6 +594,7 @@ function pu_abo_aufbereiten(array $a): array
  */
 function pu_plaetze_belegt(array $abo): int
 {
+    require_once PU_ROOT . '/srv/profil.php';
     $pdo = pu_db();
 
     return match ((string)$abo['traeger_art']) {
@@ -592,7 +610,11 @@ function pu_plaetze_belegt(array $abo): int
             $st->execute([(string)$abo['traeger_name']]);
             return $st->fetchColumn();
         })(),
-        default => 1,
+        // Familienplan: die verknüpften Kinder des Elternkontos (seit
+        // 20.10.2026). Ein Personenplan ohne Elternplatz belegt einen.
+        default => (int)(pu_plan((string)($abo['plan'] ?? ''))['eltern'] ?? 0) >= 1
+            ? count(pu_eltern_kinder((int)$abo['traeger']))
+            : 1,
     };
 }
 
@@ -1275,7 +1297,7 @@ function pu_gemeinschaft_da(): bool
  *   Lehrer       Eltern und Schüler in seiner Schule — beim Token senden
  *                enger: nur seine Klassen und deren Eltern (seit 19.10.2026,
  *                `pu_token_im_umkreis`, Klassen nach Plan 30_Community C8).
- *   Eltern       ihre eigenen Kinder (`kind_von`), sonst niemanden.
+ *   Eltern       ihre eigenen Kinder (`eltern_kinder`, bis zu drei), sonst niemanden.
  *   Schüler      niemanden.
  *
  * **Eine leere Schule öffnet nicht die Tür.** Steht bei einer Verwaltung kein
@@ -1363,18 +1385,11 @@ function pu_talent_im_umkreis(array $ich, array $ziel, string $ebene): bool
             return trim((string)($ich['schule'] ?? '')) === trim((string)($ziel['schule'] ?? ''));
 
         case 'eltern':
-            /* **Die Richtung steht am Elternkonto, nicht am Kind.**
-               `pu_profil_kind_setzen($eltern, $kind)` schreibt `kind_von` in
-               die Zeile der ELTERN und trägt dort die Nummer des Kindes ein
-               (siehe srv/profil.php). Andersherum gelesen — „das Kind zeigt
-               auf seine Eltern" — träfe die Bedingung nie zu, und der
-               Elternteil bekäme eine leere Liste ohne Fehlermeldung.
-
-               Damit erreicht ein Elternkonto genau ein Kind. Das ist keine
-               Einschränkung dieser Funktion, sondern die des Feldes: Es fasst
-               eine Nummer. Wer zwei Kinder hat, braucht ein zweites Konto
-               oder ein zweites Feld — das wäre ein eigener Umbau. */
-            return (int)($ich['kind_von'] ?? 0) === (int)($ziel['id'] ?? 0);
+            /* Die eigenen Kinder, seit Schema v15 bis zu drei
+               (`eltern_kinder`, srv/profil.php). Andere Kinder nie — auch
+               nicht die der Klasse, die im Elternkonto eingetragen ist. */
+            require_once PU_ROOT . '/srv/profil.php';
+            return in_array((int)($ziel['id'] ?? 0), pu_eltern_kinder((int)($ich['id'] ?? 0)), true);
     }
     return false;
 }
@@ -1385,9 +1400,9 @@ function pu_talent_im_umkreis(array $ich, array $ziel, string $ebene): bool
  * Wie `pu_talent_im_umkreis`, nur enger für Lehrkräfte: **nur die eigenen
  * Klassen** (seit 19.10.2026). Die Empfängerliste nennt Namen; eine
  * Lehrkraft, die darin die ganze Schule sieht, sähe mehr als in ihrer
- * Klassenübersicht (`pu_klasse`). Eltern zählen dazu, wenn ihr verknüpftes
- * Kind in einer dieser Klassen ist — die Klasse im Elternkonto selbst zählt
- * nicht, sie ist frei eingetragen.
+ * Klassenübersicht (`pu_klasse`). Eltern zählen dazu, wenn eines ihrer
+ * verknüpften Kinder in einer dieser Klassen ist — die Klasse im Elternkonto
+ * selbst zählt nicht, sie ist frei eingetragen.
  *
  * Eine eigene Funktion und keine Änderung an `pu_talent_im_umkreis`: Die
  * Urkunden (srv/abschluss.php) fragen jene, und deren Sicht ist eine eigene
@@ -1398,9 +1413,14 @@ function pu_token_im_umkreis(array $ich, array $ziel, string $ebene): bool
     if ($ebene !== 'lehrer') return pu_talent_im_umkreis($ich, $ziel, $ebene);
 
     require_once PU_ROOT . '/srv/lernende.php';
-    $schueler = (string)($ziel['rolle'] ?? '') === 'eltern'
-              ? (int)($ziel['kind_von'] ?? 0) : (int)($ziel['id'] ?? 0);
-    return $schueler > 0 && pu_lehrer_sieht((int)$ich['id'], $schueler);
+    require_once PU_ROOT . '/srv/profil.php';
+    // Eltern erreicht die Lehrkraft, wenn EINES ihrer Kinder in ihren Klassen ist.
+    $kinder = (string)($ziel['rolle'] ?? '') === 'eltern'
+            ? pu_eltern_kinder((int)($ziel['id'] ?? 0)) : [(int)($ziel['id'] ?? 0)];
+    foreach ($kinder as $schueler) {
+        if ($schueler > 0 && pu_lehrer_sieht((int)$ich['id'], $schueler)) return true;
+    }
+    return false;
 }
 
 /**

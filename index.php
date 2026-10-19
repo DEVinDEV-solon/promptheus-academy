@@ -920,6 +920,7 @@ $webseite = 'https://promptheus-academy.de/';
 <?php if ($darfCockpit): ?>
   <script src="<?= pu_v('assets/js/qr.js') ?>"></script>
   <script src="<?= pu_v('assets/js/gutscheine.js') ?>"></script>
+  <script src="<?= pu_v('assets/js/familie.js') ?>"></script>
   <script src="<?= pu_v('assets/js/abo.js') ?>"></script>
 <?php endif; ?>
 <?php if ($darfGemeinde): ?>
