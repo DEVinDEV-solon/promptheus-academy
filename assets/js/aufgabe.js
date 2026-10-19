@@ -601,7 +601,8 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
           dauer_s: Math.round((Date.now() - start) / 1000),
           // Damit sich das Lob nicht sofort wiederholt: der zuletzt gezeigte
           // Satz geht mit, der Server vermeidet ihn.
-          letzte_motivation: PU._letzteMotivation || ''
+          letzte_motivation: PU._letzteMotivation || '',
+          letzter_titel: PU._letzterTitel || ''
         });
         ergebnis.innerHTML = ergebnisHtml(j);
         // Die gewählte Antwort zeigt ✓ oder ✕ — dort, wo man geklickt hat.
@@ -619,7 +620,7 @@ PU.aufgabeZeichnen = function (ziel, a, opt) {
 
         if (j.richtig) {
           if (uhr) { clearInterval(uhr); uhr = null; }
-          PU.lobZeigen(j.motivation, j.punkte);
+          PU.lobZeigen(j.motivation, j.punkte, j.motivation_titel);
           if (j.vertiefung_moeglich) infosKnopfZeigen(ergebnis, a);
         }
       } catch (e) {

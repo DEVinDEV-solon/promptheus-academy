@@ -872,7 +872,7 @@ PU.modalSchliessen = function () {
  * fest, bis der Lernende weiterklickt; steht die Dauer auf 0, bleibt es
  * stehen, bei einem Wert schliesst es sich von selbst. Beides ist gewollt:
  * manche lesen den Satz, andere sind schon bei der nächsten Aufgabe. */
-PU.lobZeigen = function (spruch, punkte) {
+PU.lobZeigen = function (spruch, punkte, titel) {
   // "auto" heisst an — in beiden Stilen (28.09.2026, Wunsch des Betreibers:
   // eine richtige Antwort verdient ihren Moment, auch bei Erwachsenen). Im
   // Stil „Klar" nur sachlicher: ein Haken statt des Feuers.
@@ -888,6 +888,7 @@ PU.lobZeigen = function (spruch, punkte) {
   // Zuletzt gezeigter Satz — die nächste Abgabe schickt ihn mit, damit der
   // Server nicht denselben noch einmal zieht.
   PU._letzteMotivation = spruch;
+  if (titel) PU._letzterTitel = titel;
 
   // Die Flamme als Siegel: eine SVG-Maske statt Emoji, damit sie sich an die
   // Palette hält (Gold) und in jeder Variante gleich aussieht.
@@ -906,7 +907,10 @@ PU.lobZeigen = function (spruch, punkte) {
         ? '<span class="lob-haken">✓</span>'
         : flamme + '<i class="lob-funke"></i><i class="lob-funke"></i><i class="lob-funke"></i>') +
       '</span>' +
-      '<p class="lob-auge">' + (klar ? 'Richtig' : 'Motivation') + '</p>' +
+      // Oben das Schlagwort, nach Zielgruppe und Aufgabenart gezogen
+      // (lob-titel.md), darunter der längere Satz. Ohne Titel vom Server —
+      // etwa bei einer älteren Fassung — steht ein schlichtes „Richtig“.
+      '<p class="lob-titel">' + PU.h(titel || 'Richtig') + '</p>' +
       '<p class="lob-spruch">' + PU.h(spruch) + '</p>' +
       (punkte ? '<p class="lob-punkte">+' + punkte + ' Punkte</p>' : '') +
       (dauer > 0 ? '<div class="lob-balken" aria-hidden="true"><i></i></div>' : '') +

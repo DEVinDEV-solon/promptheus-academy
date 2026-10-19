@@ -275,4 +275,42 @@ pruefe('der zuletzt gezeigte Satz wird vermieden', $zwei !== $eins);
 // Ein unbekanntes Band fällt sauber zurück, statt leer zu bleiben.
 pruefe('unbekanntes Band liefert trotzdem einen Satz', pu_motivation('gibtsnicht') !== '');
 
+foreach (['eltern', 'lehrkraft', 'schule'] as $b) {
+    pruefe("Pool $b ist gefuellt", ($pools[$b] ?? []) !== []);
+}
+pruefe('Eltern sprechen anders als Erwachsene im Beruf', $pools['eltern'] !== $pools['erwachsen']);
+
+// ---------------------------------------------------------------- Lob-Titel
+gruppe('Lob-Titel je Zielgruppe und Aufgabenart');
+$titel = pu_lobtitel_pools();
+foreach (PU_MOTIVATION_BAENDER as $b) {
+    gleich("Kern $b hat 20 Titel", 20, count($titel['kern'][$b] ?? []));
+}
+foreach (PU_TYPEN as $typ) {
+    foreach (['kinder', 'gross'] as $reg) {
+        gleich("Art $typ ($reg) hat 20 Titel", 20, count($titel['art'][$typ][$reg] ?? []));
+    }
+}
+$alleTitel = array_merge(...array_values($titel['kern']),
+    ...array_map(fn($r) => array_merge(...array_values($r)), array_values($titel['art'])));
+pruefe('kein Titel über 40 Zeichen', array_filter($alleTitel, fn($t) => mb_strlen($t) > 40) === []);
+pruefe('höchstens ein Ausrufezeichen je Titel', array_filter($alleTitel, fn($t) => substr_count($t, '!') > 1) === []);
+pruefe('Erwachsenen-Kern ohne Ausrufezeichen',
+       array_filter($titel['kern']['erwachsen'], fn($t) => str_contains($t, '!')) === []);
+
+// Konditioniert auf Person und Aufgabe: ein Kind nach Quizkarten zieht nur aus
+// Kern Grundschule + Quizkarten (Kinder) — nie aus dem Erwachsenen-Register.
+$erlaubt = array_merge($titel['kern']['grundschule'], $titel['art']['quizkarten']['kinder']);
+$ok = true;
+for ($i = 0; $i < 60; $i++) if (!in_array(pu_lobtitel('grundschule', 'quizkarten'), $erlaubt, true)) $ok = false;
+pruefe('Grundschule + Quizkarten zieht nur aus den passenden Pools', $ok);
+$gesehen = [];
+for ($i = 0; $i < 60; $i++) $gesehen[pu_lobtitel('lehrkraft', 'mathe')] = true;
+pruefe('viele Ziehungen ergeben viele verschiedene Titel', count($gesehen) > 10);
+$eins = pu_lobtitel('schule', 'planung');
+pruefe('der zuletzt gezeigte Titel wird vermieden', pu_lobtitel('schule', 'planung', $eins) !== $eins);
+pruefe('unbekannte Gruppe und Typ liefern trotzdem einen Titel', pu_lobtitel('gibtsnicht', 'gibtsnicht') !== '');
+pruefe('Register: Unterstufe ist kinder, Eltern gross',
+       pu_lobtitel_register('unterstufe') === 'kinder' && pu_lobtitel_register('eltern') === 'gross');
+
 bilanz();

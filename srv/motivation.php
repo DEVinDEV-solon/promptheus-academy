@@ -24,9 +24,15 @@ const PU_MOTIVATION_FALLBACK = [
     'Ein Schritt mehr als gestern. Mehr braucht es nicht.',
 ];
 
-/** Die Altersbänder, in denen Sprüche gehalten werden — von kindgerecht bis
- *  akademisch. Reihenfolge = Alter aufsteigend. */
-const PU_MOTIVATION_BAENDER = ['grundschule', 'unterstufe', 'mittelstufe', 'oberstufe', 'erwachsen'];
+/** Die Zielgruppen, in denen Sprüche gehalten werden: fünf Altersbänder von
+ *  kindgerecht bis akademisch, dann die drei Rollen der Erwachsenen, die nicht
+ *  selbst Lernende sind. Reihenfolge zählt beim Lesen der Überschriften:
+ *  „grundschule" muss vor „schule" geprüft werden. */
+const PU_MOTIVATION_BAENDER = ['grundschule', 'unterstufe', 'mittelstufe', 'oberstufe', 'erwachsen',
+                               'eltern', 'lehrkraft', 'schule'];
+
+/** Die Rollen-Gruppen. Fehlt ihnen ein eigener Pool, sprechen sie wie Erwachsene. */
+const PU_MOTIVATION_ROLLEN = ['eltern', 'lehrkraft', 'schule'];
 
 /**
  * Liest die Sprüche aus dem Vault, getrennt nach Altersband.
@@ -89,6 +95,7 @@ function pu_motivation_liste(string $band = ''): array
 {
     $pools = pu_motivation_pools();
     if ($band !== '' && !empty($pools[$band])) return $pools[$band];
+    if (in_array($band, PU_MOTIVATION_ROLLEN, true) && !empty($pools['erwachsen'])) return $pools['erwachsen'];
     return $pools['alle'];
 }
 
@@ -113,6 +120,102 @@ function pu_motivation(string $band = '', string $ausser = ''): string
     if ($ausser !== '' && count($liste) > 1) {
         $liste = array_values(array_filter($liste, fn($s) => $s !== $ausser));
         if ($liste === []) return $ausser;   // war der einzige — dann eben er
+    }
+    return $liste[random_int(0, count($liste) - 1)];
+}
+
+// ================================================================ Titel
+
+/** Wenn die Notiz fehlt: ein Titel, der für jede Gruppe und jede Aufgabe passt. */
+const PU_LOBTITEL_FALLBACK = ['Genau richtig', 'Richtig gelöst', 'Treffer', 'Sauber gelöst'];
+
+/** Die beiden Register der Aufgabenart-Titel. Kinder: Grundschule und Unterstufe. */
+function pu_lobtitel_register(string $gruppe): string
+{
+    return in_array($gruppe, ['grundschule', 'unterstufe'], true) ? 'kinder' : 'gross';
+}
+
+/**
+ * Liest die Titel aus `lob-titel.md` (Formel 2: geteilt plus spezifisch).
+ *
+ * `kern[<gruppe>]` sind die Titel je Zielgruppe, `art[<typ>][kinder|gross]` die
+ * je Aufgabenart. Eine Überschrift mit „Kern“ und einem Gruppennamen beginnt
+ * einen Kern-Pool, eine mit „Aufgabenart“ und dem Typ in Klammern einen
+ * Art-Pool. Jede andere Überschrift beendet den Pool — so bleiben Aufzählungen
+ * in erklärenden Abschnitten der Notiz draussen.
+ *
+ * @return array{kern: array<string,string[]>, art: array<string,array<string,string[]>>}
+ */
+function pu_lobtitel_pools(): array
+{
+    static $pools = null;
+    if ($pools !== null) return $pools;
+
+    $pools = ['kern' => [], 'art' => []];
+    $datei = '';
+    foreach (['/00_Fundament/promptheus/lob-titel.md', '/00_Fundament/lob-titel.md'] as $wo) {
+        if (is_file(PU_BRAIN . $wo)) { $datei = PU_BRAIN . $wo; break; }
+    }
+    if ($datei === '') return $pools;
+
+    $roh = (string)file_get_contents($datei);
+    $fm  = pu_frontmatter($roh);
+    $ziel = null;   // Verweis auf den Pool, in den gerade gelesen wird
+    foreach (preg_split('/\r?\n/', $fm['rumpf'] !== '' ? $fm['rumpf'] : $roh) ?: [] as $zeile) {
+        if (preg_match('/^#{1,6}\s*(.+)$/u', $zeile, $h)) {
+            unset($ziel);
+            $ziel  = null;
+            $titel = mb_strtolower($h[1]);
+            if (str_contains($titel, 'aufgabenart') && preg_match('/\(([a-z]+)\)/', $titel, $t)
+                && in_array($t[1], PU_TYPEN, true)) {
+                $reg = str_contains($titel, 'kinder') ? 'kinder' : 'gross';
+                $pools['art'][$t[1]][$reg] ??= [];
+                $ziel = &$pools['art'][$t[1]][$reg];
+            } elseif (str_contains($titel, 'kern')) {
+                foreach (PU_MOTIVATION_BAENDER as $b) {
+                    if (str_contains($titel, $b)) {
+                        $pools['kern'][$b] ??= [];
+                        $ziel = &$pools['kern'][$b];
+                        break;
+                    }
+                }
+            }
+            continue;
+        }
+        if ($ziel !== null && preg_match('/^\s*-\s+(\S.*)$/u', $zeile, $m)) {
+            $t = trim($m[1]);
+            if ($t !== '' && mb_strlen($t) <= 40 && !in_array($t, $ziel, true)) $ziel[] = $t;
+        }
+    }
+    unset($ziel);
+    return $pools;
+}
+
+/**
+ * Einen Titel ziehen — konditioniert auf Person und Aufgabe (Formel 3).
+ *
+ * Kandidaten sind der Kern der Zielgruppe und der Kopf der Aufgabenart im
+ * passenden Register, zusammen in einem Topf. Fehlt der Kern einer Rollen-Gruppe,
+ * gilt der Erwachsenen-Kern; fehlt alles, die kleine Liste im Code. Der zuletzt
+ * gezeigte Titel wird übersprungen.
+ *
+ * @param string $gruppe  eine aus PU_MOTIVATION_BAENDER
+ * @param string $typ     der Aufgabentyp (PU_TYPEN), leer = nur Kern
+ * @param string $ausser  der zuletzt gezeigte Titel
+ */
+function pu_lobtitel(string $gruppe, string $typ = '', string $ausser = ''): string
+{
+    $pools = pu_lobtitel_pools();
+    $kern  = $pools['kern'][$gruppe] ?? [];
+    if ($kern === [] && in_array($gruppe, PU_MOTIVATION_ROLLEN, true)) $kern = $pools['kern']['erwachsen'] ?? [];
+    if ($kern === [] && !isset($pools['kern'][$gruppe])) $kern = $pools['kern']['mittelstufe'] ?? [];
+    $art   = $pools['art'][$typ][pu_lobtitel_register($gruppe)] ?? [];
+
+    $liste = array_values(array_unique(array_merge($kern, $art)));
+    if ($liste === []) $liste = PU_LOBTITEL_FALLBACK;
+
+    if ($ausser !== '' && count($liste) > 1) {
+        $liste = array_values(array_filter($liste, fn($s) => $s !== $ausser));
     }
     return $liste[random_int(0, count($liste) - 1)];
 }
