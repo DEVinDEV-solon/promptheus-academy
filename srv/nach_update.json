@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.9": {
+      "titel": "Neuer Entdecker-Song",
+      "neu": "Im Entdecker-Kurs ersetzt der Song „Der Würfel und das Feuer“ das Lied „Die 5 von der PROMPTHEUS Academy“. Er steht in der Hörliste unter „Songs“ an zweiter Stelle. Das Lied selbst kommt mit den nächsten Kursmedien.",
+      "schritte": [
+        "Fehlt der neue Song rechts in der Hörliste: Einstellungen › Wartung › „Kursmedien laden“."
+      ]
+    },
     "1.1.8": {
       "titel": "Neue Hörliste mit Sprecher und Songs",
       "neu": "Rechts auf jeder Kursseite steht jetzt oben die Einführung zum Kurs, gesprochen am Stück („Entdecker, hör zu!“, bei den Fachkursen „Hör zu: …“). Darunter folgt unter der Überschrift „Songs“ die Musik zum Kurs. Auch der 7. Kurs kann jetzt Aufnahmen zeigen. Die neuen Aufnahmen kommen mit den nächsten Kursmedien von selbst. Ausserdem meldet die Academy ihre Fassung nach einem Update sofort ans Cockpit, nicht erst beim nächsten Abgleich.",

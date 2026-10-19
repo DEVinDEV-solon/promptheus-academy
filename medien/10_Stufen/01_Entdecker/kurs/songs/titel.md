@@ -4,6 +4,5 @@
 # selbst weiter; die Reihenfolge folgt der Nummer vorn im Dateinamen.
 
 01_das-feuer-bleibt-bei-dir = Das Feuer bleibt bei dir
-02_die-5-von-der-promptheus-academy = Die 5 von der PROMPTHEUS Academy
+02_der-wuerfel-und-das-feuer = Der Würfel und das Feuer
 03_unwissen-als-sicherheitsfeature = Unwissen als Sicherheitsfeature
-04_der-wuerfel-und-das-feuer = Der Würfel und das Feuer
