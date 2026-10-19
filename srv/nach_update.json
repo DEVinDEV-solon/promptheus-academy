@@ -7,6 +7,14 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.8": {
+      "titel": "Neue Hörliste mit Sprecher und Songs",
+      "neu": "Rechts auf jeder Kursseite steht jetzt oben die Einführung zum Kurs, gesprochen am Stück („Entdecker, hör zu!“, bei den Fachkursen „Hör zu: …“). Darunter folgt unter der Überschrift „Songs“ die Musik zum Kurs. Auch der 7. Kurs kann jetzt Aufnahmen zeigen. Die neuen Aufnahmen kommen mit den nächsten Kursmedien von selbst. Ausserdem meldet die Academy ihre Fassung nach einem Update sofort ans Cockpit, nicht erst beim nächsten Abgleich.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst zeigt die Hörliste noch die alte Anordnung.",
+        "Fehlen rechts die neuen Aufnahmen: Einstellungen › Wartung › „Kursmedien laden“."
+      ]
+    },
     "1.1.7": {
       "titel": "Taschenrechner an jeder Aufgabe",
       "neu": "Über jeder Aufgabe steht neben Tokenicer und Lösungsweg ein Knopf „Rechner“. Er öffnet einen Taschenrechner mit Prozenttaste (595 − 19 % = 481,95) und einen Prozentrechner: Aus 595 Euro inklusive 19 % werden sofort 500 Euro netto und 95 Euro Steuer. Das Ergebnis lässt sich in die Antwort übernehmen. Die Knöpfe über der Aufgabe halten jetzt Abstand zum Eingabefeld.",
