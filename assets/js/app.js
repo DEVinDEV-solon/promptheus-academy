@@ -334,8 +334,9 @@ PU.stimmeLaeuft = null;
  * ist der Grund, warum „Tempo" hier wirklich Tempo heisst und nicht heimlich
  * auch die Stimmlage verschiebt.
  */
-PU.tonKlang = function (ton, klang) {
-  if (!ton || !klang) return;
+PU.tonKlang = function (ton, klang, messen) {
+  if (!ton) return;
+  klang = klang || {};
 
   const tempo = Number(klang.tempo);
   const tiefe = Number(klang.tiefe);
@@ -349,8 +350,9 @@ PU.tonKlang = function (ton, klang) {
   if (laut && laut !== 100) ton.volume = Math.max(0, Math.min(1, laut / 100));
 
   // Klangfarbe braucht Web Audio. Fehlt es oder scheitert es, bleibt der Ton
-  // unbearbeitet — lieber ungefiltert hören als gar nicht.
-  if ((!tiefe || tiefe === 0) && (!klar || klar === 0)) return;
+  // unbearbeitet — lieber ungefiltert hören als gar nicht. Der Pegelmesser im
+  // Tutor-Chat (`messen`) braucht es auch, sonst gibt es nichts zu messen.
+  if ((!tiefe || tiefe === 0) && (!klar || klar === 0) && !messen) return;
 
   try {
     PU.tonWerk = PU.tonWerk || new (window.AudioContext || window.webkitAudioContext)();
@@ -368,7 +370,16 @@ PU.tonKlang = function (ton, klang) {
     hoehen.frequency.value = 3200;
     hoehen.gain.value = klar || 0;
 
-    quelle.connect(bass).connect(hoehen).connect(PU.tonWerk.destination);
+    let ende = quelle.connect(bass).connect(hoehen);
+    if (messen) {
+      // Gemessen wird nach den Filtern: Der Messer zeigt, was man hört.
+      const messer = PU.tonWerk.createAnalyser();
+      messer.fftSize = 256;
+      messer.smoothingTimeConstant = 0.6;
+      ende = ende.connect(messer);
+      ton.messer = messer;
+    }
+    ende.connect(PU.tonWerk.destination);
   } catch (e) { /* Ohne Klangfarbe, aber mit Ton. */ }
 };
 
@@ -432,10 +443,105 @@ PU.stimmeStoppen = function () {
   if (!PU.stimmeLaeuft) return;
   const t = PU.stimmeLaeuft;
   PU.stimmeLaeuft = null;
+  PU.stimmeMesser.stoppen();
   try { t.pause(); } catch (e) { /* schon vorbei */ }
   if (t.dataset && t.dataset.adresse) URL.revokeObjectURL(t.dataset.adresse);
   document.querySelectorAll('.nachricht-ton.laeuft')
           .forEach(b => b.classList.remove('laeuft'));
+};
+
+/**
+ * Der Pegelmesser neben dem Mikro im Tutor-Chat.
+ *
+ * Nach dem VU-Meter aus VoiceVibe (Ansicht 10): zwei Säulen, tiefes und hohes
+ * Band, je zehn Segmente, ein Strich hält die Spitze. Die Farben laufen als
+ * Regenbogen die Säule hinauf und drehen langsam mit — bei „wenig Bewegung"
+ * stehen sie still. Gezeichnet wird in jede `canvas.stimm-messer`; sie wird
+ * nur sichtbar, solange ein Tutor spricht.
+ *
+ * Gemessen wird am Analyser, den `PU.tonKlang` einhängt. Fehlt er (kein Web
+ * Audio), wippt der Messer ruhig von selbst — er zeigt dann nur, *dass*
+ * gesprochen wird, nicht wie laut.
+ */
+PU.stimmeMesser = {
+  ton: null, rahmen: 0, spitze: [0, 0], daten: null,
+
+  starten(ton) {
+    this.ton = ton;
+    this.spitze = [0, 0];
+    if (!this.rahmen) this.rahmen = requestAnimationFrame(() => this.bild());
+  },
+
+  stoppen() {
+    this.ton = null;
+    if (this.rahmen) cancelAnimationFrame(this.rahmen);
+    this.rahmen = 0;
+    document.querySelectorAll('.stimm-messer').forEach(c => c.classList.remove('an'));
+  },
+
+  pegel() {
+    const m = this.ton && this.ton.messer;
+    if (!m) {
+      const t = performance.now() / 1000;
+      const an = this.ton && !this.ton.paused ? 1 : 0;
+      return [an * (.45 + .25 * Math.sin(t * 7.3) * Math.sin(t * 2.1)),
+              an * (.35 + .25 * Math.sin(t * 9.7 + 1) * Math.sin(t * 1.3))];
+    }
+    if (!this.daten || this.daten.length !== m.frequencyBinCount) {
+      this.daten = new Uint8Array(m.frequencyBinCount);
+    }
+    m.getByteFrequencyData(this.daten);
+    // Ein Fach ist bei fftSize 256 rund 180 Hz breit: 1–5 trägt die Stimme,
+    // 6–40 Zischlaute und Glanz. Gemessen an einer Lektionsaufnahme lag das
+    // tiefe Band zwischen .35 und .71, das hohe zwischen .04 und .14 — die
+    // Skalen machen daraus etwa 0,3 bis 0,9, damit beide Säulen sichtbar
+    // wippen statt oben anzuschlagen oder unten zu kleben.
+    const mittel = (a, b) => {
+      let s = 0;
+      for (let i = a; i < b; i++) s += this.daten[i];
+      return s / (b - a) / 255;
+    };
+    const eng = v => Math.max(0, Math.min(1, v));
+    return [eng((mittel(1, 6) - .2) * 1.8), eng(mittel(6, 40) * 6.5)];
+  },
+
+  bild() {
+    this.rahmen = 0;
+    if (!this.ton) return;
+    const pegel = this.pegel();
+    const still = document.documentElement.dataset.bewegung === 'wenig';
+    const zeit = still ? 0 : performance.now() / 1000;
+
+    for (let k = 0; k < 2; k++) this.spitze[k] = Math.max(pegel[k], this.spitze[k] - .012);
+
+    document.querySelectorAll('.stimm-messer').forEach(c => {
+      c.classList.add('an');
+      const r = c.getBoundingClientRect();
+      if (!r.width) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+      const g = c.getContext('2d');
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.clearRect(0, 0, r.width, r.height);
+
+      const segs = 10, luecke = r.width * .14;
+      const bw = (r.width - luecke) / 2, sh = r.height / segs;
+      for (let k = 0; k < 2; k++) {
+        const x = k * (bw + luecke);
+        for (let s = 0; s < segs; s++) {
+          const p = s / (segs - 1), y = r.height - (s + 1) * sh;
+          const ton = (zeit * 36 + p * 320 + k * 18) % 360;
+          g.fillStyle = p <= pegel[k] ? 'hsl(' + ton + ' 84% 56%)' : 'hsla(' + ton + ' 30% 40% / .16)';
+          g.fillRect(x, y + .6, bw, sh - 1.2);
+        }
+        const sy = r.height - this.spitze[k] * r.height;
+        g.fillStyle = 'rgba(255,255,255,.85)';
+        g.fillRect(x, Math.max(0, sy - 1), bw, 1.5);
+      }
+    });
+    this.rahmen = requestAnimationFrame(() => this.bild());
+  }
 };
 
 /**
@@ -509,14 +615,19 @@ PU.vorlesen = async function (text, knopf, wofuer, agent) {
   for (let i = 0; i < roh.length; i++) bytes[i] = roh.charCodeAt(i);
   const adresse = URL.createObjectURL(new Blob([bytes], { type: j.mime }));
 
+  // Liest ein Tutor im Seitenchat vor, zeigt der Pegelmesser neben dem Mikro,
+  // dass gerade gesprochen wird. Anderswo (Glossar, Lektion) gibt es keinen.
+  const imChat = !!(knopf && knopf.closest && knopf.closest('#tutorpanel'));
+
   const ton = new Audio(adresse);
   ton.dataset.adresse = adresse;
-  PU.tonKlang(ton, j.klang);
+  PU.tonKlang(ton, j.klang, imChat);
   PU.stimmeLaeuft = ton;
   if (knopf) knopf.classList.add('laeuft');
+  if (imChat) PU.stimmeMesser.starten(ton);
 
   const fertig = () => {
-    if (PU.stimmeLaeuft === ton) PU.stimmeLaeuft = null;
+    if (PU.stimmeLaeuft === ton) { PU.stimmeLaeuft = null; PU.stimmeMesser.stoppen(); }
     URL.revokeObjectURL(adresse);
     if (knopf) knopf.classList.remove('laeuft');
   };
