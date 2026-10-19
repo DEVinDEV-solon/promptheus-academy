@@ -132,7 +132,7 @@ function talentFormular(bereich, j, hoer) {
     bereich.appendChild(PU.el('p', 'leer-hinweis',
       'Unter dir steht niemand, an den du Token senden könntest. ' +
       'Bei einem Elternkonto heisst das: Es ist noch kein Kind verknüpft — ' +
-      'das macht die Academy-Leitung unter Konten.'));
+      'das macht die Schulleitung im Menü „Klasse“ beim Elternkonto.'));
     if (hoer) {
       const z = PU.el('div', 'talent-zeile');
       z.appendChild(hoer);

@@ -125,13 +125,26 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
     return $wert;
 }
 
-/** Verknüpft ein Elternkonto mit genau einem Kind. 0 hebt die Verknüpfung auf. */
+/**
+ * Verknüpft ein Elternkonto mit genau einem Kind. 0 hebt die Verknüpfung auf.
+ *
+ * Geprüft wird die gespeicherte Rolle, nicht die gedeckelte Ebene: Es geht
+ * darum, was das Konto ist, nicht darum, was es auf diesem Rechner darf.
+ * Ein `kind_von` an einem Lehrkraftkonto gäbe ihr still ein „Kind", an das
+ * sie Token senden könnte — vorbei an der Klassenzuordnung.
+ */
 function pu_profil_kind_setzen(int $eltern, int $kind): void
 {
+    $e = pu_profil($eltern);
+    if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
+    if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
     if ($kind !== 0) {
         $k = pu_profil($kind);
         if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
         if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
+        if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
+            throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
+        }
     }
     $st = pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?');
     $st->execute([$kind, $eltern]);
