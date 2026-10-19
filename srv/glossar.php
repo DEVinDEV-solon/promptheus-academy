@@ -99,21 +99,31 @@ function pu_glossar_lesen(string $pfad, string $slug): ?array
  * eine, mal das andere.
  *
  * Dazu `aliase:` aus der Frontmatter, wo der Titel nicht reicht.
+ *
+ * **`verlinken:` geht vor** (12.10.2026). Seit dem Ausbau auf über 500
+ * Begriffe reicht der Titel nicht mehr als Suchwort: „Planung (Agent)" hätte
+ * sonst das Wort „Agent" gekapert, und „Zustand" stünde unter jedem dritten
+ * Satz, auch wo vom Wetter die Rede ist. Steht die Liste in der Notiz, gelten
+ * genau ihre Wörter — die fachlichen Namen, nicht die alltäglichen.
  */
 function pu_glossar_worte(string $titel, array $kopf): array
 {
     $worte = [];
 
-    if (preg_match('/^(.*?)\s*\((.+?)\)\s*$/u', $titel, $t)) {
-        $worte[] = trim($t[1]);
-        $worte[] = trim($t[2]);
+    if (isset($kopf['verlinken']) && is_array($kopf['verlinken'])) {
+        foreach ($kopf['verlinken'] as $w) $worte[] = trim((string)$w);
     } else {
-        $worte[] = $titel;
-    }
+        if (preg_match('/^(.*?)\s*\((.+?)\)\s*$/u', $titel, $t)) {
+            $worte[] = trim($t[1]);
+            $worte[] = trim($t[2]);
+        } else {
+            $worte[] = $titel;
+        }
 
-    foreach ((array)($kopf['aliase'] ?? []) as $a) {
-        $a = trim((string)$a);
-        if ($a !== '') $worte[] = $a;
+        foreach ((array)($kopf['aliase'] ?? []) as $a) {
+            $a = trim((string)$a);
+            if ($a !== '') $worte[] = $a;
+        }
     }
 
     // Kurzes fliegt raus: „KI" in jedem zweiten Satz zu unterstreichen macht
