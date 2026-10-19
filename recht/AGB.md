@@ -66,8 +66,9 @@ sein.
 ## § 4 Preise, Zahlung, Steuer
 
 (1) Es gelten die Preise, die zum Zeitpunkt der Bestellung in der
-Preisübersicht angegeben sind. Alle Beträge verstehen sich ‹inklusive / zuzüglich›
-der gesetzlichen Umsatzsteuer.
+Preisübersicht angegeben sind. Alle Beträge sind Endpreise. Als
+Kleinunternehmer im Sinne von § 19 UStG wird keine Umsatzsteuer berechnet
+und ausgewiesen.
 
 (2) Die Zahlung erfolgt über **Stripe** oder **PayPal**. Die Kartendaten werden
 ausschließlich beim jeweiligen Zahlungsdienst eingegeben; wir erhalten sie

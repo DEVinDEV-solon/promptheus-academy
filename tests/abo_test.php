@@ -81,8 +81,14 @@ foreach (PU_PLAENE as $k => $p) {
     }
 }
 
-pruefe('die Schule steht netto', str_contains(pu_plan_mwst_text($sch), 'zzgl.'));
-pruefe('das Kind steht brutto',  str_contains(pu_plan_mwst_text($kind), 'inkl.'));
+/* Kleinunternehmer nach § 19 UStG (20.10.2026): jeder Preis ist Endpreis,
+   auch der der Schule — kein „inkl.“ und kein „zzgl.“ mehr. */
+gleich('Steuerstatus', 'kleinunternehmer', PU_STEUER);
+gleich('die Schule: Endpreis nach § 19', PU_STEUER_HINWEIS, pu_plan_mwst_text($sch));
+gleich('das Kind: Endpreis nach § 19',  PU_STEUER_HINWEIS, pu_plan_mwst_text($kind));
+foreach (PU_PLAENE as $k => $p) {
+    pruefe("kein MwSt-Text beim Plan $k", !preg_match('/MwSt|zzgl|inkl/', pu_plan_mwst_text($p)));
+}
 
 $text = pu_preis_text($kind, 'monatlich', '2026-10-01');
 pruefe('die Preiszeile nennt den Preis danach', str_contains($text, 'danach 29,00 €'), $text);
@@ -104,7 +110,8 @@ gleich('das Kind kennt keine Pakete', 0, pu_zusatz_cent($kind));
 // Die Tafel am Tor
 $tafel = pu_preistafel_html('', false, '2026-10-01');
 pruefe('die Tafel zeigt den Aktionshinweis', str_contains($tafel, 'Aktionspreis bis 31.12.2026'));
-pruefe('die Tafel zeigt netto für die Schule', str_contains($tafel, 'zzgl. 19 % MwSt.'));
+pruefe('die Tafel zeigt den Hinweis auf § 19', str_contains($tafel, '§ 19 UStG'));
+pruefe('… und nirgends MwSt.', !str_contains($tafel, 'MwSt'));
 pruefe('nach der Aktion kein Hinweis mehr',
        !str_contains(pu_preistafel_html('', false, '2027-01-01'), 'Aktionspreis'));
 
@@ -750,7 +757,7 @@ gleich('der Betrag ist Grundplan + 2 Pakete',
        pu_plan_cent(PU_PLAENE['schule'], 'jaehrlich') + 2 * pu_zusatz_cent(PU_PLAENE['schule'], 'jaehrlich'),
        $tj['cent']);
 gleich('gebucht für zwölf Monate', pu_monate_weiter($heute, 12), $tj['laufzeit_bis']);
-pruefe('die Schule steht netto', str_contains($tj['mwst'], 'zzgl.'));
+gleich('die Schule: Endpreis nach § 19', PU_STEUER_HINWEIS, $tj['mwst']);
 
 wirft('das Kind kennt keine Zusatzpakete',
       fn() => pu_abo_buchen('person', $frei, '', 'schueler', $chef, '', 'monatlich', 1), 'Zusatzpakete');

@@ -18,7 +18,7 @@ declare(strict_types=1);
  *
  * Gross steht der Monatsbetrag bei **jährlicher** Zahlung — der günstigere und
  * damit der, nach dem gefragt wird. Darunter der monatliche Takt, die Basis
- * (inkl./zzgl. MwSt.) und, solange die Aktion läuft, der Preis danach. Ein
+ * (§ 19 UStG bzw. inkl./zzgl. MwSt., siehe PU_STEUER) und, solange die Aktion läuft, der Preis danach. Ein
  * Aktionspreis ohne den Preis danach wäre eine halbe Angabe.
  *
  * @param string $jetzt  Schlüssel des laufenden Plans — der bekommt eine Marke

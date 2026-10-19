@@ -29,7 +29,11 @@ Anwalt, und drei Punkte darin sind echte Haftungsfragen, keine Formsachen:
    Einwilligung (Art. 8 DSGVO), die Geschäftsfähigkeit (§§ 104 ff. BGB — Vertrag
    schließt der Erwachsene, nicht das Kind) und den Jugendmedienschutz.
 3. **Umsatzsteuer und OSS.** Sobald echt kassiert wird. Gehört dem
-   Steuerberater.
+   Steuerberater. Stand 20.10.2026: Der Betreiber ist Kleinunternehmer nach
+   § 19 UStG (AGB § 4 und alle Preisangaben entsprechend, Schalter
+   `PU_STEUER` in srv/abo.php). Offen: Wer auf der Rechnung Aussteller ist —
+   laut Impressum SmartBusinessHQ LLC (Honduras) mit EU-Abwicklung über
+   Agent0.de; § 19 gilt nur für Unternehmer im Inland bzw. in der EU.
 
 ## Was drinsteht
 
