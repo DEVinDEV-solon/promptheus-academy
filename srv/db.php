@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 13;
+const PU_DB_VERSION = 14;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -32,6 +32,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 11) pu_db_v11($pdo);
     if ($ist < 12) pu_db_v12($pdo);
     if ($ist < 13) pu_db_v13($pdo);
+    if ($ist < 14) pu_db_v14($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -690,4 +691,60 @@ function pu_db_v13(PDO $pdo): void
     }
     $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS ux_lernende_pseudo_kennung
                 ON lernende(pseudonym_kennung) WHERE pseudonym_kennung <> ''");
+}
+
+/**
+ * v14 — Woher und wohin, und die Token-Gutscheine.
+ *
+ *   token_buchungen.gegen  das Gegenkonto einer Buchung zwischen zwei Konten:
+ *                          beim Absender der Empfänger, beim Empfänger der
+ *                          Absender. 0 heisst „kein Konto" (Kauf, Kontingent,
+ *                          Verbrauch, Reservierung eines Gutscheins).
+ *   token_buchungen.beleg  der Gutschein, zu dem die Buchung gehört
+ *                          (`token_codes.id`), sonst 0.
+ *
+ * Der Name des Gegenkontos steht NICHT an der Buchung, nur seine Nummer. Er
+ * wird beim Anzeigen gelesen, und zwar als Pseudonym — sonst stünde der
+ * Klarname eines Kindes für immer im Journal, auch nachdem es ein Pseudonym
+ * gewählt hat. Ältere Überweisungen haben `gegen = 0`; bei ihnen steht der
+ * Name wie bisher nur im Text „An …" / „Von …".
+ *
+ * `token_codes` sind Gutscheine (srv/codes.php): Beim Ausstellen wird der
+ * Betrag beim Aussteller reserviert, beim Einlösen dem Einlösenden
+ * gutgeschrieben, bei Widerruf oder Ablauf zurückgebucht.
+ */
+function pu_db_v14(PDO $pdo): void
+{
+    $da = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='token_buchungen'")
+              ->fetchColumn();
+    if ($da !== false) {
+        $spalten = [];
+        foreach ($pdo->query('PRAGMA table_info(token_buchungen)') as $s) $spalten[] = (string)$s['name'];
+        if (!in_array('gegen', $spalten, true)) {
+            $pdo->exec('ALTER TABLE token_buchungen ADD COLUMN gegen INTEGER NOT NULL DEFAULT 0');
+        }
+        if (!in_array('beleg', $spalten, true)) {
+            $pdo->exec('ALTER TABLE token_buchungen ADD COLUMN beleg INTEGER NOT NULL DEFAULT 0');
+        }
+    }
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS token_codes (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            code            TEXT NOT NULL UNIQUE,
+            von             INTEGER NOT NULL,
+            tokens          INTEGER NOT NULL,
+            fuer_ebene      TEXT NOT NULL,
+            notiz           TEXT NOT NULL DEFAULT '',
+            angelegt        TEXT NOT NULL,
+            gueltig_bis     TEXT NOT NULL,
+            buchung_aus     INTEGER NOT NULL DEFAULT 0,
+            eingeloest_von  INTEGER NOT NULL DEFAULT 0,
+            eingeloest_am   TEXT NOT NULL DEFAULT '',
+            buchung_ein     INTEGER NOT NULL DEFAULT 0,
+            zurueck_am      TEXT NOT NULL DEFAULT '',
+            zurueck_grund   TEXT NOT NULL DEFAULT ''
+        )
+    ");
+    $pdo->exec('CREATE INDEX IF NOT EXISTS ix_codes_von ON token_codes(von, angelegt)');
 }

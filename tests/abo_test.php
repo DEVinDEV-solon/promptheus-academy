@@ -651,9 +651,14 @@ pruefe('der Admin erreicht die Verwaltung', in_array($dir,  $ketteChef, true));
 pruefe('…und die Schüler',                  in_array($sohn, $ketteChef, true));
 pruefe('…aber nie sich selbst',            !in_array($chef, $ketteChef, true));
 
+/* Seit 19.10.2026 erreicht eine Lehrkraft nur ihre Klassen (C8) — ohne
+   Zuordnung niemanden, auch nicht in der eigenen Schule. */
+gleich('der Lehrer ohne Klasse erreicht niemanden', [], pu_talente_empfaenger($lehrer));
+pu_lehrer_gruppen_setzen($lehrer, '8d', $chef);
+
 $ketteLehrer = array_column(pu_talente_empfaenger($lehrer), 'id');
-pruefe('der Lehrer erreicht Eltern', in_array($papa, $ketteLehrer, true));
-pruefe('…und Schüler seiner Schule',  in_array($sohn, $ketteLehrer, true));
+pruefe('der Lehrer erreicht Eltern seiner Klasse', in_array($papa, $ketteLehrer, true));
+pruefe('…und Schüler seiner Klasse',  in_array($sohn, $ketteLehrer, true));
 
 /* Nach oben ist zu. Ein Schüler, der seinem Lehrer Guthaben schicken kann,
    macht aus einem Journaleintrag eine Frage, die man ihm nicht ansieht:

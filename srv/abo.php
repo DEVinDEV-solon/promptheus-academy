@@ -834,20 +834,27 @@ function pu_kontingent_gutschreiben(int $abo, int $person, array $plan, string $
     pu_token_eintragen($person, $abo, 'kontingent', $wofuer, (int)$plan['kontingent']);
 }
 
-/** Eine Zeile ins Journal. Die einzige Stelle, die schreibt. */
+/**
+ * Eine Zeile ins Journal. Die einzige Stelle, die schreibt.
+ *
+ * `$gegen` ist das Gegenkonto einer Buchung zwischen zwei Konten (Überweisung,
+ * Gutschein), `$beleg` der Gutschein dazu (`token_codes.id`). Beide bleiben 0,
+ * wo kein zweites Konto beteiligt ist.
+ */
 function pu_token_eintragen(int $person, int $abo, string $art, string $wofuer,
                             int $tokens, int $cent = 0, bool $geschaetzt = false,
                             string $modell = '', string $verfaellt = '',
-                            string $zustimmung = ''): int
+                            string $zustimmung = '', int $gegen = 0, int $beleg = 0): int
 {
     $st = pu_db()->prepare(
         'INSERT INTO token_buchungen
            (lernender, abo, art, wofuer, tokens, cent, geschaetzt, verfaellt, modell,
-            bestaetigt, zeitpunkt, tag, zustimmung)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            bestaetigt, zeitpunkt, tag, zustimmung, gegen, beleg)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     $st->execute([$person, $abo, $art, mb_substr($wofuer, 0, 120), $tokens, $cent,
                   $geschaetzt ? 1 : 0, $verfaellt, $modell,
-                  $art === 'einzahlung' ? 0 : 1, pu_jetzt(), pu_heute(), $zustimmung]);
+                  $art === 'einzahlung' ? 0 : 1, pu_jetzt(), pu_heute(), $zustimmung,
+                  $gegen, $beleg]);
 
     return (int)pu_db()->lastInsertId();
 }
@@ -969,9 +976,14 @@ function pu_token_stand(int $person): array
        deshalb von selbst, ohne zweite Rechnung. Sie in den Verbrauch zu
        legen wäre der naheliegende und falsche Weg: Ein Geschenk ist keine
        Tutorfrage, und im Verbrauchsbalken würde es die Zahl verderben, an
-       der man abliest, wohin das Geld wirklich geht. */
+       der man abliest, wohin das Geld wirklich geht.
+
+       **Gutscheine ebenso** (srv/codes.php): `code_aus` reserviert beim
+       Aussteller mit einem Minus, `code_ein` schreibt beim Einlösenden gut,
+       `code_zurueck` bringt eine nicht eingelöste Reservierung zurück. */
     $gekauft    = $summe("AND art IN ('einzahlung', 'probe', 'gutschrift',
-                                      'talent_ein', 'talent_aus')
+                                      'talent_ein', 'talent_aus',
+                                      'code_aus', 'code_ein', 'code_zurueck')
                           AND bestaetigt = 1");
     $kontingent = $summe("AND art = 'kontingent'");
     $verbraucht = -$summe("AND art = 'verbrauch'");
@@ -1260,7 +1272,9 @@ function pu_gemeinschaft_da(): bool
  *
  *   Admin        alle. Er trägt die Plattform.
  *   Verwaltung   alle in ihrer Schule.
- *   Lehrer       Eltern und Schüler in seiner Schule.
+ *   Lehrer       Eltern und Schüler in seiner Schule — beim Token senden
+ *                enger: nur seine Klassen und deren Eltern (seit 19.10.2026,
+ *                `pu_token_im_umkreis`, Klassen nach Plan 30_Community C8).
  *   Eltern       ihre eigenen Kinder (`kind_von`), sonst niemanden.
  *   Schüler      niemanden.
  *
@@ -1312,7 +1326,7 @@ function pu_talente_empfaenger(int $wer): array
 
     $aus = [];
     foreach ($st->fetchAll() as $r) {
-        if (!pu_talent_im_umkreis($ich, $r, $ebene)) continue;
+        if (!pu_token_im_umkreis($ich, $r, $ebene)) continue;
 
         /* Der angezeigte Name folgt derselben Regel wie überall sonst: Wo ein
            Pseudonym steht, gilt das Pseudonym. Eine Empfängerliste, die den
@@ -1363,6 +1377,30 @@ function pu_talent_im_umkreis(array $ich, array $ziel, string $ebene): bool
             return (int)($ich['kind_von'] ?? 0) === (int)($ziel['id'] ?? 0);
     }
     return false;
+}
+
+/**
+ * Liegt der Empfänger im Umkreis, an den dieses Konto **Token senden** darf?
+ *
+ * Wie `pu_talent_im_umkreis`, nur enger für Lehrkräfte: **nur die eigenen
+ * Klassen** (seit 19.10.2026). Die Empfängerliste nennt Namen; eine
+ * Lehrkraft, die darin die ganze Schule sieht, sähe mehr als in ihrer
+ * Klassenübersicht (`pu_klasse`). Eltern zählen dazu, wenn ihr verknüpftes
+ * Kind in einer dieser Klassen ist — die Klasse im Elternkonto selbst zählt
+ * nicht, sie ist frei eingetragen.
+ *
+ * Eine eigene Funktion und keine Änderung an `pu_talent_im_umkreis`: Die
+ * Urkunden (srv/abschluss.php) fragen jene, und deren Sicht ist eine eigene
+ * Entscheidung.
+ */
+function pu_token_im_umkreis(array $ich, array $ziel, string $ebene): bool
+{
+    if ($ebene !== 'lehrer') return pu_talent_im_umkreis($ich, $ziel, $ebene);
+
+    require_once PU_ROOT . '/srv/lernende.php';
+    $schueler = (string)($ziel['rolle'] ?? '') === 'eltern'
+              ? (int)($ziel['kind_von'] ?? 0) : (int)($ziel['id'] ?? 0);
+    return $schueler > 0 && pu_lehrer_sieht((int)$ich['id'], $schueler);
 }
 
 /**
@@ -1437,9 +1475,11 @@ function pu_talente_senden(int $von, int $an, int $betrag, string $notiz = ''): 
     $pdo->beginTransaction();
     try {
         $ab = pu_token_eintragen($von, 0, 'talent_aus',
-                                 'An ' . $ziel['name'] . $zusatz, -$betrag);
+                                 'An ' . $ziel['name'] . $zusatz, -$betrag,
+                                 gegen: $an);
         $zu = pu_token_eintragen($an, 0, 'talent_ein',
-                                 'Von ' . $meinName . $zusatz, $betrag);
+                                 'Von ' . $meinName . $zusatz, $betrag,
+                                 gegen: $von);
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
@@ -1527,6 +1567,177 @@ function pu_cockpit(int $person): array
         'werkzeuge'=> PU_WERKZEUGE,
         'seit'     => $seit,
     ];
+}
+
+// ---------------------------------------------------------------- Tokenbuch
+
+/** Buchungsarten zwischen zwei Konten — die, bei denen „woher/wohin" zählt. */
+const PU_TOKEN_FLUSS = ['talent_aus', 'talent_ein', 'code_aus', 'code_ein', 'code_zurueck'];
+
+/**
+ * Anzeigenamen für eine Handvoll Konten, in einem Aufruf.
+ *
+ * Dieselbe Regel wie in der Empfängerliste: Wo ein Pseudonym steht, gilt das
+ * Pseudonym. Gelöschte Konten heissen „Konto <Nummer>" — die Buchung bleibt,
+ * auch wenn die Person geht.
+ *
+ * @param int[] $ids
+ * @return array<int, array{name:string, ebene:string}>
+ */
+function pu_konten_namen(array $ids): array
+{
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    if ($ids === []) return [];
+
+    $st = pu_db()->prepare('SELECT id, anzeigename, pseudonym, rolle FROM lernende
+                             WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')');
+    $st->execute($ids);
+    $aus = [];
+    foreach ($st->fetchAll() as $r) {
+        $aus[(int)$r['id']] = [
+            'name'  => trim((string)$r['pseudonym']) !== '' ? (string)$r['pseudonym'] : (string)$r['anzeigename'],
+            'ebene' => PU_EBENEN[(string)$r['rolle']]['anzeige'] ?? (string)$r['rolle'],
+        ];
+    }
+    foreach ($ids as $id) $aus[$id] ??= ['name' => 'Konto ' . $id, 'ebene' => ''];
+    return $aus;
+}
+
+/**
+ * Das Tokenbuch: jede Buchung mit Woher und Wohin.
+ *
+ * Das eigene Konto immer (mit dem Topf des eigenen Plans, wie im Cockpit).
+ * Mit `$schule` dazu alle Überweisungen und Gutscheine der eigenen Schule —
+ * für Ebene 1 der ganzen Academy. Fremder **Verbrauch** kommt nicht dazu:
+ * Wofür ein Kind seine Token ausgibt, ist keine Frage der Aufsicht über das
+ * Verteilen, und die Verbrauchsliste nennt Lektionen.
+ *
+ * Gutschein-Codes stehen nur beim Aussteller lesbar da; alle anderen sehen
+ * die letzten vier Zeichen. Ein Code ist so viel wert wie sein Betrag.
+ */
+function pu_tokenbuch(int $wer, bool $schule = false, int $grenze = 200): array
+{
+    require_once PU_ROOT . '/srv/profil.php';
+    require_once PU_ROOT . '/srv/rechte.php';
+
+    $pdo   = pu_db();
+    $ich   = pu_profil($wer);
+    $abo   = pu_abo_fuer($wer);
+    $grenze = max(1, min(500, $grenze));
+
+    $wo    = 'b.lernender = ?';
+    $werte = [$wer];
+    if ($abo !== null) { $wo = '(b.lernender = ? OR b.abo = ?)'; $werte = [$wer, $abo['id']]; }
+
+    $umfang = 'eigen';
+    if ($schule && $ich !== null) {
+        $fluss = "b.art IN ('" . implode("','", PU_TOKEN_FLUSS) . "')";
+        if (pu_ebene($ich) === 'admin') {
+            $wo .= " OR $fluss";
+            $umfang = 'academy';
+        } else {
+            $wo .= " OR ($fluss AND b.lernender IN (SELECT id FROM lernende WHERE TRIM(schule) = ?))";
+            $werte[] = trim((string)$ich['schule']);
+            $umfang = 'schule';
+        }
+    }
+
+    $st = $pdo->prepare(
+        "SELECT b.*, c.code, c.von AS code_von, c.eingeloest_von, c.eingeloest_am,
+                c.zurueck_am, c.zurueck_grund, c.gueltig_bis
+           FROM token_buchungen b
+           LEFT JOIN token_codes c ON c.id = b.beleg AND b.beleg > 0
+          WHERE $wo
+          ORDER BY b.id DESC LIMIT $grenze");
+    $st->execute($werte);
+    $zeilen = $st->fetchAll();
+
+    $ids = [];
+    foreach ($zeilen as $r) {
+        array_push($ids, (int)$r['lernender'], (int)$r['gegen'], (int)($r['eingeloest_von'] ?? 0));
+    }
+    $namen = pu_konten_namen($ids);
+    $konto = static function (int $id) use ($namen, $wer): array {
+        if ($id <= 0) return ['name' => '—', 'du' => false, 'ebene' => ''];
+        return ['name' => $namen[$id]['name'], 'du' => $id === $wer, 'ebene' => $namen[$id]['ebene']];
+    };
+    $text  = static fn(string $t): array => ['name' => $t, 'du' => false, 'ebene' => ''];
+
+    // Alte Überweisungen (vor v14) haben kein Gegenkonto, nur den Text
+    // „An Name — Zweck" bzw. „Von Name — Zweck". Der Name steht vor dem Strich.
+    $ausText = static function (string $wofuer, string $vorsatz): string {
+        $t = str_starts_with($wofuer, $vorsatz) ? mb_substr($wofuer, mb_strlen($vorsatz)) : $wofuer;
+        return trim(explode(' — ', $t, 2)[0]);
+    };
+
+    $aus = [];
+    foreach ($zeilen as $r) {
+        $k    = (int)$r['lernender'];
+        $g    = (int)$r['gegen'];
+        $art  = (string)$r['art'];
+        $code = (string)($r['code'] ?? '');
+        $codeSicht = $code === '' ? '' : ((int)$r['code_von'] === $wer ? $code : '…' . substr($code, -4));
+        $selbst = $k > 0 ? $konto($k) : $text('Topf des Plans');
+        $status = '';
+
+        switch ($art) {
+            case 'talent_aus':
+                [$von, $an] = [$selbst, $g > 0 ? $konto($g) : $text($ausText((string)$r['wofuer'], 'An '))];
+                break;
+            case 'talent_ein':
+                [$von, $an] = [$g > 0 ? $konto($g) : $text($ausText((string)$r['wofuer'], 'Von ')), $selbst];
+                break;
+            case 'code_aus':
+                $ein = (int)($r['eingeloest_von'] ?? 0);
+                $an  = $ein > 0 ? $konto($ein) : $text('Gutschein ' . $codeSicht);
+                $von = $selbst;
+                $status = $ein > 0 ? 'eingelöst ' . (string)$r['eingeloest_am']
+                        : ((string)($r['zurueck_am'] ?? '') !== ''
+                            ? 'zurückgebucht (' . (string)$r['zurueck_grund'] . ')'
+                            : 'reserviert bis ' . (string)$r['gueltig_bis']);
+                break;
+            case 'code_ein':
+                [$von, $an] = [$konto($g), $selbst];
+                $status = 'Gutschein ' . $codeSicht;
+                break;
+            case 'code_zurueck':
+                [$von, $an] = [$text('Gutschein ' . $codeSicht), $selbst];
+                $status = (string)($r['zurueck_grund'] ?? '');
+                break;
+            case 'verbrauch':
+                [$von, $an] = [$selbst, $text('Tutor' . ((string)$r['modell'] !== '' ? ' · ' . $r['modell'] : ''))];
+                break;
+            case 'einzahlung':
+                [$von, $an] = [$text('Kauf'), $selbst];
+                break;
+            case 'kontingent':
+                [$von, $an] = [$text('Plan'), $selbst];
+                break;
+            case 'probe':
+                [$von, $an] = [$text('Testzugang'), $selbst];
+                break;
+            case 'gutschrift':
+                [$von, $an] = [$text('Academy-Leitung'), $selbst];
+                break;
+            default:
+                [$von, $an] = [$text($art), $selbst];
+        }
+
+        $aus[] = [
+            'id'         => (int)$r['id'],
+            'zeitpunkt'  => (string)$r['zeitpunkt'],
+            'art'        => $art,
+            'wofuer'     => (string)$r['wofuer'],
+            'tokens'     => (int)$r['tokens'],
+            'von'        => $von,
+            'an'         => $an,
+            'status'     => $status,
+            'bestaetigt' => ((int)$r['bestaetigt']) === 1,
+            'eigen'      => $k === $wer || ($abo !== null && (int)$r['abo'] === (int)$abo['id']),
+        ];
+    }
+
+    return ['umfang' => $umfang, 'buchungen' => $aus, 'grenze' => $grenze];
 }
 
 /** Alle Abos — für Ebene 1 und die Verwaltung. */

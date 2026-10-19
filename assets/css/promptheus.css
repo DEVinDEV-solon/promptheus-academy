@@ -2988,3 +2988,84 @@ body[data-ansicht="tutor"] .mit-spalte > .seitenspalte {
 .akt-schritte { margin: .2rem 0 1rem; padding-left: 1.3rem; }
 .akt-schritte li { margin: 0 0 .45rem; }
 .akt-fuss { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; }
+
+/* ============================================================ Token-Gutscheine
+   (assets/js/gutscheine.js) — Formular, Liste, QR-Vorschau, Druckbogen. */
+:root {
+  /* Der Druck ist immer hell, in jeder Farbvariante: Papier ist weiss, und
+     Toner für eine dunkle Fläche zahlt die Schule. Die Werte folgen der
+     Palette „Pergament" (Brand/BRAND.md, Abschnitt 2). */
+  --druck-papier:  #ffffff;
+  --druck-schrift: #1f1a15;
+  --druck-leise:   #5a4f45;
+  --druck-akzent:  #a34200;
+  --druck-schnitt: #9a8f84;
+}
+
+.gut-formular {
+  display: flex; flex-wrap: wrap; gap: .6rem .9rem; align-items: flex-end; margin-top: 1rem;
+}
+.gut-feld { display: flex; flex-direction: column; gap: .2rem; }
+.gut-feld input, .gut-feld select { width: auto; }
+.gut-feld input[type=number] { width: 8rem; }
+.gut-feld input[type=text]   { width: 18rem; max-width: 100%; }
+.gut-leiste { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 1rem 0 .6rem; }
+.gut-leiste select { width: auto; }
+.knopf.aus { opacity: .45; cursor: not-allowed; pointer-events: auto; }
+a.knopf { display: inline-block; text-decoration: none; }
+
+.gut-vorschau { display: flex; gap: 1rem; align-items: center; margin: 1rem 0; }
+.gut-qr { width: 7.5rem; flex: 0 0 auto; border-radius: var(--radius-klein); overflow: hidden; }
+.gut-qr svg { display: block; width: 100%; height: auto; }
+.gut-code { font-family: var(--mono); letter-spacing: .06em; white-space: nowrap; }
+.gut-neu td { background: var(--lapis-flor); }
+.gut-text {
+  width: 100%; margin-top: .6rem; font-family: var(--mono); font-size: .82rem;
+  color: var(--schrift-2);
+}
+.code-eingabe { font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.talent-zeile input.code-eingabe { flex: 0 1 16rem; width: auto; }
+
+table.tokenbuch td { vertical-align: top; }
+
+@media (max-width: 640px) {
+  .gut-feld, .gut-feld input[type=number], .gut-feld input[type=text] { width: 100%; }
+  .gut-vorschau { flex-direction: column; align-items: flex-start; }
+}
+
+/* -------- Druckbogen: A4, zehn Kärtchen je Seite (2 × 5), Schnittlinien */
+#druck-bogen { display: none; }
+
+@media print {
+  @page { size: A4; margin: 12mm 10mm; }
+  body.druckt-gutscheine > *:not(#druck-bogen) { display: none !important; }
+  body.druckt-gutscheine { background: var(--druck-papier) !important; }
+  body.druckt-gutscheine::before, body.druckt-gutscheine::after { display: none !important; }
+  body.druckt-gutscheine #druck-bogen { display: block; }
+
+  .druck-seite {
+    display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 54mm;
+    width: 190mm; break-after: page;
+  }
+  .druck-seite:last-child { break-after: auto; }
+  .druck-karte {
+    display: flex; gap: 4mm; align-items: center; padding: 4mm 5mm;
+    border: .3mm dashed var(--druck-schnitt); break-inside: avoid;
+    color: var(--druck-schrift); background: var(--druck-papier);
+    font-family: var(--sans);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .druck-qr { flex: 0 0 30mm; }
+  .druck-qr svg { display: block; width: 30mm; height: 30mm; }
+  .druck-text { min-width: 0; line-height: 1.22; overflow: hidden; max-height: 46mm; }
+  .druck-marke {
+    font-family: var(--serif); font-size: 7.5pt; letter-spacing: .18em;
+    color: var(--druck-akzent);
+  }
+  .druck-titel { font-family: var(--serif); font-size: 10.5pt; font-weight: 700; margin: .5mm 0; }
+  .druck-anlass { font-size: 8pt; color: var(--druck-leise); }
+  .druck-code-titel { font-size: 6.5pt; color: var(--druck-leise); margin-top: 1.2mm; }
+  .druck-code { font-family: var(--mono); font-size: 12pt; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+  .druck-frist { font-size: 7.5pt; font-weight: 700; margin-top: 1mm; }
+  .druck-klein { font-size: 6.5pt; color: var(--druck-leise); margin-top: .5mm; }
+}

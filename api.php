@@ -69,6 +69,45 @@ function d(string $name, $vorgabe = '')
 }
 
 /**
+ * Das Cockpit mit allen Schaltern der Oberfläche.
+ *
+ * An einer Stelle, weil jeder Zweig, der das Cockpit nach einer Buchung neu
+ * schickt (Überweisen, Gutschein, Einzahlen, Bestätigen), dieselben Schalter
+ * braucht. Fehlten sie, zeichnete die Oberfläche danach ohne die Kästen, die
+ * an ihnen hängen — der Kasten „Token senden" verschwand nach der ersten
+ * Überweisung bis zum Neuladen.
+ */
+function pu_cockpit_ausgabe(int $ichId): array
+{
+    require_once __DIR__ . '/srv/relay.php';
+    require_once __DIR__ . '/srv/codes.php';
+    require_once __DIR__ . '/srv/lernende.php';
+
+    $ich = pu_wer();
+    return pu_cockpit($ichId) + [
+        'darf_buchen'      => pu_recht_hat('abo.verwalten'),
+        'darf_einzahlen'   => pu_recht_hat('token.einzahlen'),
+        'darf_bestaetigen' => pu_recht_hat('abo.bestaetigen'),
+        // Bestätigt wird sonst vom Server — das geht nur registriert.
+        'registriert'      => pu_relay_zustand()['registriert'],
+
+        // Recht UND jemand darunter. Das Recht allein genügt nicht:
+        // Ein Kasten „Token senden" ohne einen einzigen möglichen Empfänger
+        // ist ein Versprechen, das die Liste gleich wieder zurücknimmt.
+        'darf_senden'      => pu_recht_hat('talente.senden')
+                              && pu_talente_empfaenger($ichId) !== [],
+        // Eine Lehrkraft ohne zugeordnete Klasse erreicht niemanden. Dann
+        // sagt das Cockpit, woran es liegt, statt den Kasten still wegzulassen.
+        'senden_ohne_klassen' => pu_recht_hat('talente.senden') && $ich !== null
+                              && pu_ebene($ich) === 'lehrer' && pu_lehrer_gruppen($ichId) === [],
+        'darf_codes'       => pu_recht_hat('codes.ausstellen') && pu_code_zielebenen($ichId) !== [],
+        'darf_einloesen'   => pu_recht_hat('codes.einloesen'),
+        'darf_tokenbuch_schule' => pu_recht_hat('tokenbuch.schule'),
+        'alle'             => pu_recht_hat('abo.verwalten') ? pu_abos_alle() : [],
+    ];
+}
+
+/**
  * Weiterleiten statt JSON — nur für `community_oeffnen`, das der Browser als
  * Seite öffnet (Knopf der Werkstatt). Kein Referer, nichts im Zwischenspeicher:
  * Das Ziel trägt eine Einlassmarke.
@@ -1386,24 +1425,14 @@ try {
         // ist ein Haken, den Ebene 1 setzt — siehe srv/abo.php.
         case 'cockpit':
             pu_recht_fordern('abo.sehen');
-            pu_json_out(['ok' => true] + pu_cockpit($ichId) + [
-                'darf_buchen'      => pu_recht_hat('abo.verwalten'),
-                'darf_einzahlen'   => pu_recht_hat('token.einzahlen'),
-                'darf_bestaetigen' => pu_recht_hat('abo.bestaetigen'),
-                // Bestätigt wird sonst vom Server — das geht nur registriert.
-                'registriert'      => (function () {
-                    require_once __DIR__ . '/srv/relay.php';
-                    return pu_relay_zustand()['registriert'];
-                })(),
+            pu_json_out(['ok' => true] + pu_cockpit_ausgabe($ichId));
 
-                // Recht UND jemand darunter. Das Recht allein genügt nicht:
-                // Ein Kasten „Talente weitergeben" ohne einen einzigen
-                // möglichen Empfänger ist ein Versprechen, das die Liste
-                // gleich wieder zurücknimmt.
-                'darf_senden'      => pu_recht_hat('talente.senden')
-                                      && pu_talente_empfaenger($ichId) !== [],
-                'alle'             => pu_recht_hat('abo.verwalten') ? pu_abos_alle() : [],
-            ]);
+        // Das Tokenbuch: jede Buchung mit Woher und Wohin. Mit
+        // `tokenbuch.schule` dazu alle Überweisungen und Gutscheine der Schule.
+        case 'tokenbuch':
+            pu_recht_fordern('abo.sehen');
+            pu_json_out(['ok' => true] + pu_tokenbuch($ichId,
+                pu_recht_hat('tokenbuch.schule') && (string)d('umfang', 'eigen') === 'schule'));
 
         // ------------------------------------------------ Server (Relay)
         //
@@ -1690,18 +1719,68 @@ try {
 
             $erg = pu_talente_senden($ichId, (int)d('an'), (int)d('betrag'),
                                      (string)d('notiz', ''));
-            pu_json_out(['ok' => true, 'überweisung' => $erg] + pu_cockpit($ichId));
+            pu_json_out(['ok' => true, 'überweisung' => $erg] + pu_cockpit_ausgabe($ichId));
+        }
+
+        // ------------------------------------------------ Token-Gutscheine
+        //
+        // Ausstellen reserviert den Betrag beim Aussteller (srv/codes.php).
+        // Die Liste nennt die Codes im Klartext — nur dem Aussteller, und nur
+        // über dieses Recht.
+        case 'codes_liste':
+            pu_recht_fordern('codes.ausstellen');
+            require_once __DIR__ . '/srv/codes.php';
+            pu_json_out(['ok' => true] + pu_codes_ausgabe($ichId));
+
+        case 'codes_ausstellen': {
+            pu_recht_fordern('codes.ausstellen');
+            require_once __DIR__ . '/srv/codes.php';
+            // Wie beim Überweisen: die Bestätigung ist Teil der Anfrage.
+            if ((string)d('sicher', '') !== 'ja') {
+                pu_fehler('Die Ausstellung muss bestätigt werden.', 400);
+            }
+            // Abgewiesen ist kein Serverfehler: 400 und kein Eintrag in
+            // fehler.log für jeden Tippfehler.
+            try {
+                $erg = pu_codes_ausstellen($ichId, (int)d('anzahl'), (int)d('tokens'),
+                                           (string)d('fuer'), (string)d('notiz', ''));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true, 'neu' => $erg['codes'], 'summe' => $erg['summe']]
+                        + pu_codes_ausgabe($ichId));
+        }
+
+        case 'code_widerrufen':
+            pu_recht_fordern('codes.ausstellen');
+            require_once __DIR__ . '/srv/codes.php';
+            try {
+                pu_code_widerrufen($ichId, (int)d('id'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_codes_ausgabe($ichId));
+
+        case 'code_einloesen': {
+            pu_recht_fordern('codes.einloesen');
+            require_once __DIR__ . '/srv/codes.php';
+            try {
+                $erg = pu_code_einloesen($ichId, (string)d('code'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true, 'eingeloest' => $erg] + pu_cockpit_ausgabe($ichId));
         }
 
         case 'abo_bestaetigen':
             pu_recht_fordern('abo.bestaetigen');
             pu_abo_bestaetigen((int)d('abo'), $ichId);
-            pu_json_out(['ok' => true] + pu_cockpit($ichId));
+            pu_json_out(['ok' => true] + pu_cockpit_ausgabe($ichId));
 
         case 'abo_beenden':
             pu_recht_fordern('abo.verwalten');
             pu_abo_beenden((int)d('abo'), $ichId);
-            pu_json_out(['ok' => true] + pu_cockpit($ichId));
+            pu_json_out(['ok' => true] + pu_cockpit_ausgabe($ichId));
 
         case 'abos_alle':
             pu_recht_fordern('abo.verwalten');
@@ -1714,7 +1793,7 @@ try {
             $erg = pu_token_einzahlen(
                 (int)d('fuer', $ichId), (string)d('paket'), $ichId,
                 (bool)d('sofort', false), (bool)d('verlust_bekannt', false));
-            pu_json_out(['ok' => true, 'buchung' => $erg] + pu_cockpit($ichId));
+            pu_json_out(['ok' => true, 'buchung' => $erg] + pu_cockpit_ausgabe($ichId));
         }
 
         // ------------------------------------------------ Sprachnachricht
