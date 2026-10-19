@@ -1074,6 +1074,22 @@ function pu_stimme_deutung(int $code, string $grund, string $modell, string $for
 {
     $kopf = $code > 0 ? 'OpenRouter meldet ' . $code . ($grund !== '' ? ': ' : '') : '';
 
+    /* **Ein abgewiesener Schlüssel steht vor allem anderen.** 401 („User not
+       found", „No auth credentials") heisst: OpenRouter kennt den Schlüssel
+       nicht — gelöscht, ersetzt oder vertippt. Gemessen 19.10.2026: Sal gab
+       401, Eve, Leo und Rex klangen. Die drei kamen aus dem Zwischenspeicher,
+       ihr Probesatz war schon einmal bezahlt. So sah es nach einer kaputten
+       Stimme aus, und man sucht an der falschen Stelle. */
+    if ($code === 401) {
+        return $kopf . $grund
+            . ' — Der OpenRouter-Schlüssel dieser Academy wird nicht angenommen, meist '
+            . 'ist er gelöscht oder durch einen neuen ersetzt. An der Stimme liegt es nicht. '
+            . 'Trag unter Einstellungen › Tutor-KI › OpenRouter einen gültigen Schlüssel ein. '
+            . 'Dass andere Stimmen trotzdem klingen, liegt am Zwischenspeicher: Ein Satz, '
+            . 'der schon einmal vorgelesen wurde, kommt 30 Tage lang von hier und fragt '
+            . 'OpenRouter gar nicht.';
+    }
+
     /* **Die häufigste Ursache, und die einzige, die man sehen kann, bevor man
        fragt: die Stimme gehört zu einem anderen Modell.** Gemessen sind beide
        Richtungen — Grok mit „alloy" gibt `404: Provider returned 404`,

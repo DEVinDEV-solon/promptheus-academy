@@ -230,6 +230,16 @@ pruefe('…aber nicht, wenn pcm16 schon eingestellt ist', !str_contains($m, 'Ste
 $m = pu_stimme_deutung(400, 'Invalid voice: alloy', 'x-ai/grok-voice-tts-1.0');
 pruefe('ein Stimmfehler zeigt auf die Stimme', str_contains($m, 'Stimme'));
 
+/* 401 heisst: der Schlüssel, nicht die Stimme. Dass andere Stimmen klingen,
+   kommt vom Zwischenspeicher — das muss in der Meldung stehen, sonst sucht man
+   bei der Stimme (so geschehen 19.10.2026 mit Sal). */
+$m = pu_stimme_deutung(401, 'User not found', 'x-ai/grok-voice-tts-1.0', 'pcm16', 'sal');
+pruefe('ein 401 zeigt auf den Schlüssel', str_contains($m, 'Schlüssel'));
+pruefe('…und erklärt, warum andere Stimmen klingen', str_contains($m, 'Zwischenspeicher'));
+pruefe('…und schickt nicht zur Stimme', !str_contains($m, 'Stelle die Stimme um'));
+$m = pu_stimme_deutung(401, 'User not found', 'x-ai/grok-voice-tts-1.0', 'pcm16', 'alloy');
+pruefe('…auch dann, wenn die Stimme zusätzlich nicht passt', str_contains($m, 'Zwischenspeicher'));
+
 $m = pu_stimme_deutung(400, 'Model does not support modalities', 'openai/gpt-4o');
 pruefe('ein Modalitätsfehler zeigt auf das Modell',
        str_contains($m, 'gibt offenbar keinen Ton aus'));
