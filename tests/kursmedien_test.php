@@ -61,6 +61,8 @@ gruppe('Welche Pfade ins Paket dürfen');
 pruefe('Ton unter medien/', pu_med_pfad_ok('medien/10_Stufen/01_Entdecker/kurs/entdecker/1-entdecker.wav'));
 pruefe('Song mit Leerzeichen', pu_med_pfad_ok('medien/10_Stufen/01_Entdecker/kurs/entdecker/DIE 5 VON DER PROMPTHEUS ACADEMY.mp3'));
 pruefe('Video unter medien/', pu_med_pfad_ok('medien/10_Stufen/01_Entdecker/kurs/video.mp4'));
+pruefe('Kurs 7 (Leerzeichen und Punkt im Ordner)', pu_med_pfad_ok('medien/10_Stufen/07_Der 7. Kurs/kurs/01_der-7-kurs-hoer-zu.mp3'));
+pruefe('Song im Abschnitt songs/', pu_med_pfad_ok('medien/20_Domaenen/DOM-HDL_Handel/kurs/songs/01_der-regalgesang.mp3'));
 pruefe('nicht ausserhalb von medien/', !pu_med_pfad_ok('index.php') && !pu_med_pfad_ok('assets/x.mp3'));
 pruefe('kein PHP unter medien/', !pu_med_pfad_ok('medien/x.php'));
 pruefe('keine Rohdatei', !pu_med_pfad_ok('medien/a/1-entdecker.pcm16'));

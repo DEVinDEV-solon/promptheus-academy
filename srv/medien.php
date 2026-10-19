@@ -47,16 +47,32 @@ const PU_MEDIEN_TON   = ['mp3', 'm4a', 'ogg', 'opus', 'wav'];
 /**
  * Prüft einen Pfadteil.
  *
- * Erlaubt sind Buchstaben, Ziffern, Punkt, Strich, Unterstrich — kein `..`,
- * kein Schrägstrich, kein Nullbyte. Die Teile kommen aus Kurs- und
- * Lektionspfaden und damit mittelbar aus dem Vault; ein Ordnername mit `..`
- * darin wäre sonst ein Ausbruch aus `medien/`.
+ * Erlaubt sind Buchstaben, Ziffern, Punkt, Strich, Unterstrich und das
+ * Leerzeichen im Inneren — kein `..`, kein Schrägstrich, kein Nullbyte. Die
+ * Teile kommen aus Kurs- und Lektionspfaden und damit mittelbar aus dem Vault;
+ * ein Ordnername mit `..` darin wäre sonst ein Ausbruch aus `medien/`.
+ *
+ * Das Leerzeichen seit 19.10.2026: Der Kurs „07_Der 7. Kurs“ trägt eines im
+ * Namen und konnte bis dahin keine Aufnahmen haben.
  */
 function pu_medien_teil_ok(string $teil): bool
 {
-    if ($teil === '' || $teil === '.' || $teil === '..') return false;
-    return (bool)preg_match('/^[A-Za-z0-9._-]+$/', $teil);
+    if ($teil === '' || $teil === '.' || $teil === '..' || trim($teil) !== $teil) return false;
+    return (bool)preg_match('/^[A-Za-z0-9 ._-]+$/', $teil);
 }
+
+/** Ein Medienpfad als Adresse: jedes Stück einzeln kodiert, die Schrägstriche bleiben. */
+function pu_medien_url(string $rel): string
+{
+    return implode('/', array_map('rawurlencode', explode('/', $rel)));
+}
+
+/**
+ * Unterordner, die einen eigenen Abschnitt in der Hörliste bilden — mit
+ * Überschrift über dem Trennstrich und ohne automatisches Weiterlaufen.
+ * Lieder gehören nicht in die Folge der Erklärstücke (19.10.2026).
+ */
+const PU_MEDIEN_ABSCHNITTE = ['songs' => 'Songs'];
 
 /**
  * Setzt einen Medienpfad zusammen und prüft ihn.
@@ -161,8 +177,7 @@ function pu_medien(string $kurspfad, string $unter): array
             // Browser abspielen, und zweimal in der Liste stünde sie sonst auch.
             if ($endung === 'pcm16') continue;
 
-            $url = 'medien/' . trim($kurspfad, '/') . '/' . $unter . '/'
-                 . $ort['rel'] . rawurlencode($name);
+            $url = pu_medien_url('medien/' . trim($kurspfad, '/') . '/' . $unter . '/' . $ort['rel'] . $name);
             [$nummer, $name_titel] = pu_medien_titel($name);
 
             if (in_array($endung, PU_MEDIEN_VIDEO, true)) {
@@ -191,22 +206,30 @@ function pu_medien(string $kurspfad, string $unter): array
             $eigener = $titel[mb_strtolower($rumpf)] ?? '';
             $ausPcm  = is_file($ort['pfad'] . '/' . $rumpf . '.pcm16') || $eigener !== '';
 
+            // Ein Abschnitts-Ordner wie `songs/` bestimmt die Gruppe selbst — ein
+            // Titel in seiner titel.md macht ein Lied nicht zum Erklärstück.
+            $abschnitt = PU_MEDIEN_ABSCHNITTE[strtolower(rtrim($ort['rel'], '/'))] ?? '';
+
             $audio[] = [
-                'url'     => $url,
-                'titel'   => $eigener !== '' ? $eigener : $name_titel,
-                'nr'      => $nummer,
-                'gruppe'  => $ausPcm ? 'erklaer' : 'weiteres',
-                'kette'   => $ausPcm,
-                'groesse' => (int)filesize($voll),
+                'url'       => $url,
+                'titel'     => $eigener !== '' ? $eigener : $name_titel,
+                'nr'        => $nummer,
+                'gruppe'    => $abschnitt !== '' ? strtolower(rtrim($ort['rel'], '/'))
+                             : ($ausPcm ? 'erklaer' : 'weiteres'),
+                'abschnitt' => $abschnitt,
+                'kette'     => $abschnitt === '' && $ausPcm,
+                'groesse'   => (int)filesize($voll),
             ];
         }
     }
 
-    /* Erst die Erklärstücke nach ihrer Nummer, dann alles Übrige. Die
-       Reihenfolge ist hier keine Geschmacksfrage: Teil 3 vor Teil 1 gehört zu
-       hören ergibt eine andere Geschichte. */
-    usort($audio, function ($a, $b) {
-        if ($a['gruppe'] !== $b['gruppe']) return $a['gruppe'] === 'erklaer' ? -1 : 1;
+    /* Erst die Erklärstücke nach ihrer Nummer, dann alles Übrige, zuletzt die
+       Abschnitte (Songs). Die Reihenfolge ist hier keine Geschmacksfrage: Teil 3
+       vor Teil 1 gehört zu hören ergibt eine andere Geschichte. */
+    $rang = static fn (array $s): int => $s['gruppe'] === 'erklaer' ? 0 : ($s['abschnitt'] === '' ? 1 : 2);
+    usort($audio, function ($a, $b) use ($rang) {
+        if ($rang($a) !== $rang($b)) return $rang($a) <=> $rang($b);
+        if ($a['gruppe'] !== $b['gruppe']) return strcmp($a['gruppe'], $b['gruppe']);
         $an = $a['nr'] ?? PHP_INT_MAX;
         $bn = $b['nr'] ?? PHP_INT_MAX;
         if ($an !== $bn) return $an <=> $bn;

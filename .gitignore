@@ -269,3 +269,13 @@ secondbrain/81_Aron_Live/
 # Python-Zwischenstand (PROMPTHEUS DECK: deck/__pycache__) - entsteht bei jedem Start neu.
 **/__pycache__/
 *.pyc
+
+# Archiv aus dem Umbau der Hörlisten (19.10.2026): Einzel-Audios, Zwischenkopien,
+# alte Texte. Bleibt lokal, geht nie ins Paket.
+medien-archiv/
+
+# Produktionstexte neben den Aufnahmen (Sprechertexte, Suno-Prompts) bleiben
+# lokal: die Academy ist öffentlich, und unter medien/ ginge alles, was Git
+# kennt, ins Update-Paket. Die titel.md daneben bleiben drin.
+medien/**/*_sprechertext.md
+medien/**/*_suno.md
