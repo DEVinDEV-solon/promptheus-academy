@@ -103,6 +103,9 @@ function pu_cockpit_ausgabe(int $ichId): array
         'darf_codes'       => pu_recht_hat('codes.ausstellen') && pu_code_zielebenen($ichId) !== [],
         'darf_einloesen'   => pu_recht_hat('codes.einloesen'),
         'darf_tokenbuch_schule' => pu_recht_hat('tokenbuch.schule'),
+        // Erklärstücke neben den Knöpfen, je Karte in der Fassung dieser
+        // Person (srv/medien.php). Fehlt das Medienpaket, ist die Liste leer.
+        'hoer'             => $ich !== null ? pu_cockpit_hoer($ich) : [],
         'alle'             => pu_recht_hat('abo.verwalten') ? pu_abos_alle() : [],
     ];
 }

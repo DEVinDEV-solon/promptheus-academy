@@ -39,6 +39,70 @@
     return e;
   }
 
+  // ============================================================ Hörstücke
+  /**
+   * Ein Knopf „Erklärung anhören" neben den Knöpfen einer Karte.
+   *
+   * Die Aufnahme (srv/medien.php → pu_cockpit_hoer) ist je Karte in der
+   * Fassung für Schule, Lehrkraft oder Eltern. Der Spieler erscheint erst beim
+   * ersten Klick unter der Knopfzeile — mit Regler, denn die Stücke dauern
+   * zwei Minuten, und wer etwas nachhören will, muss springen können. Es
+   * läuft immer nur eines; wer die Seite wechselt, hält es an.
+   *
+   * @param {string} url    Adresse der Aufnahme (leer: kein Knopf)
+   * @param {string} titel  wofür, für den Bildschirmleser
+   * @returns {HTMLElement|null}
+   */
+  let hoerAktiv = null;
+  PU.hoerAnhalten = function () {
+    if (hoerAktiv && !hoerAktiv.paused) hoerAktiv.pause();
+  };
+  window.addEventListener('hashchange', PU.hoerAnhalten);
+
+  PU.hoerKnopf = function (url, titel) {
+    if (!url) return null;
+    const k = PU.el('button', 'knopf still hoer-knopf', '▶ Erklärung anhören');
+    k.type = 'button';
+    k.setAttribute('aria-label', 'Erklärung anhören: ' + titel);
+    let ton = null;
+
+    const zeigen = spielt => {
+      k.innerHTML = spielt ? '⏸ Erklärung anhalten' : '▶ Erklärung anhören';
+      k.setAttribute('aria-pressed', spielt ? 'true' : 'false');
+    };
+
+    k.addEventListener('click', () => {
+      if (!ton) {
+        const kasten = PU.el('div', 'hoer-spieler');
+        ton = document.createElement('audio');
+        ton.controls = true;
+        ton.preload = 'none';
+        ton.src = url;
+        ton.setAttribute('aria-label', titel);
+        ton.addEventListener('play', () => {
+          if (hoerAktiv && hoerAktiv !== ton) hoerAktiv.pause();
+          hoerAktiv = ton;
+          zeigen(true);
+        });
+        ton.addEventListener('pause', () => zeigen(false));
+        ton.addEventListener('ended', () => zeigen(false));
+        ton.addEventListener('error', () => {
+          kasten.innerHTML = '<p class="fehler">Die Aufnahme liess sich nicht laden. ' +
+            'Sie kommt mit dem Medienpaket; unter Einstellungen › Aktualisierung lässt es sich holen.</p>';
+          zeigen(false);
+        });
+        kasten.appendChild(ton);
+        // Unter die Zeile, in der der Knopf steht — nicht in sie hinein:
+        // Dort ist kein Platz für einen Regler über die volle Breite.
+        const zeile = k.closest('.talent-zeile, .gut-formular, .gut-leiste') || k.parentElement;
+        zeile.after(kasten);
+      }
+      if (ton.paused) ton.play().catch(() => zeigen(false));
+      else ton.pause();
+    });
+    return k;
+  };
+
   function beschriftet(text, el) {
     const l = PU.el('label', 'gut-feld');
     l.appendChild(PU.el('span', 'klein', PU.h(text)));
@@ -77,6 +141,8 @@
       wo.addEventListener('change', () => { umfang = wo.value; laden(); });
       leiste.appendChild(wo);
     }
+    const hoerBuch = PU.hoerKnopf((d.hoer || {}).tokenbuch, 'Tokenbuch');
+    if (hoerBuch) leiste.appendChild(hoerBuch);
     k.appendChild(leiste);
 
     const bereich = PU.el('div', 'tabellenrahmen');
@@ -122,7 +188,7 @@
   };
 
   // ======================================================= Gutschein einlösen
-  PU.einloesenKasten = function () {
+  PU.einloesenKasten = function (d) {
     const k = PU.el('section', 'cockpit-block');
     k.appendChild(PU.el('h2', '', 'Gutschein einlösen'));
     k.appendChild(PU.el('p', 'hinweis',
@@ -137,6 +203,8 @@
     const los = knopf('Einlösen');
     zeile.appendChild(ein);
     zeile.appendChild(los);
+    const hoerEin = PU.hoerKnopf(((d || {}).hoer || {}).einloesen, 'Gutschein einlösen');
+    if (hoerEin) zeile.appendChild(hoerEin);
     k.appendChild(zeile);
     const bericht = PU.el('p', 'warum');
     k.appendChild(bericht);
@@ -166,7 +234,8 @@
   const qr = link => (qrCache[link] = qrCache[link] ||
     PU.qr.svg(link, { stufe: 'M', titel: 'QR-Code: ' + link }));
 
-  PU.gutscheinKasten = function () {
+  PU.gutscheinKasten = function (d) {
+    const hoer = ((d || {}).hoer || {}).gutscheine || '';
     const k = PU.el('section', 'cockpit-block');
     k.appendChild(PU.el('h2', '', 'Token-Gutscheine mit QR-Code'));
     k.appendChild(PU.el('p', 'hinweis',
@@ -185,12 +254,12 @@
     const bereich = PU.el('div', 'talent-bereich');
     bereich.innerHTML = '<p class="leer-hinweis">Lade Gutscheine …</p>';
     k.appendChild(bereich);
-    PU.ruf('codes_liste').then(j => gutscheinMalen(bereich, j, []))
+    PU.ruf('codes_liste').then(j => gutscheinMalen(bereich, j, [], hoer))
       .catch(e => { bereich.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; });
     return k;
   };
 
-  function gutscheinMalen(bereich, j, neu) {
+  function gutscheinMalen(bereich, j, neu, hoer) {
     bereich.innerHTML = '';
 
     // ---- Ausstellen
@@ -213,6 +282,8 @@
     form.appendChild(beschriftet('Für', fuer));
     form.appendChild(beschriftet('Anlass (steht auf dem Kärtchen)', anlass));
     form.appendChild(aus);
+    const hoerGut = PU.hoerKnopf(hoer, 'Token-Gutscheine');
+    if (hoerGut) form.appendChild(hoerGut);
     bereich.appendChild(form);
 
     const summe = PU.el('p', 'warum');
@@ -244,7 +315,7 @@
           anzahl: n, tokens: t, fuer: fuer.value, notiz: anlass.value, sicher: 'ja'
         });
         PU.melden(n + ' Gutscheine ausgestellt, ' + zahl(r.summe) + ' Token reserviert.', 'gut');
-        gutscheinMalen(bereich, r, r.neu.map(c => c.id));
+        gutscheinMalen(bereich, r, r.neu.map(c => c.id), hoer);
       } catch (e) {
         bericht.innerHTML = '<b style="color:var(--schlecht)">✕ ' + PU.h(e.message) + '</b>';
         aus.disabled = false;
@@ -353,7 +424,7 @@
       try {
         const r = await PU.ruf('code_widerrufen', { id });
         PU.melden('Gutschein widerrufen, ' + zahl(c.tokens) + ' Token zurückgebucht.', 'gut');
-        gutscheinMalen(bereich, r, []);
+        gutscheinMalen(bereich, r, [], hoer);
       } catch (f) {
         bericht.innerHTML = '<b style="color:var(--schlecht)">✕ ' + PU.h(f.message) + '</b>';
       }

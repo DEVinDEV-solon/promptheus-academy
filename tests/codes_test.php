@@ -213,6 +213,34 @@ gleich('Schulbuch: nur die Schulleitung', [1, 0, 0, 0],
        array_values(array_intersect_key($r['tokenbuch.schule']['vorgabe'], array_flip(['verwaltung', 'lehrer', 'eltern', 'schueler']))));
 
 // ─────────────────────────────────────────────────────────────────────────────
+gruppe('Erklärstücke neben den Knöpfen');
+
+require_once __DIR__ . '/../srv/medien.php';
+$probe = 'tests/_hoerprobe_' . getmypid();
+@mkdir(PU_ROOT . '/' . $probe, 0777, true);
+foreach (['token-senden_schule', 'token-senden_lehrer', 'token-senden_eltern',
+          'einloesen_alle', 'tokenbuch_schule'] as $n) {
+    file_put_contents(PU_ROOT . "/$probe/$n.mp3", 'x');
+}
+// Ohne den angehängten Dateistand (?v=…) verglichen; der steht eigens geprüft.
+$fuer = static fn(int $id) => array_map(static fn($u) => explode('?', $u)[0],
+                                        pu_cockpit_hoer(pu_profil($id), $probe));
+pruefe('die Adresse trägt den Dateistand',
+       (bool)preg_match('/\?v=\d+$/', pu_cockpit_hoer(pu_profil($schule), $probe)['token-senden'] ?? ''));
+
+gleich('Schulleitung: ihre Fassung', $probe . '/token-senden_schule.mp3', $fuer($schule)['token-senden'] ?? null);
+gleich('Lehrkraft: ihre Fassung', $probe . '/token-senden_lehrer.mp3', $fuer($lehrerA)['token-senden'] ?? null);
+gleich('Eltern: ihre Fassung', $probe . '/token-senden_eltern.mp3', $fuer($mama)['token-senden'] ?? null);
+gleich('Ebene 1 hört die Fassung der Schulleitung', $probe . '/token-senden_schule.mp3', $fuer($chef)['token-senden'] ?? null);
+gleich('ohne eigene Fassung: die für alle', $probe . '/einloesen_alle.mp3', $fuer($ana)['einloesen'] ?? null);
+pruefe('Schüler: keine Fassung zum Senden, also kein Knopf', !isset($fuer($ana)['token-senden']));
+pruefe('fehlt die Aufnahme, fehlt der Knopf', !isset($fuer($lehrerA)['tokenbuch']) && !isset($fuer($lehrerA)['gutscheine']));
+
+foreach (glob(PU_ROOT . "/$probe/*.mp3") ?: [] as $f) @unlink($f);
+@rmdir(PU_ROOT . '/' . $probe);
+gleich('ohne Medienpaket: gar keine', [], pu_cockpit_hoer(pu_profil($schule), $probe));
+
+// ─────────────────────────────────────────────────────────────────────────────
 gruppe('QR-Code: Bit für Bit gegen eine zweite Umsetzung');
 
 $node = trim((string)shell_exec(PHP_OS_FAMILY === 'Windows' ? 'where node 2>NUL' : 'command -v node 2>/dev/null'));

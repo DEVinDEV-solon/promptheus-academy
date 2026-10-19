@@ -426,6 +426,45 @@ function pu_medien_zielgruppe(array $wer): string
     };
 }
 
+// ------------------------------------------------- Erklärstücke im Cockpit
+
+/** Die Karten im Cockpit, die ein Erklärstück haben können. */
+const PU_COCKPIT_KARTEN = ['token-senden', 'gutscheine', 'einloesen', 'tokenbuch'];
+
+/**
+ * Die Erklärstücke zu den Cockpit-Karten für diese Person (19.10.2026).
+ *
+ * Liegen in `medien/98_Cockpit/<karte>_<zielgruppe>.mp3` und kommen mit dem
+ * Medienpaket. Gesucht wird erst die Fassung der eigenen Zielgruppe, dann
+ * `<karte>_alle.mp3`. Ebene 1 hört die Fassung der Schulleitung — sie
+ * erklärt das Ganze, und eine eigene für den Betreiber gibt es nicht.
+ * Was nicht da ist, fehlt in der Liste; die Oberfläche zeigt dann keinen
+ * Knopf, statt einen, der ins Leere spielt.
+ *
+ * @param string $ordner relativ zu PU_ROOT; anders nur in den Tests
+ * @return array<string, string> Karte → Adresse der Aufnahme
+ */
+function pu_cockpit_hoer(array $wer, string $ordner = 'medien/98_Cockpit'): array
+{
+    $gruppe = pu_medien_zielgruppe($wer);
+    if ($gruppe === '') $gruppe = 'schule';
+
+    $aus = [];
+    foreach (PU_COCKPIT_KARTEN as $karte) {
+        foreach ([$gruppe, 'alle'] as $g) {
+            $rel = $ordner . '/' . $karte . '_' . $g . '.mp3';
+            if (is_file(PU_ROOT . '/' . $rel)) {
+                // Der Dateistand hängt an der Adresse: Kommt mit einem neuen
+                // Medienpaket eine neu vertonte Fassung, holt der Browser sie
+                // statt der alten aus seinem Zwischenspeicher.
+                $aus[$karte] = pu_medien_url($rel) . '?v=' . (int)filemtime(PU_ROOT . '/' . $rel);
+                break;
+            }
+        }
+    }
+    return $aus;
+}
+
 /** Liegt überhaupt etwas vor? Entscheidet, ob die Spalte erscheint. */
 function pu_medien_leer(array $m): bool
 {

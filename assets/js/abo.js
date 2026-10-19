@@ -40,6 +40,9 @@ PU.cockpitZeichnen = async function () {
 
 function cockpitMalen(ziel) {
   const d = PU.cockpitStand;
+  // Ein Erklärstück, das noch läuft, würde sonst aus einem Spieler weiter-
+  // sprechen, den es nach dem Neuzeichnen nicht mehr gibt.
+  if (PU.hoerAnhalten) PU.hoerAnhalten();
   ziel.innerHTML = '';
 
   ziel.appendChild(PU.el('h1', '', 'Cockpit'));
@@ -98,10 +101,17 @@ function talentKasten(d) {
     'Schüler ihrer Klassen und deren Eltern, Eltern an ihr Kind. ' +
     '(Talente sind Token — ein Talent ist ein Token.)'));
 
+  const hoer = PU.hoerKnopf ? PU.hoerKnopf((d.hoer || {})['token-senden'], 'Token senden') : null;
+
   if (!d.darf_senden) {
     k.appendChild(PU.el('p', 'leer-hinweis',
       'Dir sind noch keine Klassen zugeordnet, deshalb erreichst du niemanden. ' +
       'Die Klassen ordnet die Schulleitung unter Konten zu.'));
+    if (hoer) {
+      const zeile = PU.el('div', 'talent-zeile');
+      zeile.appendChild(hoer);
+      k.appendChild(zeile);
+    }
     return k;
   }
 
@@ -109,13 +119,13 @@ function talentKasten(d) {
   bereich.innerHTML = '<p class="leer-hinweis">Lade Empfänger …</p>';
   k.appendChild(bereich);
 
-  PU.ruf('talente_ziele').then(j => talentFormular(bereich, j))
+  PU.ruf('talente_ziele').then(j => talentFormular(bereich, j, hoer))
     .catch(e => { bereich.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; });
 
   return k;
 }
 
-function talentFormular(bereich, j) {
+function talentFormular(bereich, j, hoer) {
   bereich.innerHTML = '';
 
   if (!j.ziele.length) {
@@ -123,6 +133,11 @@ function talentFormular(bereich, j) {
       'Unter dir steht niemand, an den du Token senden könntest. ' +
       'Bei einem Elternkonto heisst das: Es ist noch kein Kind verknüpft — ' +
       'das macht die Academy-Leitung unter Konten.'));
+    if (hoer) {
+      const z = PU.el('div', 'talent-zeile');
+      z.appendChild(hoer);
+      bereich.appendChild(z);
+    }
     return;
   }
 
@@ -163,6 +178,7 @@ function talentFormular(bereich, j) {
   zeile.appendChild(betrag);
   zeile.appendChild(notiz);
   zeile.appendChild(knopf);
+  if (hoer) zeile.appendChild(hoer);
   bereich.appendChild(zeile);
 
   /* Was verfügbar ist, steht dabei — und zwar als Zahl, nicht als Gefühl.
