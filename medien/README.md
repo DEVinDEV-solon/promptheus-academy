@@ -46,6 +46,33 @@ medien/10_Stufen/01_Entdecker/fazit/01_was-haengen-bleibt.mp3
 Liegen zwei Videos im selben Ordner, gewinnt das erste. Zwei nebeneinander
 wären eine Entscheidung, die niemand getroffen hat.
 
+## Titel, Erklärstücke und Songs
+
+Eine `titel.md` im Ordner gibt den Aufnahmen ihren Titel, eine Zeile je Datei:
+
+```
+01_entdecker-hoer-zu = Entdecker, hör zu!
+```
+
+Links steht der Dateiname **ohne** Endung. Ein Eintrag macht die Aufnahme zum
+**Erklärstück**: Es steht oben in der Hörliste und läuft als Folge durch.
+
+Lieder liegen im Unterordner **`kurs/songs/`** mit eigener `titel.md`. Sie
+erscheinen unter der Zwischenüberschrift „Songs“, nach Nummer sortiert, und
+laufen nicht von selbst weiter. Beispiel Kursseite:
+
+```
+medien/10_Stufen/01_Entdecker/kurs/titel.md
+medien/10_Stufen/01_Entdecker/kurs/01_entdecker-hoer-zu.mp3
+medien/10_Stufen/01_Entdecker/kurs/songs/titel.md
+medien/10_Stufen/01_Entdecker/kurs/songs/01_das-feuer-bleibt-bei-dir.mp3
+```
+
+Ordnernamen dürfen Leerzeichen und Punkte enthalten (`10_Stufen/07_Der 7. Kurs`),
+aber keine Leerzeichen am Anfang oder Ende. Neben einer Aufnahme kann ihre
+Vorlage liegen — `…_sprechertext.md` für den Sprecher, `…_suno.md` für den
+Song. Diese Vorlagen sind im Git ausgenommen und werden nicht ausgeliefert.
+
 ## Was ohne Aufnahmen passiert
 
 Nichts Schlimmes: die Spalte bleibt für Lernende einfach aus. Ein **Tutor**

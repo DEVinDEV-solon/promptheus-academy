@@ -113,10 +113,16 @@ PU.podcastSpieler = function (stuecke, schluessel) {
 
   stuecke.forEach((s, i) => {
     // Ein Strich zwischen den Gruppen — dahinter hört nichts mehr von selbst auf.
-    if (i > 0 && (stuecke[i - 1].gruppe || '') !== (s.gruppe || '')) {
+    // Ein Abschnitt (etwa „Songs“) bekommt seine Überschrift auf den Strich —
+    // auch ganz oben, wenn es sonst nichts gibt.
+    if ((i > 0 && (stuecke[i - 1].gruppe || '') !== (s.gruppe || '')) || (i === 0 && s.abschnitt)) {
       const trenner = document.createElement('li');
-      trenner.className = 'pod-trenner';
-      trenner.setAttribute('aria-hidden', 'true');
+      trenner.className = 'pod-trenner' + (s.abschnitt ? ' mit-titel' : '');
+      if (s.abschnitt) {
+        trenner.textContent = s.abschnitt;
+      } else {
+        trenner.setAttribute('aria-hidden', 'true');
+      }
       liste.appendChild(trenner);
     }
 

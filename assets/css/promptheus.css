@@ -1969,6 +1969,13 @@ html[data-bewegung="wenig"] .lob .lob-funke { display: none; }
   height: 1px; background: var(--rand); margin: .35rem .1rem;
   display: block !important;
 }
+/* Mit Überschrift (Abschnitt „Songs“): der Strich unter dem Wort. */
+.pod-trenner.mit-titel {
+  height: auto; background: none; border-bottom: 1px solid var(--rand);
+  margin: .7rem .1rem .3rem; padding: 0 .2rem .25rem;
+  font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-schrift);
+}
 
 .pod-kette, .pod-auto {
   flex: none; display: flex; align-items: center; justify-content: center;
