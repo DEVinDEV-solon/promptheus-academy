@@ -686,4 +686,30 @@ gleich('von Hand gesetzt gilt auch für Vorlesemodelle', 'chat',
        pu_stimme_weg_fuer('x-ai/grok-voice-tts-1.0'));
 pu_einst_global_setzen('stimme_weg', 'auto');
 
+// ================================================================ Emojis
+gruppe('Emojis werden nicht mitgesprochen');
+
+// Antworten im Social-Media-Format sind voller Emojis — gesprochen wird nur der Text.
+gleich('ein Emoji am Satzende fällt weg', 'Gut gemacht!', pu_stimme_ohne_emoji('Gut gemacht! 🎉'));
+gleich('…auch mitten im Satz, ohne doppeltes Leerzeichen', 'Das ist richtig gut.',
+       pu_stimme_ohne_emoji('Das ist 🔥 richtig gut.'));
+gleich('zusammengesetzte Emojis ganz, ohne Rest', 'Daumen hoch',
+       pu_stimme_ohne_emoji('Daumen 👍🏽 hoch ❤️ 👨‍👩‍👧'));
+gleich('Flaggen ganz', 'Made in Germany', pu_stimme_ohne_emoji('Made in Germany 🇩🇪'));
+gleich('aus einer Tastenkappe bleibt die Zahl', '1 Schritt', pu_stimme_ohne_emoji('1️⃣ Schritt'));
+gleich('Aufzählung mit Emoji vorn', "Prompt schreiben\nErgebnis prüfen",
+       pu_stimme_ohne_emoji("✅ Prompt schreiben\n✅ Ergebnis prüfen"));
+gleich('eine Zeile nur aus Emojis hinterlässt keine Lücke', "Oben\n\nUnten",
+       pu_stimme_ohne_emoji("Oben\n\n🚀🚀🚀\n\nUnten"));
+gleich('© ® ™ bleiben, sie gehören zum Text', 'PROMPTHEUS™ © 2026',
+       pu_stimme_ohne_emoji('PROMPTHEUS™ © 2026'));
+gleich('Umlaute, Gedankenstrich und Anführungszeichen bleiben', '„Grüße“ – schön',
+       pu_stimme_ohne_emoji('„Grüße“ – schön'));
+gleich('nur Emojis ergibt keinen Text', '', pu_stimme_ohne_emoji('🎉🔥👍'));
+
+// Und pu_vorlesen nimmt sie wirklich raus: Ein Text nur aus Emojis kostet
+// keinen Aufruf, sondern meldet, dass nichts zu lesen ist.
+$r = pu_vorlesen($kind, '🎉 🔥');
+pruefe('nur Emojis wird nicht vorgelesen', !$r['ok'] && str_contains($r['fehler'], 'kein Text'));
+
 bilanz();
