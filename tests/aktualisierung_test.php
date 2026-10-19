@@ -151,6 +151,17 @@ $anzahl = count($gesendet);
 pu_akt_pruefen();
 gleich('nicht fällig: keine zweite Nachfrage', $anzahl, count($gesendet));
 
+// Nach einem Update meldet sich die Academy sofort, nicht erst zum nächsten
+// Termin — sonst zeigt das Web-Cockpit bis zu einen Tag die alte Fassung.
+gleich('die gemeldete Fassung steht im Stand', pu_fassung(), pu_akt_stand()['gemeldet']);
+pu_setting_setzen('update_stand', json_encode(['gemeldet' => '0.0.1', 'naechste' => time() + 86400] + pu_akt_stand()));
+pu_akt_pruefen();
+gleich('neue Fassung seit der letzten Meldung: sofort nachgefragt', $anzahl + 1, count($gesendet));
+gleich('… und gemerkt', pu_fassung(), pu_akt_stand()['gemeldet']);
+pu_akt_pruefen();
+gleich('… aber nur einmal', $anzahl + 1, count($gesendet));
+$anzahl = count($gesendet);
+
 $o = pu_akt_oberflaeche(1);
 pruefe('Oberfläche: Angebot, nicht ausgeblendet', ($o['angebot']['fassung'] ?? '') === '9.0.0' && !$o['ausgeblendet']);
 pu_akt_ausblenden(1, '9.0.0');

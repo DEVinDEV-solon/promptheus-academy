@@ -175,8 +175,23 @@ pu_einst_global_setzen('update_pruefen', 'an');
 $s = pu_akt_stand();
 $s['medien'] = null;
 $s['naechste'] = time() + 3600;
+$s['gemeldet'] = pu_fassung();   // diese Fassung kennt der Server schon
 pu_akt_stand_setzen($s);
 gleich('schon Kursmedien da, Prüfung nicht fällig: nichts, kein Netz', [[], []], [pu_med_beim_start($w), $rufe]);
+
+// Nach einem Update ist die Nachfrage beim ersten Start fällig — sie meldet die
+// neue Fassung. Ohne Netz bleibt es bei dem einen Versuch; der Fehler hält die
+// nächste Frage auf.
+$s['gemeldet'] = '0.0.1';
+pu_akt_stand_setzen($s);
+pu_med_beim_start($w);
+pruefe('nach einem Update: beim Start einmal nachgefragt', count($rufe) === 1);
+pu_med_beim_start($w);
+pruefe('… und ohne Netz nicht bei jedem Start wieder', count($rufe) === 1);
+$rufe = [];
+$s['gemeldet'] = pu_fassung();
+$s['fehler'] = '';
+pu_akt_stand_setzen($s);
 
 @unlink(pu_akt_ordner() . '/medien.json');
 $z = pu_med_beim_start($w);
