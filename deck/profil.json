@@ -82,6 +82,41 @@
    "kuerzel": "COM"
   },
   {
+   "id": "pa-3d-game",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – 3D-Game",
+   "url": "https://promptheus-academy.de/3d-game.php",
+   "kuerzel": "3D"
+  },
+  {
+   "id": "pa-preise",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – Preise",
+   "url": "https://promptheus-academy.de/preise.php",
+   "kuerzel": "PRE"
+  },
+  {
+   "id": "pa-odeion",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – ODEION",
+   "url": "https://odeion.promptheus-academy.de/",
+   "kuerzel": "ODE"
+  },
+  {
+   "id": "pa-github",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – GitHub",
+   "url": "https://github.com/DEVinDEV-solon/promptheus-academy",
+   "kuerzel": "GIT"
+  },
+  {
+   "id": "pa-releases",
+   "bereich": "web",
+   "name": "PROMPTHEUS Academy – Releases",
+   "url": "https://github.com/DEVinDEV-solon/promptheus-academy/releases",
+   "kuerzel": "REL"
+  },
+  {
    "id": "pa-cinema-studio",
    "bereich": "programme",
    "name": "PROMPTHEUS Academy – Cinema-Studio",
