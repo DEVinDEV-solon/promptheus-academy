@@ -174,6 +174,39 @@ class Speicher:
                 if e.get("kern") and e["id"] not in ids:
                     for k in ("kern", "kuerzel", "ticket", "ticket_ueber"):
                         e.pop(k, None)
+            self._vorgabe_ordner()
+
+    def _vorgabe_ordner(self) -> None:
+        """Weitere feste Ordner des Profils (PROMPTHEUS DECK: GAMES) mit Vorgabe-Einträgen.
+        Der Ordner ist fest (immer da, nicht löschbar) und steht gleich unter dem festen Ordner seines
+        Bereichs. Seine Einträge gehören nicht zum festen Kern (der ist die Academy): Sie kommen je einmal
+        hinein und dürfen dann verschoben oder entfernt werden – was entfernt ist, kommt nicht wieder
+        (einstellungen.vorgaben_gesetzt). Ein neuer Vorgabe-Eintrag im Profil erscheint beim nächsten Start."""
+        gesetzt = self.d["einstellungen"].setdefault("vorgaben_gesetzt", [])
+        for o in PROFIL.get("vorgabe_ordner") or []:
+            bereich = o["bereich"]
+            alt = next((x for x in self.d["ordner"] if x["id"] == o["id"]), None)
+            if alt:
+                self.d["ordner"].remove(alt)
+            # Hinter den letzten festen Ordner des Bereichs, sonst ganz nach oben im Bereich.
+            feste = [n for n, x in enumerate(self.d["ordner"]) if x["bereich"] == bereich and x.get("fest")]
+            i = feste[-1] + 1 if feste else next(
+                (n for n, x in enumerate(self.d["ordner"]) if x["bereich"] == bereich), len(self.d["ordner"]))
+            self.d["ordner"].insert(i, {"id": o["id"], "name": o["name"], "bereich": bereich, "fest": True})
+            for n, v in enumerate(o.get("eintraege") or [], 1):
+                e = next((x for x in self.d["eintraege"] if x["id"] == v["id"]), None)
+                if e:
+                    # Schon da: Adresse und Name folgen dem Profil, der Ordner bleibt, wo der Nutzer ihn hat.
+                    e.update(name=v["name"], url=v["url"], kuerzel=str(v.get("kuerzel") or "")[:3])
+                    continue
+                if v["id"] in gesetzt:
+                    continue
+                roh = {"id": v["id"], "bereich": bereich, "name": v["name"], "url": v["url"], "ordner": o["id"],
+                       "beschreibung": v.get("beschreibung", ""), "quelle": "vorgabe"}
+                e = normalisieren(roh, self.d["ordner"], self.d["eintraege"])
+                e.update(kuerzel=str(v.get("kuerzel") or "")[:3], rang=n)
+                self.d["eintraege"].append(e)
+                gesetzt.append(v["id"])
 
     def _erstbefuellung(self) -> dict:
         if PROFIL.get("vorlage") is False:  # DECK: nur die festen Einträge und leere eigene Ordner

@@ -128,5 +128,27 @@
    "beschreibung": "Öffnet sich aus der Werkstatt (Ticket) – DECK startet es dann ohne Fenster.",
    "kuerzel": "CIN"
   }
+ ],
+ "vorgabe_ordner": [
+  {
+   "id": "w-games",
+   "name": "GAMES",
+   "bereich": "web",
+   "eintraege": [
+    {
+     "id": "pa-schach",
+     "name": "Schach",
+     "kuerzel": "SCH",
+     "url": "https://promptheus-academy.de/gemeinde/#spiel=schach",
+     "beschreibung": "Schach aus der Community – nur mit Abo: Ohne Sitzung zeigt die Community das Tor, Einlass über die Werkstatt."
+    },
+    {
+     "id": "pa-splash",
+     "name": "Splash",
+     "kuerzel": "SPL",
+     "url": "https://splash.agent0.de/"
+    }
+   ]
+  }
  ]
 }
