@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.7": {
+      "titel": "Taschenrechner an jeder Aufgabe",
+      "neu": "Über jeder Aufgabe steht neben Tokenicer und Lösungsweg ein Knopf „Rechner“. Er öffnet einen Taschenrechner mit Prozenttaste (595 − 19 % = 481,95) und einen Prozentrechner: Aus 595 Euro inklusive 19 % werden sofort 500 Euro netto und 95 Euro Steuer. Das Ergebnis lässt sich in die Antwort übernehmen. Die Knöpfe über der Aufgabe halten jetzt Abstand zum Eingabefeld.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst fehlt der Rechner-Knopf."
+      ]
+    },
     "1.1.6": {
       "titel": "Lob mit Titel, passend zu Person und Aufgabe",
       "neu": "Nach einer richtigen Antwort steht im Lob-Fenster jetzt ein kurzer Titel wie „Genau richtig!“ und darunter der längere Satz. Titel und Satz richten sich nach der Person — Alter oder Klasse bei Lernenden, sonst Eltern, Lehrkraft oder Schulleitung — und nach der Art der Aufgabe. Eltern, Lehrkräfte und Schulleitung bekommen eigene Sätze.",
