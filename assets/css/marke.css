@@ -430,6 +430,33 @@ html[data-thema-effektiv="hell"] {
 .abschluss-urkunde .abschluss-kontrolle label { margin: .6rem 0; }
 @media (max-width: 600px) { .abschluss-urkunde .feldpaar { grid-template-columns: 1fr; } }
 
+/* Fortschritt › Urkunden: die drei Karten nebeneinander. Wer eine Tabelle
+   oder die Schrittleiste der Abschluss-Urkunde trägt, braucht die volle
+   Breite und bekommt eine eigene Zeile; die anderen bleiben nebeneinander.
+   Jede Karte behält ihre Höhe — gestreckt stünden die kurzen leer da. */
+.urkunden-reihe { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: flex-start; }
+.urkunden-reihe > * { flex: 1 1 17rem; min-width: 0; }
+.urkunden-reihe > :has(table, .urkunde-schritte) { flex-basis: 100%; }
+.urkunden-reihe .abschluss-karte, .urkunden-reihe .abschluss-urkunde { margin-top: 0; }
+.stufen-urkunden { border-left: 3px solid var(--glut); }
+
+/* Fortschritt › Dein Stand: die Titelkarte reicht so weit hinunter wie die
+   Zielkarte daneben und trägt vier Zahlen und den nächsten Schritt. */
+.stand-kopf { align-items: stretch; margin-bottom: 1.6rem; }
+.stand-kopf > .titelkarte { margin-bottom: 0; }
+.stand-zahlen {
+  display: grid; gap: .7rem; margin: .9rem 0 .2rem;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+.stand-zahl {
+  display: flex; flex-direction: column; gap: .15rem;
+  background: var(--grund-3); border: 1px solid var(--rand);
+  border-radius: var(--radius); padding: .6rem .75rem;
+}
+.stand-zahl b { font-family: var(--serif); font-size: 1.15rem; color: var(--gold-schrift); }
+.stand-zahl .klein { color: var(--schrift-3); }
+.stand-naechstes { margin: .7rem 0 0; }
+
 /* Die drei Schritte (urkunde.js) */
 .urkunde-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; padding: 0; margin: .4rem 0 1rem; }
 .urkunde-schritte li { color: var(--schrift-3); font-size: .92rem; }

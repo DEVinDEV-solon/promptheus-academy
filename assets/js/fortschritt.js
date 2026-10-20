@@ -20,12 +20,15 @@ PU.fortschrittZeichnen = async function () {
   // wenn man schon durch ist.
   ziel.innerHTML = '';
 
-  const kopfreihe = PU.el('div', 'mit-spalte');
+  const kopfreihe = PU.el('div', 'mit-spalte stand-kopf');
   const kopfkarte = PU.el('div', 'textkarte titelkarte');
   kopfkarte.appendChild(PU.el('h1', '', 'Dein Stand'));
   kopfkarte.appendChild(PU.el('p', 'hinweis',
     'Punkte, Abzeichen, Prüfungen und Urkunden — alles, was du bisher ' +
     'gesammelt hast, auf einer Seite.'));
+  // Die Zielkarte daneben ist hoch; ohne diese Zahlen stand unter dem Titel
+  // nur Luft. Jetzt steht hier die Seite in vier Zahlen und was als Nächstes kommt.
+  standUeberblick(kopfkarte, s, j);
   kopfreihe.appendChild(kopfkarte);
 
   const kopfspalte = PU.el('aside', 'seitenspalte');
@@ -140,10 +143,20 @@ PU.fortschrittZeichnen = async function () {
     ziel.appendChild(PU.el('h2', '',
       'Abzeichen (' + abz.filter(b => b.hat).length + ' von ' + abz.length + ')'));
 
-    if (r) {
-      ziel.appendChild(PU.el('p', 'hinweis',
-        'Sie hängen an derselben Zahl wie dein Rang: ' + PU.h(r.was) + '.'));
+    // Lernende haben einen eigenen Katalog (srv/badges.php); bei Lehrkraft,
+    // Eltern und Schule zählt dieselbe Zahl wie beim Rang (pu_abzeichen).
+    const erklaerung = PU.el('p', 'hinweis');
+    if (r && r.ebene !== 'schueler') {
+      const satz = String(r.woran || '').split('. ')[0].replace(/\.$/, '');
+      erklaerung.innerHTML = 'Diese Abzeichen wachsen mit derselben Zahl wie dein Rang ' +
+        '„' + PU.h(r.rang) + '“: ' + PU.h(satz.charAt(0).toLowerCase() + satz.slice(1)) +
+        ' (jetzt: <b>' + r.zahl.toLocaleString('de-DE') + '</b> ' + PU.h(r.einheit) + '). ' +
+        'Unter jedem Abzeichen steht, ab wann es dir gehört.';
+    } else {
+      erklaerung.textContent = 'Jedes Abzeichen steht für eine eigene Leistung. ' +
+        'Was dafür nötig ist, steht darunter.';
     }
+    ziel.appendChild(erklaerung);
 
     const badges = PU.el('div', 'badge-liste');
     abz.forEach(b => {
@@ -157,9 +170,23 @@ PU.fortschrittZeichnen = async function () {
   }
 
   /* ---------------------------------------------------- Urkunden */
+  //
+  // Stufen-Urkunden, Abschluss-Urkunde und „Nach der letzten Stufe“ stehen
+  // nebeneinander in einer Reihe. Eine Karte mit Tabelle oder Schrittleiste
+  // nimmt die ganze Breite (marke.css, .urkunden-reihe), die übrigen rücken
+  // darunter wieder zusammen.
   ziel.appendChild(PU.el('h2', '', 'Urkunden'));
+  const reihe = PU.el('div', 'urkunden-reihe');
+  ziel.appendChild(reihe);
+
+  const gesamt = Object.keys(PU.stufen || {}).length || 6;
+  const stufenKarte = PU.el('div', 'karte stufen-urkunden');
+  stufenKarte.innerHTML = '<div class="karte-kopf"><h3>📜 Stufen-Urkunden</h3>' +
+    '<span class="marke-stufe">' + s.urkunden.filter(u => !u.widerrufen).length +
+    ' von ' + gesamt + '</span></div>';
+  reihe.appendChild(stufenKarte);
   if (!s.urkunden.length) {
-    ziel.appendChild(PU.el('p', 'hinweis',
+    stufenKarte.appendChild(PU.el('p', 'klein',
       'Noch keine. Jede bestandene Stufenprüfung gibt eine Urkunde mit Prüfcode — ' +
       'den kann jeder überprüfen, ohne ein Konto zu haben.'));
   } else {
@@ -175,26 +202,68 @@ PU.fortschrittZeichnen = async function () {
             '" target="_blank" rel="noopener">öffnen</a>') + '</td></tr>';
     });
     rahmen.innerHTML = html + '</table>';
-    ziel.appendChild(rahmen);
+    stufenKarte.appendChild(rahmen);
   }
 
   /* ------------------------------------------------- Abschluss-Urkunde */
   //
   // Eigener Ruf und nicht in `stand`: der Stand wird auf jeder Seite geladen,
   // die Abschluss-Urkunde nur hier gebraucht.
-  const abschlussPlatz = PU.el('div');
-  ziel.appendChild(abschlussPlatz);
+  const abschlussPlatz = PU.el('div', 'urkunden-platz');
+  reihe.appendChild(abschlussPlatz);
   PU.abschlussUrkunde(abschlussPlatz);
+
+  /* ------------------------------------------------- Nach allen Stufen */
+  reihe.appendChild(abschlussKarte(s));
 
   if (PU.darf('urkunde.nachdrucken')) {
     const nachdruck = PU.el('div');
     ziel.appendChild(nachdruck);
     nachdruckZeichnen(nachdruck);
   }
-
-  /* ------------------------------------------------- Nach allen Stufen */
-  ziel.appendChild(abschlussKarte(s));
 };
+
+/**
+ * Der Kopf „Dein Stand“: vier Zahlen und der nächste Schritt — dieselben
+ * Angaben wie weiter unten, nur auf einen Blick.
+ */
+function standUeberblick(karte, s, j) {
+  const r      = j.rang;
+  const abz    = j.abzeichen || [];
+  const gesamt = Object.keys(PU.stufen || {}).length || 6;
+  const bestanden = new Set(s.pruefungen.filter(p => Number(p.bestanden) === 1).map(p => Number(p.stufe)));
+  const zahl = n => Number(n).toLocaleString('de-DE');
+
+  const kacheln = [
+    r ? ['Rang', PU.h(r.rang), zahl(r.zahl) + ' ' + PU.h(r.einheit)] : null,
+    ['Stufen', bestanden.size + ' von ' + gesamt, 'Prüfungen bestanden'],
+    abz.length ? ['Abzeichen', abz.filter(b => b.hat).length + ' von ' + abz.length, 'gesammelt'] : null,
+    ['Serie', '🔥 ' + s.serie.tage, 'Tage in Folge · beste: ' + s.serie.bestwert],
+  ].filter(Boolean);
+
+  const raster = PU.el('div', 'stand-zahlen');
+  raster.innerHTML = kacheln.map(k =>
+    '<div class="stand-zahl"><span class="klein">' + k[0] + '</span>' +
+    '<b>' + k[1] + '</b><span class="klein">' + k[2] + '</span></div>').join('');
+  karte.appendChild(raster);
+
+  // Als Nächstes: die erste offene Stufe, sonst der nächste Rang.
+  const offen = Object.keys(PU.stufen || {}).map(Number)
+    .find(nr => !bestanden.has(nr) && nr <= s.hoechste_stufe);
+  const schritte = [];
+  if (offen) {
+    const st = PU.stufen[offen];
+    schritte.push('Stufe ' + offen + ' — <b>' + PU.h(st.name) + '</b>: ' + PU.h(st.titel));
+  }
+  if (r && r.naechst) {
+    schritte.push('Noch ' + zahl(r.naechst.fehlt) + ' ' + PU.h(r.einheit) +
+      ' bis zum Rang <b>' + PU.h(r.naechst.name) + '</b>');
+  }
+  if (schritte.length) {
+    karte.appendChild(PU.el('p', 'klein stand-naechstes',
+      '<b>Als Nächstes:</b> ' + schritte.join(' · ')));
+  }
+}
 
 /**
  * Für Schule, Lehrkraft und Eltern: die Abschluss-Urkunden im eigenen
