@@ -7,6 +7,14 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.16": {
+      "titel": "Familien-Konten und Gratis-Zugang",
+      "neu": "Ein Elternkonto kann jetzt bis zu drei Kinder haben: Unter „Meine Kinder“ legen Eltern Kinderkonten selbst an oder verknüpfen sie, und ein Familienplan gilt für alle Kinder mit. Neu ist der Gratis-Zugang für Familien: 12 Monate ohne Token über den Server, die Tutoren laufen über den eigenen OpenRouter-Schlüssel. Vier Wochen vor dem Ende kündigt die Academy das Ende an. Die Preistexte nennen jetzt Endpreise ohne Umsatzsteuer (Kleinunternehmer nach § 19 UStG).",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden.",
+        "Elternkonten mit Gratis-Zugang: Einstellungen › Tutor-KI › den eigenen OpenRouter-Schlüssel eintragen. Ohne ihn antworten die Tutoren nicht."
+      ]
+    },
     "1.1.15": {
       "titel": "Kind verknüpfen nur in der eigenen Schule",
       "neu": "Im Menü „Klasse“ stehen beim Elternkonto jetzt nur noch Schülerkonten derselben Schule zur Wahl. Die Academy prüft das auch beim Speichern: Elternkonto, Kind und wer verknüpft gehören zur selben Schule.",
