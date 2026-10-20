@@ -157,9 +157,23 @@ PU.fortschrittZeichnen = async function () {
   }
 
   /* ---------------------------------------------------- Urkunden */
+  //
+  // Stufen-Urkunden, Abschluss-Urkunde und „Nach der letzten Stufe“ stehen
+  // nebeneinander in einer Reihe. Eine Karte mit Tabelle oder Schrittleiste
+  // nimmt die ganze Breite (marke.css, .urkunden-reihe), die übrigen rücken
+  // darunter wieder zusammen.
   ziel.appendChild(PU.el('h2', '', 'Urkunden'));
+  const reihe = PU.el('div', 'urkunden-reihe');
+  ziel.appendChild(reihe);
+
+  const gesamt = Object.keys(PU.stufen || {}).length || 6;
+  const stufenKarte = PU.el('div', 'karte stufen-urkunden');
+  stufenKarte.innerHTML = '<div class="karte-kopf"><h3>📜 Stufen-Urkunden</h3>' +
+    '<span class="marke-stufe">' + s.urkunden.filter(u => !u.widerrufen).length +
+    ' von ' + gesamt + '</span></div>';
+  reihe.appendChild(stufenKarte);
   if (!s.urkunden.length) {
-    ziel.appendChild(PU.el('p', 'hinweis',
+    stufenKarte.appendChild(PU.el('p', 'klein',
       'Noch keine. Jede bestandene Stufenprüfung gibt eine Urkunde mit Prüfcode — ' +
       'den kann jeder überprüfen, ohne ein Konto zu haben.'));
   } else {
@@ -175,25 +189,25 @@ PU.fortschrittZeichnen = async function () {
             '" target="_blank" rel="noopener">öffnen</a>') + '</td></tr>';
     });
     rahmen.innerHTML = html + '</table>';
-    ziel.appendChild(rahmen);
+    stufenKarte.appendChild(rahmen);
   }
 
   /* ------------------------------------------------- Abschluss-Urkunde */
   //
   // Eigener Ruf und nicht in `stand`: der Stand wird auf jeder Seite geladen,
   // die Abschluss-Urkunde nur hier gebraucht.
-  const abschlussPlatz = PU.el('div');
-  ziel.appendChild(abschlussPlatz);
+  const abschlussPlatz = PU.el('div', 'urkunden-platz');
+  reihe.appendChild(abschlussPlatz);
   PU.abschlussUrkunde(abschlussPlatz);
+
+  /* ------------------------------------------------- Nach allen Stufen */
+  reihe.appendChild(abschlussKarte(s));
 
   if (PU.darf('urkunde.nachdrucken')) {
     const nachdruck = PU.el('div');
     ziel.appendChild(nachdruck);
     nachdruckZeichnen(nachdruck);
   }
-
-  /* ------------------------------------------------- Nach allen Stufen */
-  ziel.appendChild(abschlussKarte(s));
 };
 
 /**

@@ -430,6 +430,16 @@ html[data-thema-effektiv="hell"] {
 .abschluss-urkunde .abschluss-kontrolle label { margin: .6rem 0; }
 @media (max-width: 600px) { .abschluss-urkunde .feldpaar { grid-template-columns: 1fr; } }
 
+/* Fortschritt › Urkunden: die drei Karten nebeneinander. Wer eine Tabelle
+   oder die Schrittleiste der Abschluss-Urkunde trägt, braucht die volle
+   Breite und bekommt eine eigene Zeile; die anderen bleiben nebeneinander.
+   Jede Karte behält ihre Höhe — gestreckt stünden die kurzen leer da. */
+.urkunden-reihe { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: flex-start; }
+.urkunden-reihe > * { flex: 1 1 17rem; min-width: 0; }
+.urkunden-reihe > :has(table, .urkunde-schritte) { flex-basis: 100%; }
+.urkunden-reihe .abschluss-karte, .urkunden-reihe .abschluss-urkunde { margin-top: 0; }
+.stufen-urkunden { border-left: 3px solid var(--glut); }
+
 /* Die drei Schritte (urkunde.js) */
 .urkunde-schritte { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; padding: 0; margin: .4rem 0 1rem; }
 .urkunde-schritte li { color: var(--schrift-3); font-size: .92rem; }
