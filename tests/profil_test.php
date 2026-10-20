@@ -260,4 +260,20 @@ wirft('ein Elternkonto ist kein Kind',
 wirft('ein erfundenes Elternkonto wird abgewiesen',
       fn() => pu_profil_kind_setzen(99999, $id), 'gibt es nicht');
 
+// Nur Schüler derselben Schule — und nur die eigene Schule darf verknüpfen.
+pu_profil_setzen($eltern, 'schule', 'Gesamtschule Am Hangweg');
+pu_profil_setzen($leiter, 'schule', 'Gesamtschule Am Hangweg');
+wirft('ein Kind aus einer anderen Schule wird abgewiesen',
+      fn() => pu_profil_kind_setzen($eltern, $id, pu_profil($leiter)), 'derselben Schule');
+pu_profil_setzen($id, 'schule', 'Gesamtschule Am Hangweg');
+pu_profil_kind_setzen($eltern, $id, pu_profil($leiter));
+gleich('ein Kind derselben Schule lässt sich verknüpfen', $id, pu_profil($eltern)['kind_von']);
+pu_profil_setzen($leiter, 'schule', 'Realschule Nord');
+wirft('eine fremde Schulleitung darf nicht verknüpfen',
+      fn() => pu_profil_kind_setzen($eltern, 0, pu_profil($leiter)), 'nicht zu deiner Schule');
+gleich('…und die Verknüpfung bleibt', $id, pu_profil($eltern)['kind_von']);
+$chef = pu_lernenden_anlegen('chef', 'Chef', 'probe1234', 'admin');
+pu_profil_kind_setzen($eltern, 0, pu_profil($chef));
+gleich('die Ebene admin ist nicht an eine Schule gebunden', 0, pu_profil($eltern)['kind_von']);
+
 bilanz();

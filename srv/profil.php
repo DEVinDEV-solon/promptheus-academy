@@ -132,18 +132,29 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
  * darum, was das Konto ist, nicht darum, was es auf diesem Rechner darf.
  * Ein `kind_von` an einem Lehrkraftkonto gäbe ihr still ein „Kind", an das
  * sie Token senden könnte — vorbei an der Klassenzuordnung.
+ *
+ * Kind und Elternkonto stehen in derselben Schule, und wer verknüpft (`$ich`),
+ * ebenfalls — gleich im Sinne von pu_talent_im_umkreis(): buchstäblich, auch
+ * wenn beide Felder leer sind. Nur die Ebene admin ist davon ausgenommen.
  */
-function pu_profil_kind_setzen(int $eltern, int $kind): void
+function pu_profil_kind_setzen(int $eltern, int $kind, ?array $ich = null): void
 {
+    $schule = fn(array $p): string => trim((string)($p['schule'] ?? ''));
     $e = pu_profil($eltern);
     if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
     if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
+    if ($ich !== null && pu_ebene($ich) !== 'admin' && $schule($ich) !== $schule($e)) {
+        throw new RuntimeException('Dieses Elternkonto gehört nicht zu deiner Schule.');
+    }
     if ($kind !== 0) {
         $k = pu_profil($kind);
         if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
         if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
         if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
             throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
+        }
+        if ($schule($k) !== $schule($e)) {
+            throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto derselben Schule verknüpfen.');
         }
     }
     $st = pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?');
