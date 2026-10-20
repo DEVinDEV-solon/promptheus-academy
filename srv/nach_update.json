@@ -7,6 +7,14 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.15": {
+      "titel": "Kind verknüpfen nur in der eigenen Schule",
+      "neu": "Im Menü „Klasse“ stehen beim Elternkonto jetzt nur noch Schülerkonten derselben Schule zur Wahl. Die Academy prüft das auch beim Speichern: Elternkonto, Kind und wer verknüpft gehören zur selben Schule.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden.",
+        "Fehlt im Menü „Klasse“ ein Kind in der Auswahl? Dann prüfen, ob beim Elternkonto und beim Kind genau dieselbe Schule eingetragen ist."
+      ]
+    },
     "1.1.14": {
       "titel": "Eltern mit ihrem Kind verknüpfen",
       "neu": "Im Menü „Klasse“ kann die Schulleitung jetzt bei jedem Elternkonto das Kind auswählen und verknüpfen. Erst dann können Eltern im Cockpit unter „Token senden“ ihrem Kind Guthaben abgeben, und Lehrkräfte erreichen die Eltern der Kinder in ihren Klassen. Verknüpft werden kann nur ein Elternkonto mit einem Schülerkonto.",

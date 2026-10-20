@@ -97,6 +97,7 @@ function pu_familie_kind_anlegen(int $eltern, string $kennung, string $anzeigena
     }
 
     $id = pu_lernenden_anlegen($kennung, $anzeigename, $kennwort, 'schueler', '');
+    pu_eltern_schule_erben($eltern, $id);
     pu_eltern_kind_hinzu($eltern, $id, $eltern);
     return $id;
 }

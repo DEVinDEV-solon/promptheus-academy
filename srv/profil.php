@@ -170,23 +170,58 @@ function pu_eltern_kind_von_nachziehen(int $eltern): void
 }
 
 /**
+ * Ein Kind, das ein Elternkonto selbst anlegt, steht in dessen Schule — sonst
+ * scheiterte die Verknüpfung gleich danach an der Schulgrenze.
+ */
+function pu_eltern_schule_erben(int $eltern, int $kind): void
+{
+    $schule = trim((string)(pu_profil($eltern)['schule'] ?? ''));
+    if ($schule !== '') pu_profil_setzen($kind, 'schule', $schule);
+}
+
+/**
+ * Wer ein Kind verknüpft oder löst, gehört zur Schule des Elternkontos —
+ * ausser der Ebene admin (seit 1.1.15). `$wer = 0` heisst „vom System“
+ * (Anlegen, Migration) und ist nicht an eine Schule gebunden.
+ */
+function pu_eltern_schule_pruefen(array $e, int $wer): void
+{
+    if ($wer <= 0) return;
+    $w = pu_profil($wer);
+    if ($w === null || pu_ebene($w) === 'admin') return;
+    if (trim((string)($w['schule'] ?? '')) !== trim((string)($e['schule'] ?? ''))) {
+        throw new RuntimeException('Dieses Elternkonto gehört nicht zu deiner Schule.');
+    }
+}
+
+/**
  * Verknüpft ein Kind mit einem Elternkonto.
  *
  * Geprüft wird die gespeicherte Rolle, nicht die gedeckelte Ebene: Es geht
  * darum, was das Konto ist, nicht darum, was es auf diesem Rechner darf.
  * Ein „Kind" an einem Lehrkraftkonto gäbe ihr still einen Token-Empfänger
  * vorbei an der Klassenzuordnung.
+ *
+ * Kind und Elternkonto stehen in derselben Schule, und wer verknüpft (`$wer`),
+ * ebenfalls — gleich im Sinne von pu_talent_im_umkreis(): buchstäblich, auch
+ * wenn beide Felder leer sind. Nur die Ebene admin ist davon ausgenommen
+ * (seit 1.1.15).
  */
 function pu_eltern_kind_hinzu(int $eltern, int $kind, int $wer = 0): void
 {
+    $schule = fn(array $p): string => trim((string)($p['schule'] ?? ''));
     $e = pu_profil($eltern);
     if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
     if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
+    pu_eltern_schule_pruefen($e, $wer);
     $k = pu_profil($kind);
     if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
     if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
     if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
         throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
+    }
+    if ($schule($k) !== $schule($e)) {
+        throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto derselben Schule verknüpfen.');
     }
 
     // Steht ein Kind nur in der Altspalte, zuerst in die Tabelle — sonst
@@ -215,6 +250,8 @@ function pu_eltern_kind_hinzu(int $eltern, int $kind, int $wer = 0): void
 /** Löst ein Kind vom Elternkonto. */
 function pu_eltern_kind_loesen(int $eltern, int $kind, int $wer = 0): void
 {
+    $e = pu_profil($eltern);
+    if ($e !== null) pu_eltern_schule_pruefen($e, $wer);
     pu_db()->prepare('DELETE FROM eltern_kinder WHERE eltern = ? AND kind = ?')->execute([$eltern, $kind]);
     pu_db()->prepare('UPDATE lernende SET kind_von = 0 WHERE id = ? AND kind_von = ?')->execute([$eltern, $kind]);
     pu_eltern_kind_von_nachziehen($eltern);
@@ -225,8 +262,9 @@ function pu_eltern_kind_loesen(int $eltern, int $kind, int $wer = 0): void
  * Die alte Schnittstelle (API `kind_setzen`): ein Kind dazunehmen, oder mit
  * 0 alle Verknüpfungen dieses Elternkontos lösen.
  */
-function pu_profil_kind_setzen(int $eltern, int $kind, int $wer = 0): void
+function pu_profil_kind_setzen(int $eltern, int $kind, array|int|null $wer = 0): void
 {
+    $wer = is_array($wer) ? (int)($wer['id'] ?? 0) : (int)$wer;
     if ($kind !== 0) {
         pu_eltern_kind_hinzu($eltern, $kind, $wer);
         return;

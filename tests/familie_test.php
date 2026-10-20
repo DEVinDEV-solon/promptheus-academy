@@ -150,4 +150,26 @@ gleich('familie.kinder: nur Eltern ab Werk', [0, 0, 1, 0],
        array_values(array_intersect_key($r['familie.kinder']['vorgabe'], array_flip(['verwaltung', 'lehrer', 'eltern', 'schueler']))));
 pruefe('kind_loesen hängt an eltern.manage', in_array('kind_loesen', $r['eltern.manage']['aktionen'], true));
 
+// ─────────────────────────────────────────────────────────────────────────────
+gruppe('Schulgrenze (1.1.15) bei mehreren Kindern');
+$artVorher = $GLOBALS['PU_TEST_ART'];
+$GLOBALS['PU_TEST_ART'] = 'betreiber';
+$oma = pu_lernenden_anlegen('oma', 'Oma', 'geheim1234', 'eltern');
+pu_profil_setzen($oma, 'schule', 'Schule Nord');
+$e1 = pu_lernenden_anlegen('enkel1', 'Enkel 1', 'geheim1234', 'schueler');
+wirft('Kind aus einer anderen Schule', fn() => pu_eltern_kind_hinzu($oma, $e1, $chef), 'derselben Schule');
+pu_profil_setzen($e1, 'schule', 'Schule Nord');
+wirft('fremde Verwaltung verknüpft nicht', fn() => pu_eltern_kind_hinzu($oma, $e1, $schule), 'nicht zu deiner Schule');
+pu_eltern_kind_hinzu($oma, $e1, $chef);
+gleich('admin ist nicht an die Schule gebunden', [$e1], pu_eltern_kinder($oma));
+wirft('fremde Verwaltung löst nicht', fn() => pu_eltern_kind_loesen($oma, $e1, $schule), 'nicht zu deiner Schule');
+wirft('… auch nicht über die alte Schnittstelle',
+      fn() => pu_profil_kind_setzen($oma, 0, pu_profil($schule)), 'nicht zu deiner Schule');
+gleich('… die Verknüpfung bleibt', [$e1], pu_eltern_kinder($oma));
+$GLOBALS['PU_TEST_ART'] = 'eltern';
+$neu = pu_familie_kind_anlegen($oma, 'enkel2', 'Enkel 2', 'geheim1234');
+gleich('selbst angelegtes Kind erbt die Schule', 'Schule Nord', pu_profil($neu)['schule']);
+gleich('… und ist verknüpft', [$e1, $neu], pu_eltern_kinder($oma));
+$GLOBALS['PU_TEST_ART'] = $artVorher;
+
 bilanz();

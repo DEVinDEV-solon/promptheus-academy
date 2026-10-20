@@ -41,7 +41,8 @@ PU.klasseZeichnen = async function () {
   const kindWahl = PU.darf('eltern.manage') && j.klasse.some(l => l.rolle === 'eltern');
   const kinder = kindWahl
     ? j.klasse.filter(l => l.rolle === 'schueler')
-        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename, gruppe: l.gruppe || '' }))
+        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename,
+                     gruppe: l.gruppe || '', schule: (l.schule || '').trim() }))
         .sort((a, b) => a.name.localeCompare(b.name, 'de'))
     : [];
   const kindName = id => {
@@ -58,7 +59,9 @@ PU.klasseZeichnen = async function () {
            'aria-label="' + PU.h(kindName(id)) + ' lösen">lösen</button></span>';
     });
     if (meine.length < kinderMax) {
-      const frei = kinder.filter(k => !vergeben.has(k.id));
+      // Zur Wahl stehen nur Schüler aus der Schule des Elternkontos; der
+      // Server prüft dasselbe (pu_eltern_kind_hinzu, seit 1.1.15).
+      const frei = kinder.filter(k => !vergeben.has(k.id) && k.schule === (l.schule || '').trim());
       if (frei.length) {
         h += '<span class="klassen-zuordnen"><select data-kind="' + l.id + '" ' +
              'aria-label="Kind für ' + PU.h(l.anzeigename) + ' wählen">' +
