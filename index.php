@@ -99,9 +99,10 @@ $darfCockpit = !$offen && pu_recht_hat('abo.sehen', $wer);
 $darfGemeinde = !$offen && pu_recht_hat('gemeinde.ansehen', $wer);
 // Updates: die Notiz über „Abmelden“ sieht nur, wer sie auch einspielen darf (Ebene 1).
 $darfUpdate = !$offen && pu_recht_hat('aktualisierung.verwalten', $wer);
-// PROMPTHEUS DECK: der Knopf in der Community steht nur, wenn DECK installiert
-// ist (srv/deck.php), und nur für Ebene 1 — DECK steuert den ganzen Rechner.
-$deck = ($darfGemeinde && $darfUpdate) ? pu_deck() : null;
+// PROMPTHEUS DECK: der Knopf in der Community steht, wenn DECK installiert ist
+// (srv/deck.php) — für jede Ebene, die die Community sieht, auch für Schüler.
+// DECK läuft ohnehin offen auf 127.0.0.1; der Knopf öffnet keine neue Tür.
+$deck = $darfGemeinde ? pu_deck() : null;
 
 // Gerendert wird, was das echte Konto darf; ausgeblendet, was die Sicht nicht
 // sähe. So schaltet das „P" ohne Neuladen hin und zurück (assets/js/persona.js).

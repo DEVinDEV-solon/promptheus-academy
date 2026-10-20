@@ -339,3 +339,28 @@ body.breite-ziehen .rail,body.breite-ziehen .seitenchat{transition:none}
 .raster.fest .kachel{border-color:color-mix(in srgb,var(--gold) 28%,var(--border))}
 :root[data-ton="hell"] body{background:var(--bg)}
 :root[data-ton="hell"] .modal{background:rgba(40,32,24,.35)}
+
+/* Anleitung „Eigene Startknöpfe“ (beim Start) */
+.anleitung .abschnitt h4{display:flex;align-items:center;gap:7px}
+.anleitung .abschnitt h4 svg{width:15px;height:15px}
+.anleitung ol{margin:0 0 6px;padding-left:20px;font-size:13px;line-height:1.5;color:var(--txt)}
+.anleitung li{margin-bottom:5px}
+.anleitung b{color:var(--txt);font-weight:600}
+.anleitung-fuss{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--border);margin-top:10px;padding-top:12px}
+.anleitung-fuss .haken-zeile{margin:0}
+.anleitung-fuss .haken-zeile small{white-space:nowrap}
+.anleitung-fuss .knoepfe{margin-top:0}
+
+/* Favoriten übernehmen: Ordnerbaum zum Ankreuzen */
+.fav-baum{max-height:min(46vh,420px);overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--panel2);padding:8px 10px}
+.fav-baum ul{list-style:none;margin:0;padding:0}
+.fav-baum ul ul{padding-left:20px;border-left:1px dashed var(--border);margin-left:7px}
+.fav-zeile{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:13px;color:var(--txt);cursor:pointer;border-radius:6px}
+.fav-zeile:hover{background:var(--panel3)}
+.fav-zeile input{accent-color:var(--gold);width:15px;height:15px;flex:none}
+.fav-zeile input:disabled+.ico{opacity:.6}
+.fav-zeile .ico{display:flex;color:var(--gold)}
+.fav-zeile .ico svg{width:14px;height:14px}
+.fav-zeile b{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fav-zeile small{margin-left:auto;color:var(--muted2);font-variant-numeric:tabular-nums}
+.fav-leer{margin:6px 2px;color:var(--muted);font-size:13px}
