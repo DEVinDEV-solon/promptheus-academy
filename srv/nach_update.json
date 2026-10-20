@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.17": {
+      "titel": "Fortschritt auf einen Blick, Marmor in Stahlblau",
+      "neu": "Die Seite „Fortschritt“ zeigt oben Rang, Stufen, Abzeichen und Serie auf einen Blick und was als Nächstes kommt. Die Urkunden stehen nebeneinander, und bei den Abzeichen steht jetzt verständlich, was gezählt wird. Die Palette Marmor ist kühler geworden: blau-grauer Grund mit Stahlblau statt Bronze. Die Scrollbalken tragen die Farben der gewählten Palette.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst bleiben die alten Farben und die alte Fortschritt-Seite im Zwischenspeicher."
+      ]
+    },
     "1.1.16": {
       "titel": "Familien-Konten und Gratis-Zugang",
       "neu": "Ein Elternkonto kann jetzt bis zu drei Kinder haben: Unter „Meine Kinder“ legen Eltern Kinderkonten selbst an oder verknüpfen sie, und ein Familienplan gilt für alle Kinder mit. Neu ist der Gratis-Zugang für Familien: 12 Monate ohne Token über den Server, die Tutoren laufen über den eigenen OpenRouter-Schlüssel. Vier Wochen vor dem Ende kündigt die Academy das Ende an. Die Preistexte nennen jetzt Endpreise ohne Umsatzsteuer (Kleinunternehmer nach § 19 UStG).",
