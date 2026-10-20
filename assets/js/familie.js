@@ -28,7 +28,10 @@
       'Hier stehen die Kinder, die mit deinem Konto verknüpft sind, bis zu ' + j.max + '. ' +
       'Du siehst, wie viel jedes Kind in den letzten 30 Tagen beim Tutor verbraucht hat, ' +
       'aber nicht, was es gefragt hat. ' +
-      (j.plan && j.plan.familie
+      (j.plan && j.plan.gratis
+        ? 'Dein Gratis-Zugang gilt auch für deine Kinder. Einen Topf gibt es nicht: Die Tutoren laufen ' +
+          'für alle über euren eigenen Schlüssel, solange die Schule eines Kindes keinen eigenen Plan hat.'
+        : j.plan && j.plan.familie
         ? 'Dein Plan „' + PU.h(j.plan.name) + '“ gilt auch für deine Kinder: Sie arbeiten aus deinem Topf, ' +
           'solange ihre Schule keinen eigenen Plan hat.'
         : 'Mit einem Familienplan arbeiten deine Kinder aus deinem Topf.') +
@@ -38,7 +41,8 @@
       const rahmen = PU.el('div', 'tabellenrahmen');
       let html = '<table><thead><tr><th>Kind</th><th>Anmeldename</th><th>Klasse</th>' +
                  '<th class="zahl">Fragen</th><th class="zahl">Token</th><th>Guthaben</th><th></th></tr></thead><tbody>';
-      const lage = { offen: 'reicht', knapp: '⚠ knapp', minus: '⚠ im Minus-Rahmen', stopp: '✕ aufgebraucht', unbegrenzt: 'ohne Grenze' };
+      const lage = { offen: 'reicht', knapp: '⚠ knapp', minus: '⚠ im Minus-Rahmen', stopp: '✕ aufgebraucht', unbegrenzt: 'ohne Grenze',
+        eigener_schluessel: 'eigener Schlüssel', schluessel: '✕ Schlüssel fehlt' };
       j.kinder.forEach(c => {
         html += '<tr><td>' + PU.h(c.name) + '</td><td><code>' + PU.h(c.kennung) + '</code></td>' +
           '<td>' + PU.h(c.gruppe || '—') + '</td>' +

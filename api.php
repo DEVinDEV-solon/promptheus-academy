@@ -84,9 +84,16 @@ function pu_cockpit_ausgabe(int $ichId): array
     require_once __DIR__ . '/srv/lernende.php';
 
     $ich = pu_wer();
+    // Im Gratis-Zugang gibt es keine Token: nichts zu senden, nichts zu
+    // verschenken, nichts nachzukaufen, was über den Server liefe.
+    $gratis = !empty(pu_abo_fuer($ichId)['gratis']);
+    $bis    = pu_plan_laut_server()['plan_bis'];
     return pu_cockpit($ichId) + [
+        'gratis'           => $gratis,
+        'gratis_ablauf'    => $gratis ? pu_gratis_ablauf_text($bis) : null,
+        'hinweis_ab_tagen' => PU_GRATIS_HINWEIS_TAGE,
         'darf_buchen'      => pu_recht_hat('abo.verwalten'),
-        'darf_einzahlen'   => pu_recht_hat('token.einzahlen'),
+        'darf_einzahlen'   => pu_recht_hat('token.einzahlen') && !$gratis,
         'darf_bestaetigen' => pu_recht_hat('abo.bestaetigen'),
         // Bestätigt wird sonst vom Server — das geht nur registriert.
         'registriert'      => pu_relay_zustand()['registriert'],
@@ -94,14 +101,14 @@ function pu_cockpit_ausgabe(int $ichId): array
         // Recht UND jemand darunter. Das Recht allein genügt nicht:
         // Ein Kasten „Token senden" ohne einen einzigen möglichen Empfänger
         // ist ein Versprechen, das die Liste gleich wieder zurücknimmt.
-        'darf_senden'      => pu_recht_hat('talente.senden')
+        'darf_senden'      => pu_recht_hat('talente.senden') && !$gratis
                               && pu_talente_empfaenger($ichId) !== [],
         // Eine Lehrkraft ohne zugeordnete Klasse erreicht niemanden. Dann
         // sagt das Cockpit, woran es liegt, statt den Kasten still wegzulassen.
-        'senden_ohne_klassen' => pu_recht_hat('talente.senden') && $ich !== null
+        'senden_ohne_klassen' => pu_recht_hat('talente.senden') && !$gratis && $ich !== null
                               && pu_ebene($ich) === 'lehrer' && pu_lehrer_gruppen($ichId) === [],
-        'darf_codes'       => pu_recht_hat('codes.ausstellen') && pu_code_zielebenen($ichId) !== [],
-        'darf_einloesen'   => pu_recht_hat('codes.einloesen'),
+        'darf_codes'       => pu_recht_hat('codes.ausstellen') && !$gratis && pu_code_zielebenen($ichId) !== [],
+        'darf_einloesen'   => pu_recht_hat('codes.einloesen') && !$gratis,
         'darf_tokenbuch_schule' => pu_recht_hat('tokenbuch.schule'),
         // „Meine Kinder“ nur für Elternkonten — die Ebene, nicht nur das Recht:
         // Eine Schulleitung hat keine eigenen Kinder in der Academy.
@@ -584,6 +591,9 @@ try {
                          // sein, bevor jemand gegen die Grenze läuft, nicht
                          // erst danach.
                          'token'     => pu_token_lage($ichId),
+                         // Die Ankündigung „Gratis-Zugang endet“ — nur für das
+                         // Elternkonto, das ihn trägt, ab 4 Wochen vorher.
+                         'plan_hinweis' => pu_gratis_hinweis($ichId),
                          // Ob ein Vorlese-Knopf überhaupt erscheinen darf.
                          // Beides muss stimmen: eingeschaltet UND erlaubt.
                          'stimme'    => pu_stimme_an() && pu_recht_hat('stimme.nutzen')]);
@@ -1004,6 +1014,9 @@ try {
                     'bereit'       => pu_tutor_bereit(),
                     'token'        => pu_geheimnis_stand('CLAUDE_CODE_OAUTH_TOKEN'),
                     'or_key'       => pu_geheimnis_stand('PU_OPENROUTER_API_KEY'),
+                    // Im Gratis-Zugang läuft über den Server nichts: Der Reiter
+                    // sagt dann, dass der eigene Schlüssel fehlt, statt „Bereit“.
+                    'gratis'       => !empty(pu_abo_fuer($ichId)['gratis']),
 
                     // Welche Zertifikatsliste die HTTPS-Verbindung benutzt.
                     // Steht hier, weil ein leerer Eintrag genau eine
@@ -1493,6 +1506,11 @@ try {
         // Registrierung und Stand beim Server. `relay_zustand` fragt nicht
         // beim Server nach — ein Reiter darf nicht bei jedem Öffnen eine
         // Netzanfrage auslösen. `relay_stand` tut es, auf Knopfdruck.
+        case 'plan_hinweis_aus':
+            pu_recht_fordern('registrierung.verwalten');
+            pu_gratis_hinweis_aus($ichId);
+            pu_json_out(['ok' => true]);
+
         case 'relay_zustand':
             pu_recht_fordern('abo.sehen');
             pu_json_out(['ok' => true, 'zustand' => pu_relay_zustand(),

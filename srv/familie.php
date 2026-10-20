@@ -38,7 +38,7 @@ function pu_familie_ausgabe(int $eltern): array
     $seit = date('Y-m-d', strtotime('-30 days'));
     $verbrauch = pu_db()->prepare(
         "SELECT COUNT(*) AS fragen, COALESCE(SUM(-tokens), 0) AS tokens
-           FROM token_buchungen WHERE lernender = ? AND art = 'verbrauch' AND tag >= ?");
+           FROM token_buchungen WHERE lernender = ? AND art IN ('verbrauch', 'eigen') AND tag >= ?");
 
     $kinder = [];
     foreach (pu_eltern_kinder($eltern) as $id) {
@@ -69,6 +69,7 @@ function pu_familie_ausgabe(int $eltern): array
         'plan'        => $abo === null ? null : [
             'name'    => (string)$abo['plan_name'],
             'familie' => (int)(pu_plan((string)$abo['plan'])['eltern'] ?? 0) >= 1,
+            'gratis'  => !empty($abo['gratis']),
         ],
         'seit'        => $seit,
     ];

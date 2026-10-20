@@ -20,6 +20,7 @@
   };
   const wort = {
     einzahlung: 'Kauf', kontingent: 'Kontingent', verbrauch: 'Verbrauch', storno: 'Storno',
+    eigen: 'Verbrauch (eigener Schlüssel)',
     probe: 'Testzugang', gutschrift: 'Gutschrift',
     talent_ein: 'Erhalten', talent_aus: 'Gesendet',
     code_aus: 'Gutschein ausgestellt', code_ein: 'Gutschein eingelöst', code_zurueck: 'Gutschein zurück',

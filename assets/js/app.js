@@ -942,6 +942,10 @@ PU.tokenSchild = function (meldung) {
       (w.ziel && w.knopf
         ? '<a class="knopf schmal" href="' + PU.h(w.ziel) + '" data-schild-zu>' + PU.h(w.knopf) + '</a>'
         : '') +
+      // Ein Weg in die Einstellungen hat keine Adresse — er öffnet den Reiter.
+      (w.einst && w.knopf
+        ? '<button type="button" class="knopf schmal" data-einst="' + PU.h(w.einst) + '">' + PU.h(w.knopf) + '</button>'
+        : '') +
     '</div>').join('');
 
   flaeche.innerHTML =
@@ -956,6 +960,52 @@ PU.tokenSchild = function (meldung) {
   // sonst steht die Preistafel hinter einem Schild, das sie verdeckt.
   flaeche.querySelectorAll('[data-schild-zu]').forEach(a =>
     a.addEventListener('click', PU.modalSchliessen));
+  flaeche.querySelectorAll('[data-einst]').forEach(b =>
+    b.addEventListener('click', () => { PU.modalSchliessen(); PU.einstellungenOeffnen(b.dataset.einst); }));
+};
+
+/* ------------------------------------------------- Der Gratis-Zugang endet
+ *
+ * Ab vier Wochen vor dem Ende, nur für das Elternkonto, das ihn trägt
+ * (srv/abo.php, pu_gratis_hinweis). Was endet, was bleibt, wie es weitergeht
+ * — der Text kommt vom Server, derselbe wie auf der Karte „Dein Plan“.
+ * „Verstanden“ blendet ihn für eine Woche aus; dann kommt er wieder.
+ */
+PU.gratisAblaufHtml = function (t, mitTitel) {
+  return (mitTitel ? '<p><b>' + PU.h(t.titel) + '.</b></p>' : '') +
+    '<p><b>Was endet:</b> ' + PU.h(t.endet) + '</p>' +
+    '<p><b>Was bleibt:</b> ' + PU.h(t.bleibt) + '</p>' +
+    '<p><b>Wie es weitergeht:</b> ' + PU.h(t.weiter) + '</p>';
+};
+
+PU.planHinweisZeigen = function (t) {
+  if (!t) return;
+  // Ein anderes Fenster ist offen (beim ersten Anmelden das Pseudonym): warten,
+  // statt es zu überschreiben. Beide nutzen dasselbe #modal.
+  const modal = document.getElementById('modal');
+  if (modal && !modal.classList.contains('hidden')) {
+    setTimeout(() => PU.planHinweisZeigen(t), 1500);
+    return;
+  }
+  const flaeche = PU.modalZeigen(t.titel);
+  if (!flaeche) return;
+  flaeche.innerHTML = '<div class="hinweis-kasten">' + PU.gratisAblaufHtml(t, false) + '</div>';
+
+  const fuss = PU.el('div', 'akt-fuss');
+  const ok = PU.el('button', 'knopf', 'Verstanden');
+  ok.type = 'button';
+  ok.addEventListener('click', async () => {
+    ok.disabled = true;
+    try { await PU.ruf('plan_hinweis_aus'); } catch (e) { /* kommt beim nächsten Laden wieder */ }
+    PU.modalSchliessen();
+  });
+  const preise = PU.el('a', 'knopf still', 'Preisseite öffnen');
+  preise.href = (PU.WEB || 'https://promptheus-academy.de/') + 'preise.php';
+  preise.target = '_blank';
+  preise.rel = 'noopener';
+  fuss.appendChild(ok);
+  fuss.appendChild(preise);
+  flaeche.appendChild(fuss);
 };
 
 /**
@@ -1240,6 +1290,7 @@ PU.start = function () {
     PU.tagesaufgabe = j.tagesaufgabe;
     PU.tokenLageSetzen(j.token);
     PU.stimmeAn = !!j.stimme;
+    if (j.plan_hinweis) PU.planHinweisZeigen(j.plan_hinweis);
   }).catch(() => {});
 
   // Nicht mehr fest auf „lernen": Die Adresse entscheidet, wo es losgeht.

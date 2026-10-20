@@ -402,7 +402,9 @@ const PU_RECHTE = [
     ['name' => 'registrierung.verwalten', 'gruppe' => 'Plan & Token',
      'was' => 'Die Academy mit dem Registrierungscode beim Server anmelden',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
-     'aktionen' => ['relay_registrieren']],
+     // `plan_hinweis_aus`: die Ankündigung „Gratis-Zugang endet“ für eine
+     // Woche wegklicken. Sie geht an den, der registriert hat.
+     'aktionen' => ['relay_registrieren', 'plan_hinweis_aus']],
 
     ['name' => 'abo.verwalten', 'gruppe' => 'Plan & Token',
      'was' => 'Pläne buchen und beenden',
