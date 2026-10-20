@@ -34,7 +34,8 @@ declare(strict_types=1);
 //
 // `basis`: Verbraucherpläne stehen **brutto** (inkl. MwSt.) da, die Schule
 // **netto** (zzgl. MwSt.) — sie ist Unternehmer nach § 14 BGB und rechnet mit
-// Nettobeträgen. Entschieden am 30.09.2026.
+// Nettobeträgen. Entschieden am 30.09.2026. **Gilt nur bei Regelbesteuerung**
+// (PU_STEUER): Als Kleinunternehmer ist jeder angezeigte Preis Endpreis.
 //
 // Die Staffel ist so gelegt, dass die Schule **je Kopf am günstigsten** ist.
 // Das ist keine Kosmetik: eine Einrichtung, die 300 Konten bezahlt, soll
@@ -60,7 +61,23 @@ const PU_TAKTE = [
  */
 const PU_PREISGARANTIE = false;
 
-/** Umsatzsteuer für die Anzeige „zzgl. MwSt." — nicht für Rechnungen. */
+/**
+ * Der Steuerstatus des Betreibers — die eine Stelle, an der er steht.
+ *
+ * `kleinunternehmer` (Angabe des Betreibers 20.10.2026): § 19 UStG, keine
+ * Umsatzsteuer, Brutto = Netto. Jeder Preis ist Endpreis, auch der der Schule
+ * (Entscheid 20.10.2026: die Zahl bleibt, sie ist jetzt Endpreis).
+ * `regel`: Umsatzsteuer nach `basis` des Plans (inkl. bzw. zzgl.).
+ *
+ * Kleinunternehmer ist man nur unter den Umsatzgrenzen. Wird die Grenze
+ * überschritten, wird hier umgestellt — und an keiner anderen Stelle.
+ */
+const PU_STEUER = 'kleinunternehmer';
+
+/** Der Hinweis neben jedem Preis als Kleinunternehmer. */
+const PU_STEUER_HINWEIS = 'Endpreis · keine Umsatzsteuer (§ 19 UStG)';
+
+/** Umsatzsteuer für die Anzeige „zzgl. MwSt." bei Regelbesteuerung — nicht für Rechnungen. */
 const PU_MWST_PROZENT = 19;
 
 const PU_PLAENE = [
@@ -439,9 +456,13 @@ function pu_plan_je_kopf(array $plan, string $takt = 'monatlich', ?string $tag =
     return (int)round(pu_plan_cent($plan, $takt, $tag) / max(1, $plan['plaetze']));
 }
 
-/** „inkl. MwSt." oder „zzgl. MwSt." — je nach Basis des Plans. */
+/**
+ * Was neben dem Preis steht: als Kleinunternehmer der Hinweis auf § 19 UStG,
+ * sonst „inkl. MwSt." oder „zzgl. MwSt." je nach Basis des Plans.
+ */
 function pu_plan_mwst_text(array $plan): string
 {
+    if (PU_STEUER === 'kleinunternehmer') return PU_STEUER_HINWEIS;
     return ($plan['basis'] ?? 'brutto') === 'netto'
         ? 'zzgl. ' . PU_MWST_PROZENT . ' % MwSt.'
         : 'inkl. MwSt.';
@@ -457,7 +478,7 @@ function pu_datum_de(string $tag): string
 /**
  * Die Preiszeile, wie sie überall stehen soll.
  *
- * „9,90 € im Monat, monatlich, inkl. MwSt. — Aktionspreis bis 31.12.2026,
+ * „9,90 € im Monat, monatlich, Endpreis · keine Umsatzsteuer (§ 19 UStG) — Aktionspreis bis 31.12.2026,
  * danach 29,00 €". Der Satz nach dem Gedankenstrich fehlt, wenn keine Aktion
  * läuft. Eine Stelle, damit Tafel, Cockpit und Bestätigung dasselbe sagen.
  */
