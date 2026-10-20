@@ -78,6 +78,21 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Scrollbalken in den Farben der Palette, überall — Seite, Einstellungen,
+   Modale, Spalten. Ohne diese Regel malte der Browser seine eigenen: eine
+   weisse Rinne mit grauem Griff, auch mitten in der dunklen Schmiede.
+   `scrollbar-color` vererbt sich, darum reicht die Wurzel. Die Rinne ist
+   durchsichtig und zeigt die Fläche, auf der sie liegt; der Griff nimmt
+   `--rand-hell` und ist damit in jeder Palette so leise wie ein Rahmen.
+   `color-scheme` sorgt dafür, dass auch die übrigen Bedienteile des Browsers
+   (Auswahllisten, Kalender) im Dunkeln dunkel aufgehen. */
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--rand-hell) transparent;
+  scrollbar-width: thin;
+}
+html[data-thema-effektiv="hell"] { color-scheme: light; }
+
 /* Der Grund trägt eine schwache Glut von unten — wie ein Feuer außerhalb
    des Bildes.
 
