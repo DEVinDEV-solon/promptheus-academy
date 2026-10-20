@@ -169,6 +169,54 @@ const PU_PLAENE = [
     ],
 ];
 
+// ---------------------------------------------------------------- Gratis-Zugang
+//
+// Der Gratis-Zugang `familie-frei` ist der Familienplan ohne Geld und ohne
+// Token (Plan 20_Geschaeft/FAMILIE-UND-GRATIS-ZUGANG-PLAN.md §3.3). Er steht
+// **nicht** in PU_PLAENE: Buchen kann ihn hier niemand. Ihn vergibt nur der
+// Betreiber im Server-Cockpit, und die Academy liest ihn aus der signierten
+// Bescheinigung (pu_plan_laut_server). Ein Knopf, der sich selbst einen
+// Gratis-Plan schreibt, wäre eine Hintertür — dieselbe Überlegung wie bei
+// pu_token_gutschreiben.
+
+/** Der Planname des Gratis-Zugangs, wie ihn der Server bescheinigt. */
+const PU_PLAN_GRATIS = 'familie-frei';
+
+/** Ab so vielen Tagen vor dem Ende kündigt die Academy das Ende an (4 Wochen). */
+const PU_GRATIS_HINWEIS_TAGE = 28;
+
+/** Weggeklickt kommt der Hinweis nach so vielen Tagen wieder. */
+const PU_GRATIS_HINWEIS_PAUSE = 7;
+
+/**
+ * Die Nummer des Gratis-Abos im Journal. Es hat keine Zeile in `abos`, also
+ * bekommt es eine Zahl, die dort nie vorkommt. 0 hiesse „ohne Abo“ und träfe
+ * in `abo = ?` jede Buchung eines Kontos ohne Plan.
+ */
+const PU_ABO_GRATIS = -1;
+
+const PU_PLAN_GRATIS_DEF = [
+    'name'        => 'Gratis-Zugang (Familie)',
+    'preise'      => [
+        'monatlich' => ['regulaer' => 0, 'aktion' => null],
+        'jaehrlich' => ['regulaer' => 0, 'aktion' => null],
+    ],
+    'basis'       => 'brutto',
+    'plaetze'     => 3,
+    'eltern'      => 1,
+    'traeger_art' => 'person',
+    'kontingent'  => 0,
+    // Nur der Server vergibt ihn — pu_abo_buchen() weist ihn ab.
+    'nur_server'  => true,
+    'kurz'        => 'Familienplan ohne Token: Die Tutoren laufen über den eigenen Schlüssel.',
+    'fuer'        => 'Familien mit einem Gratis-Zugang vom Betreiber.',
+    'enthalten'   => [
+        'Werkstatt (nach Kurs 7), Community und Cinema Studio',
+        '1 Elternzugang und bis zu 3 Kinderkonten',
+        'Keine Token: Tutoren und Generatoren mit dem eigenen OpenRouter-Schlüssel',
+    ],
+];
+
 /** Die drei Nachkauf-Pakete. Gekaufte Token verfallen nicht. */
 const PU_TOKENPAKETE = [
     'klein'  => ['name' => 'Klein',  'cent' => 500,  'tokens' => 500000],
@@ -332,7 +380,9 @@ const PU_TUTORANTWORT = 3300;
 
 function pu_plan(string $name): ?array
 {
-    return PU_PLAENE[$name] ?? null;
+    // Der Gratis-Zugang ist kein Plan der Tafel, aber ein Plan: Wo nach Plätzen
+    // oder dem Elternplatz gefragt wird, soll er antworten.
+    return PU_PLAENE[$name] ?? ($name === PU_PLAN_GRATIS ? PU_PLAN_GRATIS_DEF : null);
 }
 
 /** Cent als „4,90 €". */
@@ -548,7 +598,27 @@ function pu_abo_fuer(int $person): ?array
         if ($a !== false) return pu_abo_aufbereiten($a);
     }
 
-    return null;
+    // 4. Der Familienplan der Eltern (seit 20.10.2026). Nach der Schule: Hat
+    //    ein Kind eine Schule mit Plan, zahlt die Schule (Entscheid des
+    //    Betreibers „Schule vor Familie“). Gilt nur für Pläne mit
+    //    Elternplatz (`eltern` ≥ 1) und nur für verknüpfte Kinder — deren
+    //    Zahl begrenzt pu_eltern_kind_hinzu() auf die Plätze des Plans.
+    $eltern = pu_kind_eltern($person);
+    if ($eltern > 0) {
+        $st = $pdo->prepare(
+            "SELECT * FROM abos WHERE traeger_art = 'person' AND traeger = ? AND laeuft = 1
+             ORDER BY id DESC LIMIT 1");
+        $st->execute([$eltern]);
+        $a = $st->fetch();
+        if ($a !== false && (int)(pu_plan((string)$a['plan'])['eltern'] ?? 0) >= 1) {
+            return pu_abo_aufbereiten($a);
+        }
+    }
+
+    // 5. Der Gratis-Zugang laut Server (seit 20.10.2026). Zuletzt: Ein
+    //    gekauftes Abo gilt vor ihm, ohne Lücke — und eine Schule, die ein
+    //    Kind schon trägt, zahlt weiter für dieses Kind.
+    return pu_gratis_abo($person);
 }
 
 /** Ergänzt ein Abo aus der Datenbank um alles, was sich ausrechnen lässt. */
@@ -598,6 +668,7 @@ function pu_abo_aufbereiten(array $a): array
  */
 function pu_plaetze_belegt(array $abo): int
 {
+    require_once PU_ROOT . '/srv/profil.php';
     $pdo = pu_db();
 
     return match ((string)$abo['traeger_art']) {
@@ -613,7 +684,11 @@ function pu_plaetze_belegt(array $abo): int
             $st->execute([(string)$abo['traeger_name']]);
             return $st->fetchColumn();
         })(),
-        default => 1,
+        // Familienplan: die verknüpften Kinder des Elternkontos (seit
+        // 20.10.2026). Ein Personenplan ohne Elternplatz belegt einen.
+        default => (int)(pu_plan((string)($abo['plan'] ?? ''))['eltern'] ?? 0) >= 1
+            ? count(pu_eltern_kinder((int)$abo['traeger']))
+            : 1,
     };
 }
 
@@ -670,6 +745,9 @@ function pu_abo_buchen(string $art, int $traeger, string $traegerName,
 {
     $p = pu_plan($plan);
     if ($p === null) throw new RuntimeException('Diesen Plan gibt es nicht: ' . $plan);
+    if (!empty($p['nur_server'])) {
+        throw new RuntimeException('Den Gratis-Zugang vergibt nur der Betreiber. Buchen lässt er sich nicht.');
+    }
     pu_takt($takt);
 
     // Zusatzpakete gibt es nur, wo der Plan sie kennt — sonst wären es
@@ -890,7 +968,14 @@ function pu_token_verbrauchen(int $person, string $wofuer, int $tokens,
     if ($tokens <= 0) return;
 
     $abo = pu_abo_fuer($person);
-    pu_token_eintragen($person, $abo['id'] ?? 0, 'verbrauch', $wofuer,
+    // **Im Gratis-Zugang zahlt die Familie selbst** — über ihren eigenen
+    // Schlüssel, direkt beim Anbieter. Gebucht wird trotzdem, damit im
+    // Tokenbuch steht, was der Schlüssel gekostet hat; aber als `eigen`, nicht
+    // als `verbrauch`. Sonst stünde die Familie im Minus, und ein später
+    // gekauftes Abo finge mit dem Verbrauch eines Jahres an, den nie jemand
+    // über die Academy bezahlt hat.
+    $art = !empty($abo['gratis']) ? 'eigen' : 'verbrauch';
+    pu_token_eintragen($person, $abo['id'] ?? 0, $art, $wofuer,
                        -$tokens, 0, $geschaetzt, $modell);
 }
 
@@ -1116,6 +1201,17 @@ function pu_token_tor(int $person): array
                 'unbegrenzt' => true];
     }
 
+    // **Gratis-Zugang: der eigene Schlüssel statt der Token.** Über den
+    // Server läuft für diesen Plan nichts (Kontingent 0, keine Modelle). Mit
+    // eigenem Schlüssel ist das Tor offen, ohne ist es zu — mit einem Schild,
+    // das sagt, was fehlt, statt „Guthaben aufgebraucht“.
+    $abo = pu_abo_fuer($person);
+    if ($abo !== null && !empty($abo['gratis'])) {
+        return $abo['schluessel']
+            ? ['offen' => true, 'stand' => $stand, 'meldung' => null, 'eigener_schluessel' => true]
+            : ['offen' => false, 'stand' => $stand, 'meldung' => pu_schluessel_meldung($person)];
+    }
+
     // `pu_regel()`, nicht `pu_einst_global()`: das eine liest EINEN Wert, das
     // andere gibt die ganze Tafel zurück. Mit dem falschen davon war die harte
     // Sperre wirkungslos — sie verglich ein Array mit einem Text.
@@ -1245,6 +1341,16 @@ function pu_token_lage(int $person): array
                 'rahmen' => PU_MINUS_RAHMEN, 'meldung' => null];
     }
 
+    // Im Gratis-Zugang gibt es keinen Stand, vor dem zu warnen wäre — nur den
+    // Schlüssel, der da ist oder fehlt.
+    $abo = pu_abo_fuer($person);
+    if ($abo !== null && !empty($abo['gratis'])) {
+        return ['lage' => $abo['schluessel'] ? 'eigener_schluessel' : 'schluessel',
+                'rest' => $stand['rest'], 'antworten' => null, 'minus' => 0,
+                'rahmen' => PU_MINUS_RAHMEN,
+                'meldung' => $abo['schluessel'] ? null : pu_schluessel_meldung($person)];
+    }
+
     // Im Minus zählt, was der Rahmen noch trägt; darüber, was übrig ist.
     $uebrig = $stand['rest'] > 0 ? $stand['rest'] : $stand['rahmen_rest'];
 
@@ -1296,7 +1402,7 @@ function pu_gemeinschaft_da(): bool
  *   Lehrer       Eltern und Schüler in seiner Schule — beim Token senden
  *                enger: nur seine Klassen und deren Eltern (seit 19.10.2026,
  *                `pu_token_im_umkreis`, Klassen nach Plan 30_Community C8).
- *   Eltern       ihre eigenen Kinder (`kind_von`), sonst niemanden.
+ *   Eltern       ihre eigenen Kinder (`eltern_kinder`, bis zu drei), sonst niemanden.
  *   Schüler      niemanden.
  *
  * **Eine leere Schule öffnet nicht die Tür.** Steht bei einer Verwaltung kein
@@ -1384,18 +1490,11 @@ function pu_talent_im_umkreis(array $ich, array $ziel, string $ebene): bool
             return trim((string)($ich['schule'] ?? '')) === trim((string)($ziel['schule'] ?? ''));
 
         case 'eltern':
-            /* **Die Richtung steht am Elternkonto, nicht am Kind.**
-               `pu_profil_kind_setzen($eltern, $kind)` schreibt `kind_von` in
-               die Zeile der ELTERN und trägt dort die Nummer des Kindes ein
-               (siehe srv/profil.php). Andersherum gelesen — „das Kind zeigt
-               auf seine Eltern" — träfe die Bedingung nie zu, und der
-               Elternteil bekäme eine leere Liste ohne Fehlermeldung.
-
-               Damit erreicht ein Elternkonto genau ein Kind. Das ist keine
-               Einschränkung dieser Funktion, sondern die des Feldes: Es fasst
-               eine Nummer. Wer zwei Kinder hat, braucht ein zweites Konto
-               oder ein zweites Feld — das wäre ein eigener Umbau. */
-            return (int)($ich['kind_von'] ?? 0) === (int)($ziel['id'] ?? 0);
+            /* Die eigenen Kinder, seit Schema v15 bis zu drei
+               (`eltern_kinder`, srv/profil.php). Andere Kinder nie — auch
+               nicht die der Klasse, die im Elternkonto eingetragen ist. */
+            require_once PU_ROOT . '/srv/profil.php';
+            return in_array((int)($ziel['id'] ?? 0), pu_eltern_kinder((int)($ich['id'] ?? 0)), true);
     }
     return false;
 }
@@ -1406,9 +1505,9 @@ function pu_talent_im_umkreis(array $ich, array $ziel, string $ebene): bool
  * Wie `pu_talent_im_umkreis`, nur enger für Lehrkräfte: **nur die eigenen
  * Klassen** (seit 19.10.2026). Die Empfängerliste nennt Namen; eine
  * Lehrkraft, die darin die ganze Schule sieht, sähe mehr als in ihrer
- * Klassenübersicht (`pu_klasse`). Eltern zählen dazu, wenn ihr verknüpftes
- * Kind in einer dieser Klassen ist — die Klasse im Elternkonto selbst zählt
- * nicht, sie ist frei eingetragen.
+ * Klassenübersicht (`pu_klasse`). Eltern zählen dazu, wenn eines ihrer
+ * verknüpften Kinder in einer dieser Klassen ist — die Klasse im Elternkonto
+ * selbst zählt nicht, sie ist frei eingetragen.
  *
  * Eine eigene Funktion und keine Änderung an `pu_talent_im_umkreis`: Die
  * Urkunden (srv/abschluss.php) fragen jene, und deren Sicht ist eine eigene
@@ -1419,9 +1518,14 @@ function pu_token_im_umkreis(array $ich, array $ziel, string $ebene): bool
     if ($ebene !== 'lehrer') return pu_talent_im_umkreis($ich, $ziel, $ebene);
 
     require_once PU_ROOT . '/srv/lernende.php';
-    $schueler = (string)($ziel['rolle'] ?? '') === 'eltern'
-              ? (int)($ziel['kind_von'] ?? 0) : (int)($ziel['id'] ?? 0);
-    return $schueler > 0 && pu_lehrer_sieht((int)$ich['id'], $schueler);
+    require_once PU_ROOT . '/srv/profil.php';
+    // Eltern erreicht die Lehrkraft, wenn EINES ihrer Kinder in ihren Klassen ist.
+    $kinder = (string)($ziel['rolle'] ?? '') === 'eltern'
+            ? pu_eltern_kinder((int)($ziel['id'] ?? 0)) : [(int)($ziel['id'] ?? 0)];
+    foreach ($kinder as $schueler) {
+        if ($schueler > 0 && pu_lehrer_sieht((int)$ich['id'], $schueler)) return true;
+    }
+    return false;
 }
 
 /**
@@ -1544,7 +1648,7 @@ function pu_cockpit(int $person): array
     $st = $pdo->prepare(
         "SELECT wofuer, COUNT(*) AS anzahl, SUM(-tokens) AS tokens, MAX(geschaetzt) AS geschaetzt
          FROM token_buchungen
-         WHERE $wo AND art = 'verbrauch' AND tag >= ?
+         WHERE $wo AND art IN ('verbrauch', 'eigen') AND tag >= ?
          GROUP BY wofuer ORDER BY tokens DESC LIMIT 12");
     $st->execute(array_merge($werte, [$seit]));
 
@@ -1728,6 +1832,10 @@ function pu_tokenbuch(int $wer, bool $schule = false, int $grenze = 200): array
             case 'verbrauch':
                 [$von, $an] = [$selbst, $text('Tutor' . ((string)$r['modell'] !== '' ? ' · ' . $r['modell'] : ''))];
                 break;
+            case 'eigen':
+                [$von, $an] = [$selbst, $text('Tutor · eigener Schlüssel'
+                                              . ((string)$r['modell'] !== '' ? ' · ' . $r['modell'] : ''))];
+                break;
             case 'einzahlung':
                 [$von, $an] = [$text('Kauf'), $selbst];
                 break;
@@ -1769,4 +1877,218 @@ function pu_abos_alle(): array
         $aus[] = pu_abo_aufbereiten($a);
     }
     return $aus;
+}
+
+// ---------------------------------------------------------------- Gratis-Zugang laut Server
+
+/**
+ * Was die Bescheinigung des Servers über den Plan sagt.
+ *
+ * Gelesen wird nur eine **gültige** Bescheinigung. `plan_bis` ist der letzte
+ * Tag des Gratis-Zugangs (UTC, wie auf dem Server in pu_plan_wirksam). Danach
+ * gilt er nicht mehr, auch wenn die Bescheinigung selbst noch ein paar Wochen
+ * läuft — sonst bekäme eine Familie, deren Rechner erst nach dem Ende wieder
+ * beim Server nachfragt, bis zu 30 Tage geschenkt.
+ *
+ * Ein Gratis-Plan ohne `plan_bis` gilt nicht: Der Server schickt das Datum
+ * immer mit, und ein unbefristeter Gratis-Zugang ist nicht vorgesehen.
+ *
+ * Einmal je Anfrage gelesen (die Prüfung der Unterschrift liefe sonst bei
+ * jeder Abo-Frage neu); `$neu` liest erneut — für Tests und nach einem Abgleich.
+ *
+ * @return array{plan:string, plan_bis:string, gratis:bool, abgelaufen:bool, tage:?int}
+ */
+function pu_plan_laut_server(bool $neu = false): array
+{
+    static $merk = null;
+    if ($neu) $merk = null;
+    if ($merk !== null) return $merk;
+
+    $b = null;
+    try {
+        require_once PU_ROOT . '/srv/identitaet.php';
+        $b = pu_ident_gueltig() ? pu_ident_bescheinigung() : null;
+    } catch (Throwable) {
+        $b = null;      // ohne sodium oder mit kaputter Datei: kein Plan
+    }
+    $plan = (string)($b['plan'] ?? '');
+    $bis  = (string)($b['plan_bis'] ?? '');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}\z/', $bis)) $bis = '';
+
+    $heute  = gmdate('Y-m-d');
+    $gratis = $plan === PU_PLAN_GRATIS && $bis !== '' && $bis >= $heute;
+    $tage   = $gratis
+        ? (int)round((strtotime($bis . ' 00:00:00 UTC') - strtotime($heute . ' 00:00:00 UTC')) / 86400)
+        : null;
+
+    return $merk = [
+        'plan'       => $plan,
+        'plan_bis'   => $bis,
+        'gratis'     => $gratis,
+        'abgelaufen' => $plan === PU_PLAN_GRATIS && !$gratis,
+        'tage'       => $tage,
+    ];
+}
+
+/**
+ * Das Elternkonto, das den Gratis-Zugang trägt: das erste der Installation.
+ *
+ * Der Plan hat einen Elternplatz (Entscheid des Betreibers 20.10.2026:
+ * vorerst ein Elternkonto). Ein zweites Elternkonto auf demselben Rechner
+ * bekommt den Plan deshalb nicht mit.
+ */
+function pu_gratis_inhaber(): int
+{
+    return (int)pu_db()->query(
+        "SELECT id FROM lernende WHERE rolle = 'eltern' ORDER BY id LIMIT 1")->fetchColumn();
+}
+
+/** Läuft der Tutor über einen eigenen Weg (eigener Schlüssel oder CLI) statt über den Server? */
+function pu_gratis_schluessel_da(): bool
+{
+    require_once PU_ROOT . '/srv/tutor.php';
+    return in_array(pu_tutor_weg(), ['openrouter', 'cli'], true);
+}
+
+/**
+ * Das Gratis-Abo dieses Kontos — oder null.
+ *
+ * Es gilt für das Elternkonto der Familie und dessen verknüpfte Kinder, und
+ * nur in einer Familien-Installation (Art `eltern`). Es steht in keiner
+ * Tabelle: Die Zeile ist die Bescheinigung. Endet der Gratis-Zugang beim
+ * Server, ist es mit dem nächsten Abgleich weg, ohne dass hier etwas
+ * aufzuräumen wäre.
+ */
+function pu_gratis_abo(int $person): ?array
+{
+    require_once PU_ROOT . '/srv/profil.php';
+    require_once PU_ROOT . '/srv/rechte.php';
+
+    $s = pu_plan_laut_server();
+    if (!$s['gratis'] || pu_art() !== 'eltern') return null;
+
+    $inhaber = pu_gratis_inhaber();
+    if ($inhaber <= 0) return null;
+    $kinder = pu_eltern_kinder($inhaber);
+    if ($person !== $inhaber && !in_array($person, $kinder, true)) return null;
+
+    $p = PU_PLAN_GRATIS_DEF;
+    return [
+        'id'               => PU_ABO_GRATIS,
+        'plan'             => PU_PLAN_GRATIS,
+        'plan_name'        => $p['name'],
+        'traeger_art'      => 'person',
+        'traeger'          => $inhaber,
+        'traeger_name'     => '',
+        'start'            => '',
+        'naechste_zahlung' => '',
+        'laeuft'           => true,
+        // Es ist nichts zu bezahlen, also wartet auch nichts auf einen Haken.
+        'bestaetigt'       => true,
+        'notiz'            => '',
+        'takt'             => 'jaehrlich',
+        'takt_name'        => 'ein Jahr',
+        'laufzeit_bis'     => $s['plan_bis'],
+        'zusatz'           => 0,
+        'basis'            => 'brutto',
+        'mwst'             => '',
+        'cent'             => 0,
+        'preis'            => pu_eur(0),
+        'plaetze'          => (int)$p['plaetze'],
+        'kontingent'       => 0,
+        'belegt'           => count($kinder),
+        'gratis'           => true,
+        'tage'             => $s['tage'],
+        'schluessel'       => pu_gratis_schluessel_da(),
+    ];
+}
+
+/**
+ * Was endet, was bleibt, wie es weitergeht — der Text der Ankündigung.
+ *
+ * An einer Stelle, weil er an zwei Orten steht: im Fenster beim Anmelden und
+ * auf der Karte „Dein Plan“ im Cockpit.
+ */
+function pu_gratis_ablauf_text(string $bis): array
+{
+    $datum = $bis !== '' ? date('d.m.Y', (int)strtotime($bis . ' 00:00:00 UTC')) : '';
+    return [
+        'titel'  => 'Dein Gratis-Zugang endet am ' . $datum,
+        'endet'  => 'Am Tag danach schliessen Werkstatt, Community und Cinema Studio. '
+                  . 'Neue Kinderkonten lassen sich dann nicht mehr anlegen.',
+        'bleibt' => 'Lernstand, Urkunden, alle Konten und die Kurse bleiben. Gelernt werden '
+                  . 'kann weiter, nur ohne Tutor über diesen Plan.',
+        'weiter' => 'Zwei Wege: ein Abo auf der Preisseite buchen — dann gilt es ohne Lücke —, '
+                  . 'oder beim Betreiber eine Verlängerung um ein Jahr anfragen.',
+    ];
+}
+
+/**
+ * Die Ankündigung für dieses Konto beim Anmelden — oder null.
+ *
+ * Nur das Elternkonto, das den Gratis-Zugang trägt, und erst ab
+ * PU_GRATIS_HINWEIS_TAGE vor dem Ende. Weggeklickt bleibt sie
+ * PU_GRATIS_HINWEIS_PAUSE Tage weg und kommt dann wieder — eine Ankündigung,
+ * die man einmal wegklickt und nie wieder sieht, kündigt nichts an.
+ */
+function pu_gratis_hinweis(int $person, ?int $jetzt = null): ?array
+{
+    $abo = pu_abo_fuer($person);
+    if ($abo === null || empty($abo['gratis']) || (int)$abo['traeger'] !== $person) return null;
+    if ($abo['tage'] === null || $abo['tage'] > PU_GRATIS_HINWEIS_TAGE) return null;
+
+    $aus = (int)pu_setting('gratis_hinweis_aus_' . $person, '0');
+    if ($aus > 0 && ($jetzt ?? time()) - $aus < PU_GRATIS_HINWEIS_PAUSE * 86400) return null;
+
+    return ['bis' => $abo['laufzeit_bis'], 'tage' => $abo['tage']]
+         + pu_gratis_ablauf_text($abo['laufzeit_bis']);
+}
+
+/** Die Ankündigung für eine Woche wegklicken. */
+function pu_gratis_hinweis_aus(int $person, ?int $jetzt = null): void
+{
+    pu_setting_setzen('gratis_hinweis_aus_' . $person, (string)($jetzt ?? time()));
+}
+
+/**
+ * Das Schild im Gratis-Zugang ohne eigenen Schlüssel.
+ *
+ * Statt „Guthaben aufgebraucht“: Es war nie Guthaben da, und das ist richtig
+ * so. Was fehlt, ist der Schlüssel. Ein Kind kann ihn nicht eintragen (das
+ * Recht `ki.einstellungen` liegt bei den Eltern), also bekommt es den Satz,
+ * an wen es sich wendet, und keinen Knopf, der nichts tut.
+ */
+function pu_schluessel_meldung(int $person): array
+{
+    require_once PU_ROOT . '/srv/rechte.php';
+    $p = pu_profil($person);
+    $selbst = $p !== null && pu_recht_hat('ki.einstellungen', $p);
+
+    return [
+        'lage'   => 'schluessel',
+        'titel'  => $selbst ? 'Trag deinen eigenen Schlüssel ein.'
+                            : 'Der Tutor braucht den Schlüssel deiner Eltern.',
+        'bilanz' => 'Der Gratis-Zugang enthält keine Token. Die Tutoren laufen über einen '
+                  . 'eigenen OpenRouter-Schlüssel der Familie.',
+        // Ein Schlüssel kann da sein, während der Weg fest auf „Server“ steht —
+        // dann hilft kein zweiter Schlüssel, sondern der richtige Weg.
+        'grund'  => pu_or_schluessel() !== ''
+            ? 'Ein Schlüssel ist eingetragen, aber der Tutor-Weg steht auf „Server“. '
+              . 'Unter „Tutor-KI“ auf „Automatisch“ oder „OpenRouter“ stellen.'
+            : 'Auf diesem Rechner ist noch keiner eingetragen.',
+        'wege'   => [[
+            'art'   => 'schluessel',
+            'titel' => $selbst ? 'Schlüssel eintragen' : 'Eltern fragen',
+            'text'  => $selbst
+                ? 'In den Einstellungen unter „Tutor-KI“. Mit dem eigenen Schlüssel gehen die '
+                  . 'Fragen auf eigene Rechnung direkt an OpenRouter und den gewählten Anbieter.'
+                : 'Den Schlüssel trägt das Elternkonto in den Einstellungen unter „Tutor-KI“ ein. '
+                  . 'Danach antworten die Tutoren wieder.',
+            'ziel'  => '',
+            'knopf' => $selbst ? 'Einstellungen öffnen' : '',
+            'einst' => $selbst ? 'ki' : '',
+        ]],
+        'weiter' => 'Lesen, Aufgaben lösen und abgeben geht weiter — das kostet nichts. '
+                  . 'Zu ist nur der Tutor.',
+    ];
 }

@@ -84,9 +84,16 @@ function pu_cockpit_ausgabe(int $ichId): array
     require_once __DIR__ . '/srv/lernende.php';
 
     $ich = pu_wer();
+    // Im Gratis-Zugang gibt es keine Token: nichts zu senden, nichts zu
+    // verschenken, nichts nachzukaufen, was über den Server liefe.
+    $gratis = !empty(pu_abo_fuer($ichId)['gratis']);
+    $bis    = pu_plan_laut_server()['plan_bis'];
     return pu_cockpit($ichId) + [
+        'gratis'           => $gratis,
+        'gratis_ablauf'    => $gratis ? pu_gratis_ablauf_text($bis) : null,
+        'hinweis_ab_tagen' => PU_GRATIS_HINWEIS_TAGE,
         'darf_buchen'      => pu_recht_hat('abo.verwalten'),
-        'darf_einzahlen'   => pu_recht_hat('token.einzahlen'),
+        'darf_einzahlen'   => pu_recht_hat('token.einzahlen') && !$gratis,
         'darf_bestaetigen' => pu_recht_hat('abo.bestaetigen'),
         // Bestätigt wird sonst vom Server — das geht nur registriert.
         'registriert'      => pu_relay_zustand()['registriert'],
@@ -94,15 +101,18 @@ function pu_cockpit_ausgabe(int $ichId): array
         // Recht UND jemand darunter. Das Recht allein genügt nicht:
         // Ein Kasten „Token senden" ohne einen einzigen möglichen Empfänger
         // ist ein Versprechen, das die Liste gleich wieder zurücknimmt.
-        'darf_senden'      => pu_recht_hat('talente.senden')
+        'darf_senden'      => pu_recht_hat('talente.senden') && !$gratis
                               && pu_talente_empfaenger($ichId) !== [],
         // Eine Lehrkraft ohne zugeordnete Klasse erreicht niemanden. Dann
         // sagt das Cockpit, woran es liegt, statt den Kasten still wegzulassen.
-        'senden_ohne_klassen' => pu_recht_hat('talente.senden') && $ich !== null
+        'senden_ohne_klassen' => pu_recht_hat('talente.senden') && !$gratis && $ich !== null
                               && pu_ebene($ich) === 'lehrer' && pu_lehrer_gruppen($ichId) === [],
-        'darf_codes'       => pu_recht_hat('codes.ausstellen') && pu_code_zielebenen($ichId) !== [],
-        'darf_einloesen'   => pu_recht_hat('codes.einloesen'),
+        'darf_codes'       => pu_recht_hat('codes.ausstellen') && !$gratis && pu_code_zielebenen($ichId) !== [],
+        'darf_einloesen'   => pu_recht_hat('codes.einloesen') && !$gratis,
         'darf_tokenbuch_schule' => pu_recht_hat('tokenbuch.schule'),
+        // „Meine Kinder“ nur für Elternkonten — die Ebene, nicht nur das Recht:
+        // Eine Schulleitung hat keine eigenen Kinder in der Academy.
+        'darf_familie'     => pu_recht_hat('familie.kinder') && $ich !== null && pu_ebene($ich) === 'eltern',
         // Erklärstücke neben den Knöpfen, je Karte in der Fassung dieser
         // Person (srv/medien.php). Fehlt das Medienpaket, ist die Liste leer.
         'hoer'             => $ich !== null ? pu_cockpit_hoer($ich) : [],
@@ -581,6 +591,9 @@ try {
                          // sein, bevor jemand gegen die Grenze läuft, nicht
                          // erst danach.
                          'token'     => pu_token_lage($ichId),
+                         // Die Ankündigung „Gratis-Zugang endet“ — nur für das
+                         // Elternkonto, das ihn trägt, ab 4 Wochen vorher.
+                         'plan_hinweis' => pu_gratis_hinweis($ichId),
                          // Ob ein Vorlese-Knopf überhaupt erscheinen darf.
                          // Beides muss stimmen: eingeschaltet UND erlaubt.
                          'stimme'    => pu_stimme_an() && pu_recht_hat('stimme.nutzen')]);
@@ -1001,6 +1014,9 @@ try {
                     'bereit'       => pu_tutor_bereit(),
                     'token'        => pu_geheimnis_stand('CLAUDE_CODE_OAUTH_TOKEN'),
                     'or_key'       => pu_geheimnis_stand('PU_OPENROUTER_API_KEY'),
+                    // Im Gratis-Zugang läuft über den Server nichts: Der Reiter
+                    // sagt dann, dass der eigene Schlüssel fehlt, statt „Bereit“.
+                    'gratis'       => !empty(pu_abo_fuer($ichId)['gratis']),
 
                     // Welche Zertifikatsliste die HTTPS-Verbindung benutzt.
                     // Steht hier, weil ein leerer Eintrag genau eine
@@ -1091,9 +1107,57 @@ try {
             pu_json_out(['ok' => true, 'wert' => $wert]);
         }
 
+        // Ein Kind vom Elternkonto lösen (Menü „Klasse“, Schulleitung).
+        case 'kind_loesen': {
+            pu_recht_fordern('eltern.manage');
+            try {
+                pu_eltern_kind_loesen((int)d('eltern'), (int)d('kind'), $ichId);
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true, 'kinder' => pu_eltern_kinder((int)d('eltern'))]);
+        }
+
+        // ------------------------------------------------ Meine Kinder (Eltern)
+        //
+        // Der Umkreis ist die eigene Familie (srv/familie.php); Anlegen nur
+        // auf dem Familienrechner.
+        case 'kinder_meine':
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+
+        case 'kind_anlegen_eigen': {
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            try {
+                pu_familie_kind_anlegen($ichId, (string)d('kennung'), (string)d('anzeigename'),
+                                        (string)d('kennwort'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+        }
+
+        case 'kind_loesen_eigen': {
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            try {
+                pu_familie_kind_loesen($ichId, (int)d('kind'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+        }
+
         case 'kind_setzen': {
             pu_recht_fordern('eltern.manage');
-            pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'));
+            try {
+                pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ich);
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
             pu_protokoll($ichId, 'kind', (string)(int)d('eltern'), (string)(int)d('kind'));
             pu_json_out(['ok' => true]);
         }
@@ -1442,6 +1506,11 @@ try {
         // Registrierung und Stand beim Server. `relay_zustand` fragt nicht
         // beim Server nach — ein Reiter darf nicht bei jedem Öffnen eine
         // Netzanfrage auslösen. `relay_stand` tut es, auf Knopfdruck.
+        case 'plan_hinweis_aus':
+            pu_recht_fordern('registrierung.verwalten');
+            pu_gratis_hinweis_aus($ichId);
+            pu_json_out(['ok' => true]);
+
         case 'relay_zustand':
             pu_recht_fordern('abo.sehen');
             pu_json_out(['ok' => true, 'zustand' => pu_relay_zustand(),
@@ -2019,7 +2088,16 @@ try {
                     if (pu_ebene($l) === 'lehrer') $zuordnung[(string)$l['id']] = pu_lehrer_gruppen((int)$l['id']);
                 }
             }
+            // Die Kinder je Elternkonto (seit 20.10.2026 bis zu drei), für die
+            // Verknüpfung durch die Schulleitung.
+            $kinder = [];
+            if (pu_recht_hat('eltern.manage')) {
+                foreach ($klasse as $l) {
+                    if ((string)$l['rolle'] === 'eltern') $kinder[(string)$l['id']] = pu_eltern_kinder((int)$l['id']);
+                }
+            }
             pu_json_out(['ok' => true, 'klasse' => $klasse, 'lehrer_klassen' => (object)$zuordnung,
+                         'eltern_kinder' => (object)$kinder, 'kinder_max' => PU_KINDER_MAX,
                          'meine_klassen' => $ebene === 'lehrer' ? pu_lehrer_gruppen($ichId) : null]);
         }
 
@@ -2059,10 +2137,22 @@ try {
                 || pu_ebene_gedeckelt($neueRolle) !== $neueRolle) {
                 pu_fehler('Diese Ebene kannst du hier nicht anlegen: ' . $neueRolle, 403);
             }
-            pu_json_out(['ok' => true, 'id' => pu_lernenden_anlegen(
+            $neuId = pu_lernenden_anlegen(
                 (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'),
-                (string)d('rolle', 'schueler'), (string)d('gruppe', '')
-            )]);
+                (string)d('rolle', 'schueler'), (string)d('gruppe', ''));
+            // Legt ein Elternkonto ein Schülerkonto an, ist es sein Kind
+            // (Familien-Konten, 20.10.2026). Scheitert die Verknüpfung an der
+            // Obergrenze, bleibt das Konto stehen und die Meldung sagt es.
+            $hinweis = '';
+            if ($ebene === 'eltern' && $neueRolle === 'schueler') {
+                try {
+                    pu_eltern_schule_erben($ichId, $neuId);
+                    pu_eltern_kind_hinzu($ichId, $neuId, $ichId);
+                } catch (RuntimeException $f) {
+                    $hinweis = $f->getMessage();
+                }
+            }
+            pu_json_out(['ok' => true, 'id' => $neuId, 'hinweis' => $hinweis]);
 
         case 'kennwort_zuruecksetzen':
             pu_recht_fordern('lernende.manage');

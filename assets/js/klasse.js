@@ -32,32 +32,52 @@ PU.klasseZeichnen = async function () {
   }
   const zuordnung = j.lehrer_klassen || {};
 
-  /* Eltern ↔ Kind (Recht eltern.manage). `kind_von` steht am Elternkonto und
-     fasst genau ein Kind. Zur Wahl stehen die Schülerkonten unter ihrem
-     Pseudonym, wie überall, wo Lernende in einer Liste auftauchen. */
+  /* Eltern ↔ Kinder (Recht eltern.manage). Seit 20.10.2026 bis zu drei Kinder
+     je Elternkonto (`eltern_kinder`), ein Kind hat vorerst ein Elternkonto.
+     Zur Wahl stehen die Schülerkonten unter ihrem Pseudonym, wie überall, wo
+     Lernende in einer Liste auftauchen — ohne die, die schon Eltern haben. */
+  const elternKinder = j.eltern_kinder || {};
+  const kinderMax = j.kinder_max || 3;
   const kindWahl = PU.darf('eltern.manage') && j.klasse.some(l => l.rolle === 'eltern');
   const kinder = kindWahl
     ? j.klasse.filter(l => l.rolle === 'schueler')
-        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename, gruppe: l.gruppe || '' }))
+        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename,
+                     gruppe: l.gruppe || '', schule: (l.schule || '').trim() }))
         .sort((a, b) => a.name.localeCompare(b.name, 'de'))
     : [];
-  const kindOptionen = (gewaehlt) => {
-    let o = '<option value="0">— kein Kind —</option>';
-    let gefunden = gewaehlt === 0;
-    kinder.forEach(k => {
-      if (k.id === gewaehlt) gefunden = true;
-      o += '<option value="' + k.id + '"' + (k.id === gewaehlt ? ' selected' : '') + '>' +
-           PU.h(k.name + (k.gruppe ? ' · ' + k.gruppe : '')) + '</option>';
+  const kindName = id => {
+    const k = kinder.find(x => x.id === id);
+    return k ? k.name + (k.gruppe ? ' · ' + k.gruppe : '') : 'Konto Nr. ' + id;
+  };
+  const vergeben = new Set(Object.values(elternKinder).flat().map(Number));
+  const kindZelle = (l) => {
+    const meine = (elternKinder[l.id] || []).map(Number);
+    let h = '<span class="kinder-liste">';
+    meine.forEach(id => {
+      h += '<span class="kind-marke">' + PU.h(kindName(id)) +
+           ' <button class="knopf still schmal" type="button" data-kind-loesen="' + l.id + ':' + id + '" ' +
+           'aria-label="' + PU.h(kindName(id)) + ' lösen">lösen</button></span>';
     });
-    // Zeigt kind_von auf ein Konto, das hier nicht (mehr) als Schüler steht,
-    // bleibt die Verknüpfung sichtbar, statt still auf „kein Kind" zu springen.
-    if (!gefunden) o += '<option value="' + gewaehlt + '" selected>anderes Konto (Nr. ' + gewaehlt + ')</option>';
-    return o;
+    if (meine.length < kinderMax) {
+      // Zur Wahl stehen nur Schüler aus der Schule des Elternkontos; der
+      // Server prüft dasselbe (pu_eltern_kind_hinzu, seit 1.1.15).
+      const frei = kinder.filter(k => !vergeben.has(k.id) && k.schule === (l.schule || '').trim());
+      if (frei.length) {
+        h += '<span class="klassen-zuordnen"><select data-kind="' + l.id + '" ' +
+             'aria-label="Kind für ' + PU.h(l.anzeigename) + ' wählen">' +
+             '<option value="0">— Kind wählen —</option>' +
+             frei.map(k => '<option value="' + k.id + '">' + PU.h(k.name + (k.gruppe ? ' · ' + k.gruppe : '')) + '</option>').join('') +
+             '</select><button class="knopf still schmal" type="button" data-kind-speichern="' + l.id + '">Verknüpfen</button></span>';
+      }
+    } else {
+      h += '<span class="klein">' + kinderMax + ' Kinder, mehr geht nicht</span>';
+    }
+    return h + '</span>';
   };
 
   const spalte = ['Gruppe'];
   if (Object.keys(zuordnung).length) spalte.push('Klassen');
-  if (kindWahl) spalte.push('Kind');
+  if (kindWahl) spalte.push('Kinder');
 
   const rahmen = PU.el('div', 'tabellenrahmen');
   let html = '<table><tr><th>Name</th><th>Kennung</th><th>' + spalte.join(' · ') + '</th>' +
@@ -75,10 +95,8 @@ PU.klasseZeichnen = async function () {
           'aria-label="Klassen von ' + PU.h(l.anzeigename) + '">' +
           '<button class="knopf still schmal" type="button" data-klassen-speichern="' + l.id + '">Zuordnen</button></span>'
         : kindWahl && l.rolle === 'eltern'
-        // Beim Elternkonto steht hier das Kind, mit dem es verknüpft ist.
-        ? '<span class="klassen-zuordnen"><select data-kind="' + l.id + '" ' +
-          'aria-label="Kind von ' + PU.h(l.anzeigename) + '">' + kindOptionen(Number(l.kind_von) || 0) + '</select>' +
-          '<button class="knopf still schmal" type="button" data-kind-speichern="' + l.id + '">Verknüpfen</button></span>'
+        // Beim Elternkonto stehen hier seine Kinder und die Wahl für ein weiteres.
+        ? kindZelle(l)
         : PU.h(l.gruppe)) + '</td>' +
       '<td>' + l.punkte + '</td>' +
       '<td>' + PU.h(l.titel) + '</td>' +
@@ -133,10 +151,24 @@ PU.klasseZeichnen = async function () {
     k.addEventListener('click', async () => {
       const wahl = rahmen.querySelector('[data-kind="' + k.dataset.kindSpeichern + '"]');
       if (!wahl) return;
+      if (wahl.value === '0') return;
       try {
         await PU.ruf('kind_setzen', { eltern: Number(k.dataset.kindSpeichern), kind: Number(wahl.value) });
-        const name = wahl.value !== '0' ? wahl.options[wahl.selectedIndex].textContent : '';
-        PU.melden(name ? 'Kind verknüpft: ' + PU.h(name) + '.' : 'Keine Verknüpfung mehr.', 'gut');
+        PU.melden('Kind verknüpft: ' + PU.h(wahl.options[wahl.selectedIndex].textContent) + '.', 'gut');
+        PU.klasseZeichnen();
+      } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
+    });
+  });
+
+  rahmen.querySelectorAll('[data-kind-loesen]').forEach(k => {
+    k.addEventListener('click', async () => {
+      const [eltern, kind] = k.dataset.kindLoesen.split(':').map(Number);
+      if (!confirm('Die Verknüpfung mit ' + kindName(kind) + ' lösen?\n\nDas Elternkonto kann diesem Kind ' +
+                   'danach keine Token mehr senden, und ein Familienplan gilt für das Kind nicht mehr.')) return;
+      try {
+        await PU.ruf('kind_loesen', { eltern, kind });
+        PU.melden('Verknüpfung gelöst.', 'gut');
+        PU.klasseZeichnen();
       } catch (e) { PU.melden(PU.h(e.message), 'schlecht'); }
     });
   });

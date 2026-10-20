@@ -58,6 +58,8 @@ function cockpitMalen(ziel) {
   // Einlösen steht weit oben: Wer ein Kärtchen in der Hand hat, sucht
   // genau dieses Feld und sonst nichts im Cockpit.
   if (d.darf_einloesen && PU.einloesenKasten) ziel.appendChild(PU.einloesenKasten(d));
+  // Eltern: ihre Kinder, gleich oben — dafür kommen sie ins Cockpit.
+  if (d.darf_familie && PU.familieKasten) ziel.appendChild(PU.familieKasten(d));
 
   ziel.appendChild(serverKasten());
   ziel.appendChild(verbrauchKasten(d));
@@ -259,7 +261,8 @@ function serverMalen(bereich, j) {
     zeile('Bescheinigung', z.bescheinigt
       ? (z.gueltig ? 'gültig bis ' + PU.h(datum(z.gueltig_bis)) : 'abgelaufen am ' + PU.h(datum(z.gueltig_bis)))
       : 'keine', z.bescheinigt ? !!z.gueltig : null) +
-    (z.plan ? zeile('Plan laut Server', PU.h(z.plan), null) : '') +
+    (z.plan ? zeile('Plan laut Server', PU.h(z.plan) +
+      (z.plan_bis ? ' <span class="klein">bis ' + PU.h(datum(z.plan_bis)) + '</span>' : ''), null) : '') +
     '</tbody>';
   bereich.appendChild(t);
 
@@ -387,6 +390,10 @@ function planKasten(d) {
     return k;
   }
 
+  // Der Gratis-Zugang: kein Preis, keine Zahlung, kein Haken — dafür ein Ende
+  // und ein Schlüssel, der da sein muss (srv/abo.php, pu_gratis_abo).
+  if (a.gratis) return gratisKasten(k, a, d);
+
   // Beim Personenplan gibt es keinen Träger ausser dem Konto — dann steht hier
   // ein ganzer Satz und nichts wird angehängt. Vorher wurde der Name auch dort
   // drangeklebt, und zwar ohne Trennzeichen.
@@ -460,6 +467,33 @@ function planKasten(d) {
   return k;
 }
 
+function gratisKasten(k, a, d) {
+  k.innerHTML =
+    '<div class="karte-kopf"><h3>' + PU.h(a.plan_name) + '</h3>' +
+    '<span class="marke-stufe fertig">gratis</span></div>' +
+    '<p class="klein">Familienplan · eigener Schlüssel · keine Token</p>' +
+    '<table class="cockpit-tabelle"><tbody>' +
+    '<tr><th>Gilt bis</th><td>' + PU.h(datum(a.laufzeit_bis)) +
+      ' <span class="klein">' + PU.h(inTagen(a.laufzeit_bis)) + '</span></td></tr>' +
+    '<tr><th>Token</th><td>keine — die Tutoren laufen über den eigenen Schlüssel</td></tr>' +
+    '<tr><th>Schlüssel</th><td>' + (a.schluessel
+      ? 'eingetragen'
+      : '<b>fehlt</b> <span class="klein">— Einstellungen › Tutor-KI</span>') + '</td></tr>' +
+    '<tr><th>Kinderkonten</th><td>' + a.belegt + ' von ' + a.plaetze + '</td></tr>' +
+    '</tbody></table>';
+
+  if (d.gratis_ablauf && a.tage !== null && a.tage <= d.hinweis_ab_tagen) {
+    const w = PU.el('div', 'hinweis-kasten');
+    w.innerHTML = PU.gratisAblaufHtml(d.gratis_ablauf, true);
+    k.appendChild(w);
+  } else {
+    k.appendChild(PU.el('p', 'klein',
+      'Ein Jahr ab Ausstellung. Danach geht es mit einem gebuchten Abo weiter oder mit ' +
+      'einer Verlängerung durch den Betreiber; vier Wochen vorher steht hier, was dann gilt.'));
+  }
+  return k;
+}
+
 /* ---------------------------------------------------------------- Token */
 function tokenKasten(d) {
   const k = PU.el('div', 'karte cockpit-kasten');
@@ -468,10 +502,15 @@ function tokenKasten(d) {
   // Die Marke neben der Überschrift. Für ein Konto ohne Grenze steht dort
   // nichts: „leer" wäre zwar rechnerisch wahr, widerspräche aber dem Hinweis
   // darunter — und von zwei widersprüchlichen Angaben glaubt man keiner.
-  const marke = d.unbegrenzt ? ''
+  const marke = d.unbegrenzt || d.gratis ? ''
     : (s.lage === 'stopp' ? 'gestoppt' : (s.leer ? 'leer' : ''));
   k.innerHTML = '<div class="karte-kopf"><h3>Token</h3>' +
     (marke ? '<span class="marke-stufe">' + marke + '</span>' : '') + '</div>';
+
+  // Im Gratis-Zugang zählt kein Guthaben — auch nicht das Probeguthaben, das
+  // über den Server ohnehin nichts mehr öffnet. Was zählt, ist der Verbrauch
+  // über den eigenen Schlüssel.
+  if (d.gratis) return gratisTokenKasten(k, d);
 
   /* Im Minus wird die Beschriftung getauscht, nicht das Vorzeichen versteckt.
      „−140.000 Token übrig" ist kein Satz; „140.000 Token im Minus" ist einer,
@@ -525,12 +564,33 @@ function tokenKasten(d) {
   return k;
 }
 
+function gratisTokenKasten(k, d) {
+  const summe = (d.verbrauch || []).reduce((n, v) => n + v.tokens, 0);
+  const rest = PU.el('div', 'token-rest');
+  rest.innerHTML = '<div class="zahl">' + zahl(summe) + '</div>' +
+    '<div class="was">Token über den eigenen Schlüssel, letzte 30 Tage</div>';
+  k.appendChild(rest);
+  const w = PU.el('div', 'hinweis-kasten');
+  w.innerHTML = tokenHinweis(d);
+  k.appendChild(w);
+  return k;
+}
+
 function tokenHinweis(d) {
   const s = d.stand;
 
   // Ebene 1 zuerst: Für dieses Konto gilt keine Grenze, also darf hier auch
   // kein Minus als Warnung stehen. Der Verbrauch ist trotzdem gebucht und
   // steht in der Tabelle darüber — das ist ja der Zweck des Cockpits.
+  // Im Gratis-Zugang gibt es keinen Stand zu warnen: Bezahlt wird direkt beim
+  // Anbieter. Was der Schlüssel verbraucht hat, steht unter „Wohin die Token
+  // gehen“ und im Tokenbuch.
+  if (d.gratis) {
+    return '<b>Gratis-Zugang: keine Token.</b> Die Tutoren laufen über den eigenen ' +
+      'Schlüssel, bezahlt wird direkt bei OpenRouter. Der Verbrauch steht trotzdem ' +
+      'im Tokenbuch — als „eigener Schlüssel“.';
+  }
+
   if (d.unbegrenzt) {
     return '<b>Dieses Konto läuft unbegrenzt.</b> Ebene 1 kennt keinen ' +
       'Minus-Rahmen: Aufbau und Prüfläufe sollen nicht an einer Schranke enden. ' +

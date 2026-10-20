@@ -474,5 +474,7 @@ function pu_relay_zustand(): array
         'gueltig'      => pu_ident_gueltig(),
         'gueltig_bis'  => (string)($b['gueltig_bis'] ?? ''),
         'plan'         => (string)($b['plan'] ?? ''),
+        // Letzter Tag eines befristeten Plans (Gratis-Zugang), sonst leer.
+        'plan_bis'     => (string)($b['plan_bis'] ?? ''),
     ];
 }

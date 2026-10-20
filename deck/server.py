@@ -77,6 +77,9 @@ STANDARD_EINST = {
     "favoriten": ["DEVINDEV - LLM/DEVinDEV-Programme"], "programmordner": [str(SCRIPTS)],
     "llm": True, "llm_modell": "sonnet", "claude_konfig": "", "sortierung": "datum",
     "farbe": "standard", "thema": "dunkel", "feste_mitstarten": True,
+    # Anleitung „Eigene Startknöpfe“ beim Öffnen zeigen; Favoriten-Import: Browser + Profil, aus dem gelesen wird
+    # (fav_profil kommt anfangs aus chrome_profil, siehe Speicher).
+    "anleitung_beim_start": True, "fav_browser": "chrome",
 }
 STANDARD_EINST.update({k: v for k, v in (PROFIL.get("einstellungen") or {}).items() if k in STANDARD_EINST})
 if isinstance(STANDARD_EINST["programmordner"], list):
@@ -115,6 +118,8 @@ class Speicher:
         self.d.setdefault("einstellungen", {})
         # Vor dem Browser je Karte galt für alles das Chrome-Profil – so bleibt es, bis jemand etwas anderes wählt.
         self.d["einstellungen"].setdefault("browser_profil", self.d["einstellungen"].get("chrome_profil") or "")
+        # Vor der Browser-Wahl beim Import las das Cockpit nur Chrome – mit chrome_profil.
+        self.d["einstellungen"].setdefault("fav_profil", self.d["einstellungen"].get("chrome_profil") or "")
         for k, v in STANDARD_EINST.items():
             self.d["einstellungen"].setdefault(k, v)
         self.d.setdefault("ordner", [])
@@ -747,67 +752,158 @@ def autostart_setzen(an: bool) -> None:
         raise Fehler("Autostart-Verknüpfung ließ sich nicht anlegen.")
 
 
-# ====================================================================== Chrome-Favoriten
+# ====================================================================== Favoriten (Chrome & andere Chromium-Browser)
+# Lesezeichen liegen je Profil in „Bookmarks“ (lokal) und „AccountBookmarks“ (mit dem Google-Konto synchronisiert).
+# Ein Ordner wird als Pfad gemerkt: „@bookmark_bar/Arbeit/KI“ – Wurzel, dann die Ordnernamen. Ältere Angaben ohne
+# „@“ (nur „Arbeit/KI“) werden wie bisher in jeder Wurzel gesucht.
+FAV_WURZELN = {"bookmark_bar": "Lesezeichenleiste", "other": "Weitere Lesezeichen", "synced": "Mobile Lesezeichen"}
+FAV_MAX = 3000
+
+
 def chrome_profile() -> list[str]:
-    if not CHROME_DATEN.is_dir():
+    return fav_profile("chrome")
+
+
+def fav_profile(bid: str) -> list[str]:
+    """Profilordner eines Chromium-Browsers, in denen Lesezeichen liegen."""
+    b = BROWSER.get(bid)
+    if not b or b[1] != "chromium" or not b[3].is_dir():
         return []
-    return sorted(p.name for p in CHROME_DATEN.iterdir()
-                  if p.is_dir() and ((p / "Bookmarks").is_file() or (p / "AccountBookmarks").is_file()))
+    return sorted(p.name for p in b[3].iterdir()
+                  if p.is_dir() and PROFIL_RE.match(p.name) and ((p / "Bookmarks").is_file() or (p / "AccountBookmarks").is_file()))
 
 
-def favoriten_lesen(profil: str, pfade: list[str]) -> list[tuple[str, str, str]]:
-    """[(ordnername, name, url)] aus den Lesezeichen-Ordnern (Unterordner werden eigene Ordner)."""
-    if not re.match(r"^[\w .-]{1,60}$", profil or ""):
-        raise Fehler("Ungültiges Chrome-Profil.")
-    aus: list[tuple[str, str, str]] = []
-    gesehen: set[str] = set()
-    for datei in ("Bookmarks", "AccountBookmarks"):
-        p = CHROME_DATEN / profil / datei
-        if not p.is_file():
+def fav_quellen() -> list[dict]:
+    """Browser mit Lesezeichen samt Profilen (Name und angemeldetes Konto) – für den Import-Dialog."""
+    aus = []
+    for bid, b in BROWSER.items():
+        ordner = fav_profile(bid)
+        if not ordner:
             continue
-        try:
-            wurzeln = json.loads(p.read_text("utf-8")).get("roots", {})
-        except (OSError, ValueError):
-            continue
-        for pfad in pfade:
-            teile = [t.strip() for t in pfad.split("/") if t.strip()]
-            for w in wurzeln.values():
-                knoten = w if isinstance(w, dict) else None
-                for t in teile:
-                    knoten = next((c for c in (knoten or {}).get("children", []) if c.get("type") == "folder" and c.get("name") == t), None)
-                    if not knoten:
-                        break
-                if knoten:
-                    _sammeln(knoten, teile[-1], aus, gesehen, oben=True)
+        bekannt = {p["id"]: p for p in browser_profile(bid)}
+        aus.append({"id": bid, "name": b[0], "profile": [bekannt.get(o) or {"id": o, "name": o, "konto": ""} for o in ordner]})
     return aus
 
 
+def _fav_wurzeln(bid: str, profil: str) -> list[dict]:
+    """Die roots aus Bookmarks und AccountBookmarks des Profils."""
+    if bid not in BROWSER or BROWSER[bid][1] != "chromium":
+        raise Fehler("Lesezeichen lassen sich aus Chrome, Edge, Brave, Vivaldi und Comet übernehmen.")
+    if profil not in fav_profile(bid):
+        raise Fehler(f"Im Profil „{profil}“ von {BROWSER[bid][0]} liegen keine Lesezeichen.")
+    aus = []
+    for datei in ("Bookmarks", "AccountBookmarks"):
+        p = BROWSER[bid][3] / profil / datei
+        try:
+            w = json.loads(p.read_text("utf-8")).get("roots", {}) if p.is_file() else {}
+        except (OSError, ValueError, AttributeError):
+            w = {}
+        if isinstance(w, dict):
+            aus.append(w)
+    return aus
+
+
+def _fav_kinder(knoten: dict) -> list[dict]:
+    k = knoten.get("children") if isinstance(knoten, dict) else None
+    return [c for c in k if isinstance(c, dict)] if isinstance(k, list) else []
+
+
+def favoriten_baum(bid: str, profil: str) -> list[dict]:
+    """Ordnerbaum zum Ankreuzen: [{pfad, name, anzahl (Links direkt darin), gesamt, kinder}] – beide Dateien vereint."""
+    def zweig(knoten: dict, pfad: str, name: str, ziel: dict) -> None:
+        z = ziel.setdefault(pfad, {"pfad": pfad, "name": name, "anzahl": 0, "gesamt": 0, "_k": {}})
+        for c in _fav_kinder(knoten):
+            if c.get("type") == "url" and re.match(r"(?i)^(https?|file):", str(c.get("url") or "")):
+                z["anzahl"] += 1
+            elif c.get("type") == "folder" and str(c.get("name") or "").strip():
+                n = str(c["name"]).strip()[:80]
+                zweig(c, f"{pfad}/{n}", n, z["_k"])
+
+    def fertig(z: dict) -> dict:
+        kinder = [fertig(k) for k in z.pop("_k").values()]
+        z["kinder"] = [k for k in kinder if k["gesamt"]]
+        z["gesamt"] = z["anzahl"] + sum(k["gesamt"] for k in kinder)
+        return z
+
+    wurzeln: dict = {}
+    for roots in _fav_wurzeln(bid, profil):
+        for key, titel in FAV_WURZELN.items():
+            if isinstance(roots.get(key), dict):
+                zweig(roots[key], "@" + key, titel, wurzeln)
+    return [w for w in (fertig(z) for z in wurzeln.values()) if w["gesamt"]]
+
+
+def favoriten_lesen(bid: str, profil: str, pfade: list[str]) -> list[tuple[str, str, str]]:
+    """[(ordnername, name, url)] aus den gewählten Lesezeichen-Ordnern. Links direkt im Ordner landen in einem Deck-Ordner
+    seines Namens, jeder Unterordner wird ein eigener Ordner („Unter“, tiefer „Unter / Tiefer“)."""
+    aus: list[tuple[str, str, str]] = []
+    gesehen: set[str] = set()
+    for roots in _fav_wurzeln(bid, profil):
+        for pfad in pfade:
+            teile = [t.strip() for t in str(pfad).split("/") if t.strip()]
+            if not teile:
+                continue
+            if teile[0].startswith("@"):
+                key = teile.pop(0)[1:]
+                starts = [roots.get(key)] if key in FAV_WURZELN else []
+                titel = teile[-1] if teile else FAV_WURZELN.get(key, key)
+            else:  # alte Angabe ohne Wurzel
+                starts, titel = list(roots.values()), teile[-1]
+            for w in starts:
+                knoten = w if isinstance(w, dict) else None
+                for t in teile:
+                    knoten = next((c for c in _fav_kinder(knoten or {}) if c.get("type") == "folder"
+                                   and str(c.get("name") or "").strip() == t), None)
+                    if not knoten:
+                        break
+                if knoten:
+                    _sammeln(knoten, titel, aus, gesehen, oben=True)
+    return aus[:FAV_MAX]
+
+
 def _sammeln(knoten: dict, ordner: str, aus: list, gesehen: set, oben: bool = False) -> None:
-    for c in knoten.get("children", []):
+    for c in _fav_kinder(knoten):
         if c.get("type") == "folder":
-            _sammeln(c, c["name"] if oben else f"{ordner} / {c['name']}", aus, gesehen)
+            n = str(c.get("name") or "").strip() or "Ordner"
+            _sammeln(c, n if oben else f"{ordner} / {n}", aus, gesehen)
         elif c.get("type") == "url":
-            url = c.get("url", "")
+            url = str(c.get("url") or "")
             if re.match(r"(?i)^(https?|file):", url) and url not in gesehen:
                 gesehen.add(url)
-                aus.append((ordner, (c.get("name") or url)[:80], url))
+                aus.append((ordner, (str(c.get("name") or "").strip() or url)[:80], url))
 
 
-def favoriten_importieren(sp: Speicher) -> int:
-    neu = 0
+def favoriten_importieren(sp: Speicher, bid: str | None = None, profil: str | None = None,
+                          pfade: list[str] | None = None) -> dict:
+    """Gewählte Lesezeichen-Ordner als Deck-Ordner mit Karten anlegen. Jede Karte öffnet im Browser und Profil, aus dem
+    sie stammt – dort, wo man angemeldet ist. Vorhandene Adressen kommen nicht doppelt; fehlt einer Karte aus einem
+    früheren Import das Profil, wird es nachgetragen."""
     with sp.lock:
-        bekannt = {e["url"] for e in sp.d["eintraege"] if e["bereich"] == "web"}
-        for ordner, name, url in favoriten_lesen(sp.einst["chrome_profil"], sp.einst["favoriten"]):
-            if url in bekannt:
+        bid = bid or sp.einst.get("fav_browser") or "chrome"
+        profil = profil if profil is not None else (sp.einst.get("fav_profil") or "")
+        pfade = (sp.einst.get("favoriten") or []) if pfade is None else pfade
+        if not pfade:
+            return {"neu": 0, "ordner": 0, "profil_gesetzt": 0}
+        # Nur ein Profil, das der Browser kennt – ein unbekannter Profilordner würde stillschweigend neu angelegt.
+        browser = {"art": bid, "profil": profil if profil in {p["id"] for p in browser_profile(bid)} else ""}
+        web = {e["url"]: e for e in sp.d["eintraege"] if e["bereich"] == "web"}
+        ordner_vorher = len(sp.d["ordner"])
+        neu = gesetzt = 0
+        for ordner, name, url in favoriten_lesen(bid, profil, pfade):
+            alt = web.get(url)
+            if alt:
+                if alt.get("quelle") == "chrome" and not (alt.get("browser") or {}).get("art"):
+                    alt["browser"] = dict(browser)
+                    gesetzt += 1
                 continue
             oid = sp.ordner_sichern(ordner, "web")
-            sp.d["eintraege"].append(normalisieren({"bereich": "web", "name": name, "url": url, "ordner": oid,
-                                                    "quelle": "chrome", "eingerichtet": heute()},
-                                                   sp.d["ordner"], sp.d["eintraege"]))
-            bekannt.add(url)
+            e = normalisieren({"bereich": "web", "name": name, "url": url, "ordner": oid, "browser": browser,
+                               "quelle": "chrome", "eingerichtet": heute()}, sp.d["ordner"], sp.d["eintraege"])
+            sp.d["eintraege"].append(e)
+            web[url] = e
             neu += 1
         sp.sichern()
-    return neu
+        return {"neu": neu, "ordner": len(sp.d["ordner"]) - ordner_vorher, "profil_gesetzt": gesetzt}
 
 
 # ====================================================================== Programmordner ohne Eintrag
@@ -1151,7 +1247,7 @@ class Handler(BaseHTTPRequestHandler):
                 e["farbe"] = neu["farbe"]
             if neu.get("thema") in ("dunkel", "hell"):
                 e["thema"] = neu["thema"]
-            for k in ("fenster_beim_start", "llm", "feste_mitstarten"):
+            for k in ("fenster_beim_start", "llm", "feste_mitstarten", "anleitung_beim_start"):
                 if k in neu:
                     e[k] = bool(neu[k])
             if "claude_konfig" in neu:
@@ -1169,8 +1265,27 @@ class Handler(BaseHTTPRequestHandler):
             sp.sichern()
         return {"einstellungen": sp.einst, "autostart_aktiv": AUTOSTART_LNK.is_file()}
 
+    def api_favoriten_quellen(self, sp: Speicher, b: dict) -> dict:
+        return {"quellen": fav_quellen()}
+
+    def api_favoriten_baum(self, sp: Speicher, b: dict) -> dict:
+        return {"baum": favoriten_baum(str(b.get("browser") or ""), str(b.get("profil") or ""))}
+
     def api_favoriten_import(self, sp: Speicher, b: dict) -> dict:
-        return {"neu": favoriten_importieren(sp)}
+        """Ohne Angaben: die gemerkte Wahl neu einlesen. Mit browser/profil/pfade: übernehmen und die Wahl merken."""
+        if "pfade" not in b:
+            return favoriten_importieren(sp)
+        bid, profil = str(b.get("browser") or ""), str(b.get("profil") or "")
+        pfade = list(dict.fromkeys(str(x).strip()[:400] for x in (b.get("pfade") or []) if str(x).strip()))[:50]
+        if not pfade:
+            raise Fehler("Bitte mindestens einen Ordner ankreuzen.")
+        erg = favoriten_importieren(sp, bid, profil, pfade)  # prüft Browser und Profil
+        with sp.lock:
+            sp.einst.update(fav_browser=bid, fav_profil=profil, favoriten=pfade)
+            if bid == "chrome":
+                sp.einst["chrome_profil"] = profil
+            sp.sichern()
+        return erg
 
     def api_beenden(self, sp: Speicher, b: dict) -> dict:
         threading.Timer(0.5, lambda: os._exit(0)).start()

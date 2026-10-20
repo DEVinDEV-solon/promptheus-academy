@@ -440,7 +440,10 @@ function pu_gem_darf_siegeln(array $ich, array $produkt): bool
         'admin', 'verwaltung' => true,
         // Nur Schüler der Klassen, die die Schule zugeordnet hat (C8).
         'lehrer' => pu_lehrer_sieht((int)$ich['id'], (int)$produkt['lernender']),
-        'eltern' => pu_art() === 'eltern' || (int)($ich['kind_von'] ?? 0) === (int)$produkt['lernender'],
+        // Eigene Kinder (srv/profil.php, `eltern_kinder`); auf einem
+        // Familienrechner jedes Kind.
+        'eltern' => pu_art() === 'eltern'
+                    || in_array((int)$produkt['lernender'], pu_eltern_kinder((int)$ich['id']), true),
         default => false,
     };
 }

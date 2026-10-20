@@ -46,7 +46,7 @@ $ids = static fn(array $l) => array_map('intval', array_column($l, 'id'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 gruppe('Schema');
-gleich('Stand 14', 14, (int)pu_db()->query('PRAGMA user_version')->fetchColumn());
+pruefe('Stand mindestens 14', (int)pu_db()->query('PRAGMA user_version')->fetchColumn() >= 14);
 $sp = array_column(pu_db()->query('PRAGMA table_info(token_buchungen)')->fetchAll(), 'name');
 pruefe('Buchung hat Gegenkonto und Beleg', in_array('gegen', $sp, true) && in_array('beleg', $sp, true));
 

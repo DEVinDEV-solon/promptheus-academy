@@ -124,6 +124,13 @@ hr { border: 0; border-top: 1px solid var(--rand); margin: 2rem 0; }
 .klassen-zuordnen { display: inline-flex; gap: .35em; align-items: center; white-space: nowrap; }
 .klassen-zuordnen input { width: 8em; min-width: 0; margin: 0; }
 .klassen-zuordnen select { width: auto; max-width: 14em; margin: 0; }
+/* Kinder eines Elternkontos (klasse.js): je Kind eine Marke mit „lösen“,
+   darunter die Wahl für ein weiteres. */
+.kinder-liste { display: flex; flex-direction: column; gap: .3em; align-items: flex-start; }
+.kind-marke {
+  display: inline-flex; gap: .4em; align-items: center; white-space: nowrap;
+  padding: .1em .2em .1em .55em; border: 1px solid var(--rand); border-radius: var(--radius-klein);
+}
 table { border-collapse: collapse; width: 100%; font-size: .94rem; }
 th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--rand); }
 th { color: var(--schrift-2); font-weight: 600; font-size: .85rem;
