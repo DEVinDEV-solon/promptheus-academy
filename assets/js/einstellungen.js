@@ -730,9 +730,15 @@ function kiZeichnen(ziel) {
 
   ziel.appendChild(PU.el('h3', '', 'Tutor-KI'));
 
-  const stand = PU.el('p', 'merkzettel' + (s.bereit ? ' gut' : ''));
+  // Gratis-Zugang ohne eigenen Weg: Der Server wäre „bereit“, nimmt für
+  // diesen Plan aber keine Fragen an (Kontingent 0, keine Modelle).
+  const gratisOhne = !!s.gratis && s.weg !== 'openrouter' && s.weg !== 'cli';
+  const stand = PU.el('p', 'merkzettel' + (s.bereit && !gratisOhne ? ' gut' : ''));
   const wegName = { openrouter: 'OpenRouter', cli: 'die Claude-CLI', server: 'den Server der Academy' };
-  stand.innerHTML = s.bereit
+  stand.innerHTML = gratisOhne
+    ? '<b>Gratis-Zugang: Es fehlt der eigene Schlüssel.</b> Über den Server laufen in diesem ' +
+      'Plan keine Tutoren. Trag unten deinen OpenRouter-Schlüssel ein — dann antworten sie wieder.'
+    : s.bereit
     ? '<b>Bereit.</b> Die Tutoren antworten über <b>' + (wegName[s.weg] || s.weg) +
       '</b>, Modell <code>' + PU.h(s.modell) + '</code>.' +
       (s.weg === 'server'
@@ -742,7 +748,11 @@ function kiZeichnen(ziel) {
       'Prüfungen und Urkunden laufen davon unberührt weiter — sie brauchen kein Sprachmodell.';
   ziel.appendChild(stand);
 
-  zeileWahl(ziel, 'Weg zum Modell',
+  // Ohne `regeln.manage` schickt einst_lesen keine Regeltafel (`global`).
+  // Dann zeigt der Reiter, was dieses Konto darf — Stand, Schlüssel, Probe —
+  // und lässt die Schalter weg, die ohnehin `regel_setzen` bräuchten. Vorher
+  // brach er an dieser Stelle ab, und ein Elternkonto sah nur die erste Zeile.
+  if (g) zeileWahl(ziel, 'Weg zum Modell',
     'Automatisch nimmt OpenRouter, sobald ein eigener Schlüssel hinterlegt ist, sonst den Server ' +
     '(wenn diese Academy registriert ist). Die Claude-CLI nur, wenn sie hier ausdrücklich gewählt ist.' +
     (s.server_bereit ? '' : ' Der Server steht erst nach der Registrierung zur Wahl (Cockpit › Server & Registrierung).'),
@@ -776,7 +786,9 @@ function kiZeichnen(ziel) {
   orZeile.appendChild(orGruppe);
   orZeile.appendChild(PU.el('p', 'warum',
     'Der Schlüssel wird in die .env geschrieben und nie wieder angezeigt — auch nicht dir. ' +
-    'Angezeigt wird nur, ob einer da ist. Wer ihn verliert, trägt einen neuen ein.'));
+    'Angezeigt wird nur, ob einer da ist. Wer ihn verliert, trägt einen neuen ein. ' +
+    '<b>Datenschutz:</b> Mit dem eigenen Schlüssel gehen die Fragen an die Tutoren samt ' +
+    'Lektionskontext auf eigene Rechnung direkt an OpenRouter und den gewählten Modellanbieter.'));
   ziel.appendChild(orZeile);
 
   orSpeichern.addEventListener('click', () => geheimnisSetzen('PU_OPENROUTER_API_KEY', orFeld.value, orFeld));
@@ -801,6 +813,8 @@ function kiZeichnen(ziel) {
     'Ein anderes Modell lässt sich hier bewusst nicht eintragen — die Abrechnung ' +
     'rechnet mit genau diesem. Weitere Modelle gibt es ab der Werkstatt.</p>';
   ziel.appendChild(orFest);
+
+  if (!g) { kiProbeZeichnen(ziel); return; }
 
   coderRegelnZeichnen(ziel, g);
 
@@ -981,7 +995,11 @@ function kiZeichnen(ziel) {
     'Prometheus vertieft das Thema in begrenzter Länge. Jede Vertiefung ist ein Modellaufruf und kostet.',
     ['an', 'aus'], g.weitere_infos, w => regelSetzen('weitere_infos', w), AN_AUS);
 
-  // ---------------- Probe
+  kiProbeZeichnen(ziel);
+}
+
+/* Der Knopf „Verbindung prüfen“ — für alle, die den Reiter sehen. */
+function kiProbeZeichnen(ziel) {
   const probe = PU.el('div');
   probe.style.marginTop = '1.6rem';
   const probeKnopf = PU.el('button', 'knopf', 'Verbindung prüfen');

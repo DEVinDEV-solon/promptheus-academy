@@ -129,7 +129,7 @@ function pu_kennzahlen(array $wer): array
 
         $st = $pdo->prepare(
             "SELECT COALESCE(SUM(-tokens), 0) FROM token_buchungen
-             WHERE art = 'verbrauch' AND tag >= ?");
+             WHERE art IN ('verbrauch', 'eigen') AND tag >= ?");
         $st->execute([date('Y-m-01')]);
         $monat = (int)$st->fetchColumn();
 
