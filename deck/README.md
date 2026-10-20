@@ -8,7 +8,11 @@ Die Zentrale für alle Programme auf diesem Rechner, auf **http://127.0.0.1:8800
 - **Browser & Profil je Karte** (⋯ › Browser & Profil): Chrome, Edge, Brave, Firefox … mit dem Profil, in dem man
   angemeldet ist. Ohne eigene Wahl gilt die Einstellung; Werkstatt und Cinema-Studio erben die Wahl der Karte „Lokal“
   – dort öffnet sich auch ihre Freigabe.
-- **Eigene Programme und Seiten** kommen dazu: unten einen Link, Ordner oder eine `.bat` einfügen.
+- **Eigene Programme und Seiten** kommen dazu: unten einen Link, Ordner oder eine `.bat` einfügen. Wie das geht,
+  erklärt die Anleitung „Eigene Startknöpfe einrichten“: Sie öffnet sich beim Start (abschaltbar) und über **?** oben.
+- **Favoriten übernehmen** (Einstellungen › Favoriten übernehmen …): Browser (Chrome, Edge, Brave, Vivaldi, Comet) und
+  Profil wählen, Lesezeichen-Ordner ankreuzen. Jeder Ordner wird ein DECK-Ordner, jedes Lesezeichen ein Knopf, der im
+  Profil öffnet, aus dem er stammt. Die Wahl wird gemerkt („Favoriten neu einlesen“).
 - Programme starten **ohne eigenes Fenster**; Ausgaben stehen im Protokoll (`data\deck\logs`).
 - **Werkstatt und Cinema-Studio** starten weiterhin nur mit Ticket aus der Academy. „Starten“ öffnet dort
   die Freigabe; die Academy reicht den Start danach an DECK zurück, sodass kein Fenster aufgeht.
@@ -22,7 +26,7 @@ Die Zentrale für alle Programme auf diesem Rechner, auf **http://127.0.0.1:8800
 - **Autostart** richtet DECK nicht von selbst ein (`profil.json`: `"autostart": false`); einschalten unter
   Einstellungen oder mit `PROMPTHEUS-DECK-START.bat --autostart-setzen an`.
 - DECK hinterlegt Port und Startweg in `%LOCALAPPDATA%\PROMPTHEUS\deck.json`. Daran erkennt die Academy, dass
-  es installiert ist (Knopf „PROMPTHEUS DECK ›“ in der Community).
+  es installiert ist (Knopf „PROMPTHEUS DECK ›“ in der Community – für jede Rolle, auch Schüler).
 
 ## Technik
 
