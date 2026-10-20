@@ -254,7 +254,16 @@ const PU_RECHTE = [
     ['name' => 'eltern.manage', 'gruppe' => 'Lehrkörper, Eltern & Lernende',
      'was' => 'Eltern-Konten verwalten und mit einem Kind verknüpfen',
      'vorgabe' => ['admin' => 1, 'verwaltung' => 1, 'lehrer' => 0, 'eltern' => 0, 'schueler' => 0],
-     'aktionen' => ['kind_setzen']],
+     'aktionen' => ['kind_setzen', 'kind_loesen']],
+
+    /* Eltern verwalten ihre eigenen Kinder (srv/familie.php, 20.10.2026):
+     * sehen mit Verbrauch, auf dem Familienrechner anlegen, Verknüpfung
+     * lösen. Der Umkreis ist die eigene Familie — fremde Schülerkonten
+     * erreicht dieses Recht nie, auch nicht, wenn es eingeschaltet ist. */
+    ['name' => 'familie.kinder', 'gruppe' => 'Lehrkörper, Eltern & Lernende',
+     'was' => 'Eigene Kinder sehen, anlegen (Familienrechner) und lösen',
+     'vorgabe' => ['admin' => 1, 'verwaltung' => 0, 'lehrer' => 0, 'eltern' => 1, 'schueler' => 0],
+     'aktionen' => ['kinder_meine', 'kind_anlegen_eigen', 'kind_loesen_eigen']],
 
     ['name' => 'rollen.manage', 'gruppe' => 'Lehrkörper, Eltern & Lernende',
      'was' => 'Ebene eines Kontos ändern', 'nur_admin' => true,

@@ -125,40 +125,154 @@ function pu_profil_setzen(int $id, string $feld, string $wert): string
     return $wert;
 }
 
+// ---------------------------------------------------------------- Eltern und Kinder
+//
+// Seit Schema v15 (20.10.2026) in `eltern_kinder`: ein Elternkonto kann mehrere
+// Kinder haben (Familienplan: drei). Ein Kind hat vorerst EIN Elternkonto
+// (Entscheid des Betreibers 20.10.2026). `lernende.kind_von` wird als erstes
+// Kind mitgeführt und beim Lesen mit beachtet — so bleiben Stände richtig, in
+// denen nur die alte Spalte gesetzt ist.
+
+/** So viele Kinder höchstens je Elternkonto (Familienplan: 3 Plätze). */
+const PU_KINDER_MAX = 3;
+
+/** Die Kinder eines Elternkontos, aufsteigend. */
+function pu_eltern_kinder(int $eltern): array
+{
+    if ($eltern <= 0) return [];
+    $st = pu_db()->prepare(
+        "SELECT kind FROM eltern_kinder WHERE eltern = ?
+         UNION SELECT kind_von FROM lernende WHERE id = ? AND kind_von > 0
+         ORDER BY 1");
+    $st->execute([$eltern, $eltern]);
+    return array_map('intval', $st->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/** Das Elternkonto eines Kindes, 0 wenn keines verknüpft ist. */
+function pu_kind_eltern(int $kind): int
+{
+    if ($kind <= 0) return 0;
+    $st = pu_db()->prepare(
+        "SELECT eltern FROM eltern_kinder WHERE kind = ?
+         UNION SELECT id FROM lernende WHERE kind_von = ? AND rolle = 'eltern'
+         ORDER BY 1 LIMIT 1");
+    $st->execute([$kind, $kind]);
+    return (int)($st->fetchColumn() ?: 0);
+}
+
+/** `kind_von` auf das erste Kind ziehen — die Altspalte bleibt so stimmig. */
+function pu_eltern_kind_von_nachziehen(int $eltern): void
+{
+    $st = pu_db()->prepare('SELECT MIN(kind) FROM eltern_kinder WHERE eltern = ?');
+    $st->execute([$eltern]);
+    pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?')
+           ->execute([(int)($st->fetchColumn() ?: 0), $eltern]);
+}
+
 /**
- * Verknüpft ein Elternkonto mit genau einem Kind. 0 hebt die Verknüpfung auf.
+ * Ein Kind, das ein Elternkonto selbst anlegt, steht in dessen Schule — sonst
+ * scheiterte die Verknüpfung gleich danach an der Schulgrenze.
+ */
+function pu_eltern_schule_erben(int $eltern, int $kind): void
+{
+    $schule = trim((string)(pu_profil($eltern)['schule'] ?? ''));
+    if ($schule !== '') pu_profil_setzen($kind, 'schule', $schule);
+}
+
+/**
+ * Wer ein Kind verknüpft oder löst, gehört zur Schule des Elternkontos —
+ * ausser der Ebene admin (seit 1.1.15). `$wer = 0` heisst „vom System“
+ * (Anlegen, Migration) und ist nicht an eine Schule gebunden.
+ */
+function pu_eltern_schule_pruefen(array $e, int $wer): void
+{
+    if ($wer <= 0) return;
+    $w = pu_profil($wer);
+    if ($w === null || pu_ebene($w) === 'admin') return;
+    if (trim((string)($w['schule'] ?? '')) !== trim((string)($e['schule'] ?? ''))) {
+        throw new RuntimeException('Dieses Elternkonto gehört nicht zu deiner Schule.');
+    }
+}
+
+/**
+ * Verknüpft ein Kind mit einem Elternkonto.
  *
  * Geprüft wird die gespeicherte Rolle, nicht die gedeckelte Ebene: Es geht
  * darum, was das Konto ist, nicht darum, was es auf diesem Rechner darf.
- * Ein `kind_von` an einem Lehrkraftkonto gäbe ihr still ein „Kind", an das
- * sie Token senden könnte — vorbei an der Klassenzuordnung.
+ * Ein „Kind" an einem Lehrkraftkonto gäbe ihr still einen Token-Empfänger
+ * vorbei an der Klassenzuordnung.
  *
- * Kind und Elternkonto stehen in derselben Schule, und wer verknüpft (`$ich`),
+ * Kind und Elternkonto stehen in derselben Schule, und wer verknüpft (`$wer`),
  * ebenfalls — gleich im Sinne von pu_talent_im_umkreis(): buchstäblich, auch
- * wenn beide Felder leer sind. Nur die Ebene admin ist davon ausgenommen.
+ * wenn beide Felder leer sind. Nur die Ebene admin ist davon ausgenommen
+ * (seit 1.1.15).
  */
-function pu_profil_kind_setzen(int $eltern, int $kind, ?array $ich = null): void
+function pu_eltern_kind_hinzu(int $eltern, int $kind, int $wer = 0): void
 {
     $schule = fn(array $p): string => trim((string)($p['schule'] ?? ''));
     $e = pu_profil($eltern);
     if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
     if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
-    if ($ich !== null && pu_ebene($ich) !== 'admin' && $schule($ich) !== $schule($e)) {
-        throw new RuntimeException('Dieses Elternkonto gehört nicht zu deiner Schule.');
+    pu_eltern_schule_pruefen($e, $wer);
+    $k = pu_profil($kind);
+    if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
+    if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
+    if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
+        throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
     }
+    if ($schule($k) !== $schule($e)) {
+        throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto derselben Schule verknüpfen.');
+    }
+
+    // Steht ein Kind nur in der Altspalte, zuerst in die Tabelle — sonst
+    // zöge pu_eltern_kind_von_nachziehen() es gleich wieder heraus.
+    if ((int)$e['kind_von'] > 0) {
+        pu_db()->prepare('INSERT OR IGNORE INTO eltern_kinder (eltern, kind, verknuepft_von, angelegt)
+                          VALUES (?, ?, 0, ?)')->execute([$eltern, (int)$e['kind_von'], pu_jetzt()]);
+    }
+
+    $schon = pu_eltern_kinder($eltern);
+    if (in_array($kind, $schon, true)) return;
+    $anderes = pu_kind_eltern($kind);
+    if ($anderes !== 0 && $anderes !== $eltern) {
+        throw new RuntimeException('Dieses Kind ist schon mit einem anderen Elternkonto verknüpft.');
+    }
+    if (count($schon) >= PU_KINDER_MAX) {
+        throw new RuntimeException('Ein Elternkonto hat höchstens ' . PU_KINDER_MAX . ' Kinder.');
+    }
+
+    pu_db()->prepare('INSERT OR IGNORE INTO eltern_kinder (eltern, kind, verknuepft_von, angelegt)
+                      VALUES (?, ?, ?, ?)')->execute([$eltern, $kind, $wer, pu_jetzt()]);
+    pu_eltern_kind_von_nachziehen($eltern);
+    pu_protokoll($wer > 0 ? $wer : $eltern, 'kind_verknuepft', (string)$eltern, (string)$kind);
+}
+
+/** Löst ein Kind vom Elternkonto. */
+function pu_eltern_kind_loesen(int $eltern, int $kind, int $wer = 0): void
+{
+    $e = pu_profil($eltern);
+    if ($e !== null) pu_eltern_schule_pruefen($e, $wer);
+    pu_db()->prepare('DELETE FROM eltern_kinder WHERE eltern = ? AND kind = ?')->execute([$eltern, $kind]);
+    pu_db()->prepare('UPDATE lernende SET kind_von = 0 WHERE id = ? AND kind_von = ?')->execute([$eltern, $kind]);
+    pu_eltern_kind_von_nachziehen($eltern);
+    pu_protokoll($wer > 0 ? $wer : $eltern, 'kind_geloest', (string)$eltern, (string)$kind);
+}
+
+/**
+ * Die alte Schnittstelle (API `kind_setzen`): ein Kind dazunehmen, oder mit
+ * 0 alle Verknüpfungen dieses Elternkontos lösen.
+ */
+function pu_profil_kind_setzen(int $eltern, int $kind, array|int|null $wer = 0): void
+{
+    $wer = is_array($wer) ? (int)($wer['id'] ?? 0) : (int)$wer;
     if ($kind !== 0) {
-        $k = pu_profil($kind);
-        if ($k === null) throw new RuntimeException('Dieses Konto gibt es nicht.');
-        if ($kind === $eltern) throw new RuntimeException('Ein Konto kann nicht sein eigenes Kind sein.');
-        if (!in_array($k['rolle'], ['schueler', 'lernender'], true)) {
-            throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto verknüpfen.');
-        }
-        if ($schule($k) !== $schule($e)) {
-            throw new RuntimeException('Als Kind lässt sich nur ein Schülerkonto derselben Schule verknüpfen.');
-        }
+        pu_eltern_kind_hinzu($eltern, $kind, $wer);
+        return;
     }
-    $st = pu_db()->prepare('UPDATE lernende SET kind_von = ? WHERE id = ?');
-    $st->execute([$kind, $eltern]);
+    $e = pu_profil($eltern);
+    if ($e === null) throw new RuntimeException('Dieses Elternkonto gibt es nicht.');
+    if ($e['rolle'] !== 'eltern') throw new RuntimeException('Ein Kind verknüpfen geht nur bei einem Elternkonto.');
+    foreach (pu_eltern_kinder($eltern) as $k) pu_eltern_kind_loesen($eltern, $k, $wer);
 }
 
 // ---------------------------------------------------------------- Sprachstil

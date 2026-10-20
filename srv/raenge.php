@@ -124,12 +124,14 @@ function pu_rang_zahl(int $person, string $ebene): int
             return $st->fetchColumn();
         })(),
 
+        // Was die eigenen Kinder zusammen gelöst haben (bis zu drei).
         'eltern' => (int)(function () use ($pdo, $p) {
-            if ($p['kind_von'] === 0) return 0;
+            $kinder = pu_eltern_kinder((int)$p['id']);
+            if ($kinder === []) return 0;
             $st = $pdo->prepare(
-                'SELECT COUNT(DISTINCT aufgabe_id) FROM versuche
-                 WHERE lernender = ? AND richtig = 1');
-            $st->execute([$p['kind_von']]);
+                'SELECT COUNT(DISTINCT lernender || ":" || aufgabe_id) FROM versuche
+                 WHERE lernender IN (' . implode(',', array_fill(0, count($kinder), '?')) . ') AND richtig = 1');
+            $st->execute($kinder);
             return $st->fetchColumn();
         })(),
 

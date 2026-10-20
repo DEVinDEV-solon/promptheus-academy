@@ -103,6 +103,9 @@ function pu_cockpit_ausgabe(int $ichId): array
         'darf_codes'       => pu_recht_hat('codes.ausstellen') && pu_code_zielebenen($ichId) !== [],
         'darf_einloesen'   => pu_recht_hat('codes.einloesen'),
         'darf_tokenbuch_schule' => pu_recht_hat('tokenbuch.schule'),
+        // „Meine Kinder“ nur für Elternkonten — die Ebene, nicht nur das Recht:
+        // Eine Schulleitung hat keine eigenen Kinder in der Academy.
+        'darf_familie'     => pu_recht_hat('familie.kinder') && $ich !== null && pu_ebene($ich) === 'eltern',
         // Erklärstücke neben den Knöpfen, je Karte in der Fassung dieser
         // Person (srv/medien.php). Fehlt das Medienpaket, ist die Liste leer.
         'hoer'             => $ich !== null ? pu_cockpit_hoer($ich) : [],
@@ -1091,9 +1094,57 @@ try {
             pu_json_out(['ok' => true, 'wert' => $wert]);
         }
 
+        // Ein Kind vom Elternkonto lösen (Menü „Klasse“, Schulleitung).
+        case 'kind_loesen': {
+            pu_recht_fordern('eltern.manage');
+            try {
+                pu_eltern_kind_loesen((int)d('eltern'), (int)d('kind'), $ichId);
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true, 'kinder' => pu_eltern_kinder((int)d('eltern'))]);
+        }
+
+        // ------------------------------------------------ Meine Kinder (Eltern)
+        //
+        // Der Umkreis ist die eigene Familie (srv/familie.php); Anlegen nur
+        // auf dem Familienrechner.
+        case 'kinder_meine':
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+
+        case 'kind_anlegen_eigen': {
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') pu_fehler('Nur per POST.', 405);
+            try {
+                pu_familie_kind_anlegen($ichId, (string)d('kennung'), (string)d('anzeigename'),
+                                        (string)d('kennwort'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+        }
+
+        case 'kind_loesen_eigen': {
+            pu_recht_fordern('familie.kinder');
+            require_once __DIR__ . '/srv/familie.php';
+            try {
+                pu_familie_kind_loesen($ichId, (int)d('kind'));
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
+            pu_json_out(['ok' => true] + pu_familie_ausgabe($ichId));
+        }
+
         case 'kind_setzen': {
             pu_recht_fordern('eltern.manage');
-            pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ich);
+            try {
+                pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ich);
+            } catch (RuntimeException $f) {
+                pu_fehler($f->getMessage());
+            }
             pu_protokoll($ichId, 'kind', (string)(int)d('eltern'), (string)(int)d('kind'));
             pu_json_out(['ok' => true]);
         }
@@ -2019,7 +2070,16 @@ try {
                     if (pu_ebene($l) === 'lehrer') $zuordnung[(string)$l['id']] = pu_lehrer_gruppen((int)$l['id']);
                 }
             }
+            // Die Kinder je Elternkonto (seit 20.10.2026 bis zu drei), für die
+            // Verknüpfung durch die Schulleitung.
+            $kinder = [];
+            if (pu_recht_hat('eltern.manage')) {
+                foreach ($klasse as $l) {
+                    if ((string)$l['rolle'] === 'eltern') $kinder[(string)$l['id']] = pu_eltern_kinder((int)$l['id']);
+                }
+            }
             pu_json_out(['ok' => true, 'klasse' => $klasse, 'lehrer_klassen' => (object)$zuordnung,
+                         'eltern_kinder' => (object)$kinder, 'kinder_max' => PU_KINDER_MAX,
                          'meine_klassen' => $ebene === 'lehrer' ? pu_lehrer_gruppen($ichId) : null]);
         }
 
@@ -2059,10 +2119,22 @@ try {
                 || pu_ebene_gedeckelt($neueRolle) !== $neueRolle) {
                 pu_fehler('Diese Ebene kannst du hier nicht anlegen: ' . $neueRolle, 403);
             }
-            pu_json_out(['ok' => true, 'id' => pu_lernenden_anlegen(
+            $neuId = pu_lernenden_anlegen(
                 (string)d('kennung'), (string)d('anzeigename'), (string)d('kennwort'),
-                (string)d('rolle', 'schueler'), (string)d('gruppe', '')
-            )]);
+                (string)d('rolle', 'schueler'), (string)d('gruppe', ''));
+            // Legt ein Elternkonto ein Schülerkonto an, ist es sein Kind
+            // (Familien-Konten, 20.10.2026). Scheitert die Verknüpfung an der
+            // Obergrenze, bleibt das Konto stehen und die Meldung sagt es.
+            $hinweis = '';
+            if ($ebene === 'eltern' && $neueRolle === 'schueler') {
+                try {
+                    pu_eltern_schule_erben($ichId, $neuId);
+                    pu_eltern_kind_hinzu($ichId, $neuId, $ichId);
+                } catch (RuntimeException $f) {
+                    $hinweis = $f->getMessage();
+                }
+            }
+            pu_json_out(['ok' => true, 'id' => $neuId, 'hinweis' => $hinweis]);
 
         case 'kennwort_zuruecksetzen':
             pu_recht_fordern('lernende.manage');

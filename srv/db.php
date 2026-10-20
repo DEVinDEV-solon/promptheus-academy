@@ -12,7 +12,7 @@ declare(strict_types=1);
  * nur die Lernstände und Urkunden sind weg. Nie umgekehrt bauen.
  */
 
-const PU_DB_VERSION = 14;
+const PU_DB_VERSION = 15;
 
 function pu_db_migrate(PDO $pdo): void
 {
@@ -33,6 +33,7 @@ function pu_db_migrate(PDO $pdo): void
     if ($ist < 12) pu_db_v12($pdo);
     if ($ist < 13) pu_db_v13($pdo);
     if ($ist < 14) pu_db_v14($pdo);
+    if ($ist < 15) pu_db_v15($pdo);
 
     $pdo->exec('PRAGMA user_version = ' . PU_DB_VERSION);
 }
@@ -747,4 +748,37 @@ function pu_db_v14(PDO $pdo): void
         )
     ");
     $pdo->exec('CREATE INDEX IF NOT EXISTS ix_codes_von ON token_codes(von, angelegt)');
+}
+
+/**
+ * v15 — Eltern und ihre Kinder als eigene Tabelle (Familien-Konten, Plan
+ * 20_Geschaeft/FAMILIE-UND-GRATIS-ZUGANG-PLAN.md §2.1).
+ *
+ * `lernende.kind_von` fasste genau ein Kind; der Familienplan verspricht drei.
+ * Je Zeile ein Paar Elternkonto → Kind. Wie viele Kinder ein Elternkonto
+ * haben darf und dass ein Kind (vorerst) nur EIN Elternkonto hat, prüft
+ * srv/profil.php — eine Regel, die sich ändern darf, gehört nicht ins Schema.
+ *
+ * `kind_von` bleibt stehen und wird mitgeführt (das erste Kind), damit ein
+ * Leser, der noch auf die Spalte schaut, nicht ins Leere greift.
+ */
+function pu_db_v15(PDO $pdo): void
+{
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS eltern_kinder (
+            eltern          INTEGER NOT NULL,
+            kind            INTEGER NOT NULL,
+            verknuepft_von  INTEGER NOT NULL DEFAULT 0,
+            angelegt        TEXT NOT NULL,
+            PRIMARY KEY (eltern, kind)
+        )
+    ");
+    $pdo->exec('CREATE INDEX IF NOT EXISTS ix_eltern_kinder_kind ON eltern_kinder(kind)');
+
+    $da = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='lernende'")
+              ->fetchColumn();
+    if ($da === false) return;
+    $pdo->exec("INSERT OR IGNORE INTO eltern_kinder (eltern, kind, verknuepft_von, angelegt)
+                SELECT id, kind_von, 0, datetime('now', 'localtime') FROM lernende
+                 WHERE kind_von > 0 AND rolle = 'eltern'");
 }
