@@ -1093,7 +1093,7 @@ try {
 
         case 'kind_setzen': {
             pu_recht_fordern('eltern.manage');
-            pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'));
+            pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ich);
             pu_protokoll($ichId, 'kind', (string)(int)d('eltern'), (string)(int)d('kind'));
             pu_json_out(['ok' => true]);
         }

@@ -38,13 +38,16 @@ PU.klasseZeichnen = async function () {
   const kindWahl = PU.darf('eltern.manage') && j.klasse.some(l => l.rolle === 'eltern');
   const kinder = kindWahl
     ? j.klasse.filter(l => l.rolle === 'schueler')
-        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename, gruppe: l.gruppe || '' }))
+        .map(l => ({ id: Number(l.id), name: (l.pseudonym || '').trim() || l.anzeigename,
+                     gruppe: l.gruppe || '', schule: (l.schule || '').trim() }))
         .sort((a, b) => a.name.localeCompare(b.name, 'de'))
     : [];
-  const kindOptionen = (gewaehlt) => {
+  // Zur Wahl stehen nur Schüler aus der Schule des Elternkontos; der Server
+  // prüft dasselbe (pu_profil_kind_setzen).
+  const kindOptionen = (gewaehlt, schule) => {
     let o = '<option value="0">— kein Kind —</option>';
     let gefunden = gewaehlt === 0;
-    kinder.forEach(k => {
+    kinder.filter(k => k.schule === (schule || '').trim()).forEach(k => {
       if (k.id === gewaehlt) gefunden = true;
       o += '<option value="' + k.id + '"' + (k.id === gewaehlt ? ' selected' : '') + '>' +
            PU.h(k.name + (k.gruppe ? ' · ' + k.gruppe : '')) + '</option>';
@@ -77,7 +80,7 @@ PU.klasseZeichnen = async function () {
         : kindWahl && l.rolle === 'eltern'
         // Beim Elternkonto steht hier das Kind, mit dem es verknüpft ist.
         ? '<span class="klassen-zuordnen"><select data-kind="' + l.id + '" ' +
-          'aria-label="Kind von ' + PU.h(l.anzeigename) + '">' + kindOptionen(Number(l.kind_von) || 0) + '</select>' +
+          'aria-label="Kind von ' + PU.h(l.anzeigename) + '">' + kindOptionen(Number(l.kind_von) || 0, l.schule) + '</select>' +
           '<button class="knopf still schmal" type="button" data-kind-speichern="' + l.id + '">Verknüpfen</button></span>'
         : PU.h(l.gruppe)) + '</td>' +
       '<td>' + l.punkte + '</td>' +
