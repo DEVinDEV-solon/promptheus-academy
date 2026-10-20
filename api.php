@@ -1154,7 +1154,7 @@ try {
         case 'kind_setzen': {
             pu_recht_fordern('eltern.manage');
             try {
-                pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ichId);
+                pu_profil_kind_setzen((int)d('eltern'), (int)d('kind'), $ich);
             } catch (RuntimeException $f) {
                 pu_fehler($f->getMessage());
             }
@@ -2146,6 +2146,7 @@ try {
             $hinweis = '';
             if ($ebene === 'eltern' && $neueRolle === 'schueler') {
                 try {
+                    pu_eltern_schule_erben($ichId, $neuId);
                     pu_eltern_kind_hinzu($ichId, $neuId, $ichId);
                 } catch (RuntimeException $f) {
                     $hinweis = $f->getMessage();

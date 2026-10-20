@@ -867,7 +867,9 @@ async function einLink(link) {
 function einstMenue(anker) {
   popZeigen(anker, [
     ['zahnrad', 'Einstellungen …', einstellungen],
-    ['neu', 'Chrome-Favoriten neu einlesen', favoritenImport],
+    ['frage', 'Anleitung: eigene Startknöpfe', anleitung],
+    ['stern', 'Favoriten übernehmen …', favoritenDialog],
+    ...((S.einst.favoriten || []).length ? [['neu', 'Favoriten neu einlesen', favoritenImport]] : []),
     ['ordner', 'Cockpit-Ordner öffnen', () => api('explorer', { id: '__cockpit__' }).catch(fehler)],
     null,
     ['strom', 'Cockpit beenden', async () => {
@@ -878,8 +880,135 @@ function einstMenue(anker) {
   ], 'Cockpit');
 }
 
+// ------------------------------------------------------------------ Anleitung (beim Start)
+// Erklärt, wie eigene Programme und Seiten zu Startknöpfen werden – und warum keine schwarzen Fenster mehr aufgehen.
+function anleitung() {
+  const liste = punkte => `<ol>${punkte.map(p => `<li>${p}</li>`).join('')}</ol>`;
+  modalOeffnen(`<h3>Eigene Startknöpfe einrichten</h3>
+    <p class="unter">${esc(S.profil.titel)} sammelt die Programme auf diesem Rechner und deine Web-Seiten an einem Ort. Jede Karte ist ein Knopf: Ein Klick startet das Programm oder öffnet die Seite.</p>
+    <div class="anleitung">
+      <div class="abschnitt"><h4>${ico('monitor')}Lokales Programm aufnehmen</h4>${liste([
+        'Unten in das Feld einen <b>Programmordner</b>, eine <b>.bat-Datei</b> oder eine Adresse wie <b>http://127.0.0.1:3000/</b> einfügen – oder hineinziehen.',
+        '<b>Integrieren</b> liest Starter, Port und README und schlägt die Karte vor. Ordner wählen, prüfen, <b>Übernehmen</b>.',
+        '<b>Starten</b> auf der Karte startet das Programm. Was läuft, steht rechts in der Leiste „Läuft“.'])}</div>
+      <div class="abschnitt"><h4>${ico('globus')}Web-Seite aufnehmen</h4>${liste([
+        'Die Adresse unten einfügen, oben <b>Web-Seite</b> wählen, <b>Integrieren</b>.',
+        'Unter <b>⋯ › Browser &amp; Profil</b> legst du fest, in welchem Browser und Profil die Seite aufgeht – in dem, in dem du angemeldet bist.'])}</div>
+      <div class="abschnitt"><h4>${ico('stern')}Favoriten übernehmen</h4>${liste([
+        '<b>Favoriten übernehmen …</b> liest die Lesezeichen aus Chrome (auch Edge, Brave, Vivaldi). Du wählst das Profil und kreuzt die Ordner an.',
+        'Jeder Lesezeichen-Ordner wird ein Ordner hier, jedes Lesezeichen ein Knopf.',
+        'Jeder Knopf merkt sich das Chrome-Profil, aus dem er stammt. Die Seite öffnet sich dort, wo du angemeldet bist – nicht in einem fremden Profil.'])}</div>
+      <div class="abschnitt"><h4>${ico('auge_zu')}Keine schwarzen Fenster</h4>${liste([
+        'Ein Server-Programm öffnet sonst ein schwarzes Konsolenfenster, das offen bleiben muss. Hier startet es unsichtbar.',
+        'Was es ausgibt, steht im <b>Protokoll</b> an der Karte – auch Fehlermeldungen.',
+        'Braucht ein Programm Eingaben im Fenster: <b>⋯ › Künftig im Fenster starten</b>.'])}</div>
+    </div>
+    <div class="anleitung-fuss">
+      <label class="haken-zeile"><input type="checkbox" id="anleitungStart" ${S.einst.anleitung_beim_start !== false ? 'checked' : ''}> Beim Start zeigen <small>(sonst über das ? oben rechts)</small></label>
+      <div class="knoepfe"><button class="btn" data-m="favoriten">${ico('stern')}Favoriten übernehmen …</button><button class="btn primaer" data-m="zu">${ico('haken')}Verstanden</button></div>
+    </div>`, 'breit');
+  $('#anleitungStart').addEventListener('change', ev => {
+    const an = ev.target.checked;
+    S.einst.anleitung_beim_start = an;
+    api('einstellungen', { einstellungen: { anleitung_beim_start: an } }).catch(fehler);
+  });
+  $('#modalCard').onclick = ev => {
+    const m = ev.target.closest('[data-m]')?.dataset.m;
+    if (m === 'zu') modalZu();
+    if (m === 'favoriten') favoritenDialog();
+  };
+  setTimeout(() => $('[data-m=zu]', $('#modalCard'))?.focus(), 40);
+}
+
+// ------------------------------------------------------------------ Favoriten übernehmen
+function favMeldung(d) {
+  const t = [];
+  if (d.neu) t.push(`${d.neu} ${d.neu === 1 ? 'neuer Knopf' : 'neue Knöpfe'}${d.ordner ? ` in ${d.ordner} ${d.ordner === 1 ? 'neuem Ordner' : 'neuen Ordnern'}` : ''} übernommen.`);
+  if (d.profil_gesetzt) t.push(`Bei ${d.profil_gesetzt} vorhandenen Knöpfen ist jetzt das Profil hinterlegt.`);
+  return t.join(' ') || 'Keine neuen Favoriten – alle Lesezeichen stehen schon hier.';
+}
+
 async function favoritenImport() {
-  try { const d = await api('favoriten_import', {}); toast(d.neu ? `${d.neu} neue Favoriten übernommen.` : 'Keine neuen Favoriten.', 'ok'); await laden(); } catch (e) { fehler(e); }
+  try { toast(favMeldung(await api('favoriten_import', {})), 'ok'); await laden(); } catch (e) { fehler(e); }
+}
+
+async function favoritenDialog() {
+  modalOeffnen(`<h3>Favoriten übernehmen</h3>
+    <p class="unter">Jeder angekreuzte Lesezeichen-Ordner wird ein Ordner hier, jedes Lesezeichen ein Knopf. Die Knöpfe öffnen im gewählten Profil – dort, wo du angemeldet bist. Die Lesezeichen bleiben auf diesem Rechner.</p>
+    <form id="favForm" class="formular"><div class="feld"><label>Browser</label><select name="fav_browser" disabled><option>Lädt …</option></select></div>
+      <div class="feld"><label>Profil</label><select name="fav_profil" disabled></select></div></form>
+    <div class="feld"><span class="lbl">Ordner ankreuzen</span><div class="fav-baum" id="favBaum"><p class="fav-leer">Lädt …</p></div></div>
+    <p class="unter" id="favSumme"></p>
+    <div class="knoepfe"><button class="btn" data-m="zu">Abbrechen</button><button class="btn primaer" data-m="ok" disabled>${ico('haken')}Übernehmen</button></div>`, 'breit');
+  const f = $('#favForm'), baum = $('#favBaum'), ok = $('[data-m=ok]', $('#modalCard'));
+  const selB = $('[name=fav_browser]', f), selP = $('[name=fav_profil]', f);
+  $('#modalCard').onclick = async ev => {
+    const m = ev.target.closest('[data-m]')?.dataset.m;
+    if (m === 'zu') modalZu();
+    if (m !== 'ok') return;
+    const pfade = gewaehlt().map(c => c.value);
+    if (!pfade.length) return toast('Bitte mindestens einen Ordner ankreuzen.');
+    ok.disabled = true;
+    try {
+      const d = await api('favoriten_import', { browser: selB.value, profil: selP.value, pfade });
+      toast(favMeldung(d), 'ok');
+      modalZu();
+      S.offen.web = true; speicher.setz('offen', S.offen);
+      await laden();
+      ansicht({ art: 'bereich', bereich: 'web' });
+    } catch (err) { fehler(err); ok.disabled = false; }
+  };
+
+  let quellen = [];
+  try { quellen = (await api('favoriten_quellen')).quellen || []; } catch (err) { fehler(err); }
+  if (!$('#favBaum')) return; // Dialog inzwischen geschlossen
+  if (!quellen.length) {
+    selB.innerHTML = '<option>– keiner gefunden –</option>';
+    baum.innerHTML = '<p class="fav-leer">Kein Chrome, Edge, Brave, Vivaldi oder Comet mit Lesezeichen auf diesem Rechner gefunden.</p>';
+    return;
+  }
+  const merkB = quellen.some(q => q.id === S.einst.fav_browser) ? S.einst.fav_browser : (quellen.find(q => q.id === 'chrome') || quellen[0]).id;
+  selB.innerHTML = quellen.map(q => `<option value="${esc(q.id)}" ${q.id === merkB ? 'selected' : ''}>${esc(q.name)}</option>`).join('');
+  selB.disabled = false;
+  const profileZeigen = () => {
+    const q = quellen.find(x => x.id === selB.value) || quellen[0];
+    const merkP = q.profile.some(p => p.id === S.einst.fav_profil) && q.id === S.einst.fav_browser ? S.einst.fav_profil : q.profile[0]?.id;
+    selP.innerHTML = q.profile.map(p => `<option value="${esc(p.id)}" ${p.id === merkP ? 'selected' : ''}>${esc(profilLabel(p))}</option>`).join('');
+    selP.disabled = false;
+  };
+  const gewaehlt = () => $$('input[type=checkbox]', baum).filter(c => c.checked && !c.disabled);
+  const kaskade = c => $$(':scope > ul input[type=checkbox]', c.closest('li')).forEach(k => { k.checked = c.checked; k.disabled = c.checked; });
+  const summe = () => {
+    const w = gewaehlt();
+    const n = w.reduce((s, c) => s + Number(c.dataset.n || 0), 0);
+    const q = quellen.find(x => x.id === selB.value);
+    const p = q?.profile.find(x => x.id === selP.value);
+    $('#favSumme').textContent = w.length ? `${n} Lesezeichen aus ${w.length} ${w.length === 1 ? 'Ordner' : 'Ordnern'} · öffnen in ${q?.name || ''}${p ? ' · ' + profilLabel(p) : ''}` : '';
+    ok.disabled = !w.length;
+  };
+  const knoten = k => `<li><label class="fav-zeile"><input type="checkbox" value="${esc(k.pfad)}" data-n="${k.gesamt}"><span class="ico">${ico(k.pfad.includes('/') ? 'ordner' : 'stern')}</span><b>${esc(k.name)}</b><small>${k.gesamt}</small></label>`
+    + (k.kinder.length ? `<ul>${k.kinder.map(knoten).join('')}</ul>` : '') + '</li>';
+  const baumLaden = async () => {
+    baum.innerHTML = '<p class="fav-leer">Lädt …</p>';
+    ok.disabled = true;
+    try {
+      const d = await api('favoriten_baum', { browser: selB.value, profil: selP.value });
+      if (!$('#favBaum')) return;
+      baum.innerHTML = d.baum.length ? `<ul>${d.baum.map(knoten).join('')}</ul>` : '<p class="fav-leer">In diesem Profil liegen keine Lesezeichen.</p>';
+      // Gemerkte Wahl wieder ankreuzen – nur für denselben Browser und dasselbe Profil.
+      if (selB.value === S.einst.fav_browser && selP.value === S.einst.fav_profil) {
+        const merk = new Set(S.einst.favoriten || []);
+        $$('input[type=checkbox]', baum).forEach(c => { if (merk.has(c.value)) c.checked = true; });
+        $$('input[type=checkbox]:checked', baum).forEach(kaskade);
+      }
+    } catch (err) { baum.innerHTML = `<p class="fav-leer">${esc(err.message)}</p>`; }
+    summe();
+  };
+  baum.addEventListener('change', ev => { if (ev.target.matches('input[type=checkbox]')) { kaskade(ev.target); summe(); } });
+  selB.addEventListener('change', () => { profileZeigen(); baumLaden(); });
+  selP.addEventListener('change', baumLaden);
+  profileZeigen();
+  baumLaden();
 }
 
 function einstellungen() {
@@ -888,6 +1017,7 @@ function einstellungen() {
     <form id="einstForm">
       <label class="haken-zeile"><input type="checkbox" name="autostart" ${S.autostart ? 'checked' : ''}> Beim Systemstart automatisch starten <small>(Verknüpfung im Autostart-Ordner)</small></label>
       <label class="haken-zeile"><input type="checkbox" name="fenster_beim_start" ${e.fenster_beim_start ? 'checked' : ''}> Dabei das Cockpit-Fenster öffnen</label>
+      <label class="haken-zeile"><input type="checkbox" name="anleitung_beim_start" ${e.anleitung_beim_start !== false ? 'checked' : ''}> Anleitung „Eigene Startknöpfe“ beim Öffnen zeigen</label>
       ${S.profil.feste ? `<label class="haken-zeile"><input type="checkbox" name="feste_mitstarten" ${e.feste_mitstarten !== false ? 'checked' : ''}> ${esc(festName())} beim Start mitstarten <small>(ohne Fenster; Werkstatt und Cinema-Studio bleiben bei der Freigabe in der Academy)</small></label>` : ''}
       <div class="abschnitt"><h4>Farbfilter</h4>
         <div class="farbwahl" role="listbox" aria-label="Farbfilter">${Object.entries(PALETTEN).filter(([, p]) => !p.nurPartner).map(([k, p]) => {
@@ -900,10 +1030,10 @@ function einstellungen() {
       <div class="abschnitt"><h4>Browser zum Öffnen</h4>
         <div class="formular" id="einstBrowser">${browserFelder({ art: e.browser || 'chrome', profil: e.browser_profil }, false)}</div>
         <small class="farb-hinweis">Gilt für jede Karte ohne eigene Wahl – je Karte unter ⋯ › Browser &amp; Profil. Werkstatt und Cinema-Studio übernehmen die Wahl der Academy-Karte.</small></div>
-      <div class="abschnitt"><h4>Web-Seiten aus Chrome</h4>
-        <div class="formular"><div class="feld"><label>Lesezeichen aus Chrome-Profil</label><select name="chrome_profil">${S.chromeProfile.map(p => { const q = profilVon('chrome', p); return `<option value="${esc(p)}" ${p === e.chrome_profil ? 'selected' : ''}>${esc(q ? profilLabel(q) : p)}</option>`; }).join('')}</select><small>Liest die Lesezeichen dieses Profils ein.</small></div>
-        <div class="feld"><label>Lesezeichen-Ordner (je Zeile, mit / getrennt)</label><textarea name="favoriten" rows="3">${esc((e.favoriten || []).join('\n'))}</textarea></div></div>
-        <button type="button" class="btn klein" data-m="import">${ico('neu')}Jetzt einlesen</button></div>
+      <div class="abschnitt"><h4>Favoriten</h4>
+        <p class="unter">${(e.favoriten || []).length ? `Gemerkt: ${(e.favoriten || []).length} Ordner aus ${esc(browserText({ art: e.fav_browser || 'chrome', profil: e.fav_profil }))}. Die Knöpfe öffnen in diesem Profil.` : 'Noch keine Favoriten übernommen.'}</p>
+        <button type="button" class="btn klein" data-m="favoriten">${ico('stern')}Favoriten übernehmen …</button>
+        ${(e.favoriten || []).length ? `<button type="button" class="btn klein" data-m="import">${ico('neu')}Neu einlesen</button>` : ''}</div>
       <div class="abschnitt"><h4>Lokale Programme</h4>
         <div class="feld"><label>Programmordner (je Zeile) – Quelle für „Noch nicht im Cockpit“</label><textarea name="programmordner" rows="2">${esc((e.programmordner || []).join('\n'))}</textarea></div>
         ${S.ignoriert.length ? `<div class="feld"><span class="lbl">Ausgeblendete Ordner</span>${S.ignoriert.map(p => `<label class="haken-zeile"><input type="checkbox" name="zurueck" value="${esc(p)}"> ${esc(p)} <small>zurückholen</small></label>`).join('')}</div>` : ''}</div>
@@ -921,6 +1051,7 @@ function einstellungen() {
     const m = ev.target.closest('[data-m]')?.dataset.m;
     if (m === 'zu') modalZu();
     if (m === 'import') favoritenImport();
+    if (m === 'favoriten') favoritenDialog();
     const fz = ev.target.closest('[data-farbe]');
     if (fz) { $$('.farb-zeile', f).forEach(x => { x.classList.toggle('an', x === fz); x.setAttribute('aria-selected', x === fz); }); farbeWaehlen({ farbe: fz.dataset.farbe }); }
     if (m === 'ok') {
@@ -931,7 +1062,7 @@ function einstellungen() {
           autostart: $('[name=autostart]', f).checked, fenster_beim_start: $('[name=fenster_beim_start]', f).checked,
           ...($('[name=feste_mitstarten]', f) ? { feste_mitstarten: $('[name=feste_mitstarten]', f).checked } : {}),
           browser: browserLesen($('#einstBrowser')).art, browser_profil: browserLesen($('#einstBrowser')).profil || '',
-          chrome_profil: $('[name=chrome_profil]', f).value, favoriten: zeilen('favoriten'), programmordner: zeilen('programmordner'),
+          anleitung_beim_start: $('[name=anleitung_beim_start]', f).checked, programmordner: zeilen('programmordner'),
           llm: $('[name=llm]', f).checked, llm_modell: $('[name=llm_modell]', f).value, claude_konfig: $('[name=claude_konfig]', f).value } });
         toast('Einstellungen gespeichert.', 'ok');
         modalZu(); S.ohneListe = null; await laden();
@@ -1296,6 +1427,7 @@ function verdrahten() {
   $('#panelZu').onclick = () => panel(false);
   $('#panelLeeren').onclick = () => { $('#panelInhalt').innerHTML = ''; panelLeer(); };
   $('#einstBtn').onclick = ev => einstMenue(ev.currentTarget);
+  $('#btnHilfe').onclick = anleitung;
 
   $('#link').addEventListener('input', groesse);
   $('#link').addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || !ev.shiftKey)) { ev.preventDefault(); integrieren(); } });
@@ -1320,4 +1452,7 @@ function verdrahten() {
 }
 
 verdrahten();
-laden().then(() => setInterval(statusHolen, 3000)).catch(fehler);
+laden().then(() => {
+  setInterval(statusHolen, 3000);
+  if (S.einst.anleitung_beim_start !== false) anleitung();
+}).catch(fehler);
