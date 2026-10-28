@@ -9,10 +9,13 @@
 PU.lernenZustand = { wo: 'liste', kurs: null, lektion: null };
 
 PU.lernenZeichnen = function () {
+  // Kopierschutz gilt seitenweise: beim Wechsel erst einmal aus.
+  document.body.classList.remove('kopierschutz-an');
   const z = PU.lernenZustand;
   if (z.wo === 'kurs' && z.kurs)         return PU.kursZeichnen(z.kurs);
   if (z.wo === 'lektion' && z.lektion)   return PU.lektionZeichnen(z.lektion);
   if (z.wo === 'pruefung' && z.kurs)     return PU.pruefungZeichnen(z.kurs);
+  if (z.wo === 'seite'   && z.seite)     return PU.seiteZeichnen(z.seite);
   return PU.kurslisteZeichnen();
 };
 
@@ -86,6 +89,7 @@ PU.kurslisteZeichnen = async function () {
   ziel.appendChild(reihe);
 
   const stufen   = j.kurse.filter(k => k.art === 'stufe');
+  const infos    = j.kurse.filter(k => k.art === 'info');
   const domaenen = j.kurse.filter(k => k.art === 'domaene');
   const zusatz   = j.kurse.filter(k => k.art === 'zusatz');
 
@@ -101,6 +105,20 @@ PU.kurslisteZeichnen = async function () {
       'Wahlkurse für einzelne Anwendungsbereiche. Sie laufen neben den Stufen und ' +
       'setzen den Stoff aus Stufe 1 bis 3 voraus.'));
     ziel.appendChild(kartenGitter(domaenen));
+  }
+
+  /* Der Info-Kurs steht zwischen den Fachkursen und dem Abschluss.
+   *
+   * Er setzt nichts voraus und prüft nichts — deshalb ist er kein Fachkurs und
+   * auch nicht das Ziel hinter allen Stufen. Eine eigene Überschrift ist die
+   * ehrlichste Lösung: Eine Karte ohne Rubrik sähe aus wie ein Versehen.
+   */
+  if (infos.length) {
+    ziel.appendChild(PU.el('h2', '', 'Info-Kurs'));
+    ziel.appendChild(PU.el('p', 'hinweis',
+      'Zum Hören und Ansehen: ein Kurs ohne Prüfung, ohne Punkte und ohne ' +
+      'Voraussetzung. Er läuft neben den Stufen her, nicht in ihrer Reihe.'));
+    ziel.appendChild(kartenGitter(infos));
   }
 
   /* Der Abschluss steht ganz unten — nicht, weil er unwichtig wäre, sondern
@@ -218,13 +236,23 @@ function kartenGitter(kurse) {
 
     const anteil = k.aufgaben_ges > 0 ? Math.round(k.aufgaben_geloest * 100 / k.aufgaben_ges) : 0;
 
+    /* Ein Info-Kurs hat keine Aufgaben und keine Punkte. „0 von 0 Aufgaben ·
+       0 Punkte erreichbar" wäre auf seiner Karte keine Auskunft, sondern ein
+       Versehen: Sie zählt auf, was fehlt, statt zu sagen, was da ist. Dort
+       steht deshalb, was man bekommt — Film und Hörfolge, ohne Prüfung. */
+    const fuss = k.art === 'info'
+      ? '<p class="klein">Film und Hörfolge' +
+        (k.dauer_h ? ' · ca. ' + PU.h(k.dauer_h) + ' h' : '') +
+        ' · ohne Prüfung</p>'
+      : '<div class="balken"><i style="width:' + anteil + '%"></i></div>' +
+        '<p class="klein">' + k.aufgaben_geloest + ' von ' + k.aufgaben_ges + ' Aufgaben' +
+        (k.dauer_h ? ' · ca. ' + PU.h(k.dauer_h) + ' h' : '') +
+        ' · ' + k.punkte_max + ' Punkte erreichbar</p>';
+
     karte.innerHTML =
       '<div class="karte-kopf"><h3>' + PU.h(k.titel) + '</h3>' + marke + '</div>' +
       (k.untertitel ? '<p class="klein">' + PU.h(k.untertitel) + '</p>' : '') +
-      '<div class="balken"><i style="width:' + anteil + '%"></i></div>' +
-      '<p class="klein">' + k.aufgaben_geloest + ' von ' + k.aufgaben_ges + ' Aufgaben' +
-      (k.dauer_h ? ' · ca. ' + PU.h(k.dauer_h) + ' h' : '') +
-      ' · ' + k.punkte_max + ' Punkte erreichbar</p>';
+      fuss;
 
     if (k.frei) {
       karte.addEventListener('click', () => PU.kursOeffnen(k.pfad));
@@ -257,6 +285,62 @@ PU.kursOeffnen = function (pfad, herVon) {
   PU.wechsel('lernen');
 };
 
+/**
+ * Schnell-Links in der Titelzeile eines Kurses.
+ *
+ * Nur die Geschichte der KI hat mehrere Nachschlagewerke zum selben Stoff —
+ * Zeitstrahl, Register, Lehrbausteine, Vortrag. Statt sie im Fließtext zu
+ * suchen, stehen sie hier oben. Bei allen anderen Kursen kommt ein leerer
+ * String zurück, damit die Titelzeile unverändert bleibt.
+ */
+function schnellLinks(mitHome) {
+  const ziele = [];
+  if (mitHome) {
+    ziele.push(['Geschichte der KI – Home', '#/kurs/20_Domaenen/DOM-KI-Geschichte']);
+  }
+  ziele.push(
+    ['Personen &amp; Begriffe', '#/seite/20_Domaenen/DOM-KI-Geschichte/zeitstrahl-personen-begriffe'],
+    ['Zeitstrahl',             '#/seite/zeitstrahl'],
+    ['Lehrbausteine',          '#/seite/lehrbausteine'],
+    ['Vortrag',                '#/seite/vortrag_von-der-logik-zur-superintelligenz']
+  );
+  const eintraege = ziele.map(function (z) {
+    return '<a role="menuitem" href="' + z[1] + '">' + z[0] + '</a>';
+  }).join('');
+  return '<div class="schnell-links">' +
+    '<button class="knopf still schnell-knopf" type="button" aria-haspopup="true" aria-expanded="false">' +
+    '🔗 Schnell-Links</button>' +
+    '<div class="schnell-liste" role="menu">' + eintraege + '</div>' +
+  '</div>';
+}
+
+/* Ein Klick daneben schließt die Liste. Einmal global registriert — nicht je
+   Kursansicht, sonst sammelten sich die Zuhörer mit jedem Besuch. */
+document.addEventListener('click', function (ev) {
+  document.querySelectorAll('.schnell-links.offen').forEach(function (schale) {
+    if (schale.contains(ev.target)) return;
+    schale.classList.remove('offen');
+    const b = schale.querySelector('.schnell-knopf');
+    if (b) b.setAttribute('aria-expanded', 'false');
+  });
+});
+
+/**
+ * Macht das Menü bedienbar: Klick öffnet und schließt, ein Klick daneben
+ * schließt ebenfalls. Wird von der Kursseite und von jeder freien Seite
+ * aufgerufen — deshalb steht die Logik hier und nicht in der Titelzeile.
+ */
+PU.schnellLinksBinden = function (schale) {
+  const knopf = schale.querySelector('.schnell-knopf');
+  if (!knopf) return;
+  const menue = knopf.closest('.schnell-links');
+  knopf.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    const offen = menue.classList.toggle('offen');
+    knopf.setAttribute('aria-expanded', offen ? 'true' : 'false');
+  });
+};
+
 PU.kursZeichnen = async function (pfad) {
   const ziel = document.getElementById('view-lernen');
   ziel.innerHTML = '<p class="leer-hinweis">Lade Kurs …</p>';
@@ -277,10 +361,31 @@ PU.kursZeichnen = async function (pfad) {
   rahmen.appendChild(kursSpalte(k));
   ziel.appendChild(rahmen);
 
-  const kopf = PU.el('div');
-  kopf.innerHTML = '<h1>' + PU.h(k.titel) + '</h1>' +
-    (k.untertitel ? '<p class="hinweis">' + PU.h(k.untertitel) + '</p>' : '');
+  // Titelzeile: links der Kurstitel, rechts — bei der Geschichte der KI — die
+  // Schnell-Links auf die Nachschlagewerke desselben Stoffs.
+  const kopf = PU.el('div', 'kurs-kopf');
+  kopf.innerHTML = '<div class="kurs-titel"><h1>' + PU.h(k.titel) + '</h1>' +
+    (k.untertitel ? '<p class="hinweis">' + PU.h(k.untertitel) + '</p>' : '') + '</div>' +
+    (k.pfad === '20_Domaenen/DOM-KI-Geschichte' ? schnellLinks(false) : '');
   links.appendChild(kopf);
+  PU.schnellLinksBinden(kopf);
+
+  /* Beim Info-Kurs steht der Film unter dem Untertitel.
+   *
+   * Sonst sitzt das Video in der Seitenspalte über der Hörfolge. Hier ist es
+   * der Inhalt des Kurses, nicht die Zugabe: Wer den Kurs öffnet, soll ihn
+   * ansehen können, ohne die Spalte zu suchen. Die Hörfolge bleibt rechts —
+   * sie ist die zweite Fassung desselben Stoffs.
+   */
+  if (k.art === 'info' && k.medien && (k.medien.kurs || {}).video) {
+    const film = document.createElement('video');
+    film.className = 'kurs-film';
+    film.controls = true;
+    film.preload = 'metadata';
+    film.src = k.medien.kurs.video.url;
+    if (k.medien.kurs.video.poster) film.poster = k.medien.kurs.video.poster;
+    links.appendChild(film);
+  }
 
   if (k.geruest) {
     const w = PU.el('div', 'hinweis-kasten');
@@ -394,9 +499,18 @@ PU.kursZeichnen = async function (pfad) {
 
 /** Die rechte Spalte einer Kursseite: Medien, eigener Stand, Tutor. */
 function kursSpalte(k) {
+  // Beim Info-Kurs steht das Video unter dem Untertitel (links). In der Spalte
+  // bliebe es ein zweites Mal stehen — und ein Film, der zweimal auf derselben
+  // Seite beginnt, ist eine Frage, die niemand beantworten will.
+  let medien = (k.medien || {}).kurs || {};
+  if (k.art === 'info' && medien.video) {
+    medien = Object.assign({}, medien);
+    delete medien.video;
+  }
+
   const spalte = PU.medienSpalte([{
     titel: 'Zum Kurs',
-    medien: (k.medien || {}).kurs,
+    medien: medien,
     schluessel: k.pfad + '|kurs',
     leerHinweis: 'Zu diesem Kurs ist noch kein Video und keine Hörfolge hinterlegt.'
   }]) || PU.el('aside', 'seitenspalte');
@@ -445,6 +559,130 @@ PU.lektionOeffnen = function (pfad) {
   PU.lernenZustand.lektion = pfad;
   PU.wechsel('lernen');
 };
+
+/* ============================================================ Freie Seite
+ * Nachschlagewerk aus dem Vault (Zeitstrahl, Register). Kein Kurs, keine
+ * Aufgaben — eine Seite, die man auch verlinken und neu laden kann.
+ */
+PU.seiteOeffnen = function (pfad) {
+  PU.lernenZustand.wo = 'seite';
+  PU.lernenZustand.seite = pfad;
+  PU.wechsel('lernen');
+};
+
+PU.seiteZeichnen = async function (pfad) {
+  const ziel = document.getElementById('view-lernen');
+  ziel.innerHTML = '<p class="leer-hinweis">Lade Seite …</p>';
+
+  let j;
+  try { j = await PU.ruf('seite', { pfad: pfad }); }
+  catch (e) { ziel.innerHTML = '<p class="fehler">' + PU.h(e.message) + '</p>'; return; }
+
+  const s = j.seite;
+  ziel.innerHTML = '';
+  PU.pfadSetzen([['Home', '#/lernen'], [s.titel, null]]);
+
+  // Eine Spalte, volle Breite: Der Tutor kommt über den Knopf oben rechts als
+  // Seitenmenü — dieselbe Bedienung wie in jeder anderen Ansicht.
+  const rahmen = PU.el('article', 'lektion');
+  rahmen.innerHTML = '<h1>' + PU.h(s.titel) + '</h1>' + s.html;
+  ziel.appendChild(rahmen);
+
+  const schutz = s.schutz || {};
+
+  // Kopierschutz: Markieren und Kopieren aus, Kontextmenü aus. Kein echter
+  // Schutz — ein Bildschirmfoto bleibt möglich —, aber die übliche Hürde für
+  // ein Dokument, das als Ganzes abgegeben wird.
+  rahmen.classList.toggle('kopiergeschuetzt', !!schutz.kopierschutz);
+  document.body.classList.toggle('kopierschutz-an', !!schutz.kopierschutz);
+
+  // Kopfzeile jeder freien Seite: rechts dasselbe Schnell-Menü wie auf der
+  // Kursseite — mit „Geschichte der KI – Home" als erstem Eintrag, damit man
+  // aus jedem Nachschlagewerk zurück in den Kurs kommt. Beim Vortrag steht
+  // links daneben der PDF-Knopf.
+  const kopf = PU.el('div', 'seiten-kopf');
+
+  if (schutz.pdf) {
+    let knopf;
+    if (s.pdf_url) {
+      // Fertige PDF-Datei: ein Klick lädt sie herunter — ohne Druckdialog,
+      // ohne Chrome-Kopfzeilen, mit gesetzter Fußzeile und Seitenzahlen.
+      knopf = PU.el('a', 'knopf still pdf-knopf', '📄 PDF');
+      knopf.href = s.pdf_url;
+      knopf.setAttribute('download', '');
+      knopf.title = 'Dieses Dokument als fertige PDF-Datei herunterladen';
+    } else {
+      knopf = PU.el('button', 'knopf still pdf-knopf', '📄 PDF');
+      knopf.type = 'button';
+      // Zweizeiliger Hinweis: Der Titel-Attribut-Text bricht an \n um.
+      knopf.title = 'Dieses Dokument als PDF drucken oder speichern\n\n' +
+        'ACHTUNG: Für den Ausdruck bitte den Farbfilter auf „Pergament" umstellen, ' +
+        'damit „gelb" heller als „dunkel" wird.';
+      knopf.addEventListener('click', () => window.print());
+    }
+    kopf.appendChild(knopf);
+  }
+
+  kopf.insertAdjacentHTML('beforeend', schnellLinks(true));
+  rahmen.insertBefore(kopf, rahmen.firstChild);
+  PU.schnellLinksBinden(kopf);
+
+  if (schutz.pdf) {
+
+    // … und über dem Titel die Marke: Logo mit Wortmarke, mittig. Der Titel
+    // selbst rückt ebenfalls in die Mitte — ein abgegebenes Dokument beginnt
+    // mit einem Kopf, nicht mit einer linksbündigen Zeile.
+    const marke = document.createElement('div');
+    marke.className = 'seiten-marke';
+    marke.innerHTML = '<img src="assets/img/marke/fackel-pin-192.png" alt="PROMPTHEUS">' +
+                      '<span>PROMPTHEUS Academy</span>';
+    rahmen.insertBefore(marke, rahmen.querySelector('h1'));
+    rahmen.classList.add('seiten-titel-mitte');
+
+    // Fußzeile auf jeder Seite: feste Position, der Browser wiederholt sie.
+    let fuss = document.getElementById('pdf-fuss');
+    if (!fuss) {
+      fuss = document.createElement('div');
+      fuss.id = 'pdf-fuss';
+      const fassung = String(s.fassung || '').trim();
+      fuss.innerHTML = '<span></span>' +
+        '<span class="pdf-fuss-mitte">© 2026 PROMPTHEUS Academy | ' +
+        '<a href="https://promptheus-academy.de" target="_blank" rel="noopener">promptheus-academy.de</a></span>' +
+        '<span class="pdf-fuss-rechts">' + (fassung ? 'v' + PU.h(fassung) : '') + '</span>';
+      document.body.appendChild(fuss);
+    }
+  }
+};
+
+/* Kopierschutz gilt nur, solange eine geschützte Seite offen ist. */
+document.addEventListener('copy', function (ev) {
+  if (!document.body.classList.contains('kopierschutz-an')) return;
+  ev.preventDefault();
+  if (PU.melden) PU.melden('Dieser Vortrag ist zur Abgabe gedacht — Kopieren ist gesperrt.', 'schlecht');
+});
+document.addEventListener('cut', function (ev) {
+  if (document.body.classList.contains('kopierschutz-an')) ev.preventDefault();
+});
+document.addEventListener('contextmenu', function (ev) {
+  if (document.body.classList.contains('kopierschutz-an')) ev.preventDefault();
+});
+document.addEventListener('dragstart', function (ev) {
+  if (document.body.classList.contains('kopierschutz-an') && ev.target && ev.target.tagName === 'IMG') {
+    ev.preventDefault();
+  }
+});
+
+/* Ein [[Wikilink]] führt auf eine Seite im Vault. Bis hierher war er ein
+   <a href="#">: Der Klick sprang an den Seitenanfang — genau die Beschwerde,
+   die zu dieser Seite geführt hat. */
+document.addEventListener('click', function (ev) {
+  const a = ev.target.closest && ev.target.closest('a.wikilink');
+  if (!a) return;
+  const zielPfad = String(a.dataset.ziel || '').trim();
+  if (!zielPfad) return;
+  ev.preventDefault();
+  PU.seiteOeffnen(zielPfad);
+});
 
 PU.lektionZeichnen = async function (pfad) {
   const ziel = document.getElementById('view-lernen');

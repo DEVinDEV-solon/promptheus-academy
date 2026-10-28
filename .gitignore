@@ -238,6 +238,8 @@ secondbrain/80_Promino_Heus/
 # Aron Live (Alltagsfassung von Aron aus dem 3D-Game): eigener Arbeitsordner,
 # wird direkt bearbeitet. Gehört nicht ins Repo.
 secondbrain/81_Aron_Live/
+# Gedanken und To-Dos des Betreibers (JJJJ-MM-TT_To-Do.md): nur lokal.
+secondbrain/To-Do/
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/index.md
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/_hot.md
 /secondbrain/00_Fundament/ki-strukturen/AIS 2027/wiki/entities/Daniel Kokotajlo.md

@@ -36,8 +36,9 @@ function pu_kursbild(string $pfad): string
 
     // Der Ordner trägt vorn eine Ordnungszahl oder ein Kürzel, hinter dem
     // ersten Unterstrich steht der Name: `01_Entdecker`, `DOM-BER_Beratung`.
+    // Ohne Unterstrich (`DOM-KI-Geschichte`) ist das Kürzel nur „DOM-“.
     $pos  = strpos($letzt, '_');
-    $name = $pos === false ? $letzt : substr($letzt, $pos + 1);
+    $name = $pos === false ? (string)preg_replace('/^DOM-/i', '', $letzt) : substr($letzt, $pos + 1);
 
     $slug = pu_slug($name);
     if ($slug === '') return '';

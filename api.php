@@ -354,7 +354,7 @@ try {
                 ];
             }
             pu_json_out(['ok' => true, 'kurs' => [
-                'pfad' => $k['pfad'], 'titel' => $k['titel'], 'untertitel' => $k['untertitel'],
+                'pfad' => $k['pfad'], 'titel' => $k['titel'], 'untertitel' => $k['untertitel'], 'art' => $k['art'],
                 'code' => $k['code'], 'stufe' => $k['stufe'], 'dauer_h' => $k['dauer_h'],
                 'geruest' => $k['geruest'], 'kopf' => pu_glossar_verlinken(pu_ohne_erste_h1(pu_md($k['kopf']))),
                 'bestehen_prozent' => $k['bestehen_prozent'],
@@ -363,6 +363,72 @@ try {
                 'lektionen' => $lek,
                 'medien'    => pu_medien_kurs($k['pfad'], pu_medien_zielgruppe($ich)),
             ]]);
+        }
+
+        /* Eine freie Seite aus dem Vault — für Nachschlagewerk wie den
+           Zeitstrahl. Kein Kurs, keine Aufgaben: nur Markdown, gerendert. */
+        case 'seite': {
+            pu_recht_fordern('dashboard.view');
+            $rel = trim((string)d('pfad'));
+            /* Der Wikilink nennt den Pfad ohne Endung ([[20_Domaenen/…/seite]]).
+               pu_brain_pfad() löst aber nur echte Pfade auf — also ergänzen. */
+            if ($rel !== '' && !str_ends_with($rel, '.md')) $rel .= '.md';
+            $abs = pu_brain_pfad($rel);
+            /* Ein Wikilink nennt oft nur den Dateinamen ([[zeitstrahl]]). Dann
+               wird im Vault nach genau dieser Datei gesucht — aber nur, wenn
+               der Treffer eindeutig ist. Zwei gleichnamige Notizen sind keine
+               Auflösung, sondern eine Frage. */
+            if (($abs === null || !is_file($abs)) && !str_contains($rel, '/')) {
+                $name = $rel;
+                $treffer = [];
+                foreach (new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator(PU_BRAIN, FilesystemIterator::SKIP_DOTS)) as $f) {
+                    if ($f->isFile() && $f->getFilename() === $name) {
+                        $treffer[] = $f->getPathname();
+                        if (count($treffer) > 1) break;
+                    }
+                }
+                if (count($treffer) === 1) $abs = $treffer[0];
+            }
+            if ($abs === null || !is_file($abs) || !str_ends_with($abs, '.md')) {
+                pu_fehler('Diese Seite gibt es nicht.', 404);
+            }
+            /* Ausgeliefert wird nur Nachschlagewerk eines Info-Kurses. Ein
+               Info-Kurs hat keine Aufgaben, also auch keine Lösungen — jede
+               andere Notiz im Vault (Lektionen mit ```aufgabe, Prüfungen,
+               gesperrte Stufen) ginge sonst ungesiebt an jeden Angemeldeten.
+               Arbeitsnotizen mit `_` vorne bleiben ebenfalls drin. */
+            $wurzel   = str_replace('\\', '/', (string)realpath(PU_BRAIN));
+            $relEcht  = ltrim(substr(str_replace('\\', '/', $abs), strlen($wurzel)), '/');
+            $seitKurs = pu_kurs(dirname($relEcht));
+            if ($seitKurs === null || ($seitKurs['art'] ?? '') !== 'info'
+                || str_starts_with(basename($relEcht), '_')) {
+                pu_fehler('Diese Seite gibt es nicht.', 404);
+            }
+            if (!pu_kurs_frei($ichId, $seitKurs) && !pu_recht_hat('lektionen.manage')) {
+                pu_fehler('Dieser Kurs ist noch nicht freigeschaltet.', 403);
+            }
+            $fm = pu_frontmatter((string)file_get_contents($abs));
+            $html = pu_glossar_verlinken(pu_ohne_erste_h1(pu_md($fm['rumpf'])));
+            $titel = trim((string)($fm['meta']['title'] ?? ''));
+            if ($titel === '') {
+                $titel = preg_match('/^#\s+(.+)$/m', $fm['rumpf'], $m) ? trim($m[1]) : basename($rel, '.md');
+            }
+            $schutz = [
+                'kopierschutz' => trim((string)($fm['meta']['kopierschutz'] ?? '')) !== '',
+                'pdf'          => trim((string)($fm['meta']['pdf'] ?? '')) !== '',
+            ];
+            /* Liegt neben der Seite eine fertige PDF-Datei gleichen Namens im
+               Medienordner, wird sie ausgeliefert. Das ist der bessere Weg als
+               der Druckdialog: Fusszeile, Copyright-Link und Seitenzahlen sind
+               dort gesetzt, und der Browser fügt nichts hinzu. */
+            $pdfUrl   = '';
+            $kandidat = dirname($relEcht) . '/' . basename($relEcht, '.md') . '.pdf';
+            if (is_file(PU_ROOT . '/medien/' . $kandidat)) $pdfUrl = '/medien/' . $kandidat;
+            pu_json_out(['ok' => true, 'seite' => ['pfad' => $rel, 'titel' => $titel,
+                                                   'html' => $html, 'schutz' => $schutz,
+                                                   'pdf_url' => $pdfUrl,
+                                                   'fassung' => pu_fassung()]]);
         }
 
         case 'lektion': {

@@ -31,3 +31,14 @@ eigenen Arbeitsumfeld.
 | Buchhaltung | Belege, Kontierung, E-Rechnung, GoBD |
 | Personalverwaltung | Anzeigen, Auswahl und ihre Grenzen, Zeugnisse |
 | Bürokratie & Verwaltung | Anträge, Fristen, Bescheide, Ermessen |
+
+## Dazu ein Info-Kurs
+
+- [[20_Domaenen/DOM-KI-Geschichte/_index|Geschichte der KI — Von der Logik zur Superintelligenz]]
+
+Ein **Info-Kurs**: vierzehn Etappen, keine Aufgaben, keine Prüfung, keine
+Punkte. Er liegt hier bei den Fachkursen, weil sein Stoff hier entstanden ist —
+**angezeigt wird er dort nicht**. Sein Frontmatter trägt `info: true`, damit
+bekommt er eine eigene Karte unter der Überschrift „Info-Kurs", vor dem
+Abschluss. Auf der Kursseite steht der Film unter dem Untertitel, die Hörfolge
+rechts daneben. Er setzt keine Stufe voraus.

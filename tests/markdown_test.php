@@ -74,6 +74,17 @@ gleich('Trennlinie', '<hr>', pu_md('---'));
 pruefe('HTML im Text wird escaped', !str_contains(pu_md("<script>alert(1)</script>\nweiter"), '<script>'));
 
 // ─────────────────────────────────────────────────────────────────────────────
+gruppe('Klein, kursiv, Bild');
+pruefe('~klein~ wird klein gesetzt', str_contains(pu_md('Text ~(Quelle: Archiv)~ weiter'), '<small>(Quelle: Archiv)</small>'));
+pruefe('„~100 Quellen, ~200 Seiten“ bleibt „ungefähr“',
+       !str_contains(pu_md('Bei ~100 Quellen, ~200 Seiten reicht es.'), '<small>'));
+pruefe('_kursiv_ wird kursiv', str_contains(pu_md('ein _kursives_ Wort'), '<em>kursives</em>'));
+pruefe('20_Domaenen bleibt ein Pfad', !str_contains(pu_md('liegt in 20_Domaenen_neu'), '<em>'));
+pruefe('Bild aus medien/ erscheint', str_contains(pu_md('![Leibniz](/medien/a/bild.jpg)'), 'src="/medien/a/bild.jpg"'));
+pruefe('Bild von fremder Adresse nicht', !str_contains(pu_md('![x](https://example.com/b.jpg)'), '<img'));
+pruefe('Bild mit .. nicht', !str_contains(pu_md('![x](/medien/../data/b.jpg)'), '<img'));
+
+// ─────────────────────────────────────────────────────────────────────────────
 gruppe('Die echte Lektion „Was ist KI“');
 $roh = (string)@file_get_contents(__DIR__ . '/../secondbrain/10_Stufen/01_Entdecker/01_lektion_was-ist-ki.md');
 if ($roh === '') {

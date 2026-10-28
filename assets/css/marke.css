@@ -914,3 +914,12 @@ html[data-stil="klar"] .kennzahl:has(#kz-serie) { display: none; }
 
 /* Was die Sicht nicht sähe (Persona-Vorschau „P“, srv/persona.php). */
 [data-sicht-aus] { display: none !important; }
+
+/* ---------- Der Film eines Info-Kurses ----------
+   Er steht unter dem Untertitel in der Inhaltsspalte, nicht in der
+   Seitenspalte: Hier ist das Video der Kurs, nicht die Zugabe. Ein Rahmen, ein
+   Schatten — dieselben Masse wie eine Karte, damit er nicht wie ein Fremdkörper
+   wirkt. */
+.kurs-film { display: block; width: 100%; margin: 1.2rem 0 .6rem; background: #000;
+  border: 1px solid var(--rand); border-radius: var(--radius);
+  box-shadow: 0 2px 10px rgba(0,0,0,.45); }

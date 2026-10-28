@@ -797,9 +797,16 @@ function pu_kurs_lesen(string $rel, array &$fehler): ?array
     }
 
     $kopf = '';
+    $kopfMeta = [];
     if (is_file($dir . '/_index.md')) {
         $fm   = pu_frontmatter((string)file_get_contents($dir . '/_index.md'));
         $kopf = $fm['rumpf'];
+        // Das Frontmatter wird mitgelesen, weil dort die Felder stehen, die
+        // den Kurs einordnen: `info: true` macht aus einem Fachkurs den
+        // Info-Kurs. `kurs.json` bleibt die erste Quelle — was dort steht,
+        // gilt; das Frontmatter füllt nur, was dort fehlt (23.10.2026: Der
+        // Info-Kurs stand deshalb noch bei den Fachkursen).
+        $kopfMeta = is_array($fm['meta'] ?? null) ? $fm['meta'] : [];
     }
 
     $lektionen = [];
@@ -838,6 +845,16 @@ function pu_kurs_lesen(string $rel, array &$fehler): ?array
     $art = !str_starts_with($rel, '10_Stufen/')
         ? 'domaene'
         : (isset(PU_STUFEN[$stufeNr]) ? 'stufe' : 'zusatz');
+
+    /* Ein Info-Kurs ist kein Fachkurs.
+     *
+     * Er steht neben den Stufen, nicht in den Wahlkursen: kein Vorwissen,
+     * keine Prüfung, keine Urkunde — dafür eine Karte für sich, vor dem
+     * Abschluss. Der Ordner sagt das nicht (er liegt bei den Fachkursen, weil
+     * dort sein Stoff entstanden ist), also sagt es das Frontmatter:
+     * `info: true` in der `_index.md`.
+     */
+    if (!empty($meta['info']) || !empty($kopfMeta['info'])) $art = 'info';
 
     return [
         'pfad'      => $rel,

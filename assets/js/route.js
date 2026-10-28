@@ -26,7 +26,7 @@ window.PU = window.PU || {};
 PU.ROUTE_ANSICHTEN = ['lernen', 'fortschritt', 'tutor', 'tokenicer', 'klasse', 'cockpit', 'gemeinde'];
 
 /** Die drei Orte innerhalb von „Lernen", die tiefer liegen als die Liste. */
-PU.ROUTE_LERNORTE = { kurs: 'kurs', lektion: 'lektion', pruefung: 'pruefung' };
+PU.ROUTE_LERNORTE = { kurs: 'kurs', lektion: 'lektion', pruefung: 'pruefung', seite: 'seite' };
 
 /**
  * Fenster mit eigener Adresse.
@@ -100,6 +100,7 @@ PU.routeBauen = function () {
   if (z.wo === 'kurs'     && z.kurs)    return '#/kurs/'     + encodeURI(z.kurs);
   if (z.wo === 'lektion'  && z.lektion) return '#/lektion/'  + encodeURI(z.lektion);
   if (z.wo === 'pruefung' && z.kurs)    return '#/pruefung/' + encodeURI(z.kurs);
+  if (z.wo === 'seite'    && z.seite)   return '#/seite/'    + encodeURI(z.seite);
   return '#/lernen';
 };
 
@@ -162,6 +163,7 @@ PU.routeAnwenden = function () {
       wo:      r.wo,
       kurs:    (r.wo === 'kurs' || r.wo === 'pruefung') ? r.pfad : (PU.lernenZustand || {}).kurs || null,
       lektion: r.wo === 'lektion' ? r.pfad : null,
+      seite:   r.wo === 'seite'   ? r.pfad : null,
       herVon:  null
     };
   }

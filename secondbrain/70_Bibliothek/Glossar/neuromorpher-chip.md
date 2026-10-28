@@ -8,7 +8,6 @@ tags:
 verlinken:
   - Neuromorpher Chip
   - Neuromorphe Chips
-  - Neuromorphes Rechnen
 timestamp: 2026-10-12T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 ---
@@ -23,4 +22,4 @@ Das Gehirn kommt mit etwa zwanzig Watt aus und leistet trotzdem Erstaunliches. N
 
 ## Verwandt
 
-[[kuenstliches-neuron]] · [[energieeffizienz]] · [[tinyml]]
+[[kuenstliches-neuron]] · [[energieeffizienz]] · [[tinyml]] · [[neuromorphes-rechnen]]

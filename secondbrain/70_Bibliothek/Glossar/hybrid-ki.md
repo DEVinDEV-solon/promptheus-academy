@@ -7,7 +7,6 @@ tags:
   - skalierung
 verlinken:
   - Hybrid-KI
-  - Hybride KI
 timestamp: 2026-10-12T00:00:00+02:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 ---
@@ -22,4 +21,4 @@ Das spart Kosten, beschleunigt einfache Antworten und hält viele Daten auf dem 
 
 ## Verwandt
 
-[[edge-ki]] · [[kleines-sprachmodell]] · [[cloud]] · [[modell-routing]]
+[[edge-ki]] · [[kleines-sprachmodell]] · [[cloud]] · [[modell-routing]] · [[hybride-ki]]
