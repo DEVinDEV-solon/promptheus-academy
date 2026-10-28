@@ -9,7 +9,7 @@
   "fassungen": {
     "1.1.19": {
       "titel": "Personen und Begriffe der KI-Geschichte im Glossar",
-      "neu": "Das Glossar kennt jetzt alle 54 Personen aus der Geschichte der KI, von Pythagoras und Leibniz bis Hinton, und 21 weitere Begriffe wie Superposition, Schrödingers Katze, MYCIN oder das Astrolabium. Auf der Seite „Personen und Begriffe“ sind Namen und Begriffe gelb unterstrichen und öffnen per Klick die Erklärung. Die Zeitachse oben im Kurs zeigt wieder alle Beschriftungen; einige fehlten in 1.1.18.",
+      "neu": "Das Glossar kennt jetzt alle 54 Personen aus der Geschichte der KI, von Pythagoras und Leibniz bis Hinton, und 20 weitere Begriffe wie Superposition, Schrödingers Katze, MYCIN oder das Astrolabium. Auf der Seite „Personen und Begriffe“ sind Namen und Begriffe gelb unterstrichen und öffnen per Klick die Erklärung. Die Zeitachse oben im Kurs zeigt wieder alle Beschriftungen; einige fehlten in 1.1.18.",
       "schritte": [
         "Diese Seite mit Strg+F5 neu laden — sonst bleiben die alten Farben der Zeitachse im Zwischenspeicher."
       ]
