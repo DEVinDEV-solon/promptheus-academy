@@ -313,7 +313,7 @@ pruefe('Kopf und Leiste teilen sich eine Fläche',
 // 4,5:1 und nicht 7:1, weil Knopfschrift fett ist und nicht in 0,86 rem steht.
 gruppe('Der Hauptknopf trägt seine Schrift');
 
-foreach (['schmiede', 'pergament', 'olymp', 'marmor', 'terrakotta', 'funkenflug'] as $kennung) {
+foreach (array_keys(PU_VARIANTEN) as $kennung) {
     $v = pu_variante($kennung);
     if ($v === null) { pruefe("Palette $kennung fehlt", false); continue; }
 

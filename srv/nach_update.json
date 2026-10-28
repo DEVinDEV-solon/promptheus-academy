@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.18": {
+      "titel": "Die Geschichte der KI",
+      "neu": "Neu ist der Info-Kurs „Die Geschichte der KI — Von der Logik zur Superintelligenz“: vierzehn Etappen von Aristoteles bis ChatGPT, mit Bild zu jeder Etappe, ohne Prüfung und ohne Voraussetzung. Er steht in „Lernen“ unter der eigenen Überschrift „Info-Kurs“ und links im Fuß der Leiste. Oben im Kurs führen die Schnell-Links zu Zeitstrahl, Personen und Begriffen, Lehrbausteinen und dem Vortrag. Das Glossar kennt rund vierzig neue Begriffe von der Lochkarte bis zum Qubit. Lange Hörfolgen lassen sich jetzt vorspulen.",
+      "schritte": [
+        "Film und Hörfolge des Kurses kommen mit dem Kursmedien-Paket. Fehlen sie, unter Einstellungen › Wartung die Kursmedien aktualisieren."
+      ]
+    },
     "1.1.17": {
       "titel": "Fortschritt auf einen Blick, Marmor in Stahlblau",
       "neu": "Die Seite „Fortschritt“ zeigt oben Rang, Stufen, Abzeichen und Serie auf einen Blick und was als Nächstes kommt. Die Urkunden stehen nebeneinander, und bei den Abzeichen steht jetzt verständlich, was gezählt wird. Die Palette Marmor ist kühler geworden: blau-grauer Grund mit Stahlblau statt Bronze. Die Scrollbalken tragen die Farben der gewählten Palette.",

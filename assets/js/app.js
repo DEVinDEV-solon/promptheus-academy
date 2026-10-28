@@ -696,7 +696,32 @@ PU.wechsel = function (schluessel) {
 
   window.scrollTo(0, 0);
   eintrag.zeichnen();
+
+  // Der Eintrag „Geschichte der KI" führt in einen Kurs, nicht in eine Ansicht —
+  // die Menüschleife oben kennt nur `data-ansicht`. Deshalb bekommt er seinen
+  // Aktivrahmen hier: gültig im Kurs selbst und in allen seinen Lektionen.
+  PU.leisteExtraMarkieren();
   return true;
+};
+
+/**
+ * Setzt den Aktivrahmen am Kurs-Eintrag im Fuß der Leiste.
+ *
+ * „Lernen" bleibt daneben aktiv — das ist richtig, denn der Kurs liegt in der
+ * Ansicht „Lernen". Zwei Rahmen zeigen also: welche Ansicht offen ist und
+ * welcher Kurs darin läuft.
+ */
+PU.leisteExtraMarkieren = function () {
+  const a = document.querySelector('.leiste-extra');
+  if (!a) return;
+  const z = PU.lernenZustand || {};
+  const basis = '20_Domaenen/DOM-KI-Geschichte';
+  const imKurs = PU.aktuell === 'lernen' && (
+       (z.wo === 'kurs' && z.kurs === basis)
+    || (z.wo === 'lektion' && String(z.lektion || '').indexOf(basis + '/') === 0));
+  a.classList.toggle('aktiv', imKurs);
+  if (imKurs) a.setAttribute('aria-current', 'page');
+  else a.removeAttribute('aria-current');
 };
 
 /* ---------------------------------------------------------------- Kopfstand */
@@ -1268,12 +1293,40 @@ PU.start = function () {
   const tut = document.getElementById('knopf-tutor');
   if (tut) tut.addEventListener('click', () => {
     const z = PU.lernenZustand || {};
+    // Freie Seiten (Zeitstrahl, Register) bekommen ihren eigenen Pfad als
+    // Zusammenhang — sonst fragt der Tutor ins Leere, obwohl ein Thema offen ist.
     PU.tutorPanelUmschalten({
       kurs:    z.kurs || '',
-      lektion: z.wo === 'lektion' ? z.lektion : '',
+      lektion: z.wo === 'lektion' ? z.lektion : (z.wo === 'seite' ? z.seite : ''),
       thema:   z.wo === 'lektion' ? 'Diese Lektion'
-             : (z.wo === 'kurs' ? 'Dieser Kurs' : 'Freies Gespräch')
+             : (z.wo === 'seite' ? 'Diese Seite'
+             : (z.wo === 'kurs' ? 'Dieser Kurs' : 'Freies Gespräch'))
     });
+  });
+
+  // Vor dem Drucken die Menüleiste zuklappen: Sonst rechnet der Browser das
+  // Blatt mit der alten Breite und der Text steht angeschnitten am Rand.
+  window.addEventListener('beforeprint', function () {
+    // Nachladen erzwingen: Was noch nicht geladen ist, fehlt sonst im PDF.
+    document.querySelectorAll('img').forEach(function (bild) {
+      try {
+        bild.loading = 'eager';
+        if (!bild.complete && bild.src) { const s = bild.src; bild.src = s; }
+      } catch (e) { /* egal */ }
+    });
+
+    const leiste = document.getElementById('leiste');
+    if (leiste && !leiste.classList.contains('zu')) {
+      leiste.dataset.printZu = '1';
+      leiste.classList.add('zu');
+    }
+  });
+  window.addEventListener('afterprint', function () {
+    const leiste = document.getElementById('leiste');
+    if (leiste && leiste.dataset.printZu) {
+      leiste.classList.remove('zu');
+      delete leiste.dataset.printZu;
+    }
   });
 
   // Folgt das Thema dem Betriebssystem, muss es das auch dann tun, wenn

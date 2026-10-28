@@ -29,6 +29,77 @@ $pfad = (string)parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH
 $pfad = strtolower(str_replace('\\', '/', rawurldecode($pfad)));
 
 /**
+ * Liefert eine Datei mit Byte-Bereichen aus.
+ *
+ * Der eingebaute PHP-Server kennt keine `Range`-Anfragen: Er schickt immer die
+ * ganze Datei mit Status 200. Ein Browser, der „ab Byte 4.200.000" fragt und
+ * die ganze Datei bekommt, gibt den Regler im Player zwar frei — springen kann
+ * er nicht. Genau das war am 23.10.2026 der Grund, warum sich die Hörfolge
+ * nicht vorspulen ließ.
+ *
+ * Deshalb übernimmt der Router die Auslieferung für `medien/` selbst: mit
+ * `Accept-Ranges`, mit `206` und `Content-Range`, in Blöcken von 256 KB.
+ *
+ * Bedingt definiert: Die Tests binden den Router mehrmals ein.
+ */
+if (!function_exists('pu_datei_mit_bereichen')) {
+function pu_datei_mit_bereichen(string $datei): void
+{
+    $groesse = (int)filesize($datei);
+    $typ = match (strtolower(pathinfo($datei, PATHINFO_EXTENSION))) {
+        'mp3'         => 'audio/mpeg',
+        'mp4', 'm4v'  => 'video/mp4',
+        'webm'        => 'video/webm',
+        'ogg', 'opus' => 'audio/ogg',
+        'wav'         => 'audio/wav',
+        'm4a'         => 'audio/mp4',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png'         => 'image/png',
+        'webp'        => 'image/webp',
+        default       => 'application/octet-stream',
+    };
+
+    $start = 0;
+    $ende  = $groesse - 1;
+    if (isset($_SERVER['HTTP_RANGE'])
+        && preg_match('/bytes=(\d*)-(\d*)/', (string)$_SERVER['HTTP_RANGE'], $m)) {
+        if ($m[1] === '' && $m[2] !== '') {
+            $start = max(0, $groesse - (int)$m[2]);      // „die letzten N Bytes"
+        } else {
+            $start = (int)$m[1];
+            if ($m[2] !== '') $ende = min((int)$m[2], $groesse - 1);
+        }
+        if ($start > $ende || $start >= $groesse) {
+            http_response_code(416);
+            header('Content-Range: bytes */' . $groesse);
+            return;
+        }
+        http_response_code(206);
+        header('Content-Range: bytes ' . $start . '-' . $ende . '/' . $groesse);
+    } else {
+        http_response_code(200);
+    }
+
+    header('Content-Type: ' . $typ);
+    header('Accept-Ranges: bytes');
+    header('Content-Length: ' . ($ende - $start + 1));
+    header('Cache-Control: public, max-age=3600');
+
+    $fp = fopen($datei, 'rb');
+    if ($fp === false) return;
+    fseek($fp, $start);
+    $rest = $ende - $start + 1;
+    while ($rest > 0 && !feof($fp)) {
+        $lese = (int)min(262144, $rest);
+        echo fread($fp, $lese);
+        $rest -= $lese;
+        flush();
+    }
+    fclose($fp);
+}
+}
+
+/**
  * Was nie ueber HTTP hinausgeht.
  *
  * `data`       — Lernstände, Antworten, Urkunden, Protokoll, Datenbank.
@@ -93,6 +164,21 @@ if (!$gesperrt && str_starts_with(trim($pfad, '/'), 'medien/')) {
         @pu_sitzung_oeffnen(__DIR__);
     }
     if ((int)($_SESSION['pu_id'] ?? 0) <= 0) $gesperrt = true;
+
+    /* Angemeldet und erlaubt: Jetzt liefert der Router selbst aus, damit der
+       Browser Byte-Bereiche bekommt. Den Pfad dafür aus der Anfrage nehmen —
+       `$pfad` ist kleingeschrieben, und ein Kursordner heißt
+       `DOM-KI-Geschichte`; klein geschrieben fände man ihn nicht. */
+    if (!$gesperrt) {
+        $roh    = rawurldecode((string)parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH));
+        $datei  = realpath(__DIR__ . '/' . ltrim(str_replace('\\', '/', $roh), '/'));
+        $wurzel = realpath(__DIR__ . '/medien');
+        if ($datei !== false && $wurzel !== false && is_file($datei)
+            && str_starts_with(str_replace('\\', '/', $datei), str_replace('\\', '/', $wurzel) . '/')) {
+            pu_datei_mit_bereichen($datei);
+            return true;
+        }
+    }
 }
 
 if ($gesperrt) {

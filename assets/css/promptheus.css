@@ -269,7 +269,9 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
 
 .leiste-fuss {
   flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .25rem;
-  padding: .5rem .5rem .6rem; border-top: 1px solid var(--rand);
+  /* Keine durchgehende Linie mehr: Der Eintrag „Geschichte der KI" trägt seine
+     beiden kurzen Striche selbst und trennt damit Menü und Symbole. */
+  padding: .3rem .5rem .6rem;
 }
 .leiste-fuss .menue-knopf { width: auto; }
 
@@ -296,6 +298,19 @@ textarea { min-height: 8rem; resize: vertical; font-family: var(--sans); }
    steht, ist „Abmelden“ verdeckt — mit × ist er wieder frei. Gold, weil hier
    etwas Neues ankommt; kein Rot, denn es ist kein Fehler. */
 .leiste-fuss { position: relative; }
+/* Der Eintrag „Geschichte der KI" steht für sich: oben ein Strich, darunter
+   wie ein gewöhnlicher Menüpunkt. */
+/* Zwei Klassen, damit Abstand und Striche nicht vom kürzeren
+   `.menue-knopf`-Padding überschrieben werden. Der Eintrag steht zwischen zwei
+   kurzen Strichen — eingerückt, damit sie nicht wie eine Bereichstrennung über
+   die ganze Leiste laufen, sondern wie ein Knopf wirken. */
+.leiste-fuss .leiste-extra {
+  margin: .15rem .4rem .55rem;
+  padding: .5rem .6rem;
+  border-top: 1px solid var(--rand);
+  border-bottom: 1px solid var(--rand);
+  border-radius: 0;
+}
 .akt-notiz {
   position: absolute; left: .5rem; right: .5rem; bottom: .45rem; z-index: 5;
   padding: .7rem .75rem .75rem; font-size: .86rem; line-height: 1.45;
@@ -609,11 +624,259 @@ html[data-textschrift] .lektion > h1 + p { font-size: 1.14rem; color: var(--schr
 /* Ein Zitat im Lehrtext ist fast immer der Kernsatz des Abschnitts. Es wird
    wie ein Wissenskasten gesetzt (BRAND.md §7: Lapis links, Lapis-Flor) und
    etwas grösser — der eine Satz, den man behalten soll. */
+/* Zitat im Stil eines Telegram-Zitats: ruhiger Kasten, links ein kräftiger
+   Balken, ringsum leicht gerundet, kein Kursivdruck. Der Balken trägt die
+   Auszeichnung, nicht die Schrift. */
 .lektion blockquote {
-  margin: 1.4rem 0 1.5rem; padding: .9rem 1.2rem;
-  border-left: 3px solid var(--lapis); border-radius: 0 var(--radius-klein) var(--radius-klein) 0;
+  margin: 1.3rem 0 1.4rem; padding: .85rem 1.05rem .85rem 1.1rem;
+  border-left: 4px solid var(--lapis);
+  border-radius: var(--radius-klein);
   background: var(--lapis-flor); color: var(--schrift);
+  font-style: normal;
+  /* Schrift und Größe bleiben die des Fließtextes: Ein Zitat soll klingen wie
+     der Text, aus dem es kommt — der Balken links zeigt, dass es ein Zitat ist. */
+  font-family: inherit;
+  font-size: 1em;
+  line-height: inherit;
 }
+.lektion blockquote p {
+  font-style: normal;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+/* Kleiner gesetzter Text: eine Spur kleiner, gleiche Farbe, damit er als
+   Nebensatz gelesen wird und nicht als Fußnote verschwindet. */
+.lektion small { font-size: .84em; line-height: 1.45; }
+
+/* -------- Die animierte Zeitachse (:::zeitstrahl).
+   Die Linie zeichnet sich, dann erscheinen die Stationen von links nach rechts.
+   Reine CSS-Animation auf SVG; bei „weniger Bewegung“ steht alles still. */
+.illu {
+  margin: 1.2rem 0 1.8rem; padding: 12px 16px;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius); overflow: hidden;
+}
+.illu svg { display: block; width: 100%; height: auto; }
+.illu-zeitstrahl .linie {
+  fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round;
+  stroke-dasharray: 900; stroke-dashoffset: 900;
+  animation: illu-linie 4.2s ease-in-out .1s forwards;
+}
+/* -------- Vortrag als PDF (Seite mit `pdf: ja`).
+   Der Knopf steht oben rechts im Dokument; das Logo unter dem Titel und die
+   Fußzeile erscheinen nur im Druck. Die Fußzeile ist fixiert — der Browser
+   wiederholt sie auf jeder Seite. */
+/* Trennband zwischen zwei Linien: Das Ornament sitzt im Zwischenraum, die
+   beiden Striche rahmen es. Abstand knapp, damit es als ein Trenner wirkt. */
+.trenn-ornament { margin: .55rem 0 .55rem; opacity: .22; }
+
+/* Etappen-Überschrift: „Etappe 3 —" steht fest, der Titel läuft in einer
+   eigenen Spalte. Bricht er um, beginnt die zweite Zeile genau dort, wo der
+   Titel anfängt (bei „1830"), nicht am linken Rand. */
+.lektion .etappe-kopf { display: flex; align-items: baseline; gap: .55em; }
+.lektion .etappe-kopf .etappe-nr { flex: none; }
+.lektion .etappe-kopf .etappe-titel { flex: 1 1 auto; min-width: 0; }
+
+/* -------- Titelzeile eines Kurses: Titel links, Schnell-Links rechts.
+   Die Liste erscheint beim Überfahren und beim Klick (für Finger) und
+   markiert den Eintrag, über dem der Zeiger steht. */
+.kurs-kopf { display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+.kurs-kopf .kurs-titel { flex: 1 1 18rem; min-width: 0; }
+
+.schnell-links { position: relative; flex: none; margin-left: auto; }
+.schnell-knopf { font-size: var(--t-klein); white-space: nowrap; }
+.schnell-liste {
+  display: none; position: absolute; right: 0; top: 100%; margin-top: .35rem; z-index: 40;
+  min-width: 15rem; padding: .3rem;
+  background: var(--grund-2); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius-klein); box-shadow: 0 14px 34px rgb(0 0 0 / .22);
+}
+/* Unsichtbare Brücke über dem Spalt: Ohne sie verlässt der Zeiger beim Weg zur
+   Liste den Bereich des Knopfes, das Hover endet — und die Liste klappt zu,
+   kurz bevor man sie erreicht. */
+.schnell-links::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: .42rem;
+}
+.schnell-links:hover .schnell-liste,
+.schnell-links:focus-within .schnell-liste,
+.schnell-links.offen .schnell-liste { display: block; }
+.schnell-liste a {
+  display: block; padding: .45rem .6rem; border-radius: 6px;
+  font-size: var(--t-klein); color: var(--schrift-2); text-decoration: none;
+}
+.schnell-liste a:hover,
+.schnell-liste a:focus {
+  background: var(--grund-3); color: var(--gold-schrift, var(--schrift));
+}
+
+/* Markenkopf über dem Titel: Logo, darunter der Name der Academy, mittig. */
+.seiten-marke {
+  display: flex; flex-direction: column; align-items: center; gap: .55rem;
+  margin: .4rem 0 1.4rem;
+}
+.seiten-marke img { height: 72px; width: auto; display: block; }
+.seiten-marke span {
+  font-size: var(--t-klein); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ton-3, #9a8f7f);
+}
+.lektion.seiten-titel-mitte h1 { text-align: center; margin-top: .2rem; }
+/* Der Untertitel steht direkt unter dem Titel und gehört zum Kopf — also
+   ebenfalls mittig, etwas ruhiger in der Farbe. */
+/* Wichtig: Absätze sind auf 88 Zeichen begrenzt und stehen links im Satzspiegel.
+   Ein zentrierter Text in einem schmalen, links stehenden Block wirkt weiter
+   links — deshalb bekommt der Untertitel die volle Breite. */
+.lektion.seiten-titel-mitte > h1 + p {
+  text-align: center; color: var(--ton-2, #52514e);
+  max-width: none; width: 100%;
+  margin: 0 auto 1.4rem;
+}
+
+/* Kopfzeile einer freien Seite: links „Zurück", rechts der PDF-Knopf. */
+.seiten-kopf {
+  display: flex; align-items: center; justify-content: flex-end; gap: .6rem;
+  margin: 0 0 .9rem;
+}
+.seiten-zurueck { font-size: var(--t-klein); white-space: nowrap; }
+
+.pdf-kopf { display: flex; justify-content: flex-end; margin: 0 0 .4rem; }
+.pdf-knopf { font-size: var(--t-klein); }
+.pdf-logo { display: none; }
+
+.kopiergeschuetzt,
+.kopiergeschuetzt * { -webkit-user-select: none; user-select: none; }
+.kopiergeschuetzt img { -webkit-user-drag: none; }
+
+#pdf-fuss { display: none; }
+
+/* Rand 0: Chrome setzt seine eigenen Kopf- und Fusszeilen (Uhrzeit, URL,
+   Seitenzahl) in die Seitenränder — ohne Rand gibt es diese Fläche nicht, und
+   sie verschwinden. Den Satzspiegel bilden wir selbst über Polster. */
+@page { size: A4; margin: 0; }
+
+@media print {
+  body { background: #fff !important; }
+  /* Die linke Menüleiste ist ein eigenes <nav class="leiste"> — sie muss ganz
+     weg, sonst steht sie als leere Bahn neben dem Text und schiebt ihn aus dem
+     Blatt. Ebenso der Ziehgriff, die Kopfleiste und die Pfadleiste. */
+  .leiste, .griff, .kopf, .pfadleiste, .menue-knopf, .menue-zeichen,
+  .kopf-symbol, .kopf-rechts, .pdf-knopf, .seiten-zurueck, .schnell-links,
+  .tutorpanel, .panel, .seitenspalte,
+  .mit-spalte > aside, .lektion-fuss, .rueckweg { display: none !important; }
+
+  #haupt { padding: 0 !important; margin: 0 !important; max-width: none !important;
+           display: block !important; }
+
+  .mit-spalte { display: block !important; }
+  /* Satzspiegel: Der Seitenrand ist 0, damit Chromes Kopf- und Fusszeilen
+     entfallen — also setzt das Dokument seine Ränder selbst. Unten 26 mm für
+     die eigene Fusszeile. */
+  .lektion { max-width: none !important; margin: 0 !important; padding: 15mm 16mm 26mm !important; }
+  .lektion h1 { font-size: 20pt; margin: 0 0 6mm; }
+
+  .seiten-marke { margin: 0 0 8mm; gap: 4mm; }
+  .seiten-marke img { height: 18mm; }
+  .seiten-marke span { font-size: 10pt; }
+
+  /* Fußzeile: feste Position unten, wird je Seite wiederholt. */
+  #pdf-fuss {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: end;
+    /* 7 mm über der Blattkante: Die Fusszeile sitzt damit im unteren Seitenrand
+       (30 mm) und nicht mehr im Satzspiegel — dort hat sie den Text überlappt. */
+    position: fixed; left: 16mm; right: 16mm; bottom: 8mm;
+    font-size: 8.5pt; color: #555;
+    border-top: 1px solid #ddd; padding-top: 2mm;
+  }
+  #pdf-fuss .pdf-fuss-mitte { text-align: center; }
+  #pdf-fuss .pdf-fuss-rechts { text-align: right; }
+  #pdf-fuss a { color: #555; text-decoration: none; }
+
+  /* Die Zeitachse steht im Druck still und vollständig: Ohne das druckt der
+     Browser den Stand, in dem die Animation gerade war — halb gezeichnet. */
+  .illu-zeitstrahl .linie { animation: none !important; stroke-dashoffset: 0 !important; }
+  .illu-zeitstrahl .station { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .illu { break-inside: avoid; }
+
+  /* Jede Etappe beginnt auf einer eigenen Seite — ein Dokument, in dem die
+     Kapitel sauber getrennt sind, lässt sich abheften und einzeln weitergeben.
+     Der Kopf (Marke, Titel, Zeitachse, Einleitung) bleibt für sich auf Seite 1. */
+  .lektion > h2 {
+    break-before: page; page-break-before: always;
+    break-after: avoid; page-break-after: avoid;
+    margin-top: 0;
+  }
+
+  /* Tabellen und Bilder sollen nicht über den Seitenrand laufen. */
+  .lektion table { page-break-inside: auto; }
+  .lektion tr { page-break-inside: avoid; }
+  .lektion h2, .lektion h3 { page-break-after: avoid; }
+  .lektion-bild { page-break-inside: avoid; max-width: 100% !important; }
+}
+
+/* Zwei Reihen: jede Station besteht aus Punkt, Jahreszahl darüber und Name
+   darunter. Die zweite Reihe setzt ein, wenn die erste durchgelaufen ist. */
+.illu-zeitstrahl .station {
+  opacity: 0;
+  animation: illu-station .6s ease-out forwards;
+  animation-delay: var(--d, 0s);
+  transform-box: fill-box;
+}
+.illu-zeitstrahl .station circle { fill: var(--gold); }
+.illu-zeitstrahl .jahr {
+  fill: var(--schrift); font-size: 13px; font-weight: 600;
+  text-anchor: middle; letter-spacing: .2px;
+}
+/* Die erste Jahreszahl der zweiten Reihe sitzt links neben dem Verbinder,
+   der sonst mitten durch die Zahl liefe. */
+.illu-zeitstrahl .jahr-ende { text-anchor: end; }
+/* Unter dem Punkt: die Person (hell, fett) und darunter das Werk oder der
+   Begriff (gedämpft). Zwei Zeilen, weil „Turing" allein an drei Stellen
+   stünde, ohne dass man sieht, wofür. */
+.illu-zeitstrahl .name {
+  fill: var(--schrift); font-size: 12.5px; font-weight: 600;
+  text-anchor: middle;
+}
+.illu-zeitstrahl .sache {
+  fill: var(--ton-3, #9a8f7f); font-size: 11px;
+  text-anchor: middle;
+}
+/* Der Verbinder läuft nach der ersten Reihe: erst hinunter, dann quer, dann
+   hinunter in den Anfang der zweiten Reihe. */
+.illu-zeitstrahl .verbinder {
+  stroke-dasharray: 1500; stroke-dashoffset: 1500;
+  animation: illu-linie 1.5s ease-in-out 3.5s forwards;
+}
+@keyframes illu-linie { to { stroke-dashoffset: 0; } }
+@keyframes illu-station {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .illu-zeitstrahl .linie { animation: none !important; stroke-dashoffset: 0; }
+  .illu-zeitstrahl .station { animation: none; opacity: 1; }
+}
+@media (max-width: 640px) {
+  .illu-zeitstrahl .jahr { font-size: 16px; }
+  .illu-zeitstrahl .name { font-size: 15px; }
+}
+
+/* Zentrierte Zeile (->Text<-), etwa als Quellenangabe unter einem Bild:
+   eng am Bild, ruhig, normale Schriftgröße. */
+.lektion .md-mitte {
+  text-align: center; margin: -.6rem 0 1.2rem; font-size: 1em;
+  line-height: 1.5; color: var(--schrift-2);
+}
+/* Direkt unter einem Bild sitzt die Zeile ohne Abstand am Rahmen. */
+.lektion .lektion-bild + .md-mitte { margin-top: -1.5rem; }
+
+/* Kleiner Block (~ am Zeilenanfang, ~ am Zeilenende). Er beginnt ohne
+   Abstand zum Vorigen und behält seine Zeilenbrüche: hier ist der Umbruch
+   Inhalt, nicht Satzbau. */
+.lektion .md-klein {
+  margin: 0 0 .75rem; font-size: .84em; line-height: 1.5;
+  font-style: normal;
+}
+.lektion p:has(+ .md-klein) { margin-bottom: 0; }
 html[data-textschrift] .lektion blockquote p { font-size: 1.12rem; line-height: 1.55; margin: 0; }
 .lektion blockquote p + p { margin-top: .6rem; }
 

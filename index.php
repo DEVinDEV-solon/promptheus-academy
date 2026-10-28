@@ -607,7 +607,17 @@ $webseite = 'https://promptheus-academy.de/';
        klappt hier nach OBEN auf — nach unten läge sie jenseits des Randes. -->
   <div class="leiste-fuss">
 
-    <?php if ($variantenAn): ?>
+      <!-- Die Geschichte der KI als Kurs: dort liegen Videofolge und Hörspuren.
+           Der Eintrag steht im Fuß der Leiste, durch einen Strich von den Symbolen
+           getrennt — target="_self", damit die Adresse im selben Tab bleibt. -->
+      <a class="menue-knopf leiste-extra" target="_self"
+         href="#/kurs/20_Domaenen/DOM-KI-Geschichte"
+         title="Kurs Geschichte der KI — Videofolge und Hörspuren in vierzehn Etappen">
+        <span class="menue-zeichen" aria-hidden="true">🏛</span>
+        <span class="menue-wort">Geschichte der KI</span>
+      </a>
+
+      <?php if ($variantenAn): ?>
     <!-- Der Farbwähler erscheint nur, wenn die Regel ihn freigibt. Ein Knopf,
          der eine abgeschaltete Möglichkeit anbietet, ist schlimmer als keiner:
          man klickt und nichts geschieht. -->

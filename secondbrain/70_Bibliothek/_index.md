@@ -19,6 +19,7 @@ ist wieder draußen.
 ## Was hier steht
 
 - [[70_Bibliothek/Glossar/_index|Glossar]] — Fremdwörter und Fachbegriffe, je Begriff eine Notiz
+- [[20_Domaenen/DOM-KI-Geschichte/_index|Geschichte der KI]] — Lesekurs mit Vortrag, Zeitstrahl, Personenregister und Lehrbausteinen
 - [[70_Bibliothek/Brand-Guideline|Brand-Guideline PROMPTHEUS]] — Stimme, Sprache, Ausgabeformen und der Einsatz in KI-Systemen
 - Autorenleitfaden — *noch nicht geschrieben*, siehe unten
 

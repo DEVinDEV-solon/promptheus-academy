@@ -252,6 +252,55 @@ body.zeigt-login .lp { display: none; }
   background: var(--grund-3);
 }
 
+/* -------- Bilder im Lehrstoff.
+   Ein Bild im Stoff bekommt einen Rahmen: aussen eine feine Goldlinie, innen
+   ringsum das Maenderband — dasselbe Ornament wie beim Video, nur umlaufend.
+   Die Baender sind eigene Elemente, weil eine Maske nicht je Seite verschieden
+   wiederholen kann (waagerecht oben/unten, senkrecht links/rechts). */
+.lektion-bild {
+  position: relative; box-sizing: border-box;
+  width: 100%; max-width: 720px; margin: 1.8rem auto;
+  padding: 22px; background: var(--grund-2);
+  border: 2px solid var(--gold); border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--rand-hell) inset;
+  overflow: hidden;
+}
+.lektion-bild img {
+  display: block; width: 100%; max-width: 100%; height: auto;
+  border-radius: var(--radius-klein); background: var(--grund-3);
+}
+.lektion-bild figcaption {
+  margin-top: .7rem; text-align: center; font-size: .85rem; line-height: 1.45;
+  color: var(--ton-3, #9a8f7f);
+}
+/* Das Ornamentband: eine Kachel hoch, damit die Spirale ganz zu sehen ist. */
+.lektion-bild .lb-band {
+  position: absolute; pointer-events: none; opacity: .75;
+  background-color: var(--gold);
+  -webkit-mask-image: var(--orn-maeander); mask-image: var(--orn-maeander);
+  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;
+}
+.lektion-bild .lb-oben,
+.lektion-bild .lb-unten {
+  left: 14px; right: 14px; height: 16px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+}
+.lektion-bild .lb-oben  { top: 5px; }
+.lektion-bild .lb-unten { bottom: 5px; transform: scaleY(-1); }
+.lektion-bild .lb-links,
+.lektion-bild .lb-rechts {
+  top: 14px; bottom: 14px; width: 16px;
+  -webkit-mask-repeat: repeat-y; mask-repeat: repeat-y;
+}
+.lektion-bild .lb-links  { left: 5px; transform: scaleX(-1); }
+.lektion-bild .lb-rechts { right: 5px; }
+@media (max-width: 620px) {
+  .lektion-bild { padding: 16px; }
+  .lektion-bild .lb-oben, .lektion-bild .lb-unten { left: 10px; right: 10px; height: 12px; }
+  .lektion-bild .lb-links, .lektion-bild .lb-rechts { top: 10px; bottom: 10px; width: 12px; }
+}
+
+
 .lp-schritte { list-style: none; padding: 0; margin: 1.2rem 0 0; display: grid; gap: .7rem; }
 .lp-schritte li {
   display: grid; grid-template-columns: auto 1fr; gap: .8rem; align-items: baseline;
