@@ -23,4 +23,4 @@ Der Nutzen liegt nicht in einem einzelnen Qubit, sondern in der Überlagerung vi
 
 ## Verwandt
 
-[[superposition]] · [[epr-korrelation]] · [[shor-algorithmus]] · [[dualprinzip]]
+[[superposition-quanten]] · [[epr-korrelation]] · [[shor-algorithmus]] · [[dualprinzip]]

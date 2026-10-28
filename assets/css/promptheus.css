@@ -840,6 +840,12 @@ html[data-textschrift] .lektion > h1 + p { font-size: 1.14rem; color: var(--schr
   fill: var(--ton-3, #9a8f7f); font-size: 11px;
   text-anchor: middle;
 }
+/* Glossarbegriffe in der Grafik sind `<tspan>` (siehe pu_glossar_ersetzen):
+   SVG-Schrift färbt sich über `fill`, nicht über `color`. */
+.illu-zeitstrahl tspan.begriff {
+  fill: currentColor; cursor: help;
+}
+.illu-zeitstrahl tspan.begriff:hover { text-decoration-thickness: 2px; }
 /* Der Verbinder läuft nach der ersten Reihe: erst hinunter, dann quer, dann
    hinunter in den Anfang der zweiten Reihe. */
 .illu-zeitstrahl .verbinder {

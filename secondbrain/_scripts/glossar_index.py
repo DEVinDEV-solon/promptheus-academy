@@ -43,6 +43,12 @@ FELDER = [
     ('erkennung',       'Erkennen, was von einer Maschine stammt'),
     ('medienkompetenz', 'Sich in Behauptungen zurechtfinden'),
     ('psychologie',     'Wie Lernen wirkt'),
+    # Die Geschichte der KI (28.10.2026): ihre Menschen und Begriffe.
+    ('personen',        'Menschen in der Geschichte der KI'),
+    ('rechner',         'Rechner von der Walze bis zum Chip'),
+    ('logik',           'Logik, Beweis und Berechenbarkeit'),
+    ('quanten',         'Quanten'),
+    ('physik',          'Physik hinter dem Rechnen'),
     ('academy',         'Sprache dieser Academy'),
 ]
 

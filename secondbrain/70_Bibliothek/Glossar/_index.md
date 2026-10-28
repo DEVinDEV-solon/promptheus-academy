@@ -23,10 +23,15 @@ zweiten, von Hand gepflegten Liste.
 ## Wie ein Sprachmodell arbeitet
 
 - [[agent]] — **Agent**: Ein Sprachmodell, das nicht nur antwortet, sondern Werkzeuge benutzt.
+- [[alphafold]] — **AlphaFold**: DeepMinds Netz sagt die Faltung von Proteinen voraus — ein geometrisches Problem mit Folgen für die Medizin.
 - [[c2pa]] — **C2PA**: Ein offener Standard für signierte Herkunftsangaben in Dateien — für Bilder, nicht für Text.
+- [[chatgpt]] — **ChatGPT**: Der Punkt, an dem Sprachmodelle für jeden bedienbar wurden — 2022.
 - [[entropie]] — **Entropie**: Das Maß dafür, wie viel Wahlfreiheit an einer Textstelle besteht.
 - [[few-shot]] — **Few-Shot**: Dem Modell ein paar Beispiele mitgeben, statt es zu beschreiben.
 - [[halluzination]] — **Halluzination**: Wenn ein Modell etwas erfindet und dabei genauso überzeugt klingt wie sonst.
+- [[hybride-ki]] — **Hybride KI**: Mehrere Rechenarten nebeneinander im selben Rechenzentrum: digital, neuromorph, quantenmechanisch.
+- [[imagenet]] — **ImageNet**: Der Bilddatensatz, an dem 2012 der Durchbruch der tiefen Netze sichtbar wurde.
+- [[ki-programmier-glossar]] — **KI-Programmier-Glossar**: Die Fachbegriffe rund um KI und Programmieren auf Deutsch — übersetzt nach der Sammlung von Matt Pocock, ergänzt um Verweise auf die eigenen Blätter dieses Glossars.
 - [[kontextfenster]] — **Kontextfenster**: Wie viele Token ein Modell gleichzeitig überblicken kann.
 - [[llm]] — **LLM (Sprachmodell)**: Ein Programm, das vorhersagt, welches Textstück als nächstes kommt.
 - [[logits]] — **Logits**: Die rohen Punktzahlen, die ein Modell jedem möglichen nächsten Token gibt.
@@ -35,9 +40,11 @@ zweiten, von Hand gepflegten Liste.
 - [[regelsystem]] — **Regelsystem**: Ein Programm, das Regeln befolgt, die ein Mensch geschrieben hat.
 - [[sampling]] — **Sampling**: Das Ziehen des nächsten Tokens aus der Wahrscheinlichkeitsverteilung.
 - [[softmax]] — **Softmax**: Die Rechnung, die aus rohen Punktzahlen Wahrscheinlichkeiten macht.
+- [[symbolische-ki]] — **Symbolische KI**: Wissen als Wenn-Dann-Regeln — Expertensysteme. Nicht verschwunden, nur aus dem Rampenlicht.
 - [[temperatur]] — **Temperatur**: Der Regler, der bestimmt, wie mutig ein Modell wählt.
 - [[token]] — **Token**: Das Stück Text, mit dem ein Sprachmodell rechnet — meist kürzer als ein Wort.
 - [[tokenizer]] — **Tokenizer**: Das Programm, das Text in Token zerlegt — immer nach derselben festen Tabelle.
+- [[turing-test]] — **Turing-Test**: Intelligenz am menschlichen Verhalten gemessen: Wenn ich im Gespräch nicht unterscheide, gilt die Maschine als intelligent.
 - [[wasserzeichen]] — **Wasserzeichen (im Text)**: Eine unsichtbare Markierung, die beim Schreiben in KI-Text eingebettet wird.
 
 ## Wie neuronale Netze lernen
@@ -49,16 +56,19 @@ zweiten, von Hand gepflegten Liste.
 - [[batch]] — **Batch (Stapel)**: Die Portion Beispiele, nach der das Modell einmal seine Gewichte korrigiert.
 - [[bestaerkendes-lernen]] — **Bestärkendes Lernen (Reinforcement Learning)**: Lernen durch Belohnung: ausprobieren, Rückmeldung bekommen, das Erfolgreiche öfter tun.
 - [[bias-term]] — **Bias-Term**: Die Verschiebung, die ein Neuron unabhängig von seiner Eingabe mitbringt.
+- [[boltzmann-maschine]] — **Boltzmann-Maschine**: Ein neuronales Netz, das man wie ein Gas behandelt: Wahrscheinlichkeiten statt einzelner Neuronen.
 - [[clustering]] — **Clustering**: Ähnliche Dinge zu Gruppen zusammenfassen, ohne vorher festzulegen, welche Gruppen es gibt.
 - [[deep-learning]] — **Deep Learning**: Maschinelles Lernen mit Netzen aus vielen Schichten.
 - [[diskriminatives-modell]] — **Diskriminatives Modell**: Ein Modell, das unterscheidet und einordnet, aber nichts Neues erzeugt.
 - [[dropout]] — **Dropout**: Beim Training zufällig Neuronen abschalten, damit das Netz sich nicht auf einzelne verlässt.
+- [[energielandschaft]] — **Energielandschaft**: Bild für ein Netz: Jeder Zustand hat eine Höhe, und die Lösung liegt im tiefsten Punkt.
 - [[epoche]] — **Epoche**: Ein kompletter Durchgang durch alle Trainingsdaten.
 - [[faltungsnetz]] — **Faltungsnetz (CNN)**: Das klassische Netz für Bilder: Es schiebt kleine Filter über das ganze Bild.
 - [[generalisierung]] — **Generalisierung**: Das Gelernte auf neue, nie gesehene Fälle übertragen können.
 - [[generatives-modell]] — **Generatives Modell**: Ein Modell, das Neues erzeugt — Text, Bilder, Musik — statt nur Vorhandenes einzuordnen.
 - [[gradient]] — **Gradient**: Die Richtung, in der der Fehler am stärksten wächst — und damit der Hinweis, wohin man gehen muss.
 - [[gradientenabstieg]] — **Gradientenabstieg**: Schritt für Schritt bergab zum kleineren Fehler — das Grundverfahren fast jedes Trainings.
+- [[hopfield-netz]] — **Hopfield-Netz**: Ein Netz als Energielandschaft: Es rutscht in den tiefsten Punkt, und das ist die gespeicherte Erinnerung.
 - [[hyperparameter]] — **Hyperparameter**: Einstellungen, die vor dem Training festgelegt und nicht gelernt werden.
 - [[initialisierung]] — **Initialisierung**: Die Startwerte der Gewichte, bevor das Training beginnt.
 - [[klassifikation]] — **Klassifikation**: Etwas einer von mehreren festen Klassen zuordnen — Spam oder nicht, Katze oder Hund.
@@ -73,6 +83,8 @@ zweiten, von Hand gepflegten Liste.
 - [[normalisierung]] — **Normalisierung (Layer Norm)**: Hält die Zahlen im Netz in einem gesunden Bereich, damit das Training stabil bleibt.
 - [[optimierer]] — **Optimierer**: Das Verfahren, das aus dem Gradienten den tatsächlichen Lernschritt macht.
 - [[parameter]] — **Parameter**: Jede Zahl im Modell, die beim Training eingestellt wird — Gewichte und Verschiebungen zusammen.
+- [[perzeptron]] — **Perzeptron**: Rosenblatts Lernmaschine von 1958: Eingaben gewichten, Schwelle prüfen, aus Fehlern nachbessern.
+- [[physical-ai-pinn]] — **Physical AI (PINN)**: Netze, die mit Naturgesetzen trainiert werden — sie optimieren innerhalb des physikalisch Erlaubten.
 - [[regression]] — **Regression (Statistik)**: Eine Zahl vorhersagen statt einer Schublade — einen Preis, eine Temperatur, eine Dauer.
 - [[regularisierung]] — **Regularisierung**: Sammelbegriff für Massnahmen, die ein Modell vom Auswendiglernen abhalten.
 - [[rekurrentes-netz]] — **Rekurrentes Netz (RNN)**: Ein Netz, das eine Folge Schritt für Schritt liest und dabei einen inneren Zustand weiterträgt.
@@ -84,6 +96,7 @@ zweiten, von Hand gepflegten Liste.
 - [[tensor]] — **Tensor**: Zahlen in beliebig vielen Dimensionen — die Verallgemeinerung von Vektor und Matrix.
 - [[testdatensatz]] — **Testdatensatz**: Beispiele, die das Modell nie gesehen hat — für die ehrliche Schlussprüfung.
 - [[trainingsdatensatz]] — **Trainingsdatensatz**: Die Beispiele, aus denen ein Modell lernt.
+- [[universal-approximation-theorem]] — **Universal Approximation Theorem**: Für jede stetige Funktion gibt es ein ausreichend großes Netz, das sie beliebig genau annähert.
 - [[unteranpassung]] — **Unteranpassung (Underfitting)**: Das Modell ist zu schlicht oder zu kurz trainiert, um das Muster überhaupt zu fassen.
 - [[unueberwachtes-lernen]] — **Unüberwachtes Lernen**: Muster in Daten finden, ohne dass jemand die Lösungen vorgibt.
 - [[validierungsdatensatz]] — **Validierungsdatensatz**: Zurückgehaltene Beispiele, an denen man während des Trainings prüft, ob das Modell wirklich lernt.
@@ -535,10 +548,14 @@ zweiten, von Hand gepflegten Liste.
 - [[feinabstimmung]] — **Feinabstimmung**: Ein fertiges Modell auf ein Fachgebiet nachschulen — klein, günstig, gezielt.
 - [[gpu]] — **GPU (Grafikprozessor)**: Tausende kleine Rechenwerke, die alle dasselbe gleichzeitig tun — das Arbeitstier der KI.
 - [[hybride-speicherchips]] — **Hybride Speicherchips**: Speicher, der selbst mitrechnet — damit die Zahlen nicht ständig hin- und hergeschoben werden.
+- [[hysterese]] — **Hysterese**: Die Kurve, die nicht zurückläuft, sondern eine Schleife bildet — die Signatur von Materialien mit Gedächtnis.
 - [[inferenz]] — **Inferenz**: Das Benutzen eines fertigen Modells — jede Antwort, die du bekommst.
 - [[edge-ki]] — **KI auf dem Gerät**: Das Modell läuft dort, wo du bist — nicht in einer Halle irgendwo.
+- [[memristor]] — **Memristor**: Widerstand mit Gedächtnis: speichert und rechnet im selben Bauteil.
 - [[modellgewichte]] — **Modellgewichte**: Die Milliarden Zahlen, in denen das Können eines Modells steckt.
+- [[neuromorphes-rechnen]] — **Neuromorphes Rechnen**: Hardware, die wie Nervengewebe arbeitet: analog, parallel, sparsam.
 - [[npu]] — **NPU (KI-Recheneinheit)**: Ein kleiner Rechenbaustein im Gerät, der nur für KI gebaut ist.
+- [[photonisches-rechnen]] — **Photonisches Rechnen**: Rechnen mit Licht statt Strom: Laserstrahlen in Silizium übernehmen die Rolle der Signale.
 - [[quantisierung]] — **Quantisierung**: Ein Modell mit gröberen Zahlen kleiner machen — damit es auf normale Geräte passt.
 - [[rechenzentrum]] — **Rechenzentrum**: Eine Halle voller Rechner — dort steht die KI, die man im Browser benutzt.
 - [[tpu]] — **TPU (Tensor-Recheneinheit)**: Googles eigener KI-Chip — dieselbe Idee wie eine NPU, nur für Rechenzentren.
@@ -636,6 +653,109 @@ zweiten, von Hand gepflegten Liste.
 - [[testing-effekt]] — **Testing-Effekt**: Sich abfragen lassen bringt mehr als noch einmal lesen.
 - [[spaced-repetition]] — **Verteiltes Wiederholen**: Mit wachsendem Abstand wiederholen, statt am Stück zu pauken.
 
+## Menschen in der Geschichte der KI
+
+- [[ada-lovelace]] — **Ada Lovelace**: Mathematikerin, die 1843 Babbages Maschine beschrieb und die Grenze der Maschine benannte.
+- [[alain-aspect]] — **Alain Aspect**: Französischer Physiker, der 1982 mit Experimenten zur Verschränkung die Quantenmechanik bestätigte.
+- [[alan-hodgkin]] — **Alan Hodgkin**: Britischer Physiologe, der mit Huxley am Riesentintenfisch die Nervenleitung maß und 1963 den Nobelpreis erhielt.
+- [[alan-turing]] — **Alan Turing**: Logiker, der 1936 die Turing-Maschine und das Halteproblem beschrieb und 1950 den Turing-Test vorschlug.
+- [[albert-einstein]] — **Albert Einstein**: Physiker, Mitautor der EPR-Arbeit von 1935 und Gegner der statistischen Deutung der Quantenmechanik.
+- [[alfred-north-whitehead]] — **Alfred North Whitehead**: Britischer Mathematiker und Philosoph, Mitautor der Principia Mathematica.
+- [[alfred-tarski]] — **Alfred Tarski**: Logiker, der 1951 zeigte, dass über den reellen Zahlen jede wohl definierte Menge entscheidbar ist.
+- [[allen-newell]] — **Allen Newell**: Informatiker, der 1956 mit Simon und Shaw den Logic Theorist schrieb.
+- [[andrew-huxley]] — **Andrew Huxley**: Britischer Physiologe, der mit Hodgkin die Nervenleitung am Riesentintenfisch erforschte.
+- [[aristoteles]] — **Aristoteles**: Griechischer Philosoph, der den logischen Schluss zur Lehrform machte.
+- [[bertrand-russell]] — **Bertrand Russell**: Britischer Philosoph und Logiker, Mitautor der Principia Mathematica.
+- [[boris-podolsky]] — **Boris Podolsky**: Physiker, Mitautor der EPR-Arbeit von 1935 zusammen mit Einstein und Rosen.
+- [[bruce-buchanan]] — **Bruce Buchanan**: Informatiker in Stanford, der ab 1972 mit Edward Shortliffe das Expertensystem MYCIN entwickelte.
+- [[charles-babbage]] — **Charles Babbage**: Britischer Mathematiker, der mit der Analytical Engine einen programmgesteuerten Rechner entwarf.
+- [[cliff-shaw]] — **Cliff Shaw**: Programmierer, der 1956 mit Newell und Simon den Logic Theorist umsetzte.
+- [[david-ackley]] — **David Ackley**: Informatiker, der 1985 mit Hinton und Sejnowski die Boltzmann-Maschine entwickelte.
+- [[david-hilbert]] — **David Hilbert**: Mathematiker, der 1900 dreiundzwanzig Probleme stellte und das Entscheidungsproblem prägte.
+- [[david-rumelhart]] — **David Rumelhart**: Psychologe, der 1986 mit Hinton und Williams das Backpropagation-Verfahren populär machte.
+- [[edward-shortliffe]] — **Edward Shortliffe**: Mediziner und Informatiker, der ab 1972 in Stanford das Expertensystem MYCIN entwickelte.
+- [[erwin-schroedinger]] — **Erwin Schrödinger**: Österreichischer Physiker, der 1935 die Superposition mit dem Bild der Katze im Kasten veranschaulichte.
+- [[frank-rosenblatt]] — **Frank Rosenblatt**: Psychologe und Informatiker, der 1958 das Perzeptron baute, ein erstes lernendes Netz.
+- [[geoffrey-hinton]] — **Geoffrey Hinton**: Informatiker, Mitentwickler der Boltzmann-Maschine, an Backpropagation beteiligt und Physik-Nobelpreisträger 2024.
+- [[george-cybenko]] — **George Cybenko**: Mathematiker, der 1989 das Universal Approximation Theorem bewies, ein Existenztheorem für neuronale Netze.
+- [[george-em-karniadakis]] — **George Em Karniadakis**: Angewandter Mathematiker, der 2019 mit Raissi und Perdikaris Physics Informed Neural Networks formulierte.
+- [[gottfried-wilhelm-leibniz]] — **Gottfried Wilhelm Leibniz**: Philosoph und Mathematiker, der 1673 eine Rechenmaschine baute und die Dualzahlen beschrieb.
+- [[henri-poincare]] — **Henri Poincaré**: Französischer Mathematiker, der am Dreikörperproblem eine Grenze exakter Berechnung aufzeigte.
+- [[herbert-a-simon]] — **Herbert A. Simon**: Wissenschaftler, der 1956 mit Newell und Shaw den Logic Theorist schrieb und 1978 den Wirtschaftsnobelpreis erhielt.
+- [[hubert-dreyfus]] — **Hubert Dreyfus**: Philosoph in Berkeley, der 1972 mit einem Buch die Grundannahme der Regel-KI angriff.
+- [[joachim-bouvet]] — **Joachim Bouvet**: Jesuit und Chinamissionar, der Leibniz vom I Ging berichtete.
+- [[john-bell]] — **John Bell**: Physiker, der 1964 mit der Bell-Ungleichung aus einer Deutungsfrage eine Messvorschrift machte.
+- [[john-hopfield]] — **John Hopfield**: Physiker, der 1982 ein Netz als Energielandschaft beschrieb und dafür 2024 den Physik-Nobelpreis erhielt.
+- [[john-von-neumann]] — **John von Neumann**: Mathematiker, nach dem die Bauform der Rechner mit getrenntem Prozessor und Speicher benannt ist.
+- [[joseph-marie-jacquard]] — **Joseph Marie Jacquard**: Französischer Seidenweber, dessen Webstuhl von 1804 sein Muster von Lochkarten ablas.
+- [[juri-matijasewitsch]] — **Juri Matijasewitsch**: Mathematiker, der 1970 Hilberts zehntes Problem negativ löste.
+- [[klaus-mainzer]] — **Klaus Mainzer**: Wissenschaftsphilosoph, dessen Arbeitsbegriff der Intelligenz und Sicht auf hybride KI den Kurs tragen.
+- [[konrad-zuse]] — **Konrad Zuse**: Bauingenieur, der 1941 mit der Z3 den ersten frei programmierbaren Rechner baute.
+- [[kurt-goedel]] — **Kurt Gödel**: Logiker, der 1931 bewies, dass jedes hinreichend mächtige System wahre, unbeweisbare Aussagen enthält.
+- [[leon-chua]] — **Leon Chua**: Elektrotechniker in Berkeley, der 1971 den Memristor als viertes Bauelement vorhersagte.
+- [[ludwig-boltzmann]] — **Ludwig Boltzmann**: Österreichischer Physiker und Begründer der statistischen Mechanik, Namensgeber der Boltzmann-Maschine.
+- [[ludwig-wittgenstein]] — **Ludwig Wittgenstein**: Philosoph, dessen Bild der Leiter, die man nach dem Aufstieg wegwirft, den Kurs beschließt.
+- [[maziar-raissi]] — **Maziar Raissi**: Mathematiker, der 2019 mit Perdikaris und Karniadakis Physics Informed Neural Networks formulierte.
+- [[nathan-rosen]] — **Nathan Rosen**: Physiker, Mitautor der EPR-Arbeit von 1935 zusammen mit Einstein und Podolsky.
+- [[paris-perdikaris]] — **Paris Perdikaris**: Ingenieurwissenschaftler, der 2019 mit Raissi und Karniadakis Physics Informed Neural Networks formulierte.
+- [[paul-dirac]] — **Paul Dirac**: Britischer Physiker, auf den die Schreibweise für Quantenzustände zurückgeht, die Bra-Ket-Notation.
+- [[peter-shor]] — **Peter Shor**: Mathematiker, der 1994 einen Quantenalgorithmus zur Zerlegung großer Zahlen in Primfaktoren vorstellte.
+- [[platon]] — **Platon**: Athener Philosoph, der das Denken um seiner selbst willen als Ziel verstand.
+- [[pythagoras]] — **Pythagoras**: Griechischer Philosoph und Mathematiker, dessen Schule Geometrie und Zahlenlehre im geschlossenen Kreis hütete.
+- [[richard-feynman]] — **Richard Feynman**: Physiker, der Anfang der 1980er forderte, die Quantenwelt mit einem Rechner nach Quantenregeln zu simulieren.
+- [[ronald-williams]] — **Ronald Williams**: Informatiker, der 1986 mit Rumelhart und Hinton das Backpropagation-Verfahren populär machte.
+- [[stephen-wolfram]] — **Stephen Wolfram**: Physiker und Unternehmer, der zelluläre Automaten untersuchte und 2002 A New Kind of Science veröffentlichte.
+- [[terry-sejnowski]] — **Terry Sejnowski**: Neurowissenschaftler, der 1985 mit Hinton und Ackley die Boltzmann-Maschine entwickelte.
+- [[walter-pitts]] — **Walter Pitts**: Logiker, der 1943 mit Warren McCulloch das erste mathematische Neuronenmodell formulierte.
+- [[warren-mcculloch]] — **Warren McCulloch**: Neurophysiologe, der 1943 mit Walter Pitts das erste mathematische Neuronenmodell formulierte.
+- [[wilhelm-ackermann]] — **Wilhelm Ackermann**: Deutscher Mathematiker, der 1928 mit Hilbert das Entscheidungsproblem formulierte.
+
+## Rechner von der Walze bis zum Chip
+
+- [[analoger-rechner]] — **Analoger Rechner**: Rechnet mit stetigen Größen statt mit Ziffern — Spannung, Länge, Licht.
+- [[analytical-engine]] — **Analytical Engine**: Babbages programmgesteuerter Rechner mit getrenntem Rechenwerk und Speicher — nie vollendet.
+- [[astrolabium]] — **Astrolabium**: Mechanisches Gerät, das den Lauf der Gestirne nachbildet, ein Vorläufer analoger Rechner.
+- [[difference-engine]] — **Difference Engine**: Babbages Maschine für Zahlentabellen — rechnete Differenzen statt Formeln.
+- [[lochkarte]] — **Lochkarte**: Ein Karton mit Löchern, der einer Maschine sagt, was sie tun soll.
+- [[rechenschieber]] — **Rechenschieber**: Zwei gegeneinander verschiebbare Skalen: Strecken addieren, um Zahlen zu multiplizieren.
+- [[staffelwalzen]] — **Staffelwalzen**: Geriffelte Trommeln in Leibniz' Rechenmaschine — Zähne auf Höhe stellen, kurbeln, rechnen.
+- [[von-neumann-architektur]] — **Von-Neumann-Architektur**: Prozessor und Speicher getrennt, Befehle und Daten im selben Speicher — die Bauform fast jedes Rechners.
+- [[von-neumann-flaschenhals]] — **Von-Neumann-Flaschenhals**: Der Datenverkehr zwischen Speicher und Rechenwerk begrenzt Tempo und Energieverbrauch.
+- [[zuse-z3]] — **Zuse Z3**: Der erste funktionsfähige, frei programmierbare Rechner — Relais, binär, Lochstreifen, 1941.
+
+## Logik, Beweis und Berechenbarkeit
+
+- [[entscheidbarkeit]] — **Entscheidbarkeit**: Ob es ein Verfahren gibt, das eine Frage in endlich vielen Schritten mit Ja oder Nein beantwortet.
+- [[halteproblem]] — **Halteproblem**: Die Frage, ob ein Programm bei einer Eingabe irgendwann anhält — beweisbar nicht allgemein entscheidbar.
+- [[hilberts-zehntes-problem]] — **Hilberts zehntes Problem**: Gibt es ein Verfahren, das für jede ganzzahlige Gleichung entscheidet, ob sie lösbar ist? Nein.
+- [[logic-theorist]] — **Logic Theorist**: Das 1956 entstandene Programm, das Sätze der Principia Mathematica beweist und als erstes KI-System gilt.
+- [[logikkalkuel-formale-logik]] — **Logikkalkül (formale Logik)**: Schlussregeln in Zeichen geschrieben, damit ein Apparat sie abarbeiten kann.
+- [[mycin]] — **MYCIN**: Expertensystem für Infektionskrankheiten aus Stanford, das Wissen als Wenn-Dann-Regeln hielt.
+- [[principia-mathematica]] — **Principia Mathematica**: Russell und Whiteheads Versuch, die ganze Mathematik aus der Logik abzuleiten — drei Bände, Symbol für Symbol.
+- [[turing-maschine]] — **Turing-Maschine**: Band, Kopf, Regelwerk: das gedachte Gerät, auf dem alles Berechenbare berechenbar ist.
+- [[unvollstaendigkeitssaetze]] — **Unvollständigkeitssätze**: Gödels Ergebnis von 1931: Jedes starke formale System enthält wahre Sätze, die es nicht beweisen kann.
+
+## Quanten
+
+- [[bell-ungleichung]] — **Bell-Ungleichung**: Eine messbare Grenze zwischen lokal-realistischer Welt und Quantenmechanik.
+- [[dirac-notation]] — **Dirac-Notation**: Schreibweise für Quantenzustände: Ein Zustand wird als Summe von 0 und 1 mit Wahrscheinlichkeiten geschrieben.
+- [[epr-korrelation]] — **EPR-Korrelation (Verschränkung)**: Zwei Teilchen mit einem gemeinsamen Zustand: Was an einem gemessen wird, hängt mit dem anderen zusammen — ohne Übertragung.
+- [[mach-zehnder-interferometer]] — **Mach-Zehnder-Interferometer**: Anordnung aus Spiegeln und Strahlteilern, in der sich Lichtstrahlen aufteilen, verschieben und wieder überlagern.
+- [[quantenkommunikation]] — **Quantenkommunikation**: Übertragung über verschränkte Photonen: Abhören zerstört den Zustand und fällt dadurch auf.
+- [[quantenmechanik]] — **Quantenmechanik**: Die Theorie der kleinsten Teilchen, in der Zustände überlagert sein können und Messungen Wahrscheinlichkeiten liefern.
+- [[qubit]] — **Qubit**: Das Quantenbit: kein Schalter, sondern ein Zeiger auf einer Kugel — stetig zwischen 0 und 1.
+- [[schroedingers-katze]] — **Schrödingers Katze**: Gedankenexperiment von 1935: Eine Katze, die laut Quantenmechanik weder tot noch lebendig wäre.
+- [[shor-algorithmus]] — **Shor-Algorithmus**: Zerlegt große Zahlen schnell — bedroht Verschlüsselung, überschreitet aber keine Berechenbarkeitsgrenze.
+- [[superposition-quanten]] — **Superposition (Quanten)**: Überlagerung: Ein Quantenzustand ist nicht 0 oder 1, sondern beides zugleich, bis gemessen wird.
+
+## Physik hinter dem Rechnen
+
+- [[dreikoerperproblem]] — **Dreikörperproblem**: Die Bahnen dreier Himmelskörper lassen sich nicht in einer geschlossenen Formel für alle Zeiten angeben.
+- [[higgs-teilchen]] — **Higgs-Teilchen**: Elementarteilchen, nach der Standardtheorie verantwortlich für die Masse — nachgewiesen über seine Zerfallsmuster.
+- [[kausalitaetsprinzip]] — **Kausalitätsprinzip**: Jeder Effekt hat eine Ursache: der Ausgangspunkt, aus dem Physiker Gleichungen und Theorien ableiten.
+- [[proteinfaltung]] — **Proteinfaltung**: Die räumliche Form, die eine Kette von Aminosäuren annimmt, und die entscheidet, was ein Protein kann.
+- [[statistische-mechanik]] — **Statistische Mechanik**: Physik, die große Teilchenmengen über Wahrscheinlichkeitsverteilungen beschreibt statt über einzelne Teilchen.
+
 ## Sprache dieser Academy
 
 - [[dialektik]] — **Dialektik**: Ein Gedanke, sein Gegengedanke, und was aus beiden wird.
@@ -644,6 +764,21 @@ zweiten, von Hand gepflegten Liste.
 - [[talent]] — **Talent**: Die Recheneinheit der Academy — ein Talent ist ein Token.
 - [[tokenicer]] — **Tokenicer**: Das Werkzeug der Academy, das zeigt, wie ein Modell einen Text zerlegt.
 
+## Weitere
+
+- [[algorithmus]] — **Algorithmus**: Eine endliche, eindeutige Anleitung — Schritt für Schritt, ohne „nach Gefühl".
+- [[arbeitsbegriff-intelligenz]] — **Arbeitsbegriff der Intelligenz**: Klaus Mainzers messbare Arbeitsdefinition: dynamisches System, Problemlösung als Maßstab, drei Kriterien.
+- [[binaersystem-dualzahlen]] — **Binärsystem (Dualzahlen)**: Zählen mit zwei Ziffern: 0 und 1. Für Maschinen ideal, für Menschen mühsam.
+- [[dartmouth-workshop]] — **Dartmouth-Workshop**: Der Sommer 1956, in dem der Begriff „artificial intelligence" geprägt wurde — Geburtsjahr der Disziplin.
+- [[dualprinzip]] — **Dualprinzip**: Entweder-oder: die Grundlage jeder digitalen Rechnung — und die Grenze, die erst die Quantenmechanik verschiebt.
+- [[existenzaussage]] — **Existenzaussage**: Aussage, dass etwas existiert, ohne zu sagen, wie man es findet oder baut.
+- [[faktorisierung]] — **Faktorisierung**: Eine große Zahl in Primzahlen zerlegen, darauf beruht die Sicherheit vieler Verschlüsselungen.
+- [[i-ging]] — **I Ging**: Das chinesische Buch der Wandlungen — Welt in zwei Zeichen. Leibniz sah darin seine Dualzahlen.
+- [[inverses-problem]] — **Inverses Problem**: Aus einer Messung auf die Ursache schließen — immer verrauscht, im Digitalen nur bis zu einer Grenze.
+- [[komplexitaetstheorie]] — **Komplexitätstheorie**: Teilgebiet der Informatik, das Probleme danach ordnet, wie der Rechenaufwand mit der Aufgabengröße wächst.
+- [[rechnender-raum]] — **Rechnender Raum**: Zuses These: Das Universum ist selbst ein Rechner aus elementaren Bausteinen.
+- [[zellulaerer-automat]] — **Zellulärer Automat**: Ein Gitter aus Zellen, jede folgt einer einfachen lokalen Regel — daraus entstehen bewegte Muster.
+
 ---
 
-567 Begriffe. Der Bestand wächst mit dem Stoff: Was in einer Lektion erklärt werden muss, gehört hierher.
+684 Begriffe. Der Bestand wächst mit dem Stoff: Was in einer Lektion erklärt werden muss, gehört hierher.
