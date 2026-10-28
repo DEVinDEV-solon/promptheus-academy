@@ -11,7 +11,8 @@ verlinken:
   - "verschränkt"
   - "EPR"
   - "Aspect-Experiment"
-  - "Aspect"
+  - "EPR-Arbeit"
+  - "EPR-Paradoxon"
 timestamp: 2026-10-27T00:00:00+01:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 ---
@@ -26,4 +27,4 @@ John Bell formulierte 1964 eine messbare Ungleichung, Alain Aspect bestätigte s
 
 ## Verwandt
 
-[[qubit]] · [[superposition]] · [[shor-algorithmus]]
+[[qubit]] · [[superposition-quanten]] · [[shor-algorithmus]]

@@ -23,4 +23,4 @@ Alain Aspect bestätigte 1982 mit seinen Experimenten die Quantenmechanik. Die V
 
 ## Verwandt
 
-[[epr-korrelation]] · [[qubit]] · [[superposition]]
+[[epr-korrelation]] · [[qubit]] · [[superposition-quanten]]

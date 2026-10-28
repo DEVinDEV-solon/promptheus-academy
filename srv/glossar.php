@@ -83,6 +83,9 @@ function pu_glossar_lesen(string $pfad, string $slug): ?array
     return [
         'slug'     => $slug,
         'titel'    => $titel,
+        // Personen stehen seit der Geschichte der KI mit im Glossar (28.10.2026).
+        // Sie werden verlinkt wie Begriffe, aber anders befragt.
+        'art'      => trim((string)($k['type'] ?? '')) === 'entity/person' ? 'person' : 'begriff',
         'was'      => trim((string)($k['description'] ?? '')),
         'tags'     => (array)($k['tags'] ?? []),
         'worte'    => pu_glossar_worte($titel, $k),
@@ -204,20 +207,30 @@ function pu_glossar_verlinken(string $html, ?array $verzeichnis = null): string
     if ($muster === '') return $html;
 
     $stumm   = 0;          // Verschachtelungstiefe in code/pre/a/hN
+    $svg     = 0;          // Verschachtelungstiefe in svg
     $benutzt = [];
+    // Die Zeitachse (:::zeitstrahl) zählt eigens: Ein Treffer in der Grafik
+    // nimmt dem Fliesstext darunter seinen Link nicht weg. Die Grafik ist
+    // `aria-hidden` — ohne den Link im Text käme die Tastatur nie hin.
+    $benutztSvg = [];
     $aus     = '';
     $rest    = $html;
+
+    $ersetzen = static function (string $text) use (&$stumm, &$svg, &$benutzt, &$benutztSvg, $muster, $alle): string {
+        if ($stumm > 0) return $text;
+        return $svg > 0 ? pu_glossar_ersetzen($text, $muster, $alle, $benutztSvg, true)
+                        : pu_glossar_ersetzen($text, $muster, $alle, $benutzt);
+    };
 
     while ($rest !== '') {
         $spitz = strpos($rest, '<');
 
         if ($spitz === false) {
-            $aus .= $stumm > 0 ? $rest : pu_glossar_ersetzen($rest, $muster, $alle, $benutzt);
+            $aus .= $ersetzen($rest);
             break;
         }
 
-        $text = substr($rest, 0, $spitz);
-        $aus .= $stumm > 0 ? $text : pu_glossar_ersetzen($text, $muster, $alle, $benutzt);
+        $aus .= $ersetzen(substr($rest, 0, $spitz));
 
         $zu = strpos($rest, '>', $spitz);
         if ($zu === false) { $aus .= substr($rest, $spitz); break; }
@@ -229,6 +242,9 @@ function pu_glossar_verlinken(string $html, ?array $verzeichnis = null): string
         if (preg_match('~^</?(code|pre|a|h1|h2|h3)\b~i', $tag, $t)) {
             if ($tag[1] === '/') $stumm = max(0, $stumm - 1);
             else                 $stumm++;
+        } elseif (preg_match('~^</?svg\b~i', $tag)) {
+            if ($tag[1] === '/')               $svg = max(0, $svg - 1);
+            elseif (!str_ends_with($tag, '/>')) $svg++;
         }
     }
 
@@ -249,7 +265,10 @@ function pu_glossar_muster(array $alle): string
     $liste = array_keys($worte);
     usort($liste, static fn($a, $b) => mb_strlen($b) <=> mb_strlen($a));
 
-    $teile = array_map(static fn($w) => preg_quote($w, '~'), $liste);
+    // Ein Apostroph steht im fertigen HTML als `&#039;` („Hilbert's zehntes
+    // Problem", „What Computers Can't Do"). Das Muster nimmt jede Schreibweise.
+    $teile = array_map(static fn($w) => str_replace("'", "(?:'|&\#039;|&apos;|’)",
+                                                    preg_quote($w, '~')), $liste);
 
     // Deutsche Beugung: „Token" trifft auch „Tokens", „Stufe" auch „Stufen".
     // Die Endung gehört mit in den Treffer, sonst steht der Unterstrich unter
@@ -281,20 +300,33 @@ function pu_glossar_zuordnung(array $alle): array
     return $gemerkt[$kennung] = $z;
 }
 
-/** Ein Stück Fliesstext — jeder Begriff höchstens einmal. */
-function pu_glossar_ersetzen(string $text, string $muster, array $alle, array &$benutzt): string
+/**
+ * Ein Stück Fliesstext — jeder Begriff höchstens einmal.
+ *
+ * **In einer Grafik wird es ein `<tspan>`, kein `<button>`.** Ein HTML-Knopf
+ * in einem SVG-`<text>` wird nicht gezeichnet — mitsamt seinem Wort. So fehlten
+ * auf der Zeitachse der Geschichte der KI „Staffelwalzen", „Lochkarte" und
+ * zwei Dutzend weitere Beschriftungen (gemessen 28.10.2026). Der Klick findet
+ * das `<tspan>` über dieselbe Klasse und `data-begriff`.
+ */
+function pu_glossar_ersetzen(string $text, string $muster, array $alle, array &$benutzt, bool $svg = false): string
 {
     if (trim($text) === '') return $text;
 
     $zuordnung = pu_glossar_zuordnung($alle);
 
     return (string)preg_replace_callback($muster,
-        static function (array $t) use (&$benutzt, $zuordnung, $alle): string {
+        static function (array $t) use (&$benutzt, $zuordnung, $alle, $svg): string {
             $wort = $t[0];
-            $slug = $zuordnung[mb_strtolower($t[1])] ?? '';
+            $schluessel = str_replace(['&#039;', '&apos;', '’'], "'", $t[1]);
+            $slug = $zuordnung[mb_strtolower($schluessel)] ?? '';
             if ($slug === '' || isset($benutzt[$slug])) return $wort;
 
             $benutzt[$slug] = true;
+            if ($svg) {
+                return '<tspan class="begriff" data-begriff="'
+                     . htmlspecialchars($slug, ENT_QUOTES, 'UTF-8') . '">' . $wort . '</tspan>';
+            }
             return '<button type="button" class="begriff" data-begriff="'
                  . htmlspecialchars($slug, ENT_QUOTES, 'UTF-8') . '" title="'
                  . htmlspecialchars($alle[$slug]['was'], ENT_QUOTES, 'UTF-8')
@@ -342,6 +374,26 @@ const PU_GLOSSAR_ARTEN = [
 ];
 
 /**
+ * Dieselben vier Tiefen für Personen.
+ *
+ * „Was bedeutet Leibniz? … warum es das überhaupt gibt" fragt an einem Menschen
+ * vorbei. Gefragt wird nach Werk, Umfeld und der Spur bis heute — in einer
+ * Form, die für Lebende und Verstorbene gleich passt.
+ */
+const PU_GLOSSAR_ARTEN_PERSON = [
+    'erst'   => 'Erzähl mir von **%s**: Was hat diese Person gedacht oder gebaut, '
+              . 'und warum zählt das für die KI bis heute?',
+    'weiter' => 'Erzähl weiter über **%s**: Mit wem wurde gearbeitet, gegen welche '
+              . 'Zweifel musste sich die Idee durchsetzen, und was folgte daraus?',
+    'tiefer' => 'Geh tiefer bei **%s**: Was ist der Kern der wichtigsten Idee genau? '
+              . 'Was wird darüber oft falsch erzählt, und woran merke ich, dass ich '
+              . 'es verstanden habe?',
+    'voll'   => 'Bitte vollständig zu **%s**: Zeit und Umfeld, die wichtigsten Ideen '
+              . 'oder Werke, was damit möglich wurde, wo die Grenzen lagen und '
+              . 'welche Spur bis zur heutigen KI führt.',
+];
+
+/**
  * Die Knöpfe über dem Eingabefeld — alle Tiefen ausser der ersten.
  *
  * „Erst" hat keinen Knopf: Sie ist die Frage, die beim Anklicken des Begriffs
@@ -374,7 +426,9 @@ function pu_glossar_frage(string $slug, string $art = 'erst'): string
     // Der Titel ohne Klammerzusatz: „LLM (Sprachmodell)" fragt sich als „LLM".
     if (preg_match('/^(.*?)\s*\(.+?\)\s*$/u', $titel, $t)) $titel = trim($t[1]);
 
-    $vorlage = PU_GLOSSAR_ARTEN[$art]['frage'] ?? PU_GLOSSAR_ARTEN['erst']['frage'];
+    $vorlage = ($alle[$slug]['art'] ?? '') === 'person'
+        ? (PU_GLOSSAR_ARTEN_PERSON[$art] ?? PU_GLOSSAR_ARTEN_PERSON['erst'])
+        : (PU_GLOSSAR_ARTEN[$art]['frage'] ?? PU_GLOSSAR_ARTEN['erst']['frage']);
     return sprintf($vorlage, $titel);
 }
 

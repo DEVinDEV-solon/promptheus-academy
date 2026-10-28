@@ -9,6 +9,7 @@ verlinken:
   - "Turing-Maschine"
   - "Turingmaschine"
   - "On Computable Numbers"
+  - "Turing-berechenbar"
 timestamp: 2026-10-27T00:00:00+01:00
 kontext: "[[PROMPTHEUS WISSEN]]"
 ---

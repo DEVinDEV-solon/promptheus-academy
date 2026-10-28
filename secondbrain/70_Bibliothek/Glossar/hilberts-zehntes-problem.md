@@ -7,6 +7,7 @@ tags:
   - logik
 verlinken:
   - "Hilberts zehntes Problem"
+  - "Hilbert's zehntes Problem"
   - "zehntes Problem"
   - "23 mathematische Probleme"
 timestamp: 2026-10-27T00:00:00+01:00

@@ -63,6 +63,23 @@ pruefe('Der Klammerzusatz bleibt draußen',
 pruefe('Unbekannter Begriff bricht nicht ab',
        str_contains(pu_glossar_frage('gibt-es-nicht', 'erst'), 'gibt-es-nicht'));
 
+// Personen (seit 28.10.2026): „Was bedeutet Leibniz?" fragt an einem Menschen
+// vorbei. Sie haben eigene Vorlagen — mit denselben Tiefen und denselben Verboten.
+gleich('Personen kennen dieselben Tiefen', array_keys(PU_GLOSSAR_ARTEN),
+       array_keys(PU_GLOSSAR_ARTEN_PERSON));
+gleich('Leibniz ist eine Person', 'person', pu_glossar()['gottfried-wilhelm-leibniz']['art'] ?? '');
+gleich('Token ist ein Begriff', 'begriff', pu_glossar()['token']['art'] ?? '');
+foreach (array_keys(PU_GLOSSAR_ARTEN_PERSON) as $art) {
+    $frage = pu_glossar_frage('gottfried-wilhelm-leibniz', $art);
+    $treffer = [];
+    foreach ($verboten as $w) if (str_contains(mb_strtolower($frage), $w)) $treffer[] = $w;
+    pruefe("Person „$art" . '" nennt nichts über den Fragenden', $treffer === [],
+           implode(', ', $treffer) . ' in: ' . $frage);
+    pruefe("Person „$art" . '" nennt den Namen', str_contains($frage, 'Gottfried Wilhelm Leibniz'), $frage);
+    pruefe("Person „$art" . '" fragt nicht nach der Bedeutung',
+           !str_contains($frage, 'Was bedeutet') && !str_contains($frage, 'warum es das'), $frage);
+}
+
 // ============================================ Die vier Tiefen
 gruppe('Die vier Tiefen');
 
@@ -181,6 +198,35 @@ gleich('Jeder Begriff wird höchstens einmal verlinkt', 1,
 $falsch = pu_glossar_verlinken('<p>Die Tokenisierung selbst steht woanders.</p>');
 pruefe('Kein Treffer mitten im Wort',
        !str_contains($falsch, 'data-begriff'), $falsch);
+
+// Personen der KI-Geschichte (28.10.2026): Der Name führt zur Person, das
+// Werk zum Begriff — auch wenn beide den Nachnamen tragen.
+$zs = pu_glossar_verlinken('<p>John Hopfield baute das Hopfield-Netz; Peter Shor fand den Shor-Algorithmus.</p>');
+pruefe('Der Name führt zur Person', str_contains($zs, 'data-begriff="john-hopfield"')
+       && str_contains($zs, 'data-begriff="peter-shor"'), $zs);
+pruefe('…das Werk zum Begriff', str_contains($zs, 'data-begriff="hopfield-netz"')
+       && str_contains($zs, 'data-begriff="shor-algorithmus"'), $zs);
+
+// „Aspect" allein war ein Suchwort und traf — ohne Rücksicht auf Gross- und
+// Kleinschreibung — jedes englische „aspect" in den Videoprompts.
+$en = pu_glossar_verlinken('<p>Use a 16:9 aspect ratio.</p>');
+pruefe('Englisches „aspect" bleibt Text', !str_contains($en, 'data-begriff'), $en);
+
+// Der Apostroph steht im HTML als Entität; das Suchwort trifft trotzdem.
+$apo = pu_glossar_verlinken(pu_md("1970 wurde Hilbert's zehntes Problem gelöst."));
+pruefe('Ein Suchwort mit Apostroph trifft das gerenderte HTML',
+       str_contains($apo, '>Hilbert&#039;s zehntes Problem</button>'), $apo);
+
+// In einer Grafik wird kein <button> gesetzt — der wäre unsichtbar, mitsamt
+// dem Wort. Und der Treffer dort nimmt dem Text darunter den Link nicht weg.
+$grafik = pu_glossar_verlinken('<svg viewBox="0 0 10 10" aria-hidden="true"><text>Staffelwalzen</text></svg>'
+                             . '<p>Leibniz nutzte Staffelwalzen.</p>');
+$imSvg = substr($grafik, 0, (int)strpos($grafik, '</svg>'));
+pruefe('Im SVG kein <button>', !str_contains($imSvg, '<button'), $grafik);
+pruefe('…sondern ein <tspan> mit data-begriff',
+       str_contains($imSvg, '<tspan class="begriff" data-begriff="staffelwalzen">Staffelwalzen</tspan>'), $grafik);
+pruefe('Der Fliesstext darunter verlinkt trotzdem',
+       str_contains(substr($grafik, (int)strpos($grafik, '</svg>')), 'data-begriff="staffelwalzen"'), $grafik);
 
 // Ohne Begriffe bleibt der Text, wie er ist.
 gleich('Ein leeres Verzeichnis lässt den Text in Ruhe',
