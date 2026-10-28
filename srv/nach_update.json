@@ -7,6 +7,13 @@
     "Einstellungen › Wartung: Steht bei „Installiert“ die neue Fassungsnummer? Dann ist alles eingespielt. Sonst die Academy mit PROMPTHEUS-START.bat neu starten."
   ],
   "fassungen": {
+    "1.1.19": {
+      "titel": "Personen und Begriffe der KI-Geschichte im Glossar",
+      "neu": "Das Glossar kennt jetzt alle 54 Personen aus der Geschichte der KI, von Pythagoras und Leibniz bis Hinton, und 20 weitere Begriffe wie Superposition, Schrödingers Katze, MYCIN oder das Astrolabium. Auf der Seite „Personen und Begriffe“ sind Namen und Begriffe gelb unterstrichen und öffnen per Klick die Erklärung. Die Zeitachse oben im Kurs zeigt wieder alle Beschriftungen; einige fehlten in 1.1.18.",
+      "schritte": [
+        "Diese Seite mit Strg+F5 neu laden — sonst bleiben die alten Farben der Zeitachse im Zwischenspeicher."
+      ]
+    },
     "1.1.18": {
       "titel": "Die Geschichte der KI",
       "neu": "Neu ist der Info-Kurs „Die Geschichte der KI — Von der Logik zur Superintelligenz“: vierzehn Etappen von Aristoteles bis ChatGPT, mit Bild zu jeder Etappe, ohne Prüfung und ohne Voraussetzung. Er steht in „Lernen“ unter der eigenen Überschrift „Info-Kurs“ und links im Fuß der Leiste. Oben im Kurs führen die Schnell-Links zu Zeitstrahl, Personen und Begriffen, Lehrbausteinen und dem Vortrag. Das Glossar kennt rund vierzig neue Begriffe von der Lochkarte bis zum Qubit. Lange Hörfolgen lassen sich jetzt vorspulen.",
